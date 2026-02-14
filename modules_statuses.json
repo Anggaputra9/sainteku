@@ -1,4 +1,5 @@
 {
     "MasterData": true,
-    "DocumentRepository": true
+    "DocumentRepository": true,
+    "MonevAkademik": true
 }

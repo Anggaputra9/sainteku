@@ -30,7 +30,8 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/",
             "Modules\\MasterData\\": "Modules/MasterData/app/",
-            "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/"
+            "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/",
+            "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/"
         }
     },
     "autoload-dev": {

@@ -1,0 +1,11 @@
+{
+    "name": "MonevAkademik",
+    "alias": "monevakademik",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\MonevAkademik\\Providers\\MonevAkademikServiceProvider"
+    ],
+    "files": []
+}
