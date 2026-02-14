@@ -1,0 +1,11 @@
+{
+    "name": "ManajementInfrastruktur",
+    "alias": "manajementinfrastruktur",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ManajementInfrastruktur\\Providers\\ManajementInfrastrukturServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/manajementinfrastruktur",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\ManajementInfrastruktur\\": "app/",
+            "Modules\\ManajementInfrastruktur\\Database\\Factories\\": "database/factories/",
+            "Modules\\ManajementInfrastruktur\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\ManajementInfrastruktur\\Tests\\": "tests/"
+        }
+    }
+}

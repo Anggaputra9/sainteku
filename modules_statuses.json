@@ -4,5 +4,6 @@
     "MonevAkademik": true,
     "ManajementEvent": true,
     "ManajemenAchievement": true,
-    "PengaduanMahasiswa": true
+    "PengaduanMahasiswa": true,
+    "ManajementInfrastruktur": true
 }

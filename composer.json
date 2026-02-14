@@ -34,7 +34,8 @@
             "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/",
             "Modules\\ManajementEvent\\": "Modules/ManajementEvent/app/",
             "Modules\\ManajemenAchievement\\": "Modules/ManajemenAchievement/app/",
-            "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/"
+            "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/",
+            "Modules\\ManajementInfrastruktur\\": "Modules/ManajementInfrastruktur/app/"
         }
     },
     "autoload-dev": {
