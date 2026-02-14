@@ -1,0 +1,11 @@
+{
+    "name": "DocumentRepository",
+    "alias": "documentrepository",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\DocumentRepository\\Providers\\DocumentRepositoryServiceProvider"
+    ],
+    "files": []
+}
