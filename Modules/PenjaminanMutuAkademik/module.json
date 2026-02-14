@@ -1,0 +1,11 @@
+{
+    "name": "PenjaminanMutuAkademik",
+    "alias": "penjaminanmutuakademik",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PenjaminanMutuAkademik\\Providers\\PenjaminanMutuAkademikServiceProvider"
+    ],
+    "files": []
+}
