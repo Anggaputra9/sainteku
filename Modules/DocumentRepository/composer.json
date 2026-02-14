@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/documentrepository",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\DocumentRepository\\": "app/",
+            "Modules\\DocumentRepository\\Database\\Factories\\": "database/factories/",
+            "Modules\\DocumentRepository\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\DocumentRepository\\Tests\\": "tests/"
+        }
+    }
+}
