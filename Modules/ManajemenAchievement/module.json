@@ -1,0 +1,11 @@
+{
+    "name": "ManajemenAchievement",
+    "alias": "manajemenachievement",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ManajemenAchievement\\Providers\\ManajemenAchievementServiceProvider"
+    ],
+    "files": []
+}
