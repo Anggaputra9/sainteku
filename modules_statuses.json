@@ -3,5 +3,6 @@
     "DocumentRepository": true,
     "MonevAkademik": true,
     "ManajementEvent": true,
-    "ManajemenAchievement": true
+    "ManajemenAchievement": true,
+    "PengaduanMahasiswa": true
 }

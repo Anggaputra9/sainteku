@@ -33,7 +33,8 @@
             "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/",
             "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/",
             "Modules\\ManajementEvent\\": "Modules/ManajementEvent/app/",
-            "Modules\\ManajemenAchievement\\": "Modules/ManajemenAchievement/app/"
+            "Modules\\ManajemenAchievement\\": "Modules/ManajemenAchievement/app/",
+            "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/"
         }
     },
     "autoload-dev": {
