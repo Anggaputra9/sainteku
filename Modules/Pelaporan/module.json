@@ -1,0 +1,11 @@
+{
+    "name": "Pelaporan",
+    "alias": "pelaporan",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Pelaporan\\Providers\\PelaporanServiceProvider"
+    ],
+    "files": []
+}

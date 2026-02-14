@@ -37,7 +37,8 @@
             "Modules\\ManajemenAchievement\\": "Modules/ManajemenAchievement/app/",
             "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/",
             "Modules\\ManajementInfrastruktur\\": "Modules/ManajementInfrastruktur/app/",
-            "Modules\\PenjaminanMutuAkademik\\": "Modules/PenjaminanMutuAkademik/app/"
+            "Modules\\PenjaminanMutuAkademik\\": "Modules/PenjaminanMutuAkademik/app/",
+            "Modules\\Pelaporan\\": "Modules/Pelaporan/app/"
         }
     },
     "autoload-dev": {

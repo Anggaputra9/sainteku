@@ -6,5 +6,6 @@
     "ManajemenAchievement": true,
     "PengaduanMahasiswa": true,
     "ManajementInfrastruktur": true,
-    "PenjaminanMutuAkademik": true
+    "PenjaminanMutuAkademik": true,
+    "Pelaporan": true
 }
