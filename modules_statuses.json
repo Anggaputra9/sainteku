@@ -2,5 +2,7 @@
     "MasterData": true,
     "DocumentRepository": true,
     "MonevAkademik": true,
-    "ManajementEvent": true
+    "ManajementEvent": true,
+    "ManajemenAchievement": true,
+    "PengaduanMahasiswa": true
 }

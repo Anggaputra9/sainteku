@@ -1,0 +1,11 @@
+{
+    "name": "PengaduanMahasiswa",
+    "alias": "pengaduanmahasiswa",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\PengaduanMahasiswa\\Providers\\PengaduanMahasiswaServiceProvider"
+    ],
+    "files": []
+}

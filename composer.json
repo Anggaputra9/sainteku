@@ -32,7 +32,9 @@
             "Modules\\MasterData\\": "Modules/MasterData/app/",
             "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/",
             "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/",
-            "modules\\ManajementEvent\\": "Modules/ManajementEvent/app/"
+            "Modules\\ManajementEvent\\": "Modules/ManajementEvent/app/",
+            "Modules\\ManajemenAchievement\\": "Modules/ManajemenAchievement/app/",
+            "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/"
         }
     },
     "autoload-dev": {
