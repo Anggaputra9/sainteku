@@ -31,7 +31,8 @@
             "Modules\\": "Modules/",
             "Modules\\MasterData\\": "Modules/MasterData/app/",
             "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/",
-            "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/"
+            "Modules\\MonevAkademik\\": "Modules/MonevAkademik/app/",
+            "modules\\ManajementEvent\\": "Modules/ManajementEvent/app/"
         }
     },
     "autoload-dev": {

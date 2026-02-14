@@ -1,5 +1,6 @@
 {
     "MasterData": true,
     "DocumentRepository": true,
-    "MonevAkademik": true
+    "MonevAkademik": true,
+    "ManajementEvent": true
 }

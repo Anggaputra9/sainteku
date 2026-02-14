@@ -1,0 +1,11 @@
+{
+    "name": "ManajementEvent",
+    "alias": "manajementevent",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\ManajementEvent\\Providers\\ManajementEventServiceProvider"
+    ],
+    "files": []
+}
