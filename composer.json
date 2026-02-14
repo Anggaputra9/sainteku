@@ -30,7 +30,7 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/",
             "Modules\\MasterData\\": "Modules/MasterData/app/",
-            "Modules\\MasterData\\Database\\Factories\\": "Modules/MasterData/database/factories/"
+            "Modules\\DocumentRepository\\": "Modules/DocumentRepository/app/"
         }
     },
     "autoload-dev": {
