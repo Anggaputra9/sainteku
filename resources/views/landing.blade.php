@@ -173,7 +173,9 @@
                     </ul>
 
                     <div class="">
-                        <a href="auth-signin-basic.html" class="btn btn-soft-primary"><i class="ri-user-3-line align-bottom me-1"></i> Login </a>
+                        <button class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="ri-user-3-line align-bottom me-1"></i> Login 
+                        </button>
                     </div>
                 </div>
 
@@ -1098,6 +1100,87 @@
 
     <!--job landing init -->
     <script src="assets/js/pages/job-lading.init.js"></script>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <h5 class="modal-title" id="loginModalLabel">Masuk ke Sainteku</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="loginError" class="alert alert-danger" role="alert" style="display: none;">
+              @if($errors->any())
+                @foreach($errors->all() as $error)
+                  <p class="mb-1">{{ $error }}</p>
+                @endforeach
+              @endif
+            </div>
+            
+            <form id="loginForm" action="/login" method="POST">
+              @csrf
+              <div class="mb-3">
+                <label class="form-label" for="credential">Email / ID Pengguna</label>
+                <input 
+                  id="credential"
+                  name="credential" 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Contoh: u0001 atau test@example.com"
+                  value="{{ old('credential') }}"
+                  required
+                />
+                <small class="text-muted d-block mt-2">
+                  <strong>Test:</strong> <br>
+                  ID: <code>u0001</code> atau Email: <code>test@example.com</code> <br>
+                  Password: <code>password</code>
+                </small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="password">Password</label>
+                <input 
+                  id="password"
+                  name="password" 
+                  type="password" 
+                  class="form-control"
+                  placeholder="Password"
+                  required
+                />
+              </div>
+              <div class="mb-3 form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="remember" 
+                  name="remember"
+                />
+                <label class="form-check-label" for="remember">Ingat saya</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Masuk</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loginError = document.getElementById('loginError');
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+
+        // Show modal and error if there were validation errors
+        @if($errors->any())
+          loginError.style.display = 'block';
+          loginModal.show();
+        @endif
+
+        // Show modal if redirected from protected page
+        @if(session('show_login_modal'))
+          loginModal.show();
+        @endif
+      });
+    </script>
 </body>
 
 <!-- Mirrored from themesbrand.com/velzon/html/master/job-landing.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 12 Aug 2024 07:47:12 GMT -->

@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +16,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create a default test user matching mst_user schema
+        DB::table('mst_user')->updateOrInsert(
+            ['id' => 'u0001'],
+            [
+                'id' => 'u0001',
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'password' => Hash::make('password'),
+                'identity_id' => 'u0001',
+                'user_type' => '001',
+                'unit_id' => '0001',
+                'is_active' => '1',
+                'created_at' => now(),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // MasterData roles and default assignment
+        $this->call(\Database\Seeders\RoleSeeder::class);
+        $this->call(\Database\Seeders\AssignRoleToFirstUserSeeder::class);
     }
 }

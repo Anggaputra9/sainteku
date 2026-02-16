@@ -17,10 +17,25 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    // Use existing mst_user table used by project
+    protected $table = 'mst_user';
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
+
     protected $fillable = [
+        'id',
         'name',
         'email',
         'password',
+        'identity_id',
+        'user_type',
+        'unit_id',
+        'signature',
+        'is_active',
+        'remember_token',
+        'last_login_at',
     ];
 
     /**
@@ -30,7 +45,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
@@ -41,7 +55,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

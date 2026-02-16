@@ -36,6 +36,9 @@ class MasterDataServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        // Register module-friendly middleware alias for RBAC
+        $router = $this->app->make('\Illuminate\Routing\Router');
+        $router->aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
     }
 
     /**
