@@ -34,6 +34,9 @@ class DatabaseSeeder extends Seeder
 
         // MasterData roles and default assignment
         $this->call(\Database\Seeders\RoleSeeder::class);
+        $this->call(\Database\Seeders\PermissionSeeder::class);
+        $this->call(\Database\Seeders\ModuleSeeder::class);
+        $this->call(\Database\Seeders\RolePermissionSeeder::class);
         $this->call(\Database\Seeders\AssignRoleToFirstUserSeeder::class);
     }
 }
