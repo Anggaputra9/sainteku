@@ -1,1091 +1,917 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
-<!-- Mirrored from themesbrand.com/velzon/html/master/job-landing.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 12 Aug 2024 07:47:11 GMT -->
-
 <head>
-
     <meta charset="utf-8" />
     <title>Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Fakultas Sains dan Teknologi UIN Saifuddin Zuhri Purwokerto" name="description" />
     <meta content="Themesbrand" name="author" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="assets\images\uin.png">
+    <link rel="shortcut icon" href="assets/images/uin.png">
 
     <!-- Swiper slider css -->
-    <link href="{{ asset('assets/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Layout config Js -->
-    <script src="{{ asset('assets/js/layout.js') }}"></script>
+    <script src="assets/js/layout.js"></script>
 
     <!-- Bootstrap Css -->
-    <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Icons Css -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 
     <!-- App Css -->
-    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
 
     <!-- Custom Css -->
-    <link href="{{ asset('assets/css/custom.min.css') }}" rel="stylesheet" type="text/css" />
- 
+    <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Style tambahan untuk warna kustom -->
     <style>
-        :root {
-            --saintek-primary: #FEEB04;
-            /* Warna utama yang benar */
-            --saintek-primary-rgb: 254, 235, 4;
-            /* RGB equivalent untuk efek */
-            --saintek-primary-dark: #CBB800;
-            /* Warna gelap untuk hover */
-        }
+    /* WARNA SAINTEKU */
+    :root {
+        --saintek-primary: #FEEB04;
+        --saintek-primary-dark: #CBB800;
+        --saintek-text: #856B2B;
+    }
 
-        /* Background primary */
-        .bg-primary {
-            background-color: var(--saintek-primary) !important;
-        }
+    .bg-primary {
+        background-color: var(--saintek-primary) !important;
+    }
 
-        /* Button primary */
-        .btn-primary {
-            background-color: var(--saintek-primary) !important;
-            border-color: var(--saintek-primary) !important;
-            color: #000000 !important;
-        }
+    .btn-primary {
+        background-color: var(--saintek-primary) !important;
+        border-color: var(--saintek-primary) !important;
+        color: #000000 !important;
+    }
 
-        .btn-primary:hover {
-            background-color: var(--saintek-primary-dark) !important;
-            border-color: var(--saintek-primary-dark) !important;
-            color: #000000 !important;
-        }
+    .btn-primary:hover {
+        background-color: var(--saintek-primary-dark) !important;
+        border-color: var(--saintek-primary-dark) !important;
+        color: #000000 !important;
+    }
 
-        .btn-primary:focus,
-        .btn-primary:active {
-            background-color: var(--saintek-primary-dark) !important;
-            border-color: var(--saintek-primary-dark) !important;
-            color: #000000 !important;
-        }
+    .btn-outline-primary {
+        border-color: var(--saintek-primary) !important;
+        color: var(--saintek-text) !important;
+    }
 
-        /* Button outline primary */
-        .btn-outline-primary {
-            border-color: var(--saintek-primary) !important;
-            color: #856B2B !important;
-        }
+    .btn-outline-primary:hover {
+        background-color: var(--saintek-primary) !important;
+        color: #000000 !important;
+    }
 
-        .btn-outline-primary:hover {
-            background-color: var(--saintek-primary) !important;
-            color: #000000 !important;
-        }
+    .text-primary {
+        color: var(--saintek-text) !important;
+    }
 
-        /* Text primary */
-        .text-primary {
-            color: #856B2B !important;
-            /* Warna gelap untuk kontras */
-        }
+    .bg-primary-subtle {
+        background-color: rgba(254, 235, 4, 0.2) !important;
+    }
 
-        a.text-primary:hover {
-            color: #5F4E20 !important;
-        }
+    /* TIPOGRAFI */
+    body {
+        font-family: 'Inter', 'DM Sans', 'Plus Jakarta Sans', sans-serif;
+        color: #1e293b;
+    }
 
-        /* Link primary */
-        a.link-primary {
-            color: #856B2B !important;
-        }
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        letter-spacing: -0.02em;
+    }
 
-        a.link-primary:hover {
-            color: #5F4E20 !important;
-        }
+    /* NAVBAR */
+    .navbar-landing {
+        background-color: white !important;
+        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
+        padding: 16px 0;
+    }
 
-        /* Badge primary */
-        .badge-primary {
-            background-color: var(--saintek-primary) !important;
-            color: #000000 !important;
-        }
+    .navbar-brand {
+        font-size: 32px !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+    }
 
-        /* Border primary */
-        .border-primary {
-            border-color: var(--saintek-primary) !important;
-        }
+    .navbar-nav .nav-link {
+        font-weight: 500;
+        color: #334155;
+        margin: 0 8px;
+    }
 
-        /* Navbar active link */
-        .navbar-landing .navbar-nav .nav-link.active {
-            color: #856B2B !important;
-        }
+    .navbar-nav .nav-link.active {
+        color: var(--saintek-text) !important;
+    }
 
-        /* Link success (diganti primary) */
-        .link-success {
-            color: #856B2B !important;
-        }
+    /* CARD */
+    .card {
+        border: none;
+        border-radius: 28px;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
 
-        .link-success:hover {
-            color: #5F4E20 !important;
-        }
+    .card:hover {
+        box-shadow: 0 25px 40px -12px rgba(254, 235, 4, 0.15);
+        transform: translateY(-6px);
+    }
 
-        /* Swiper pagination */
-        .swiper-pagination-bullet.swiper-pagination-bullet-active {
-            background-color: var(--saintek-primary) !important;
-        }
+    /* SECTION */
+    .section {
+        padding: 100px 0;
+    }
 
-        /* Text warning (untuk rating) */
-        .text-warning {
-            color: #FEEB04 !important;
-        }
+    /* HERO SECTION */
+    .hero-section {
+        background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
+        padding: 160px 0 100px;
+    }
 
-        /* Background soft primary */
-        .bg-primary-subtle {
-            background-color: rgba(254, 235, 4, 0.2) !important;
-        }
+    /* DROPDOWN */
+    .dropdown-menu {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 12px;
+    }
 
-        /* Text primary subtle */
-        .text-primary-subtle {
-            color: #856B2B !important;
+    .dropdown-item {
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-weight: 500;
+    }
+
+    .dropdown-item:hover {
+        background-color: rgba(254, 235, 4, 0.1);
+        color: var(--saintek-text);
+    }
+
+    /* MODAL LOGIN */
+    .btn-soft-primary {
+        background-color: rgba(254, 235, 4, 0.15) !important;
+        color: var(--saintek-text) !important;
+        border: none;
+    }
+
+    .btn-soft-primary:hover {
+        background-color: var(--saintek-primary) !important;
+        color: #000000 !important;
+    }
+
+    /* UTILITY CLASSES */
+    .text-dark-50 {
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    .bg-opacity-10 {
+        --bs-bg-opacity: 0.1;
+    }
+
+    .fs-14 {
+        font-size: 14px;
+    }
+
+    .fs-15 {
+        font-size: 15px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 140px 0 60px;
         }
-    </style>
+        
+        .section {
+            padding: 60px 0;
+        }
+    }
+</style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#navbar-example">
 
-    <!-- Begin page -->
-    <div class="layout-wrapper landing">
-        <nav class="navbar navbar-expand-lg navbar-landing fixed-top job-navbar" id="navbar">
-            <div class="container-fluid custom-container">
-                <a class="navbar-brand fw-bold text-dark" href="index.html" style="font-size: 32px;">
-                    Sainteku
-                </a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-landing fixed-top" id="navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">Sainteku</a>
 
-                <button class="navbar-toggler py-0 fs-20 text-body" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <i class="mdi mdi-menu"></i>
-                </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mx-auto mt-2 mt-lg-0" id="navbar-example">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#event">Event</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#prestasi">Prestasi</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#blog">Blog</a>
-                        </li>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#event">Event</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#prestasi">Prestasi</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#blog">Blog</a>
+                    </li>
+                </ul>
+                <div>
+                    <button class="btn btn-soft-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="ri-user-3-line align-bottom me-1"></i> Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero-section" id="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="display-4 fw-semibold text-capitalize mb-3 lh-base">Fakultas Sains & Teknologi</h1>
+                    <p class="lead fs-4 text-muted lh-base mb-4">Fakultas Sains dan Teknologi Universitas Islam Negeri Prof. K.H. Saifuddin Zuhri Purwokerto menghadirkan pendidikan berbasis riset dan teknologi terkini. Dengan 4 program studi unggulan: <strong>Informatika, Arsitektur, Ilmu Lingkungan, dan Ilmu Perpustakaan</strong>, kami siap melahirkan talenta yang kreatif, adaptif, dan kompetitif di era digital.</p>
+
+                    <form action="#" class="job-panel-filter bg-white p-4 rounded-4 shadow-sm">
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <input type="search" class="form-control form-control-lg" placeholder="Cari program studi...">
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control form-control-lg">
+                                    <option value="">Pilih minat</option>
+                                    <option value="Informatika">Informatika</option>
+                                    <option value="Arsitektur">Arsitektur</option>
+                                    <option value="Ilmu Lingkungan">Ilmu Lingkungan</option>
+                                    <option value="Ilmu Perpustakaan">Ilmu Perpustakaan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-lg w-100 h-100" type="button">
+                                    <i class="ri-search-2-line align-bottom me-1"></i> Temukan
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <ul class="list-inline mb-0 mt-4 fs-14">
+                        <li class="list-inline-item text-danger fw-semibold"><i class="mdi mdi-tag-multiple-outline align-middle"></i> Prodi Unggulan:</li>
+                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline">Informatika,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline">Arsitektur,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline">Ilmu Lingkungan,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline">Ilmu Perpustakaan</a></li>
                     </ul>
-
-                    <div class="">
-                        <button class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="ri-user-3-line align-bottom me-1"></i> Login 
-                        </button>
+                </div>
+                <div class="col-lg-5">
+                    <div class="position-relative text-center mt-5 mt-lg-0">
+                        <div class="card p-3 shadow-lg inquiry-box mx-auto mb-4" style="max-width: 300px;">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm flex-shrink-0 me-3">
+                                    <div class="avatar-title bg-warning-subtle text-warning rounded fs-18">
+                                        <i class="ri-mail-send-line"></i>
+                                    </div>
+                                </div>
+                                <h5 class="fs-15 lh-base mb-0">Pertanyaan Umum Seputar PMB</h5>
+                            </div>
+                        </div>
+                        <img src="assets/images/job-profile2.png" alt="" class="img-fluid">
                     </div>
                 </div>
-
             </div>
-        </nav>
-        <!-- end navbar -->
+        </div>
+    </section>
 
-        <!-- start hero section -->
-        <section class="section job-hero-section bg-light pb-0" id="hero">
-            <div class="container">
-                <div class="row justify-content-between align-items-center">
-                    <div class="col-lg-6">
-                        <div>
-                            <h1 class="display-6 fw-semibold text-capitalize mb-3 lh-base">Fakultas Sains & Teknologi </h1>
-                            <p class="lead text-muted lh-base mb-4">Fakultas Sains dan Teknologi Universitas Islam Negeri Prof. K.H. Saifuddin Zuhri Purwokerto menghadirkan pendidikan berbasis riset dan teknologi terkini. Dengan 4 program studi unggulan: <strong>Informatika, Arsitektur, Ilmu Lingkungan, dan Ilmu Perpustakaan</strong>, kami siap melahirkan talenta yang kreatif, adaptif, dan kompetitif di era digital.</p>
-                            <form action="#" class="job-panel-filter">
-                                <div class="row g-md-0 g-2">
-                                    <div class="col-md-4">
-                                        <div>
-                                            <input type="search" id="job-title" class="form-control filter-input-box" placeholder="Cari program studi...">
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-                                    <div class="col-md-4">
-                                        <div>
-                                            <select class="form-control" data-choices>
-                                                <option value="">Pilih minat</option>
-                                                <option value="Full Time">Informatika</option>
-                                                <option value="Part Time">Arsitektur</option>
-                                                <option value="Freelance">Ilmu Lingkungan</option>
-                                                <option value="Internship">Ilmu Perpustakaan</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-                                    <div class="col-md-4">
-                                        <div class="h-100">
-                                            <button class="btn btn-primary submit-btn w-100 h-100" type="submit"><i class="ri-search-2-line align-bottom me-1"></i> Temukan</button>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
+    <!-- TENTANG FAKULTAS -->
+    <section class="section bg-light" id="tentang">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-5">
+                    <div class="position-relative">
+                        <img src="assets/images/about.jpg" alt="" class="img-fluid rounded-4 shadow-lg">
+
+                        <div class="card position-absolute bottom-0 start-0 mb-4 ms-4 shadow-lg" style="max-width: 250px;">
+                            <div class="card-body d-flex align-items-center p-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <img src="assets/images/image.png" alt="" class="avatar-md rounded-circle">
                                 </div>
-                                <!--end row-->
-                            </form>
-
-                            <ul class="treding-keywords list-inline mb-0 mt-3 fs-13">
-                                <li class="list-inline-item text-danger fw-semibold"><i class="mdi mdi-tag-multiple-outline align-middle"></i> Prodi Unggulan:</li>
-                                <li class="list-inline-item"><a href="javascript:void(0)">Informatika,</a></li>
-                                <li class="list-inline-item"><a href="javascript:void(0)">Arsitektur,</a></li>
-                                <li class="list-inline-item"><a href="javascript:void(0)">Ilmu Lingkungan,</a></li>
-                                <li class="list-inline-item"><a href="javascript:void(0)">Ilmu Perpustakaan</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <!--end col-->
-                    <div class="col-lg-4">
-                        <div class="position-relative home-img text-center mt-5 mt-lg-0">
-                            <div class="card p-3 rounded shadow-lg inquiry-box">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-sm flex-shrink-0 me-3">
-                                        <div class="avatar-title bg-warning-subtle text-warning rounded fs-18">
-                                            <i class="ri-mail-send-line"></i>
-                                        </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Prof. Dr. Kholid Mawardi, M. Hum.</h6>
+                                    <p class="text-muted small mb-1">Dekan Fakultas Sains & Teknologi</p>
+                                    <div class="text-warning small">
+                                        <i class="ri-star-s-fill"></i>
+                                        <i class="ri-star-s-fill"></i>
+                                        <i class="ri-star-s-fill"></i>
+                                        <i class="ri-star-s-fill"></i>
+                                        <i class="ri-star-s-fill"></i>
                                     </div>
-                                    <h5 class="fs-15 lh-base mb-0">Pertanyaan Umum Seputar PMB</h5>
                                 </div>
                             </div>
-                            <img src="assets/images/job-profile2.png" alt="" class="user-img">
+                        </div>
 
-                            <div class="circle-effect">
-                                <div class="circle"></div>
-                                <div class="circle2"></div>
-                                <div class="circle3"></div>
-                                <div class="circle4"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end row -->
-            </div>
-            <!-- end container -->
-        </section>
-        <!-- end hero section -->
-
-        <section class="section" id="process">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="text-center mb-5">
-                            <h1 class="mb-3 ff-secondary fw-semibold lh-base">Alur <span class="text-primary">Penerimaan</span> Mahasiswa Baru</h1>
-                            <p class="text-muted">Bergabunglah dengan Sainteku melalui proses yang mudah dan transparan. Ikuti langkah-langkah berikut untuk memulai perjalanan akademik Anda.</p>
-                        </div>
-                    </div>
-                    <!-- end col -->
-                </div>
-                <!--end row-->
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-lg">
-                            <div class="card-body p-4">
-                                <h1 class="fw-bold display-5 ff-secondary mb-4 text-success position-relative">
-                                    <div class="job-icon-effect"></div>
-                                    <span>1</span>
-                                </h1>
-                                <h6 class="fs-17 mb-2">Daftar Akun</h6>
-                                <p class="text-muted mb-0 fs-15">Buat akun di portal PMB Sainteku.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none">
-                            <div class="card-body p-4">
-                                <h1 class="fw-bold display-5 ff-secondary mb-4 text-success position-relative">
-                                    <div class="job-icon-effect"></div>
-                                    <span>2</span>
-                                </h1>
-                                <h6 class="fs-17 mb-2">Isi Data & Pilih Prodi</h6>
-                                <p class="text-muted mb-0 fs-15">Lengkapi formulir dan pilih salah satu dari 4 prodi yang tersedia.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none">
-                            <div class="card-body p-4">
-                                <h1 class="fw-bold display-5 ff-secondary mb-4 text-success position-relative">
-                                    <div class="job-icon-effect"></div>
-                                    <span>3</span>
-                                </h1>
-
-                                <h6 class="fs-17 mb-2">Ikuti Seleksi</h6>
-                                <p class="text-muted mb-0 fs-15">Lalui tahapan seleksi sesuai jalur yang dipilih.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none">
-                            <div class="card-body p-4">
-                                <h1 class="fw-bold display-5 ff-secondary mb-4 text-success position-relative">
-                                    <div class="job-icon-effect"></div>
-                                    <span>4</span>
-                                </h1>
-                                <h6 class="fs-17 mb-2">Daftar Ulang</h6>
-                                <p class="text-muted mb-0 fs-15">Lakukan daftar ulang dan mulai perkuliahan.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--end container-->
-        </section>
-
-        <!-- start features -->
-        <section class="section">
-            <div class="container">
-                <div class="row align-items-center justify-content-lg-between justify-content-center gy-4">
-                    <div class="col-lg-5 col-sm-7">
-                        <div class="about-img-section mb-5 mb-lg-0 text-center">
-                            <div class="card rounded shadow-lg inquiry-box d-none d-lg-block">
-                                <div class="card-body d-flex align-items-center">
-                                    <div class="avatar-sm flex-shrink-0 me-3">
-                                        <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle fs-18">
-                                            <i class="ri-briefcase-2-line"></i>
-                                        </div>
+                        <div class="card position-absolute top-0 end-0 mt-4 me-4 shadow-lg">
+                            <div class="card-body d-flex align-items-center p-3">
+                                <div class="avatar-sm flex-shrink-0 me-3">
+                                    <div class="avatar-title bg-secondary-subtle text-secondary rounded-circle fs-18">
+                                        <i class="ri-briefcase-2-line"></i>
                                     </div>
+                                </div>
+                                <div>
                                     <h5 class="fs-15 lh-base mb-0"><span class="text-secondary fw-semibold">1000+</span> Mahasiswa Aktif</h5>
                                 </div>
                             </div>
-
-                            <div class="card feedback-box">
-                                <div class="card-body d-flex shadow-lg">
-                                    <div class="flex-shrink-0 me-3">
-                                        <img src="assets/images/image.png" alt="" class="avatar-sm rounded-circle">
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="fs-14 lh-base mb-0">Prof. Dr. Kholid Mawardi, M. Hum.</h5>
-                                        <p class="text-muted fs-11 mb-1">Dekan Fakultas Sains & Teknologi</p>
-
-                                        <div class="text-warning">
-                                            <i class="ri-star-s-fill"></i>
-                                            <i class="ri-star-s-fill"></i>
-                                            <i class="ri-star-s-fill"></i>
-                                            <i class="ri-star-s-fill"></i>
-                                            <i class="ri-star-s-fill"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <img src="assets/images/about.jpg" alt="" class="img-fluid mx-auto rounded-3" />
                         </div>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="text-muted">
-                            <h1 class="mb-3 lh-base">Temukan <span class="text-primary">Minat dan Bakat</span> Anda di Sainteku</h1>
-                            <p class="ff-secondary fs-16 mb-2">Memilih program studi yang tepat adalah langkah awal menuju karir impian. Di Sainteku, Anda tidak hanya belajar teori, tetapi juga terlibat langsung dalam proyek riset dan inovasi.</p>
-                            <p class="ff-secondary fs-16">Kami memadukan keilmuan sains dan teknologi dengan nilai-nilai keislaman untuk mencetak lulusan yang berakhlak mulia dan berdaya saing global.</p>
-
-                            <div class="vstack gap-2 mb-4 pb-1">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0 me-2">
-                                        <div class="avatar-xs icon-effect">
-                                            <div class="avatar-title bg-transparent text-success rounded-circle h2">
-                                                <i class="ri-check-fill"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0"><strong>4 Program Studi Unggulan</strong> (Informatika, Arsitektur, Ilmu Lingkungan, Ilmu Perpustakaan)</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0 me-2">
-                                        <div class="avatar-xs icon-effect">
-                                            <div class="avatar-title bg-transparent text-success rounded-circle h2">
-                                                <i class="ri-check-fill"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0">Laboratorium dan fasilitas penelitian modern.</p>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0 me-2">
-                                        <div class="avatar-xs icon-effect">
-                                            <div class="avatar-title bg-transparent text-success rounded-circle h2">
-                                                <i class="ri-check-fill"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0">Kerjasama dengan berbagai industri dan institusi.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <a href="#!" class="btn btn-primary">Jelajahi Program Studi <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end col -->
                 </div>
-                <!-- end row -->
+                <div class="col-lg-6 offset-lg-1">
+                    <h1 class="display-6 mb-4 lh-base">Temukan <span class="text-primary">Minat dan Bakat</span> Anda di Sainteku</h1>
+                    <p class="fs-5 text-muted mb-3">Memilih program studi yang tepat adalah langkah awal menuju karir impian. Di Sainteku, Anda tidak hanya belajar teori, tetapi juga terlibat langsung dalam proyek riset dan inovasi.</p>
+                    <p class="fs-5 text-muted mb-4">Kami memadukan keilmuan sains dan teknologi dengan nilai-nilai keislaman untuk mencetak lulusan yang berakhlak mulia dan berdaya saing global.</p>
+
+                    <div class="vstack gap-3 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="ri-checkbox-circle-fill text-primary fs-4 me-3"></i>
+                            <span class="fs-5"><strong>4 Program Studi Unggulan</strong> (Informatika, Arsitektur, Ilmu Lingkungan, Ilmu Perpustakaan)</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="ri-checkbox-circle-fill text-primary fs-4 me-3"></i>
+                            <span class="fs-5">Laboratorium dan fasilitas penelitian modern.</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="ri-checkbox-circle-fill text-primary fs-4 me-3"></i>
+                            <span class="fs-5">Kerjasama dengan berbagai industri dan institusi.</span>
+                        </div>
+                    </div>
+
+                    <a href="#!" class="btn btn-primary btn-lg px-5 rounded-pill">Jelajahi Program Studi <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
+                </div>
             </div>
-            <!-- end container -->
-        </section>
-        <!-- end features -->
+        </div>
+    </section>
 
-        <!-- start services -->
-        <section class="section bg-light" id="categories">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-7">
-                        <div class="text-center mb-5">
-                            <h1 class="mb-3 ff-secondary fw-semibold text-capitalize lh-base"><span class="text-primary">Program Studi</span> Kami</h1>
-                            <p class="text-muted">Pilih program studi yang sesuai dengan passion dan tujuan karir Anda. Setiap prodi dikelola oleh tenaga pengajar yang ahli di bidangnya.</p>
-                        </div>
-                    </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
-
-                <div class="row justify-content-center">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none text-center py-3">
-                            <div class="card-body py-4">
-                                <div class="avatar-sm position-relative mb-4 mx-auto">
-                                    <div class="job-icon-effect"></div>
-                                    <div class="avatar-title bg-transparent text-success rounded-circle">
-                                        <i class="ri-computer-line fs-1"></i>
-                                    </div>
-                                </div>
-                                <a href="#!" class="stretched-link">
-                                    <h5 class="fs-17 pt-1">Informatika</h5>
-                                </a>
-                                <p class="mb-0 text-muted">Rekayasa Perangkat Lunak, Kecerdasan Buatan, Jaringan</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none text-center py-3">
-                            <div class="card-body py-4">
-                                <div class="avatar-sm position-relative mb-4 mx-auto">
-                                    <div class="job-icon-effect"></div>
-                                    <div class="avatar-title bg-transparent text-success rounded-circle">
-                                        <i class="ri-building-2-line fs-1"></i>
-                                    </div>
-                                </div>
-                                <a href="#!" class="stretched-link">
-                                    <h5 class="fs-17 pt-1">Arsitektur</h5>
-                                </a>
-                                <p class="mb-0 text-muted">Desain Arsitektur, Perencanaan Kota, Arsitektur Islam</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none text-center py-3">
-                            <div class="card-body py-4">
-                                <div class="avatar-sm mb-4 mx-auto position-relative">
-                                    <div class="job-icon-effect"></div>
-                                    <div class="avatar-title bg-transparent text-success rounded-circle">
-                                        <i class="ri-leaf-line fs-1"></i>
-                                    </div>
-                                </div>
-                                <a href="#!" class="stretched-link">
-                                    <h5 class="fs-17 pt-1">Ilmu Lingkungan</h5>
-                                </a>
-                                <p class="mb-0 text-muted">Pengelolaan SDA, Lingkungan Hidup, Amdal</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card shadow-none text-center py-3">
-                            <div class="card-body py-4">
-                                <div class="avatar-sm position-relative mb-4 mx-auto">
-                                    <div class="job-icon-effect"></div>
-                                    <div class="avatar-title bg-transparent text-success rounded-circle">
-                                        <i class="ri-book-open-line fs-1"></i>
-                                    </div>
-                                </div>
-                                <a href="#!" class="stretched-link">
-                                    <h5 class="fs-17 pt-1">Ilmu Perpustakaan</h5>
-                                </a>
-                                <p class="mb-0 text-muted">Manajemen Informasi, Digital Library, Layanan Perpustakaan</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end row -->
+    <!-- PROGRAM STUDI -->
+    <section class="section" id="program-studi">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1 class="display-6 mb-3 ff-secondary fw-semibold"><span class="text-primary">Program Studi</span> Kami</h1>
+                <p class="fs-5 text-muted col-lg-8 mx-auto">Pilih program studi yang sesuai dengan passion dan tujuan karir Anda. Setiap prodi dikelola oleh tenaga pengajar yang ahli di bidangnya.</p>
             </div>
-            <!-- end container -->
-        </section>
-        <!-- end services -->
 
-        <!-- start cta -->
-        <section class="py-5 bg-primary position-relative">
-            <div class="bg-overlay bg-overlay-pattern opacity-50"></div>
-            <div class="container">
-                <div class="row align-items-center gy-4">
-                    <div class="col-sm">
-                        <div>
-                            <h4 class="text-dark mb-2">Siap Menjadi Bagian dari Sainteku?</h4>
-                            <p class="text-dark-50 mb-0" style="color: #333 !important;">Daftar sekarang dan mulailah perjalananmu bersama kami.</p>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 text-center p-4">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title bg-primary-subtle rounded-3">
+                                <i class="ri-computer-line fs-1 text-primary"></i>
+                            </div>
                         </div>
+                        <h4 class="mb-3">Informatika</h4>
+                        <p class="text-muted mb-4">Rekayasa Perangkat Lunak, Kecerdasan Buatan, Jaringan</p>
+                        <a href="#" class="link-primary stretched-link">Detail <i class="ri-arrow-right-line"></i></a>
                     </div>
-                    <!-- end col -->
-                    <div class="col-sm-auto">
-                        <div>
-                            <a href="#!" class="btn bg-gradient btn-danger" style="background-color: #dc3545; border-color: #dc3545;">Daftar Jadi Mahasiswa</a>
-                        </div>
-                    </div>
-                    <!-- end col -->
                 </div>
-                <!-- end row -->
-            </div>
-            <!-- end container -->
-        </section>
-        <!-- end cta -->
-
-        <section class="section" id="findJob">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-7">
-                        <div class="text-center mb-5">
-                            <h1 class="mb-3 ff-secondary fw-semibold text-capitalize lh-base"><span class="text-primary">Prestasi</span> Terkini Mahasiswa</h1>
-                            <p class="text-muted">Mahasiswa Sainteku secara konsisten meraih prestasi di tingkat nasional dan internasional. Berikut adalah sebagian kecil dari capaian membanggakan mereka.</p>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 text-center p-4">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title bg-primary-subtle rounded-3">
+                                <i class="ri-building-2-line fs-1 text-primary"></i>
+                            </div>
                         </div>
+                        <h4 class="mb-3">Arsitektur</h4>
+                        <p class="text-muted mb-4">Desain Arsitektur, Perencanaan Kota, Arsitektur Islam</p>
+                        <a href="#" class="link-primary stretched-link">Detail <i class="ri-arrow-right-line"></i></a>
                     </div>
-                    <!-- end col -->
                 </div>
-                <!-- end row -->
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card shadow-lg">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-warning-subtle rounded">
-                                            <i class="ri-trophy-line fs-3 text-warning"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3 flex-grow-1">
-                                        <a href="#!">
-                                            <h5>Juara 1 Gemastik XIV</h5>
-                                        </a>
-                                        <ul class="list-inline text-muted mb-3">
-                                            <li class="list-inline-item">
-                                                <i class="ri-group-line align-bottom me-1"></i> Tim Rajawali (Informatika)
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-map-pin-2-line align-bottom me-1"></i> Jakarta
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-calendar-line align-bottom me-1"></i> 2024
-                                            </li>
-                                        </ul>
-                                        <div class="hstack gap-2">
-                                            <span class="badge bg-success-subtle text-success">Informatika</span>
-                                            <span class="badge bg-danger-subtle text-danger">UI/UX</span>
-                                            <span class="badge bg-primary-subtle text-primary-subtle">Kategori Pengembangan Aplikasi</span>
-                                        </div>
-                                    </div>
-                                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 text-center p-4">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title bg-primary-subtle rounded-3">
+                                <i class="ri-leaf-line fs-1 text-primary"></i>
                             </div>
                         </div>
+                        <h4 class="mb-3">Ilmu Lingkungan</h4>
+                        <p class="text-muted mb-4">Pengelolaan SDA, Lingkungan Hidup, Amdal</p>
+                        <a href="#" class="link-primary stretched-link">Detail <i class="ri-arrow-right-line"></i></a>
                     </div>
-                    <div class="col-lg-6">
-                        <div class="card shadow-lg">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-primary-subtle rounded">
-                                            <i class="ri-medal-line fs-3 text-primary"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3 flex-grow-1">
-                                        <a href="#!">
-                                            <h5>Medali Emas Krenova</h5>
-                                        </a>
-                                        <ul class="list-inline text-muted mb-3">
-                                            <li class="list-inline-item">
-                                                <i class="ri-group-line align-bottom me-1"></i> Tim Eco-Green (Ilmu Lingkungan)
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-map-pin-2-line align-bottom me-1"></i> Purwokerto
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-calendar-line align-bottom me-1"></i> 2024
-                                            </li>
-                                        </ul>
-                                        <div class="hstack gap-2">
-                                            <span class="badge bg-primary-subtle text-primary-subtle">Ilmu Lingkungan</span>
-                                            <span class="badge bg-secondary-subtle text-secondary">Inovasi Teknologi Tepat Guna</span>
-                                        </div>
-                                    </div>
-                                </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card h-100 text-center p-4">
+                        <div class="avatar-lg mx-auto mb-4">
+                            <div class="avatar-title bg-primary-subtle rounded-3">
+                                <i class="ri-book-open-line fs-1 text-primary"></i>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="card shadow-lg">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-danger-subtle rounded">
-                                            <i class="ri-award-line fs-3 text-danger"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3 flex-grow-1">
-                                        <a href="#!">
-                                            <h5>Juara Desain Arsitektur Islam</h5>
-                                        </a>
-                                        <ul class="list-inline text-muted mb-3">
-                                            <li class="list-inline-item">
-                                                <i class="ri-group-line align-bottom me-1"></i> Studio Rancang (Arsitektur)
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-map-pin-2-line align-bottom me-1"></i> Yogyakarta
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-calendar-line align-bottom me-1"></i> 2023
-                                            </li>
-                                        </ul>
-                                        <div class="hstack gap-2">
-                                            <span class="badge bg-warning-subtle text-warning">Arsitektur</span>
-                                            <span class="badge bg-info-subtle text-info">Desain</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="card shadow-lg">
-                            <div class="card-body">
-                                <div class="d-flex">
-                                    <div class="avatar-sm">
-                                        <div class="avatar-title bg-success-subtle rounded">
-                                            <i class="ri-cup-line fs-3 text-success"></i>
-                                        </div>
-                                    </div>
-                                    <div class="ms-3 flex-grow-1">
-                                        <a href="#!">
-                                            <h5>Pustakawan Berprestasi Tingkat PTKIN</h5>
-                                        </a>
-                                        <ul class="list-inline text-muted mb-3">
-                                            <li class="list-inline-item">
-                                                <i class="ri-group-line align-bottom me-1"></i> Anisa Wijaya, S.IP.
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-map-pin-2-line align-bottom me-1"></i> Makassar
-                                            </li>
-                                            <li class="list-inline-item">
-                                                <i class="ri-calendar-line align-bottom me-1"></i> 2023
-                                            </li>
-                                        </ul>
-                                        <div class="hstack gap-2">
-                                            <span class="badge bg-success-subtle text-success">Ilmu Perpustakaan</span>
-                                            <span class="badge bg-danger-subtle text-danger">Inovasi Layanan</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-12">
-                        <div class="text-center mt-4">
-                            <a href="#!" class="btn btn-ghost-primary">Lihat Prestasi Lainnya <i class="ri-arrow-right-line align-bottom"></i></a>
-                        </div>
+                        <h4 class="mb-3">Ilmu Perpustakaan</h4>
+                        <p class="text-muted mb-4">Manajemen Informasi, Digital Library, Layanan Perpustakaan</p>
+                        <a href="#" class="link-primary stretched-link">Detail <i class="ri-arrow-right-line"></i></a>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- start find jobs -->
-        <section class="section">
-            <div class="container">
-                <div class="row align-items-center gy-4">
-                    <div class="col-lg-6 order-2 order-lg-1">
-                        <div class="text-muted mt-5 mt-lg-0">
-                            <h5 class="fs-12 text-uppercase text-success">Fasilitas Kampus</h5>
-                            <h1 class="mb-3 ff-secondary fw-semibold text-capitalize lh-base">Dukung <span class="text-primary">Proses Belajar</span> dengan Fasilitas Modern</h1>
-                            <p class="ff-secondary mb-2">Kami percaya bahwa lingkungan belajar yang baik akan mendukung lahirnya generasi terbaik. Oleh karena itu, Sainteku menyediakan berbagai fasilitas penunjang akademik dan non-akademik.</p>
-                            <p class="mb-4 ff-secondary">Mulai dari laboratorium komputer dengan spesifikasi tinggi, studio arsitektur, laboratorium lingkungan terpadu, hingga perpustakaan digital yang nyaman, semua tersedia untuk mendukung inovasi dan kreativitas Anda.</p>
-
-                            <div class="mt-4">
-                                <a href="index.html" class="btn btn-primary">Jelajahi Fasilitas <i class="ri-arrow-right-line align-middle ms-1"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- end col -->
-                    <div class="col-lg-4 col-sm-7 col-10 ms-lg-auto mx-auto order-1 order-lg-2">
-                        <div>
-                            <div class="card shadow-lg">
-                                <div class="card-body">
-                                    <button type="button" class="btn btn-icon btn-soft-primary float-end" data-bs-toggle="button" aria-pressed="true"><i class="mdi mdi-cards-heart fs-16"></i></button>
-                                    <div class="avatar-sm mb-4">
-                                        <div class="avatar-title bg-secondary-subtle rounded">
-                                            <i class="ri-flask-line fs-3 text-secondary"></i>
-                                        </div>
-                                    </div>
-                                    <a href="#!">
-                                        <h5>Lab. Terpadu Informatika</h5>
-                                    </a>
-                                    <p class="text-muted">Fakultas Sains & Teknologi</p>
-
-                                    <div class="d-flex gap-4 mb-3">
-                                        <div>
-                                            <i class="ri-cpu-line text-primary me-1 align-bottom"></i> 40 Unit PC Spec Tinggi
-                                        </div>
-                                    </div>
-
-                                    <p class="text-muted">Digunakan untuk praktikum pemrograman, kecerdasan buatan, dan riset mahasiswa. Terdapat juga perangkat VR dan IoT.</p>
-
-                                    <div class="hstack gap-2">
-                                        <span class="badge bg-success-subtle text-success">Informatika</span>
-                                        <span class="badge bg-primary-subtle text-primary-subtle">AI Lab</span>
-                                        <span class="badge bg-danger-subtle text-danger">24 Jam</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card shadow-lg bg-info mb-0 features-company-widgets rounded-3">
-                                <div class="card-body">
-                                    <h5 class="text-white fs-16 mb-4">Fasilitas Unggulan Lainnya</h5>
-
-                                    <div class="d-flex gap-1 flex-wrap">
-                                        <span class="badge bg-light text-dark p-2">Studio Arsitektur</span>
-                                        <span class="badge bg-light text-dark p-2">Lab. Lingkungan</span>
-                                        <span class="badge bg-light text-dark p-2">Digital Library</span>
-                                        <span class="badge bg-light text-dark p-2">Ruang Seminar</span>
-                                        <span class="badge bg-light text-dark p-2">Maker Space</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- CTA BERGABUNG -->
+    <section class="py-5 bg-primary">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h4 class="text-dark fs-2 fw-semibold mb-2">Siap Menjadi Bagian dari Sainteku?</h4>
+                    <p class="text-dark-50 fs-5 mb-0">Daftar sekarang dan mulailah perjalananmu bersama kami.</p>
                 </div>
-                <!-- end row -->
-            </div>
-            <!-- end container -->
-        </section>
-        <!-- end find jobs -->
-
-        <!-- start candidates -->
-        <section class="section bg-light" id="candidates">
-            <div class="bg-overlay bg-overlay-pattern"></div>
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="text-center mb-5">
-                            <h1 class="mb-3 ff-secondary fw-semibold text-capitalize lh-base">Dosen <span class="text-primary">Ahli</span> dan Berpengalaman</h1>
-                            <p class="text-muted mb-4">Proses belajar mengajar ditangani oleh para dosen yang tidak hanya ahli di bidangnya, tetapi juga aktif dalam riset dan pengabdian masyarakat.</p>
-                        </div>
-                    </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="swiper candidate-swiper">
-                            <div class="swiper-wrapper">
-                                <div class="swiper-slide">
-                                    <div class="card text-center">
-                                        <div class="card-body p-4">
-                                            <img src="assets/images/users/avatar-2.jpg" alt="" class="rounded-circle avatar-md mx-auto d-block">
-                                            <h5 class="fs-17 mt-3 mb-2">Dr. Eng. Rina Kurniawati, M.Kom.</h5>
-                                            <p class="text-muted fs-13 mb-3">Dosen Informatika</p>
-
-                                            <p class="text-muted mb-4 fs-14">
-                                                <i class="ri-graduation-cap-line text-primary me-1 align-bottom"></i> Pakar Kecerdasan Buatan
-                                            </p>
-
-                                            <a href="#!" class="btn btn-primary">Lihat Profil</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="card text-center">
-                                        <div class="card-body p-4">
-                                            <img src="assets/images/users/avatar-3.jpg" alt="" class="rounded-circle avatar-md mx-auto d-block">
-                                            <h5 class="fs-17 mt-3 mb-2">Dr. Ir. Budi Hartono, M.T.</h5>
-                                            <p class="text-muted fs-13 mb-3">Dosen Arsitektur</p>
-
-                                            <p class="text-muted mb-4 fs-14">
-                                                <i class="ri-graduation-cap-line text-primary me-1 align-bottom"></i> Arsitektur Islam & Perkotaan
-                                            </p>
-
-                                            <a href="#!" class="btn btn-primary">Lihat Profil</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="card text-center">
-                                        <div class="card-body p-4">
-                                            <img src="assets/images/users/avatar-10.jpg" alt="" class="rounded-circle avatar-md mx-auto d-block">
-                                            <h5 class="fs-17 mt-3 mb-2">Prof. Dr. Dewi Lestari, M.Si.</h5>
-                                            <p class="text-muted fs-13 mb-3">Dosen Ilmu Lingkungan</p>
-
-                                            <p class="text-muted mb-4 fs-14">
-                                                <i class="ri-graduation-cap-line text-primary me-1 align-bottom"></i> Ahli Pengelolaan Limbah
-                                            </p>
-
-                                            <a href="#!" class="btn btn-primary">Lihat Profil</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="swiper-slide">
-                                    <div class="card text-center">
-                                        <div class="card-body p-4">
-                                            <img src="assets/images/users/avatar-8.jpg" alt="" class="rounded-circle avatar-md mx-auto d-block" />
-                                            <h5 class="fs-17 mt-3 mb-2">Dr. Faisal Riza, S.IP., M.IP.</h5>
-                                            <p class="text-muted fs-13 mb-3">Dosen Ilmu Perpustakaan</p>
-
-                                            <p class="text-muted mb-4 fs-14">
-                                                <i class="ri-graduation-cap-line text-primary me-1 align-bottom"></i> Pakar Digital Library
-                                            </p>
-
-                                            <a href="#!" class="btn btn-primary">Lihat Profil</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <a href="#!" class="btn btn-danger btn-lg px-5 py-3 rounded-pill">Daftar Jadi Mahasiswa</a>
                 </div>
             </div>
-            <!-- end container -->
-        </section>
-        <!-- end candidates -->
+        </div>
+    </section>
 
-        <!-- start blog -->
-        <section class="section" id="blog">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="text-center mb-5">
-                            <h1 class="mb-3 ff-secondary fw-semibold text-capitalize lh-base">Artikel & <span class="text-primary">Berita</span> Terkini</h1>
-                            <p class="text-muted mb-4">Ikuti perkembangan terbaru seputar kegiatan akademik, riset, pengabdian masyarakat, dan prestasi dari Fakultas Sains dan Teknologi.</p>
-                        </div>
-                    </div>
+       <!-- PRESTASI - MODERN GRID LAYOUT -->
+    <section class="section" id="prestasi">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center mb-5">
+                    <h2 class="fw-bold mb-3">Prestasi <span class="text-primary">Mahasiswa</span></h2>
+                    <p class="text-muted fs-5">Kebanggaan Sainteku di kancah nasional dan internasional.</p>
                 </div>
-                <!-- end row -->
+            </div>
 
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <img src="assets/images/small/img-8.jpg" alt="" class="img-fluid rounded" />
+            <!-- Grid Layout 3 Kolom -->
+            <div class="row g-4">
+                <!-- Prestasi 1 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-10.jpg" class="card-img-top" alt="Gemastik" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
                             </div>
-                            <div class="card-body">
-                                <ul class="list-inline fs-14 text-muted">
-                                    <li class="list-inline-item">
-                                        <i class="ri-calendar-line align-bottom me-1"></i> 30 Okt, 2024
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <i class="ri-message-2-line align-bottom me-1"></i> 12 Komentar
-                                    </li>
-                                </ul>
-                                <a href="javascript:void(0);">
-                                    <h5>Workshop Kecerdasan Buatan untuk Pemula</h5>
-                                </a>
-                                <p class="text-muted fs-14">Program Studi Informatika mengadakan workshop yang diikuti oleh lebih dari 100 peserta dari berbagai daerah.</p>
-
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-trophy-line text-primary"></i>
+                                    </div>
+                                </div>
                                 <div>
-                                    <a href="#!" class="link-success">Baca Selengkapnya <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
+                                    <h6 class="fw-bold mb-0">Informatika</h6>
+                                    <small class="text-muted">Tim Rajawali</small>
                                 </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Juara 1 Gemastik XIV</h5>
+                            <p class="text-muted small mb-3">Aplikasi Smart Campus untuk efisiensi energi kampus.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-3.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-4.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <img src="assets/images/small/img-6.jpg" alt="" class="img-fluid rounded" />
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-inline fs-14 text-muted">
-                                    <li class="list-inline-item">
-                                        <i class="ri-calendar-line align-bottom me-1"></i> 15 Okt, 2024
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <i class="ri-message-2-line align-bottom me-1"></i> 8 Komentar
-                                    </li>
-                                </ul>
-                                <a href="javascript:void(0);">
-                                    <h5>Pameran Karya Arsitektur "Ruang dan Jiwa"</h5>
-                                </a>
-                                <p class="text-muted fs-14">Mahasiswa Arsitektur memamerkan maket dan desain inovatif yang mengangkat kearifan lokal dan nilai-nilai Islam.</p>
+                </div>
 
+                <!-- Prestasi 2 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-11.jpg" class="card-img-top" alt="Krenova" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-leaf-line text-primary"></i>
+                                    </div>
+                                </div>
                                 <div>
-                                    <a href="#!" class="link-success">Baca Selengkapnya <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
+                                    <h6 class="fw-bold mb-0">Ilmu Lingkungan</h6>
+                                    <small class="text-muted">Tim Eco-Green</small>
                                 </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Medali Emas Krenova</h5>
+                            <p class="text-muted small mb-3">Inovasi teknologi pengolahan limbah ramah lingkungan.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-5.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-6.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-7.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <img src="assets/images/small/img-9.jpg" alt="" class="img-fluid rounded" />
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-inline fs-14 text-muted">
-                                    <li class="list-inline-item">
-                                        <i class="ri-calendar-line align-bottom me-1"></i> 5 Okt, 2024
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <i class="ri-message-2-line align-bottom me-1"></i> 15 Komentar
-                                    </li>
-                                </ul>
-                                <a href="javascript:void(0);">
-                                    <h5>Kuliah Tamu: Pengelolaan Perpustakaan Digital</h5>
-                                </a>
-                                <p class="text-muted fs-14">Menghadirkan praktisi dari Perpustakaan Nasional untuk berbagi pengalaman tentang transformasi perpustakaan di era digital.</p>
+                </div>
 
+                <!-- Prestasi 3 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-12.jpg" class="card-img-top" alt="Arsitektur" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2023</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-building-2-line text-primary"></i>
+                                    </div>
+                                </div>
                                 <div>
-                                    <a href="#!" class="link-success">Baca Selengkapnya <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
+                                    <h6 class="fw-bold mb-0">Arsitektur</h6>
+                                    <small class="text-muted">Studio Rancang</small>
                                 </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Juara Desain Arsitektur Islam</h5>
+                            <p class="text-muted small mb-3">Desain masjid dengan konsep ramah lingkungan.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-8.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-9.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-10.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <!-- Prestasi 4 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-13.jpg" class="card-img-top" alt="Perpustakaan" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2023</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-book-open-line text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Ilmu Perpustakaan</h6>
+                                    <small class="text-muted">Anisa Wijaya</small>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Pustakawan Berprestasi PTKIN</h5>
+                            <p class="text-muted small mb-3">Inovasi sistem digital library untuk akses global.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-11.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-12.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prestasi 5 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-14.jpg" class="card-img-top" alt="Robotik" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-robot-line text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Informatika</h6>
+                                    <small class="text-muted">Tim Robotech</small>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Juara 2 Kontes Robot Indonesia</h5>
+                            <p class="text-muted small mb-3">Robot pemadam api dengan navigasi cerdas.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-13.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-14.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-15.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prestasi 6 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-15.jpg" class="card-img-top" alt="PKM" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-flask-line text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Ilmu Lingkungan</h6>
+                                    <small class="text-muted">Tim Inovasi</small>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Pendanaan PKM 5 Bidang</h5>
+                            <p class="text-muted small mb-3">5 proposal PKM berhasil mendapat pendanaan Dikti.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-16.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-17.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-18.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small">Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- end container -->
-        </section>
-        <!-- end blog -->
 
-        <!-- start cta -->
-        <section class="py-5 bg-primary position-relative">
-            <div class="bg-overlay bg-overlay-pattern opacity-50"></div>
-            <div class="container">
-                <div class="row align-items-center gy-4">
-                    <div class="col-sm">
-                        <div>
-                            <h4 class="text-dark fw-semibold">Dapatkan Informasi Terbaru!</h4>
-                            <p class="text-dark text-opacity-75 mb-0">Berlangganan newsletter kami untuk info PMB, beasiswa, dan kegiatan kampus.</p>
-                        </div>
-                    </div>
-                    <!-- end col -->
-                    <div class="col-sm-auto">
-                        <button class="btn btn-danger" type="button" style="background-color: #dc3545; border-color: #dc3545;">Berlangganan Sekarang <i class="ri-arrow-right-line align-bottom"></i></button>
-                    </div>
-                    <!-- end col -->
-                </div>
-                <!-- end row -->
+            <!-- Tombol Lihat Semua -->
+            <div class="text-center mt-5">
+                <a href="#" class="btn btn-outline-primary px-5 py-3 rounded-pill">Lihat Semua Prestasi</a>
             </div>
-            <!-- end container -->
-        </section>
-        <!-- end cta -->
+        </div>
+    </section>
 
-        <!-- Start footer -->
-        <footer class="custom-footer bg-dark py-5 position-relative">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 mt-4">
-                        <div>
-                            <div>
-                                <span class="fw-bold text-white" style="font-size: 28px;">Sainteku</span>
-                            </div>
-                            <div class="mt-4 fs-13">
-                                <p class="text-white-50">Fakultas Sains dan Teknologi UIN Prof. K.H. Saifuddin Zuhri Purwokerto. Mencerdaskan dan memajukan bangsa melalui pendidikan sains dan teknologi yang berlandaskan nilai-nilai Islam.</p>
-                                <ul class="list-inline mb-0 footer-social-link">
-                                    <li class="list-inline-item">
-                                        <a href="javascript: void(0);" class="avatar-xs d-block">
-                                            <div class="avatar-title rounded-circle">
-                                                <i class="ri-facebook-fill"></i>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <a href="javascript: void(0);" class="avatar-xs d-block">
-                                            <div class="avatar-title rounded-circle">
-                                                <i class="ri-instagram-fill"></i>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <a href="javascript: void(0);" class="avatar-xs d-block">
-                                            <div class="avatar-title rounded-circle">
-                                                <i class="ri-youtube-fill"></i>
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <a href="javascript: void(0);" class="avatar-xs d-block">
-                                            <div class="avatar-title rounded-circle">
-                                                <i class="ri-twitter-x-fill"></i>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+    <!-- FASILITAS -->
+    <section class="section" id="fasilitas">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center mb-5">
+                    <h2 class="fw-bold mb-3">Fasilitas Kampus</h2>
+                    <p class="text-muted fs-5">Kami percaya bahwa lingkungan belajar yang baik akan mendukung lahirnya generasi terbaik. Oleh karena itu, Sainteku menyediakan berbagai fasilitas penunjang akademik dan non-akademik.</p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-3.jpg" class="card-img-top rounded-top-4" alt="Lab Informatika" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Lab. Terpadu Informatika</h5>
+                            <p class="text-muted small mb-3">40 Unit PC Spesifikasi Tinggi, VR, IoT</p>
+                            <span class="badge bg-primary-subtle text-primary">Informatika</span>
                         </div>
                     </div>
-
-                    <div class="col-lg-7 ms-lg-auto">
-                        <div class="row">
-                            <div class="col-sm-4 mt-4">
-                                <h5 class="text-white mb-0">Tautan</h5>
-                                <div class="text-muted mt-3">
-                                    <ul class="list-unstyled ff-secondary footer-list">
-                                        <li><a href="#">Tentang Kami</a></li>
-                                        <li><a href="#">Akreditasi</a></li>
-                                        <li><a href="#">Dosen & Staf</a></li>
-                                        <li><a href="#">Kemahasiswaan</a></li>
-                                        <li><a href="#">Alumni</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 mt-4">
-                                <h5 class="text-white mb-0">Program Studi</h5>
-                                <div class="text-muted mt-3">
-                                    <ul class="list-unstyled ff-secondary footer-list">
-                                        <li><a href="#">Informatika</a></li>
-                                        <li><a href="#">Arsitektur</a></li>
-                                        <li><a href="#">Ilmu Lingkungan</a></li>
-                                        <li><a href="#">Ilmu Perpustakaan</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-sm-4 mt-4">
-                                <h5 class="text-white mb-0">Bantuan</h5>
-                                <div class="text-muted mt-3">
-                                    <ul class="list-unstyled ff-secondary footer-list">
-                                        <li><a href="#">FAQ Penerimaan</a></li>
-                                        <li><a href="#">Hubungi Kami</a></li>
-                                        <li><a href="#">Sitemap</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <div class="row text-center text-sm-start align-items-center mt-5">
-                    <div class="col-sm-6">
-                        <div>
-                            <p class="copy-rights mb-0 text-white-50">
-                                <script>
-                                    document.write(new Date().getFullYear())
-                                </script> © Sainteku - UIN Prof. K.H. Saifuddin Zuhri Purwokerto
-                            </p>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-4.jpg" class="card-img-top rounded-top-4" alt="Studio Arsitektur" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Studio Arsitektur</h5>
+                            <p class="text-muted small mb-3">Ruang desain dan prototyping</p>
+                            <span class="badge bg-warning-subtle text-warning">Arsitektur</span>
                         </div>
                     </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end mt-3 mt-sm-0">
-                            <ul class="list-inline mb-0 footer-list gap-4 fs-13">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-5.jpg" class="card-img-top rounded-top-4" alt="Lab Lingkungan" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Lab. Lingkungan</h5>
+                            <p class="text-muted small mb-3">Penelitian dan analisis lingkungan</p>
+                            <span class="badge bg-success-subtle text-success">Ilmu Lingkungan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-6.jpg" class="card-img-top rounded-top-4" alt="Digital Library" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Digital Library</h5>
+                            <p class="text-muted small mb-3">Perpustakaan digital modern</p>
+                            <span class="badge bg-info-subtle text-info">Ilmu Perpustakaan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-7.jpg" class="card-img-top rounded-top-4" alt="Ruang Seminar" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Ruang Seminar</h5>
+                            <p class="text-muted small mb-3">Kapasitas 200 orang</p>
+                            <span class="badge bg-secondary-subtle text-secondary">Multifungsi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-8.jpg" class="card-img-top rounded-top-4" alt="Maker Space" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Maker Space</h5>
+                            <p class="text-muted small mb-3">Ruang inovasi dan workshop</p>
+                            <span class="badge bg-danger-subtle text-danger">Inovasi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="#" class="btn btn-primary px-5 py-2 rounded-pill">Jelajahi Semua Fasilitas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- BLOG -->
+    <section class="section bg-light" id="blog">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h1 class="display-6 mb-3 ff-secondary fw-semibold">Artikel & <span class="text-primary">Berita</span> Terkini</h1>
+                <p class="fs-5 text-muted col-lg-8 mx-auto">Ikuti perkembangan terbaru seputar kegiatan akademik, riset, pengabdian masyarakat, dan prestasi dari Fakultas Sains dan Teknologi.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="" style="height: 220px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="d-flex text-muted mb-3">
+                                <div class="me-3"><i class="ri-calendar-line me-1"></i> 30 Okt, 2024</div>
+                                <div><i class="ri-message-2-line me-1"></i> 12 Komentar</div>
+                            </div>
+                            <h4 class="mb-3">Workshop Kecerdasan Buatan untuk Pemula</h4>
+                            <p class="text-muted mb-4">Program Studi Informatika mengadakan workshop yang diikuti oleh lebih dari 100 peserta dari berbagai daerah.</p>
+                            <a href="#" class="link-primary fw-semibold">Baca Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img src="assets/images/small/img-6.jpg" class="card-img-top" alt="" style="height: 220px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="d-flex text-muted mb-3">
+                                <div class="me-3"><i class="ri-calendar-line me-1"></i> 15 Okt, 2024</div>
+                                <div><i class="ri-message-2-line me-1"></i> 8 Komentar</div>
+                            </div>
+                            <h4 class="mb-3">Pameran Karya Arsitektur "Ruang dan Jiwa"</h4>
+                            <p class="text-muted mb-4">Mahasiswa Arsitektur memamerkan maket dan desain inovatif yang mengangkat kearifan lokal dan nilai-nilai Islam.</p>
+                            <a href="#" class="link-primary fw-semibold">Baca Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img src="assets/images/small/img-9.jpg" class="card-img-top" alt="" style="height: 220px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="d-flex text-muted mb-3">
+                                <div class="me-3"><i class="ri-calendar-line me-1"></i> 5 Okt, 2024</div>
+                                <div><i class="ri-message-2-line me-1"></i> 15 Komentar</div>
+                            </div>
+                            <h4 class="mb-3">Kuliah Tamu: Pengelolaan Perpustakaan Digital</h4>
+                            <p class="text-muted mb-4">Menghadirkan praktisi dari Perpustakaan Nasional untuk berbagi pengalaman tentang transformasi perpustakaan di era digital.</p>
+                            <a href="#" class="link-primary fw-semibold">Baca Selengkapnya <i class="ri-arrow-right-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA NEWSLETTER -->
+    <section class="py-5 bg-primary">
+        <div class="container py-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h4 class="text-dark fs-2 fw-semibold mb-2">Dapatkan Informasi Terbaru!</h4>
+                    <p class="text-dark-50 fs-5 mb-0">Berlangganan newsletter kami untuk info PMB, beasiswa, dan kegiatan kampus.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <button class="btn btn-danger btn-lg px-5 py-3 rounded-pill">Berlangganan Sekarang <i class="ri-arrow-right-line align-bottom"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="custom-footer bg-dark py-5 position-relative">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mt-4">
+                    <div>
+                        <span class="fw-bold text-white" style="font-size: 28px;">Sainteku</span>
+                        <div class="mt-4 fs-13">
+                            <p class="text-white-50">Fakultas Sains dan Teknologi UIN Prof. K.H. Saifuddin Zuhri Purwokerto. Mencerdaskan dan memajukan bangsa melalui pendidikan sains dan teknologi yang berlandaskan nilai-nilai Islam.</p>
+                            <ul class="list-inline mb-0 footer-social-link">
                                 <li class="list-inline-item">
-                                    <a href="#">Kebijakan Privasi</a>
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-facebook-fill"></i>
+                                        </div>
+                                    </a>
                                 </li>
                                 <li class="list-inline-item">
-                                    <a href="#">Syarat & Ketentuan</a>
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-instagram-fill"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-youtube-fill"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-twitter-x-fill"></i>
+                                        </div>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
+
+                <div class="col-lg-7 ms-lg-auto">
+                    <div class="row">
+                        <div class="col-sm-4 mt-4">
+                            <h5 class="text-white mb-0">Tautan</h5>
+                            <div class="text-muted mt-3">
+                                <ul class="list-unstyled ff-secondary footer-list">
+                                    <li><a href="#">Tentang Kami</a></li>
+                                    <li><a href="#">Akreditasi</a></li>
+                                    <li><a href="#">Dosen & Staf</a></li>
+                                    <li><a href="#">Kemahasiswaan</a></li>
+                                    <li><a href="#">Alumni</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mt-4">
+                            <h5 class="text-white mb-0">Program Studi</h5>
+                            <div class="text-muted mt-3">
+                                <ul class="list-unstyled ff-secondary footer-list">
+                                    <li><a href="#">Informatika</a></li>
+                                    <li><a href="#">Arsitektur</a></li>
+                                    <li><a href="#">Ilmu Lingkungan</a></li>
+                                    <li><a href="#">Ilmu Perpustakaan</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mt-4">
+                            <h5 class="text-white mb-0">Bantuan</h5>
+                            <div class="text-muted mt-3">
+                                <ul class="list-unstyled ff-secondary footer-list">
+                                    <li><a href="#">FAQ Penerimaan</a></li>
+                                    <li><a href="#">Hubungi Kami</a></li>
+                                    <li><a href="#">Sitemap</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </footer>
-        <!-- end footer -->
 
-        <!--start back-to-top-->
-        <button onclick="topFunction()" class="btn btn-primary btn-icon landing-back-top" id="back-to-top">
-            <i class="ri-arrow-up-line"></i>
-        </button>
-        <!--end back-to-top-->
+            <div class="row text-center text-sm-start align-items-center mt-5">
+                <div class="col-sm-6">
+                    <p class="copy-rights mb-0 text-white-50">
+                        <script>document.write(new Date().getFullYear())</script> © Sainteku - UIN Prof. K.H. Saifuddin Zuhri Purwokerto
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end mt-3 mt-sm-0">
+                        <ul class="list-inline mb-0 footer-list gap-4 fs-13">
+                            <li class="list-inline-item">
+                                <a href="#">Kebijakan Privasi</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="#">Syarat & Ketentuan</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-    </div>
-    <!-- end layout wrapper -->
+    <!-- BACK TO TOP -->
+    <button onclick="topFunction()" class="btn btn-primary btn-icon rounded-circle" id="back-to-top" style="position: fixed; bottom: 30px; right: 30px; display: none;">
+        <i class="ri-arrow-up-line"></i>
+    </button>
 
     <!-- JAVASCRIPT -->
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -1094,95 +920,83 @@
     <script src="assets/libs/feather-icons/feather.min.js"></script>
     <script src="assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
     <script src="assets/js/plugins.js"></script>
-
-    <!--Swiper slider js-->
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
-
-    <!--job landing init -->
     <script src="assets/js/pages/job-lading.init.js"></script>
 
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header border-0">
-            <h5 class="modal-title" id="loginModalLabel">Masuk ke Sainteku</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div id="loginError" class="alert alert-danger" role="alert" style="display: none;">
-              @if($errors->any())
-                @foreach($errors->all() as $error)
-                  <p class="mb-1">{{ $error }}</p>
-                @endforeach
-              @endif
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="loginModalLabel">Masuk ke Sainteku</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="loginError" class="alert alert-danger" role="alert" style="display: none;">
+                        @if($errors->any())
+                        @foreach($errors->all() as $error)
+                        <p class="mb-1">{{ $error }}</p>
+                        @endforeach
+                        @endif
+                    </div>
+
+                    <form id="loginForm" action="/login" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label" for="credential">Email / ID Pengguna</label>
+                            <input
+                                id="credential"
+                                name="credential"
+                                type="text"
+                                class="form-control"
+                                placeholder="Contoh: u0001 atau test@example.com"
+                                value="{{ old('credential') }}"
+                                required />
+                            <small class="text-muted d-block mt-2">
+                                <strong>Test:</strong> <br>
+                                ID: <code>u0001</code> atau Email: <code>test@example.com</code> <br>
+                                Password: <code>password</code>
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password">Password</label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="form-control"
+                                placeholder="Password"
+                                required />
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="remember"
+                                name="remember" />
+                            <label class="form-check-label" for="remember">Ingat saya</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Masuk</button>
+                    </form>
+                </div>
             </div>
-            
-            <form id="loginForm" action="/login" method="POST">
-              @csrf
-              <div class="mb-3">
-                <label class="form-label" for="credential">Email / ID Pengguna</label>
-                <input 
-                  id="credential"
-                  name="credential" 
-                  type="text" 
-                  class="form-control" 
-                  placeholder="Contoh: u0001 atau test@example.com"
-                  value="{{ old('credential') }}"
-                  required
-                />
-                <small class="text-muted d-block mt-2">
-                  <strong>Test:</strong> <br>
-                  ID: <code>u0001</code> atau Email: <code>test@example.com</code> <br>
-                  Password: <code>password</code>
-                </small>
-              </div>
-              <div class="mb-3">
-                <label class="form-label" for="password">Password</label>
-                <input 
-                  id="password"
-                  name="password" 
-                  type="password" 
-                  class="form-control"
-                  placeholder="Password"
-                  required
-                />
-              </div>
-              <div class="mb-3 form-check">
-                <input 
-                  class="form-check-input" 
-                  type="checkbox" 
-                  id="remember" 
-                  name="remember"
-                />
-                <label class="form-check-label" for="remember">Ingat saya</label>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Masuk</button>
-            </form>
-          </div>
         </div>
-      </div>
     </div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loginError = document.getElementById('loginError');
-        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginError = document.getElementById('loginError');
+            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
 
-        // Show modal and error if there were validation errors
-        @if($errors->any())
-          loginError.style.display = 'block';
-          loginModal.show();
-        @endif
+            @if($errors->any())
+            loginError.style.display = 'block';
+            loginModal.show();
+            @endif
 
-        // Show modal if redirected from protected page
-        @if(session('show_login_modal'))
-          loginModal.show();
-        @endif
-      });
+            @if(session('show_login_modal'))
+            loginModal.show();
+            @endif
+        });
     </script>
 </body>
-
-<!-- Mirrored from themesbrand.com/velzon/html/master/job-landing.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 12 Aug 2024 07:47:12 GMT -->
-
 </html>
