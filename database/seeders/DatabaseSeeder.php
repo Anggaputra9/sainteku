@@ -16,27 +16,51 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create a default test user matching mst_user schema
-        DB::table('mst_user')->updateOrInsert(
-            ['id' => 'u0001'],
+        // 1. Isi Tabel Referensi (Level 0 - Tidak punya FK)
+        DB::table('ref_unit_type')->updateOrInsert(['id' => 1], ['description' => 'FAKULTAS']);
+        DB::table('ref_user_type')->updateOrInsert(['id' => '001'], ['description' => 'INTERNAL']);
+
+        // 2. Panggil Seeder Master Dasar
+        $this->call([
+            RoleSeeder::class,
+            PermissionSeeder::class, // Pastikan isinya sudah disingkat (max 4 char)
+            ModuleSeeder::class,
+        ]);
+
+        // 3. Buat Unit (Level 1)
+        // unit_parent diisi sama dengan ID-nya sendiri jika dia adalah root/puncak
+        DB::table('mst_unit')->updateOrInsert(
+            ['id' => '0001'],
             [
-                'id' => 'u0001',
-                'name' => 'Test User',
-                'email' => 'test@example.com',
-                'password' => Hash::make('password'),
-                'identity_id' => 'u0001',
-                'user_type' => '001',
-                'unit_id' => '0001',
+                'id' => '0001',
+                'unit_name' => 'Fakultas Teknologi Informasi',
+                'unit_parent' => '0001',
+                'unit_type_id' => 1,
                 'is_active' => '1',
                 'created_at' => now(),
             ]
         );
 
-        // MasterData roles and default assignment
-        $this->call(\Database\Seeders\RoleSeeder::class);
-        $this->call(\Database\Seeders\PermissionSeeder::class);
-        $this->call(\Database\Seeders\ModuleSeeder::class);
-        $this->call(\Database\Seeders\RolePermissionSeeder::class);
-        $this->call(\Database\Seeders\AssignRoleToFirstUserSeeder::class);
+        // 4. Buat User (Level 2 - Butuh unit_id & user_type)
+        DB::table('mst_user')->updateOrInsert(
+            ['id' => 'u0001'],
+            [
+                'id' => 'u0001',
+                'name' => 'Admin Sainteku',
+                'email' => 'admin@sainteku.ac.id',
+                'password' => Hash::make('password'),
+                'identity_id' => '12345678',
+                'user_type' => '001', // Merujuk ke ref_user_type
+                'unit_id' => '0001',   // Merujuk ke mst_unit
+                'is_active' => '1',
+                'created_at' => now(),
+            ]
+        );
+
+        // 5. Panggil Seeder Relasi (Level 3)
+        $this->call([
+            RolePermissionSeeder::class,
+            AssignRoleToFirstUserSeeder::class,
+        ]);
     }
 }

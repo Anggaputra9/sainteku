@@ -10,12 +10,16 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('trx_cpl_cpmk_mapping', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('course_id', 5);
-            $table->string('cpmk_id', 5);
-            $table->string('cpl_id', 5);
+        Schema::create('mst_course', function (Blueprint $table) {
+            $table->string('id', 5)->primary();
+            $table->string('course_name', 100);
+            $table->string('unit_id', 4);
+            $table->enum('is_active', ['0', '1']);
             $table->dateTime('created_at')->nullable();
+
+            $table->foreign('unit_id')
+                ->references('id')->on('mst_unit');
+
         });
 
     }
@@ -25,6 +29,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('trx_cpl_cpmk_mapping');
+        Schema::dropIfExists('mst_course');
     }
 };

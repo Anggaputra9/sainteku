@@ -14,6 +14,10 @@ return new class extends Migration {
             $table->string('id', 4)->primary();
             $table->string('description', 100);
             $table->string('category', 4);
+
+            $table->foreign('category')
+                ->references('id')->on('ref_document_category');
+
         });
 
     }

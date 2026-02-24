@@ -16,6 +16,10 @@ return new class extends Migration {
             $table->string('unit_id', 4);
             $table->enum('is_active', ['0', '1']);
             $table->dateTime('created_at')->nullable();
+
+            $table->foreign('unit_id')
+                ->references('id')->on('mst_unit');
+
         });
 
     }

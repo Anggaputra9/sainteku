@@ -10,11 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ref_unit_type', function (Blueprint $table) {
-            $table->bigInteger('id')->primary();
+        Schema::create('ref_user_type', function (Blueprint $table) {
+            $table->string('id', 3)->primary();
             $table->string('description', 10);
         });
-
     }
 
     /**
@@ -22,6 +21,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('ref_unit_type');
+        Schema::dropIfExists('ref_user_type');
     }
 };

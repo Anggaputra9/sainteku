@@ -23,6 +23,19 @@ return new class extends Migration {
             $table->date('expired_date');
             $table->string('created_by', 20);
             $table->dateTime('created_at')->nullable();
+
+            $table->foreign('document_type_id')
+                ->references('id')->on('ref_document_type');
+
+            $table->foreign('unit_id')
+                ->references('id')->on('mst_unit');
+
+            $table->foreign('status')
+                ->references('id')->on('mst_workflow_status');
+
+            $table->foreign('created_by')
+                ->references('id')->on('mst_user');
+
         });
 
     }

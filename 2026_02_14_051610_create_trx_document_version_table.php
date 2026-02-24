@@ -12,12 +12,21 @@ return new class extends Migration {
     {
         Schema::create('trx_document_version', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('document_id', 10);
+            $table->unsignedBigInteger('document_id');
             $table->integer('version');
             $table->string('file_path', 50);
             $table->string('change_note', 200);
             $table->string('approved_by', 20);
             $table->dateTime('approved_date')->nullable();
+
+            $table->foreign('document_id')
+                ->references('id')
+                ->on('trx_document')
+                ->onDelete('cascade');
+
+            $table->foreign('approved_by')
+                ->references('id')->on('mst_user');
+
         });
 
     }
