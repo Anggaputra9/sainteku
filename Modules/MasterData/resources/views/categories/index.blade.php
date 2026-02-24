@@ -3,7 +3,7 @@
     <h3 class="text-xl font-semibold">Data Kategori Berkas</h3>
   </div>
 
-  <div class="mt-4 rounded-lg border border-stroke bg-white px-8 py-6 shadow-default dark:border-strokedark dark:bg-boxdark">
+  <div class="mt-8 rounded-lg border border-stroke bg-white px-8 py-6 shadow-default dark:border-strokedark dark:bg-boxdark">
     <div class="flex items-center justify-center py-16">
       <div class="text-center">
         <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

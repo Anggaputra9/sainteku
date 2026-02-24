@@ -3,7 +3,7 @@
     <h3 class="text-xl font-semibold">Daftar Role</h3>
   </div>
 
-  <div class="mt-4 overflow-hidden rounded border">
+  <div class="mt-8 overflow-hidden rounded-lg border">
     <table class="w-full table-auto">
       <thead class="bg-gray-50 text-left text-sm">
         <tr>

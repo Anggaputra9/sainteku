@@ -32,28 +32,25 @@
 }" x-init="darkMode = JSON.parse(localStorage.getItem('darkMode'));
 $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" :class="{ 'dark bg-gray-900': darkMode === true }">
     {{-- PERBAIKAN: Tambahkan x-data di pembungkus paling luar agar Sidebar & Header bisa sinkron --}}
-    <div x-data="{ sidebarToggle: false, selected: 'Master Data' }" class="flex h-screen overflow-hidden bg-gray-100 dark:bg-boxdark-2">
-        {{-- Sidebar --}}
+    <div x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }" 
+      x-init="darkMode = JSON.parse(localStorage.getItem('darkMode')); $watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" 
+      :class="{ 'dark bg-gray-900': darkMode === true }">
+
+    <div class="flex h-screen overflow-hidden">
+
         @include('masterdata::components.partials.sidebar')
-
-        {{-- 
-        PEMBETULAN: 
-        1. Tambah :class dinamis.
-        2. Jika sidebarToggle TRUE, beri margin kiri lg:ml-[290px] (lebar sidebar).
-        3. Jika FALSE, ml-0 (kembali 100% lebar).
-    --}}
-        <div :class="sidebarToggle ? 'lg:ml-[290px]' : 'ml-0'"
-            class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto duration-300 ease-in-out">
-            {{-- Header --}}
+        <div class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            
             @include('masterdata::components.partials.header')
-
             <main>
-                <div class="p-4 mx-auto max-w-screen-2xl md:p-6">
+                <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                     {{ $slot }}
                 </div>
             </main>
+            </div>
         </div>
     </div>
+
     {{-- Alpine sudah di-include via CDN; bundler JS belum dibuild, jadi tidak menyertakan index.js --}}
     {{-- Jika build sudah ada, sertakan bundle JS untuk interaktivitas (sidebar/hamburger) --}}
     @if (file_exists(public_path('tailadmin/bundle.js')))
