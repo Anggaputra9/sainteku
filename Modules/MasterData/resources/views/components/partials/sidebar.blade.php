@@ -16,7 +16,7 @@
   >
     <a href="{{ route('masterdata.index') }}">
       <span class="logo" :class="sidebarToggle ? '' : 'lg:hidden'">
-        <img class="dark:hidden" src="{{ asset('tailadmin/images/logo/logo.svg') }}" alt="Logo" />
+        <img class="block dark:hidden" src="{{ asset('tailadmin/images/logo/logo.svg') }}" alt="Logo" />
         <img class="hidden dark:block" src="{{ asset('tailadmin/images/logo/logo-dark.svg') }}" alt="Logo" />
       </span>
 

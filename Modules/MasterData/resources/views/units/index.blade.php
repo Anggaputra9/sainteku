@@ -8,7 +8,7 @@
     <div class="mt-4 rounded border border-green-300 bg-green-50 px-4 py-2 text-green-800">{{ session('success') }}</div>
   @endif
 
-  <div class="mt-4 overflow-hidden rounded border">
+  <div class="mt-8 rounded-lg overflow-hidden rounded border">
     <table class="w-full table-auto">
       <thead class="bg-gray-50 text-left text-sm">
         <tr>
