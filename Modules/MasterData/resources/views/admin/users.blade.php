@@ -1,4 +1,6 @@
-<x-masterdata::layouts.master>
+@extends('layouts.app')
+
+@section('content')
     <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-semibold">Admin — Manajemen Pengguna</h3>
         <a href="{{ route('masterdata.admin.users.create') }}"
@@ -98,4 +100,4 @@
             </table>
         </div>
     </div>
-</x-masterdata::layouts.master>
+@endsection

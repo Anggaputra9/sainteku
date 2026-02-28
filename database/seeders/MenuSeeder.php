@@ -1,0 +1,199 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class MenuSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $menus = [
+
+            /*
+            |--------------------------------------------------------------------------
+            | 0. DASHBOARD UTAMA
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 100,
+                'menu_name' => 'Dashboard',
+                'menu_link' => 'dashboard', // pastikan route ini ada
+                'menu_icon' => 'dashboard',
+                'parent_id' => null,
+                'order_no' => 0,
+                'is_active' => 1,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. MASTER DATA
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 1,
+                'menu_name' => 'Master Data',
+                'menu_link' => null,
+                'menu_icon' => 'database',
+                'parent_id' => null,
+                'order_no' => 1,
+                'is_active' => 1,
+            ],
+
+            ['id' => 2, 'menu_name' => 'Dashboard Master', 'menu_link' => 'masterdata.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 3, 'menu_name' => 'Data Pengguna (User)', 'menu_link' => 'masterdata.admin.users.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 4, 'menu_name' => 'Data Role / Akses', 'menu_link' => 'masterdata.roles.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 5, 'menu_name' => 'Data Unit / Prodi', 'menu_link' => 'masterdata.units.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 4, 'is_active' => 1],
+            ['id' => 6, 'menu_name' => 'Data Kurikulum', 'menu_link' => 'masterdata.curricula.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 5, 'is_active' => 1],
+            ['id' => 7, 'menu_name' => 'Data Kategori Berkas', 'menu_link' => 'masterdata.categories.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2. MANAJEMEN DOKUMEN
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 10,
+                'menu_name' => 'Manajemen Dokumen',
+                'menu_link' => null,
+                'menu_icon' => 'document',
+                'parent_id' => null,
+                'order_no' => 2,
+                'is_active' => 1,
+            ],
+
+            ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => '#', 'menu_icon' => null, 'parent_id' => 10, 'order_no' => 1, 'is_active' => 1],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3. MONEV AKADEMIK
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 20,
+                'menu_name' => 'Monev Akademik',
+                'menu_link' => null,
+                'menu_icon' => 'chart',
+                'parent_id' => null,
+                'order_no' => 3,
+                'is_active' => 1,
+            ],
+
+            ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 4, 'is_active' => 1],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 4. MANAJEMEN EVENT
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 30,
+                'menu_name' => 'Manajemen Event',
+                'menu_link' => '#',
+                'menu_icon' => 'calendar',
+                'parent_id' => null,
+                'order_no' => 4,
+                'is_active' => 1,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 5. MANAJEMEN ACHIEVEMENT
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 40,
+                'menu_name' => 'Manajemen Achievement',
+                'menu_link' => null,
+                'menu_icon' => 'trophy',
+                'parent_id' => null,
+                'order_no' => 5,
+                'is_active' => 1,
+            ],
+
+            ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 3, 'is_active' => 1],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 6. PENGADUAN MAHASISWA
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 50,
+                'menu_name' => 'Pengaduan Mahasiswa',
+                'menu_link' => '#',
+                'menu_icon' => 'megaphone',
+                'parent_id' => null,
+                'order_no' => 6,
+                'is_active' => 1,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 7. MANAJEMEN INFRASTRUKTUR
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 60,
+                'menu_name' => 'Manajemen Infrastruktur',
+                'menu_link' => null,
+                'menu_icon' => 'building',
+                'parent_id' => null,
+                'order_no' => 7,
+                'is_active' => 1,
+            ],
+
+            ['id' => 61, 'menu_name' => 'Inventaris', 'menu_link' => '#', 'parent_id' => 60, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 62, 'menu_name' => 'Peminjaman', 'menu_link' => '#', 'parent_id' => 60, 'order_no' => 2, 'is_active' => 1],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 8. PENJAMINAN MUTU AKADEMIK
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 70,
+                'menu_name' => 'Penjaminan Mutu Akademik',
+                'menu_link' => '#',
+                'menu_icon' => 'shield',
+                'parent_id' => null,
+                'order_no' => 8,
+                'is_active' => 1,
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | 9. PELAPORAN
+            |--------------------------------------------------------------------------
+            */
+            [
+                'id' => 80,
+                'menu_name' => 'Pelaporan',
+                'menu_link' => null,
+                'menu_icon' => 'report',
+                'parent_id' => null,
+                'order_no' => 9,
+                'is_active' => 1,
+            ],
+
+            ['id' => 81, 'menu_name' => 'Status Review Soal', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 82, 'menu_name' => 'Status Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 83, 'menu_name' => 'Dokumen Expired', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 84, 'menu_name' => 'Statistik Achievement', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 4, 'is_active' => 1],
+            ['id' => 85, 'menu_name' => 'Trend Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 5, 'is_active' => 1],
+        ];
+
+        foreach ($menus as $menu) {
+            DB::table('mst_menu')->updateOrInsert(
+                ['id' => $menu['id']],
+                $menu
+            );
+        }
+    }
+}

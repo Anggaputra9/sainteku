@@ -1,4 +1,6 @@
-<x-masterdata::layouts.master>
+@extends('layouts.app')
+
+@section('content')
     <div class="my-8">
         <!-- Header -->
         <div class="mb-8">
@@ -252,4 +254,5 @@
             </ul>
         </div>
     </div>
-</x-masterdata::layouts.master>
+
+@endsection

@@ -61,9 +61,7 @@ class LoginController extends Controller
             'auth_check' => Auth::check(),
             'auth_id' => Auth::id(),
         ]);
-
-        // Simple redirect to /masterdata
-        return redirect('/masterdata');
+        return redirect('/dashboard');
     }
 
     public function logout(Request $request)

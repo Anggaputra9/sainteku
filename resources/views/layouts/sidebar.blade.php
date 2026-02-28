@@ -1,0 +1,162 @@
+<aside id="sidebar"
+    class="fixed flex flex-col top-0 left-0 px-5 bg-white dark:bg-gray-900 dark:border-gray-800 h-screen border-r border-gray-200 transition-all duration-300 ease-in-out z-50"
+    x-data="{
+        open: null,
+        toggle(i) {
+            this.open = this.open === i ? null : i
+        }
+    }" :class="{
+        'w-[290px]': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen || $store.sidebar.isHovered,
+        'w-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+        'translate-x-0': $store.sidebar.isMobileOpen,
+        '-translate-x-full xl:translate-x-0': !$store.sidebar.isMobileOpen
+    }" @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
+    @mouseleave="$store.sidebar.setHovered(false)">
+
+    {{-- ================= LOGO ================= --}}
+    <div class="pt-8 pb-7 flex" :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen)
+        ? 'xl:justify-center' : 'justify-start'">
+
+        <a href="/">
+            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                class="dark:hidden" src="/images/logo/logo.svg" width="150">
+            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                class="hidden dark:block" src="/images/logo/logo-dark.svg" width="150">
+            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
+                src="/images/logo/logo-icon.svg" width="32">
+        </a>
+    </div>
+
+    {{-- ================= NAVIGATION ================= --}}
+    <div class="flex flex-col overflow-y-auto no-scrollbar">
+        <nav class="mb-6">
+            <div class="flex flex-col gap-4">
+
+                <div>
+                    <h2 class="mb-4 text-xs uppercase text-gray-400">
+                        SISTEM UTAMA
+                    </h2>
+
+                    <ul class="flex flex-col gap-1">
+
+                        @foreach($menus as $i => $menu)
+
+                            @php
+                                $hasChildren = $menu->children->count() > 0;
+
+                                $isActive = false;
+
+                                if ($hasChildren) {
+                                    foreach ($menu->children as $child) {
+                                        if (
+                                            $child->menu_link &&
+                                            Route::is($child->menu_link) ||
+                                            Route::is($child->menu_link . '*')
+                                        ) {
+                                            $isActive = true;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    if (
+                                        $menu->menu_link &&
+                                        Route::is($menu->menu_link) ||
+                                        Route::is($menu->menu_link . '*')
+                                    ) {
+                                        $isActive = true;
+                                    }
+                                }
+                            @endphp
+
+                            <li>
+
+                                {{-- ================= PARENT WITH CHILD ================= --}}
+                                @if($hasChildren)
+
+                                    <button @click="toggle({{ $i }})" class="menu-item group w-full" :class="(open === {{ $i }} || {{ $isActive ? 'true' : 'false' }})
+                                                    ? 'menu-item-active'
+                                                    : 'menu-item-inactive'">
+
+                                        {{-- ICON --}}
+                                        <span class="menu-item-icon">
+                                            {!! \App\Helpers\IconHelper::render($menu->menu_icon) !!}
+                                        </span>
+
+                                        {{-- TEXT --}}
+                                        <span
+                                            x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                            class="menu-item-text">
+                                            {{ $menu->menu_name }}
+                                        </span>
+
+                                        {{-- CHEVRON --}}
+                                        <svg x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                            class="ml-auto w-5 h-5 transition-transform duration-200" :class="{
+                                                        'rotate-180 text-brand-500':
+                                                        open === {{ $i }} || {{ $isActive ? 'true' : 'false' }}
+                                                    }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {{-- SUBMENU --}}
+                                    <div x-show="open === {{ $i }} || {{ $isActive ? 'true' : 'false' }}" x-transition>
+
+                                        <ul class="mt-2 space-y-1 ml-9">
+
+                                            @foreach($menu->children as $child)
+
+                                                                    @php
+                                                                        $childActive = $child->menu_link &&
+                                                                            (Route::is($child->menu_link) ||
+                                                                                Route::is($child->menu_link . '*'));
+                                                                    @endphp
+
+                                                                    <li>
+                                                                        <a href="{{ $child->menu_link && $child->menu_link !== '#'
+                                                ? route($child->menu_link)
+                                                : '#' }}" class="menu-dropdown-item"
+                                                                            :class="{{ $childActive ? "'menu-dropdown-item-active'" : "'menu-dropdown-item-inactive'" }}">
+
+                                                                            {{ $child->menu_name }}
+                                                                        </a>
+                                                                    </li>
+
+                                            @endforeach
+
+                                        </ul>
+                                    </div>
+
+                                    {{-- ================= SIMPLE MENU ================= --}}
+                                @else
+
+                                                    <a href="{{ $menu->menu_link && $menu->menu_link !== '#'
+                                    ? route($menu->menu_link)
+                                    : '#' }}" class="menu-item group
+                                                               {{ $isActive ? 'menu-item-active' : 'menu-item-inactive' }}">
+
+                                                        <span class="menu-item-icon">
+                                                            {!! \App\Helpers\IconHelper::render($menu->menu_icon) !!}
+                                                        </span>
+
+                                                        <span
+                                                            x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                                            class="menu-item-text">
+                                                            {{ $menu->menu_name }}
+                                                        </span>
+                                                    </a>
+
+                                @endif
+
+                            </li>
+
+                        @endforeach
+
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+    </div>
+</aside>
