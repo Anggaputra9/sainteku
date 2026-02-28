@@ -15,21 +15,21 @@ class AdminController extends Controller
     /**
      * Display a listing of all users
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('name')->get();
-        $roles = Role::orderBy('id')->get();
+        $query = User::with('roles')->orderBy('name');
 
-        // Load all roles mapping for each user
-        $userRoles = [];
-        foreach ($users as $user) {
-            $userRoles[$user->id] = DB::table('trx_user_role')
-                ->where('user_id', $user->id)
-                ->pluck('role_id')
-                ->toArray();
+        // Search
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
         }
 
-        return view('masterdata::admin.users', compact('users', 'roles', 'userRoles'));
+        $users = $query->paginate(10)->withQueryString();
+
+        return view('masterdata::admin.users', compact('users'));
     }
 
     /**
@@ -65,7 +65,7 @@ class AdminController extends Controller
 
         // Hash password
         $data['password'] = Hash::make($data['password']);
-        
+
         // Set default values for nullable fields
         $data['identity_id'] = $data['identity_id'] ?? null;
         $data['user_type'] = $data['user_type'] ?? null;
@@ -76,12 +76,7 @@ class AdminController extends Controller
         $user = User::create($data);
 
         // Assign roles
-        foreach ($roleIds as $roleId) {
-            DB::table('trx_user_role')->insert([
-                'user_id' => $user->id,
-                'role_id' => $roleId,
-            ]);
-        }
+        $user->roles()->sync($roleIds);
 
         return redirect()->route('masterdata.admin.users.index')->with('success', 'User berhasil ditambahkan');
     }
@@ -127,7 +122,7 @@ class AdminController extends Controller
         } else {
             unset($data['password']);
         }
-        
+
         // Set default values for nullable fields
         if (!isset($data['identity_id']) || is_null($data['identity_id'])) {
             $data['identity_id'] = null;
@@ -144,15 +139,7 @@ class AdminController extends Controller
         $user->update($data);
 
         // Delete existing roles first
-        DB::table('trx_user_role')->where('user_id', $id)->delete();
-
-        // Assign new roles
-        foreach ($roleIds as $roleId) {
-            DB::table('trx_user_role')->insert([
-                'user_id' => $id,
-                'role_id' => $roleId,
-            ]);
-        }
+        $user->roles()->sync($roleIds);
 
         return redirect()->route('masterdata.admin.users.index')->with('success', 'User berhasil diperbarui');
     }
@@ -165,9 +152,7 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
 
         // Delete role mapping
-        DB::table('trx_user_role')->where('user_id', $id)->delete();
-
-        // Delete user
+        $user->roles()->detach();
         $user->delete();
 
         return redirect()->route('masterdata.admin.users.index')->with('success', 'User berhasil dihapus');

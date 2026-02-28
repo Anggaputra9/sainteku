@@ -4,87 +4,43 @@ namespace App\Helpers;
 
 class IconHelper
 {
-    public static function render($name)
+    public static function render($name, $class = 'w-4 h-4')
     {
         return match ($name) {
 
-            'dashboard' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M3 13h8V3H3v10zm10 8h8V3h-8v18z"/>
+            'plus' => "
+                <svg class='{$class}' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M12 4v16m8-8H4'/>
                 </svg>
-            ',
+            ",
 
-            'database' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <ellipse cx="12" cy="5" rx="9" ry="3"/>
-                    <path d="M3 5v6c0 1.7 4 3 9 3s9-1.3 9-3V5"/>
+            'edit' => "
+                <svg class='{$class}' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round'
+                          d='M15.232 5.232l3.536 3.536M9 13l6-6 3 3-6 6H9v-3z'/>
                 </svg>
-            ',
+            ",
 
-            'document' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M6 2h9l5 5v15H6z"/>
+            'trash' => "
+                <svg class='{$class}' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round'
+                          d='M6 7h12M9 7v10m6-10v10M10 3h4'/>
                 </svg>
-            ',
+            ",
 
-            'chart' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M4 19h16M6 17V9m6 8V5m6 12v-4"/>
+            'search' => "
+                <svg class='{$class}' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                    <circle cx='11' cy='11' r='8'/>
+                    <path stroke-linecap='round' stroke-linejoin='round' d='M21 21l-4.35-4.35'/>
                 </svg>
-            ',
+            ",
 
-            'calendar' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+            'refresh' => "
+                <svg class='{$class}' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round'
+                          d='M4 4v6h6M20 20v-6h-6'/>
                 </svg>
-            ',
-
-            'trophy' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M8 21h8M12 17v4M6 4h12v3a6 6 0 01-12 0V4z"/>
-                </svg>
-            ',
-
-            'megaphone' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M3 10v4l14 4V6z"/>
-                </svg>
-            ',
-
-            'building' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <rect x="4" y="2" width="16" height="20"/>
-                </svg>
-            ',
-
-            'shield' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/>
-                </svg>
-            ',
-
-            'report' => '
-                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>
-                </svg>
-            ',
+            ",
 
             default => '',
         };
