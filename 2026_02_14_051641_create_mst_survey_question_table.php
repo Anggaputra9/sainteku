@@ -10,13 +10,17 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('mst_unit', function (Blueprint $table) {
-            $table->string('id', 4)->primary();
-            $table->string('unit_name', 100);
-            $table->string('unit_parent', 4);
-            $table->integer('unit_type_id');
+        Schema::create('mst_survey_question', function (Blueprint $table) {
+            $table->bigInteger('id')->primary();
+            $table->integer('survey_id')->unique();
+            $table->integer('question_number')->unique();
+            $table->string('question', 100);
             $table->enum('is_active', ['0', '1']);
             $table->dateTime('created_at')->nullable();
+
+            $table->foreign('survey_id')
+                ->references('id')->on('mst_survey_type');
+
         });
 
     }
@@ -26,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('mst_unit');
+        Schema::dropIfExists('mst_survey_question');
     }
 };

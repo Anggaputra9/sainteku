@@ -23,6 +23,13 @@ return new class extends Migration {
             $table->dateTime('last_login_at')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
+
+            $table->foreign('user_type')
+                ->references('id')->on('ref_user_type');
+
+            $table->foreign('unit_id')
+                ->references('id')->on('mst_unit');
+
         });
     }
 

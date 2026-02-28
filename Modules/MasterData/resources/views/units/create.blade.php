@@ -1,37 +1,4 @@
-<x-masterdata::layouts.master>
-  <h3 class="text-xl font-semibold">Tambah Unit</h3>
 
-  <form action="{{ route('masterdata.units.store') }}" method="POST" class="mt-4 max-w-lg">
-    @csrf
-    <div class="mb-4">
-      <label class="block mb-1 text-sm">ID</label>
-      <input name="id" class="w-full rounded border px-3 py-2" value="{{ old('id') }}" />
-    </div>
-
-    <div class="mb-4">
-      <label class="block mb-1 text-sm">Nama Unit</label>
-      <input name="unit_name" class="w-full rounded border px-3 py-2" value="{{ old('unit_name') }}" />
-    </div>
-
-    <div class="mb-4">
-      <label class="block mb-1 text-sm">Tipe</label>
-      <input name="unit_type_id" class="w-full rounded border px-3 py-2" value="{{ old('unit_type_id') }}" />
-    </div>
-
-    <div class="mb-4">
-      <label class="block mb-1 text-sm">Aktif</label>
-      <select name="is_active" class="w-full rounded border px-3 py-2">
-        <option value="1">Ya</option>
-        <option value="0">Tidak</option>
-      </select>
-    </div>
-
-    <div>
-      <button class="btn btn-primary">Simpan</button>
-      <a href="{{ route('masterdata.units.index') }}" class="ml-2">Batal</a>
-    </div>
-  </form>
-</x-masterdata::layouts.master>
 <x-masterdata::layouts.master>
   <h3 class="text-lg font-semibold">Tambah Unit Baru</h3>
 

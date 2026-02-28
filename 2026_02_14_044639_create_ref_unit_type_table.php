@@ -10,9 +10,9 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('ref_permission', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::create('ref_unit_type', function (Blueprint $table) {
+            $table->integer('id', true)->primary();
+            $table->string('description', 10);
         });
     }
 
@@ -21,6 +21,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('ref_permission');
+        Schema::dropIfExists('ref_unit_type');
     }
 };

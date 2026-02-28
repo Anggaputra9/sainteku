@@ -16,6 +16,10 @@ return new class extends Migration {
             $table->integer('inventory_type');
             $table->integer('quantity');
             $table->dateTime('created_at')->nullable();
+
+            $table->foreign('inventory_type')
+                ->references('id')->on('mst_inventory_type');
+
         });
 
     }
