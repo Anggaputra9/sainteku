@@ -29,164 +29,169 @@
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
     <style>
-    /* WARNA SAINTEKU */
-    :root {
-        --saintek-primary: #FEEB04;
-        --saintek-primary-dark: #CBB800;
-        --saintek-text: #856B2B;
-    }
-
-    .bg-primary {
-        background-color: var(--saintek-primary) !important;
-    }
-
-    .btn-primary {
-        background-color: var(--saintek-primary) !important;
-        border-color: var(--saintek-primary) !important;
-        color: #000000 !important;
-    }
-
-    .btn-primary:hover {
-        background-color: var(--saintek-primary-dark) !important;
-        border-color: var(--saintek-primary-dark) !important;
-        color: #000000 !important;
-    }
-
-    .btn-outline-primary {
-        border-color: var(--saintek-primary) !important;
-        color: var(--saintek-text) !important;
-    }
-
-    .btn-outline-primary:hover {
-        background-color: var(--saintek-primary) !important;
-        color: #000000 !important;
-    }
-
-    .text-primary {
-        color: var(--saintek-text) !important;
-    }
-
-    .bg-primary-subtle {
-        background-color: rgba(254, 235, 4, 0.2) !important;
-    }
-
-    /* TIPOGRAFI */
-    body {
-        font-family: 'Inter', 'DM Sans', 'Plus Jakarta Sans', sans-serif;
-        color: #1e293b;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-weight: 600;
-        letter-spacing: -0.02em;
-    }
-
-    /* NAVBAR */
-    .navbar-landing {
-        background-color: white !important;
-        box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
-        padding: 16px 0;
-    }
-
-    .navbar-brand {
-        font-size: 32px !important;
-        font-weight: 700 !important;
-        color: #1e293b !important;
-    }
-
-    .navbar-nav .nav-link {
-        font-weight: 500;
-        color: #334155;
-        margin: 0 8px;
-    }
-
-    .navbar-nav .nav-link.active {
-        color: var(--saintek-text) !important;
-    }
-
-    /* CARD */
-    .card {
-        border: none;
-        border-radius: 28px;
-        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    .card:hover {
-        box-shadow: 0 25px 40px -12px rgba(254, 235, 4, 0.15);
-        transform: translateY(-6px);
-    }
-
-    /* SECTION */
-    .section {
-        padding: 100px 0;
-    }
-
-    /* HERO SECTION */
-    .hero-section {
-        background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
-        padding: 160px 0 100px;
-    }
-
-    /* DROPDOWN */
-    .dropdown-menu {
-        border: none;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        padding: 12px;
-    }
-
-    .dropdown-item {
-        border-radius: 12px;
-        padding: 10px 16px;
-        font-weight: 500;
-    }
-
-    .dropdown-item:hover {
-        background-color: rgba(254, 235, 4, 0.1);
-        color: var(--saintek-text);
-    }
-
-    /* MODAL LOGIN */
-    .btn-soft-primary {
-        background-color: rgba(254, 235, 4, 0.15) !important;
-        color: var(--saintek-text) !important;
-        border: none;
-    }
-
-    .btn-soft-primary:hover {
-        background-color: var(--saintek-primary) !important;
-        color: #000000 !important;
-    }
-
-    /* UTILITY CLASSES */
-    .text-dark-50 {
-        color: rgba(0, 0, 0, 0.7);
-    }
-
-    .bg-opacity-10 {
-        --bs-bg-opacity: 0.1;
-    }
-
-    .fs-14 {
-        font-size: 14px;
-    }
-
-    .fs-15 {
-        font-size: 15px;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-        .hero-section {
-            padding: 140px 0 60px;
+        /* WARNA SAINTEKU */
+        :root {
+            --saintek-primary: #FEEB04;
+            --saintek-primary-dark: #CBB800;
+            --saintek-text: #856B2B;
         }
-        
+
+        .bg-primary {
+            background-color: var(--saintek-primary) !important;
+        }
+
+        .btn-primary {
+            background-color: var(--saintek-primary) !important;
+            border-color: var(--saintek-primary) !important;
+            color: #000000 !important;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--saintek-primary-dark) !important;
+            border-color: var(--saintek-primary-dark) !important;
+            color: #000000 !important;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--saintek-primary) !important;
+            color: var(--saintek-text) !important;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--saintek-primary) !important;
+            color: #000000 !important;
+        }
+
+        .text-primary {
+            color: var(--saintek-text) !important;
+        }
+
+        .bg-primary-subtle {
+            background-color: rgba(254, 235, 4, 0.2) !important;
+        }
+
+        /* TIPOGRAFI */
+        body {
+            font-family: 'Inter', 'DM Sans', 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* NAVBAR */
+        .navbar-landing {
+            background-color: white !important;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
+            padding: 16px 0;
+        }
+
+        .navbar-brand {
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            color: #334155;
+            margin: 0 8px;
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--saintek-text) !important;
+        }
+
+        /* CARD */
+        .card {
+            border: none;
+            border-radius: 28px;
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 25px 40px -12px rgba(254, 235, 4, 0.15);
+            transform: translateY(-6px);
+        }
+
+        /* SECTION */
         .section {
-            padding: 60px 0;
+            padding: 100px 0;
         }
-    }
-</style>
+
+        /* HERO SECTION */
+        .hero-section {
+            background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
+            padding: 160px 0 100px;
+        }
+
+        /* DROPDOWN */
+        .dropdown-menu {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+        }
+
+        .dropdown-item {
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(254, 235, 4, 0.1);
+            color: var(--saintek-text);
+        }
+
+        /* MODAL LOGIN */
+        .btn-soft-primary {
+            background-color: rgba(254, 235, 4, 0.15) !important;
+            color: var(--saintek-text) !important;
+            border: none;
+        }
+
+        .btn-soft-primary:hover {
+            background-color: var(--saintek-primary) !important;
+            color: #000000 !important;
+        }
+
+        /* UTILITY CLASSES */
+        .text-dark-50 {
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .bg-opacity-10 {
+            --bs-bg-opacity: 0.1;
+        }
+
+        .fs-14 {
+            font-size: 14px;
+        }
+
+        .fs-15 {
+            font-size: 15px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 140px 0 60px;
+            }
+
+            .section {
+                padding: 60px 0;
+            }
+        }
+    </style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#navbar-example">
@@ -421,7 +426,7 @@
         </div>
     </section>
 
-       <!-- PRESTASI - MODERN GRID LAYOUT -->
+    <!-- PRESTASI - MODERN GRID LAYOUT -->
     <section class="section" id="prestasi">
         <div class="container">
             <div class="row justify-content-center">
@@ -889,7 +894,9 @@
             <div class="row text-center text-sm-start align-items-center mt-5">
                 <div class="col-sm-6">
                     <p class="copy-rights mb-0 text-white-50">
-                        <script>document.write(new Date().getFullYear())</script> © Sainteku - UIN Prof. K.H. Saifuddin Zuhri Purwokerto
+                        <script>
+                            document.write(new Date().getFullYear())
+                        </script> © Sainteku - UIN Prof. K.H. Saifuddin Zuhri Purwokerto
                     </p>
                 </div>
                 <div class="col-sm-6">
@@ -958,16 +965,27 @@
                                 Password: <code>password</code>
                             </small>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label" for="password">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                class="form-control"
-                                placeholder="Password"
-                                required />
+                            <div class="position-relative">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    class="form-control pe-5"
+                                    placeholder="Password"
+                                    required />
+                                <button
+                                    type="button"
+                                    class="btn position-absolute end-0 top-0 h-100 border-0 bg-transparent"
+                                    id="togglePassword"
+                                    style="z-index: 10; outline: none; box-shadow: none;">
+                                    <i class="ri-eye-off-line" id="togglePasswordIcon"></i>
+                                </button>
+                            </div>
                         </div>
+
                         <div class="mb-3 form-check">
                             <input
                                 class="form-check-input"
@@ -985,18 +1003,38 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const loginError = document.getElementById('loginError');
-            const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
 
-            @if($errors->any())
-            loginError.style.display = 'block';
-            loginModal.show();
-            @endif
+            togglePassword.addEventListener('click', function(e) {
+                e.preventDefault();
 
-            @if(session('show_login_modal'))
-            loginModal.show();
-            @endif
+                // Toggle tipe input
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+
+                // Toggle icon
+                if (type === 'password') {
+                    toggleIcon.classList.remove('ri-eye-line');
+                    toggleIcon.classList.add('ri-eye-off-line');
+                } else {
+                    toggleIcon.classList.remove('ri-eye-off-line');
+                    toggleIcon.classList.add('ri-eye-line');
+                }
+
+                // Fokus kembali ke input
+                passwordInput.focus();
+            });
+
+            // Optional: tekan Enter di input password
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('loginForm').submit();
+                }
+            });
         });
     </script>
 </body>
+
 </html>
