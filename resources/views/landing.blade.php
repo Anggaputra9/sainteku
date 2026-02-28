@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto</title>
+    <title> Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Fakultas Sains dan Teknologi UIN Saifuddin Zuhri Purwokerto" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -189,6 +189,82 @@
 
             .section {
                 padding: 60px 0;
+            }
+        }
+
+        /* Memastikan modal tidak full screen */
+        .modal-dialog {
+            margin: 1.75rem auto;
+        }
+
+        /* Styling tambahan */
+        .form-control:focus {
+            border-color: #FEEB04 !important;
+            box-shadow: 0 0 0 3px rgba(254, 235, 4, 0.15) !important;
+            outline: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            transition: all 0.2s;
+        }
+
+        .form-check-input:checked {
+            background-color: #FEEB04;
+            border-color: #FEEB04;
+        }
+
+        /* Membuat semua sudut lancip */
+        .modal-content,
+        .col-md-5,
+        .col-md-7,
+        .form-control,
+        .btn,
+        .position-absolute,
+        .border-top {
+            border-radius: 0 !important;
+        }
+
+        /* Mobile Styles (<768px) */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+                max-width: calc(100% - 1rem) !important;
+            }
+
+            .modal-content {
+                margin: 0;
+            }
+
+            .col-md-5 {
+                display: none !important;
+            }
+
+            .col-md-7 {
+                width: 100% !important;
+            }
+
+            .p-4 {
+                padding: 1.25rem !important;
+            }
+
+            h1 {
+                font-size: 1.6rem !important;
+            }
+
+            .btn {
+                font-size: 0.85rem !important;
+            }
+        }
+
+        /* Desktop Styles (>768px) */
+        @media (min-width: 769px) {
+            .d-md-none {
+                display: none !important;
+            }
+
+            .col-md-7 {
+                width: 58.33333333% !important;
             }
         }
     </style>
@@ -930,111 +1006,174 @@
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/pages/job-lading.init.js"></script>
 
-    <!-- Login Modal -->
+    <!-- Login Modal - TailAdmin Style with Proper Margins -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="loginModalLabel">Masuk ke Sainteku</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="loginError" class="alert alert-danger" role="alert" style="display: none;">
-                        @if($errors->any())
-                        @foreach($errors->all() as $error)
-                        <p class="mb-1">{{ $error }}</p>
-                        @endforeach
-                        @endif
-                    </div>
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 1000px; margin: 1.75rem auto;">
+            <div class="modal-content overflow-hidden" style="border-radius: 0; background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div class="row g-0">
+                    <!-- Left Column - Branding (Desktop Only) -->
+                    <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center"
+                        style="background: linear-gradient(145deg, #FEEB04 0%, #CBB800 100%); min-height: 550px; position: relative; border-radius: 0;">
 
-                    <form id="loginForm" action="/login" method="POST">
-                        @csrf
-                        <div class="mb-3">
-                            <label class="form-label" for="credential">Email / ID Pengguna</label>
-                            <input
-                                id="credential"
-                                name="credential"
-                                type="text"
-                                class="form-control"
-                                placeholder="Contoh: u0001 atau test@example.com"
-                                value="{{ old('credential') }}"
-                                required />
-                            <small class="text-muted d-block mt-2">
-                                <strong>Test:</strong> <br>
-                                ID: <code>u0001</code> atau Email: <code>test@example.com</code> <br>
-                                Password: <code>password</code>
-                            </small>
+                        <!-- Grid Pattern -->
+                        <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10"
+                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><path d=%22M0 0 L100 100 M100 0 L0 100%22 stroke=%22%23000000%22 stroke-width=%221%22 opacity=%220.2%22/></svg>'); background-size: 30px 30px; border-radius: 0;">
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label" for="password">Password</label>
-                            <div class="position-relative">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    class="form-control pe-5"
-                                    placeholder="Password"
-                                    required />
-                                <button
-                                    type="button"
-                                    class="btn position-absolute end-0 top-0 h-100 border-0 bg-transparent"
-                                    id="togglePassword"
-                                    style="z-index: 10; outline: none; box-shadow: none;">
-                                    <i class="ri-eye-off-line" id="togglePasswordIcon"></i>
-                                </button>
+                        <div class="text-center position-relative z-1 px-4 py-3">
+                            <img src="{{ asset('assets/images/uin.png') }}" alt="Logo UIN Saizu" class="img-fluid mb-3" style="max-width: 95px; height: auto;">
+                            <h2 class="fw-bold mb-2" style="color: #000000; font-size: 2rem;">Sainteku</h2>
+                            <p class="mb-0 text-dark" style="font-size: 0.9rem;">Fakultas Sains & Teknologi</p>
+                            <p class="mb-3 text-dark" style="font-size: 0.9rem;">UIN Prof. K.H. Saifuddin Zuhri</p>
+
+                            <!-- Quote -->
+                            <div class="mt-4 pt-2">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 opacity-75">
+                                    <path d="M10 11H6V7H10V11ZM18 11H14V7H18V11Z" fill="#000000" />
+                                </svg>
+                                <p class="fst-italic text-dark" style="font-size: 0.85rem; max-width: 260px; margin: 0 auto; line-height: 1.5; opacity: 0.9;">
+                                    "Mencerdaskan dan memajukan bangsa melalui pendidikan sains dan teknologi yang berlandaskan nilai-nilai Islam."
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="mb-3 form-check">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                id="remember"
-                                name="remember" />
-                            <label class="form-check-label" for="remember">Ingat saya</label>
+                    <!-- Right Column - Login Form (Full width on mobile) -->
+                    <div class="col-md-7 bg-white" style="border-radius: 0;">
+                        <!-- Mobile Header - muncul hanya di mobile -->
+                        <div class="d-md-none p-4 text-center border-bottom" style="background: #F9FAFB;">
+                            <h2 class="fw-bold mb-1" style="color: #000000; font-size: 1.8rem;">Sainteku</h2>
+                            <p class="mb-0 text-muted small">Fakultas Sains & Teknologi</p>
+                            <p class="mb-0 text-muted small">UIN Prof. K.H. Saifuddin Zuhri</p>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Masuk</button>
-                    </form>
+
+                        <div class="p-4" style="max-width: 450px; margin: 0 auto;">
+                            <!-- Back Link -->
+                            <div class="mb-3">
+                                <a href="#" class="d-inline-flex align-items-center text-sm text-gray-500 text-decoration-none" data-bs-dismiss="modal">
+                                    <svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                        <path d="M12.7083 5L7.5 10.2083L12.7083 15.4167" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    Kembali
+                                </a>
+                            </div>
+
+                            <!-- Header -->
+                            <div class="mb-4">
+                                <h1 class="fw-semibold text-gray-800" style="font-size: 1.8rem; margin-bottom: 0.25rem;">Masuk</h1>
+                                <p class="text-sm text-gray-500">Masukkan email dan password Anda</p>
+                            </div>
+
+                            <!-- Social Buttons -->
+                            <div class="mb-3">
+                                <button class="btn btn-light w-100 py-2 d-flex align-items-center justify-content-center gap-2 border-0" style="background: #F3F4F6; font-size: 0.85rem;">
+                                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                        <path d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z" fill="#4285F4" />
+                                        <path d="M10.1788 18.75C12.5895 18.75 14.6133 17.9722 16.0915 16.6305L13.274 14.4916C12.5201 15.0068 11.5081 15.3666 10.1788 15.3666C7.81773 15.3666 5.81379 13.8402 5.09944 11.7305L4.99473 11.7392L2.23868 13.8295L2.20264 13.9277C3.67087 16.786 6.68674 18.75 10.1788 18.75Z" fill="#34A853" />
+                                        <path d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20333 6.0721C1.5982 7.25823 1.25098 8.5902 1.25098 9.99992C1.25098 11.4096 1.5982 12.7415 2.20333 13.9277L5.10014 11.7305Z" fill="#FBBC05" />
+                                        <path d="M10.1789 4.63331C11.8554 4.63331 12.9864 5.34303 13.6312 5.93612L16.1511 3.525C14.6035 2.11528 12.5895 1.25 10.1789 1.25C6.68676 1.25 3.67088 3.21387 2.20264 6.07218L5.08953 8.26943C5.81381 6.15972 7.81776 4.63331 10.1789 4.63331Z" fill="#EB4335" />
+                                    </svg>
+                                    <span>Masuk dengan Google</span>
+                                </button>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="position-relative text-center mb-3">
+                                <div class="border-top border-gray-200" style="position: absolute; top: 50%; left: 0; right: 0;"></div>
+                                <span class="px-2 bg-white text-gray-400 small position-relative">Atau</span>
+                            </div>
+
+                            <!-- Login Form -->
+                            <form method="POST" action="/login">
+                                @csrf
+
+                                <!-- Error Alert -->
+                                @if($errors->any())
+                                <div class="alert alert-danger py-2 mb-3 small" style="background: #FEF3F2; border-color: #F04438; color: #B42318;">
+                                    @foreach($errors->all() as $error)
+                                    <p class="mb-0">{{ $error }}</p>
+                                    @endforeach
+                                </div>
+                                @endif
+
+                                <!-- Email -->
+                                <div class="mb-3">
+                                    <label class="form-label d-block small fw-medium text-gray-700 mb-1">
+                                        Email<span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text"
+                                        class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                        id="credential"
+                                        name="credential"
+                                        placeholder="info@gmail.com"
+                                        value="{{ old('credential') }}"
+                                        style="height: 42px;"
+                                        required>
+                                    <small class="text-muted d-block mt-1 small">
+                                        <strong>Test:</strong> ID: u0001 | test@example.com
+                                    </small>
+                                </div>
+
+                                <!-- Password with Alpine.js toggle -->
+                                <div class="mb-3" x-data="{ showPassword: false }">
+                                    <label class="form-label d-block small fw-medium text-gray-700 mb-1">
+                                        Kata Sandi<span class="text-danger">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <input :type="showPassword ? 'text' : 'password'"
+                                            class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                            id="password"
+                                            name="password"
+                                            placeholder="Masukkan kata sandi"
+                                            style="height: 42px; padding-right: 42px;"
+                                            required>
+                                        <span @click="showPassword = !showPassword"
+                                            class="position-absolute text-gray-500 cursor-pointer"
+                                            style="right: 12px; top: 50%; transform: translateY(-50%); z-index: 10;">
+                                            <svg x-show="!showPassword" width="18" height="18" viewBox="0 0 20 20" fill="none">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z" fill="#98A2B3" />
+                                            </svg>
+                                            <svg x-show="showPassword" width="18" height="18" viewBox="0 0 20 20" fill="none" style="display: none;">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z" fill="#98A2B3" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted d-block mt-1 small">Kata Sandi: password</small>
+                                </div>
+
+                                <!-- Remember Me & Forgot Password -->
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="form-check">
+                                        <input type="checkbox"
+                                            class="form-check-input"
+                                            id="remember"
+                                            name="remember"
+                                            style="width: 16px; height: 16px;">
+                                        <label class="form-check-label small text-gray-700 ms-1" for="remember">
+                                            Ingat saya
+                                        </label>
+                                    </div>
+                                    <a href="#" class="small text-decoration-none" style="color: #FEEB04;">Lupa password?</a>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <button type="submit"
+                                    class="btn w-100 py-2 small fw-medium border-0 rounded-0"
+                                    style="background-color: #FEEB04; color: #000;">
+                                    Masuk
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.getElementById('togglePassword');
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('togglePasswordIcon');
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-            togglePassword.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                // Toggle tipe input
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-
-                // Toggle icon
-                if (type === 'password') {
-                    toggleIcon.classList.remove('ri-eye-line');
-                    toggleIcon.classList.add('ri-eye-off-line');
-                } else {
-                    toggleIcon.classList.remove('ri-eye-off-line');
-                    toggleIcon.classList.add('ri-eye-line');
-                }
-
-                // Fokus kembali ke input
-                passwordInput.focus();
-            });
-
-            // Optional: tekan Enter di input password
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('loginForm').submit();
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

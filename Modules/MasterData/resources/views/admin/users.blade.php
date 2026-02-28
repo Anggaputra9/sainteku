@@ -12,18 +12,22 @@
                     </h2>
                     <nav>
                         <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                            <li>Admin /</li>
+                            <li>Master Data /</li>
                             <li class="text-blue-600 dark:text-blue-400">Users</li>
                         </ol>
                     </nav>
                 </div>
 
                 {{-- Tombol Tambah (Success: Hijau, fa-plus) --}}
-                <a href="{{ route('masterdata.admin.users.create') }}"
-                    class="inline-flex items-center justify-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 transition shadow-sm">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                    Tambah
-                </a>
+                <div x-data="{ openCreate: false }">
+                    <button @click="openCreate = true"
+                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
+                        <i class="fas fa-plus"></i>
+                        Tambah User
+                    </button>
+
+                    @include('masterdata::admin.modal-create')
+                </div>
             </div>
 
             {{-- Success Message --}}
@@ -42,8 +46,7 @@
             @endif
 
             {{-- Filter & Search --}}
-            <div
-                class="rounded-lg">
+            <div class="rounded-lg">
                 <form method="GET" class="flex flex-wrap items-center justify-between gap-3">
 
                     {{-- Input Cari --}}
@@ -99,8 +102,10 @@
                                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                                             </div>
                                             <div>
-                                                <div class="font-medium text-gray-900 dark:text-white">{{ $user->name }}</div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
+                                                <div class="font-medium text-gray-900 dark:text-white">{{ $user->name }}
+                                                </div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -117,10 +122,11 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($user->is_active)
+                                        @if ($user->is_active)
                                             <span
                                                 class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
+                                                <span
+                                                    class="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
                                                 Aktif
                                             </span>
                                         @else
@@ -164,7 +170,7 @@
                 </div>
 
                 {{-- Pagination Custom --}}
-                @if($users->hasPages())
+                @if ($users->hasPages())
                     <div class="border-t border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
                         {{ $users->links() }}
                     </div>
