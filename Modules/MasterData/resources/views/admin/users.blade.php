@@ -1,8 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
+<<<<<<< HEAD
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <div class="space-y-6">
+=======
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Admin — Manajemen Pengguna</h3>
+        <a href="{{ route('masterdata.admin.users.create') }}"
+            class="inline-flex items-center gap-2 rounded !bg-green-600 px-4 py-2 font-medium !text-white hover:!bg-green-700 transition">
+            <i class="fas fa-plus"></i>
+            Tambah User
+        </a>
+    </div>
+>>>>>>> dc07b21 (update view masterdata)
 
             {{-- Breadcrumb & Title --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -26,6 +37,7 @@
                 </a>
             </div>
 
+<<<<<<< HEAD
             {{-- Success Message --}}
             @if (session('success'))
                 <div
@@ -107,6 +119,35 @@
                                     <td class="px-6 py-4">
                                         <div class="flex flex-wrap gap-1">
                                             @forelse($user->roles as $role)
+=======
+    <div
+        class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead class="bg-gray-50/50 text-left text-sm dark:bg-gray-700/30">
+                    <tr class="border-b border-gray-100 dark:border-gray-700/50">
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">ID</th>
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">Nama</th>
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">Email</th>
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">Role Saat Ini</th>
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">Status</th>
+                        <th class="px-4 py-3 font-medium text-slate-900 dark:text-white">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
+                    @forelse($users as $user)
+                        <tr
+                            class="bg-transparent">
+                            <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ $user->id }}</td>
+                            <td class="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{{ $user->name }}</td>
+                            <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{{ $user->email }}</td>
+                            <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                                @if (isset($userRoles[$user->id]) && count($userRoles[$user->id]) > 0)
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach ($userRoles[$user->id] as $roleId)
+                                            @php $role = $roles->where('id', $roleId)->first(); @endphp
+                                            @if ($role)
+>>>>>>> dc07b21 (update view masterdata)
                                                 <span
                                                     class="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
                                                     {{ $role->role_name }}
