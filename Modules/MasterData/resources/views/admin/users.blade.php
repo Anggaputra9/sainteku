@@ -12,7 +12,7 @@
                     </h2>
                     <nav>
                         <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                            <li>Admin /</li>
+                            <li>Master Data /</li>
                             <li class="text-blue-600 dark:text-blue-400">Users</li>
                         </ol>
                     </nav>
