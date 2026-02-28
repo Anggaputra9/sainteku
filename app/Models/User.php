@@ -18,6 +18,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     // Use existing mst_user table used by project
+
+    public function roles()
+    {
+        return $this->belongsToMany(
+            Role::class,
+            'trx_user_role',
+            'user_id',
+            'role_id'
+        );
+    }
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
     public $incrementing = false;

@@ -6,7 +6,7 @@ class IconHelper
 {
     public static function render($name)
     {
-        return match ($name) {
+        return match($name) {
 
             'dashboard' => '
                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
