@@ -89,8 +89,10 @@
                                         </svg>
                                     </button>
 
-                                    {{-- SUBMENU (Sekarang murni pakai state 'open' agar bisa di-toggle) --}}
-                                    <div x-show="open === {{ $i }}" x-transition style="display: none;">
+                                    {{-- SUBMENU (Sekarang auto-hide pas sidebar mode sempit) --}}
+                                    <div x-show="open === {{ $i }} && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)"
+                                        x-transition style="display: none;">
+
                                         <ul class="mt-2 space-y-1 ml-9">
 
                                             @foreach($menu->children as $child)
