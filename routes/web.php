@@ -3,204 +3,94 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
+// ==================================================
+// PUBLIC ROUTES
+// ==================================================
+
+// Halaman Landing
 Route::get('/', function () {
     return view('landing');
-});
+})->name('home');
 
-// Auth routes (Tailadmin UI - Modal on landing page)
+// Login routes
 Route::get('login', function () {
-    return redirect('/');  // Redirect to landing page (modal ada di sana)
+    return redirect('/');
 })->name('login');
+
 Route::post('login', [LoginController::class, 'login'])->name('login.post');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::get('password/forgot', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+// Forgot Password Routes
+Route::get('password/forgot', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 
-Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
+// Reset Password Routes
+Route::get('reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 
-Route::get('/dashboard', function () {
-    return view('pages.dashboard', ['title' => 'Sainteku | Dashboard']);
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Check Auth (untuk AJAX)
+Route::get('/check-auth', [LoginController::class, 'checkAuth'])->name('check.auth');
 
-Route::middleware('auth')->group(function () {
+// ==================================================
+// PROTECTED ROUTES
+// ==================================================
+Route::middleware(['auth'])->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('pages.dashboard', ['title' => 'Sainteku | Dashboard']);
+    })->name('dashboard');
+
+    // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// ==================================================
+// AUTH ROUTES BAWAAN
+// ==================================================
+require __DIR__ . '/auth.php';
 
-// Debug endpoints
-Route::get('/debug/auth', function () {
-    return response()->json([
-        'authenticated' => \Illuminate\Support\Facades\Auth::check(),
-        'user_id' => \Illuminate\Support\Facades\Auth::id(),
-        'user' => \Illuminate\Support\Facades\Auth::user(),
-        'session_id' => session()->getId(),
-    ]);
+// ==================================================
+// TEST ENDPOINTS (HAPUS NANTI)
+// ==================================================
+
+Route::get('/test-login-now', function () {
+    $user = User::where('email', 'Syahputranabil521@gmail.com')->first();
+    if (!$user) return 'User tidak ditemukan';
+    Auth::login($user);
+    return 'Login berhasil! <a href="/dashboard">Go to Dashboard</a>';
 });
 
-Route::get('/debug/masterdata-test', function () {
-    if (!\Illuminate\Support\Facades\Auth::check()) {
-        return response()->json(['error' => 'Not authenticated']);
-    }
-    return response()->json([
-        'message' => 'Authenticated! Can access masterdata.',
-        'user_id' => \Illuminate\Support\Facades\Auth::id(),
-    ]);
-})->middleware('auth');
+// ==================================================
+// STATIC PAGES
+// ==================================================
 
-Route::get('/test-page', function () {
-    return view('test-page');
-});
-
-Route::post('/test-login', function (\Illuminate\Http\Request $request) {
-    $cred = $request->validate(['credential' => 'required', 'password' => 'required']);
-    
-    $user = \App\Models\User::where('email', $cred['credential'])
-                              ->orWhere('id', $cred['credential'])
-                              ->first();
-    
-    if (!$user || !\Illuminate\Support\Facades\Hash::check($cred['password'], $user->password)) {
-        return response()->json(['error' => 'Invalid credentials'], 401);
-    }
-    
-    // Try to login
-    \Illuminate\Support\Facades\Auth::login($user, true);
-    
-    return response()->json([
-        'success' => true,
-        'user_id' => $user->id,
-        'authenticated' => \Illuminate\Support\Facades\Auth::check(),
-        'auth_user' => \Illuminate\Support\Facades\Auth::user() ? \Illuminate\Support\Facades\Auth::user()->id : null,
-    ]);
-});
-Route::get('/debug/logs', function () {
-    $logFile = storage_path('logs/laravel.log');
-    if (!file_exists($logFile)) {
-        return 'No log file found';
-    }
-    
-    $lines = file($logFile);
-    $recentLines = array_slice($lines, -50);
-    
-    return '<pre>' . htmlspecialchars(implode('', $recentLines)) . '</pre>';
-});
-
-Route::get('/debug/sessions-table', function () {
-    $sessions = DB::table('sessions')->latest('last_activity')->limit(5)->get();
-    $data = [];
-    foreach ($sessions as $session) {
-        $payload = unserialize(base64_decode($session->payload));
-        $data[] = [
-            'id' => $session->id,
-            'user_id' => $session->user_id,
-            'last_activity' => $session->last_activity,
-            'payload_keys' => array_keys($payload),
-        ];
-    }
-    return response()->json(['sessions' => $data], 200);
-});
-
-Route::get('/test-manual-login', function () {
-    // Manually log in a user for testing
-    $user = \App\Models\User::find('u0001');
-    if (!$user) {
-        return response()->json(['error' => 'User not found'], 404);
-    }
-    
-    \Illuminate\Support\Facades\Auth::login($user);
-    $sessionId = session()->getId();
-    
-    \Log::info('RESPONSE_HEADERS_CHECK', [
-        'session_id' => $sessionId,
-        'auth_check' => \Illuminate\Support\Facades\Auth::check(),
-        'auth_id' => \Illuminate\Support\Facades\Auth::id(),
-    ]);
-    
-    $response = response()->json([
-        'auth_check_now' => \Illuminate\Support\Facades\Auth::check(),
-        'auth_id_now' => \Illuminate\Support\Facades\Auth::id(),
-        'session_id' => $sessionId,
-    ]);
-    
-    // This is where cookies should be set
-    // Let's log what we see after the framework processes the response
-    return $response;
-});
-
-Route::get('/debug/check-session/{sessionId}', function ($sessionId) {
-    $dbSession = DB::table('sessions')->find($sessionId);
-    if (!$dbSession) {
-        return response()->json(['error' => 'Session not found'], 404);
-    }
-    
-    $payload = unserialize(base64_decode($dbSession->payload));
-    
-    return response()->json([
-        'session_id' => $sessionId,
-        'db_user_id' => $dbSession->user_id,
-        'payload_keys' => array_keys($payload),
-        'current_auth_check' => \Illuminate\Support\Facades\Auth::check(),
-        'current_auth_id' => \Illuminate\Support\Facades\Auth::id(),
-        'current_session_id' => session()->getId(),
-    ]);
-});
-
-Route::get('/debug/verify-session-persistence', function () {
-    // This route is accessed AFTER a login redirect
-    // It will show whether the session and auth persist
-    return response()->json([
-        'current_auth_check' => \Illuminate\Support\Facades\Auth::check(),
-        'current_auth_id' => \Illuminate\Support\Facades\Auth::id(),
-        'current_session_id' => session()->getId(),
-        'auth_user' => \Illuminate\Support\Facades\Auth::user() ? [
-            'id' => \Illuminate\Support\Facades\Auth::user()->id,
-            'email' => \Illuminate\Support\Facades\Auth::user()->email,
-        ] : null,
-        'request_headers' => [
-            'cookies_present' => array_keys(request()->cookies->all()),
-        ],
-    ]);
-});
-
-// calender pages
 Route::get('/calendar', function () {
     return view('pages.calender', ['title' => 'Calendar']);
 })->name('calendar');
 
-// profile pages
-Route::get('/profile', function () {
-    return view('pages.profile', ['title' => 'Profile']);
-})->name('profile');
-
-// form pages
 Route::get('/form-elements', function () {
     return view('pages.form.form-elements', ['title' => 'Form Elements']);
 })->name('form-elements');
 
-// tables pages
 Route::get('/basic-tables', function () {
     return view('pages.tables.basic-tables', ['title' => 'Basic Tables']);
 })->name('basic-tables');
-
-// pages
 
 Route::get('/blank', function () {
     return view('pages.blank', ['title' => 'Blank']);
 })->name('blank');
 
-// error pages
 Route::get('/error-404', function () {
     return view('pages.errors.error-404', ['title' => 'Error 404']);
 })->name('error-404');
 
-// chart pages
 Route::get('/line-chart', function () {
     return view('pages.chart.line-chart', ['title' => 'Line Chart']);
 })->name('line-chart');
@@ -209,8 +99,6 @@ Route::get('/bar-chart', function () {
     return view('pages.chart.bar-chart', ['title' => 'Bar Chart']);
 })->name('bar-chart');
 
-
-// authentication pages
 Route::get('/signin', function () {
     return view('pages.auth.signin', ['title' => 'Sign In']);
 })->name('signin');
@@ -219,7 +107,6 @@ Route::get('/signup', function () {
     return view('pages.auth.signup', ['title' => 'Sign Up']);
 })->name('signup');
 
-// ui elements pages
 Route::get('/alerts', function () {
     return view('pages.ui-elements.alerts', ['title' => 'Alerts']);
 })->name('alerts');
@@ -243,3 +130,18 @@ Route::get('/image', function () {
 Route::get('/videos', function () {
     return view('pages.ui-elements.videos', ['title' => 'Videos']);
 })->name('videos');
+
+// Route::get('/force-logout', function () {
+   // Auth::logout();
+    // session()->flush(); // Hapus semua session
+    // session()->regenerate();
+    // return redirect('/');
+// });
+
+// Route::get('/cek-status', function () {
+   // return [
+     //   'auth_check' => auth()->check(),
+     //   'session_id' => session()->getId(),
+     //   'session_data' => session()->all()
+   // ];
+// });
