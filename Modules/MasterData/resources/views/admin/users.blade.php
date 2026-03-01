@@ -21,7 +21,7 @@
                 {{-- Tombol Tambah (Success: Hijau, fa-plus) --}}
                 <div x-data="{ openCreate: false }">
                     <button @click="openCreate = true"
-                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
+                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
                         <i class="fas fa-plus"></i>
                         Tambah User
                     </button>
@@ -56,7 +56,7 @@
                         </span>
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari nama atau email..."
-                            class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
+                            class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
                     </div>
 
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -68,7 +68,7 @@
 
                         {{-- Tombol Muat Ulang --}}
                         <a href="{{ route('masterdata.admin.users.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition shadow-sm">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-teal-700 focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800 transition shadow-sm">
                             <i class="fa-solid fa-rotate text-xs"></i> Reset
                         </a>
                     </div>
@@ -140,18 +140,33 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             {{-- Tombol Ubah (Warning: Oranye, fa-pencil) --}}
-                                            <a href="{{ route('masterdata.admin.users.edit', $user->id) }}"
+                                            <button
+                                                @click="$dispatch('open-edit-modal', { 
+                                                url: '{{ route('masterdata.admin.users.update', $user->id) }}',
+                                                name: '{{ $user->name }}',
+                                                email: '{{ $user->email }}',
+                                                identity: '{{ $user->identity_id }}',
+                                                type: '{{ $user->user_type }}',
+                                                active: {{ $user->is_active ? 'true' : 'false' }},
+                                                roles: {{ json_encode($user->roles->pluck('id')) }}
+                                                })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800 transition shadow-sm"
                                                 title="Ubah Data">
                                                 <i class="fa-solid fa-pencil"></i> Ubah
-                                            </a>
+                                            </button>
+                                            @include('masterdata::admin.modal-edit')
 
                                             {{-- Tombol Hapus (Danger: Merah, fa-trash) --}}
                                             <button
+                                                @click="$dispatch('open-delete-modal', { 
+                                                url: '{{ route('masterdata.admin.users.destroy', $user->id) }}',
+                                                name: '{{ $user->name }}'
+                                                })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900 transition shadow-sm"
                                                 title="Hapus Data">
                                                 <i class="fa-solid fa-trash"></i> Hapus
                                             </button>
+                                            @include('masterdata::admin.delete-modal')
                                         </div>
                                     </td>
                                 </tr>
