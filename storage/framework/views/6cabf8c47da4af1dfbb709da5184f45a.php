@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="flex items-center justify-between mb-6">
         <div>
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Daftar Role</h3>
@@ -14,15 +12,15 @@
         </button>
     </div>
 
-    @if (session('success'))
+    <?php if(session('success')): ?>
         <div
             class="mb-4 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400">
             <div class="flex items-center gap-2">
                 <i class="fas fa-check-circle"></i>
-                <p class="text-sm font-medium">{{ session('success') }}</p>
+                <p class="text-sm font-medium"><?php echo e(session('success')); ?></p>
             </div>
         </div>
-    @endif
+    <?php endif; ?>
 
     <div class="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
         <div class="overflow-x-auto">
@@ -40,23 +38,26 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                    @forelse($roles as $role)
+                    <?php $__empty_1 = true; $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr class="bg-transparent">
                             <td class="px-4 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">
-                                #{{ $loop->iteration }}
+                                #<?php echo e($loop->iteration); ?>
+
                             </td>
                             <td class="px-4 py-4">
                                 <span
                                     class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                                    {{ strtoupper($role->role_name) }}
+                                    <?php echo e(strtoupper($role->role_name)); ?>
+
                                 </span>
                             </td>
                             <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                {{ $role->description ?? 'Tidak ada deskripsi' }}
+                                <?php echo e($role->description ?? 'Tidak ada deskripsi'); ?>
+
                             </td>
                             <td class="px-4 py-4 text-sm">
                                 <div class="flex items-center justify-center gap-2">
-                                    @php
+                                    <?php
                                         // Siapkan array izin khusus untuk role ini agar bisa dibaca oleh Alpine.js
                                         // Formatnya: "modul_id-permission_id" (Contoh: "1-2" berarti Modul 1 punya Izin 2)
                                         $perms = isset($rolePermissions[$role->id])
@@ -68,27 +69,28 @@
                                             })
                                             ->values()
                                             ->toJson();
-                                    @endphp
+                                    ?>
 
-                                    {{-- Tombol Hak Akses (Purple) --}}
+                                    
                                     <button type="button"
                                         @click="$dispatch('open-perm-modal', { 
-                                            url: '{{ route('masterdata.roles.permissions.update', $role->id ?? 0) }}',
-                                            name: '{{ $role->role_name }}',
-                                            assigned: {{ $assignedPerms }} 
+                                            url: '<?php echo e(route('masterdata.roles.permissions.update', $role->id ?? 0)); ?>',
+                                            name: '<?php echo e($role->role_name); ?>',
+                                            assigned: <?php echo e($assignedPerms); ?> 
                                         })"
                                         class="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-900"
                                         title="Atur Hak Akses">
                                         <i class="fa-solid fa-shield-halved"></i> Akses
                                     </button>
 
-                                    {{-- Tombol Ubah (Amber / Kuning) --}}
+                                    
                                     <button type="button"
                                         @click="$dispatch('open-edit-modal', { 
-                                            url: '{{ route('masterdata.roles.update', $role->id) }}',
-                                            code: '{{ $role->role_code }}',
-                                            name: '{{ $role->role_name }}',
-                                            active: {{ $role->is_active == '1' ? 'true' : 'false' }}
+                                            url: '<?php echo e(route('masterdata.roles.update', $role->id)); ?>',
+                                            code: '<?php echo e($role->role_code); ?>',
+                                            name: '<?php echo e($role->role_name); ?>',
+                                            active: <?php echo e($role->is_active == '1' ? 'true' : 'false'); ?>
+
                                         })"
                                         class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800"
                                         title="Edit Role">
@@ -97,8 +99,8 @@
 
                                     <button type="button"
                                         @click="$dispatch('open-delete-modal', { 
-                                            url: '{{ route('masterdata.roles.destroy', $role->id) }}',
-                                            name: '{{ $role->role_name }}'
+                                            url: '<?php echo e(route('masterdata.roles.destroy', $role->id)); ?>',
+                                            name: '<?php echo e($role->role_name); ?>'
                                         })"
                                         class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
                                         title="Hapus Role">
@@ -108,22 +110,24 @@
                                 </div>
                             </td>
                         </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="4" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                                 <i class="fas fa-shield-alt text-3xl mb-2 opacity-20"></i>
                                 <p>Belum ada data role yang dikonfigurasi.</p>
                             </td>
                         </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 
-    {{-- Modal --}}
-    @include('masterdata::roles.modal-create')
-    @include('masterdata::roles.modal-permissions')
-    @include('masterdata::roles.modal-edit')
-    @include('masterdata::roles.delete-modal')
-@endsection
+    
+    <?php echo $__env->make('masterdata::roles.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.modal-permissions', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/index.blade.php ENDPATH**/ ?>

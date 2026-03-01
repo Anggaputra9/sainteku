@@ -1,0 +1,85 @@
+<div x-data="{
+    openPerm: false,
+    url: '',
+    roleName: '',
+    assigned: [], // Menyimpan array seperti ['1-1', '1-2', '2-1']
+    isChecked(modulId, permId) {
+        return this.assigned.includes(modulId + '-' + permId);
+    }
+}"
+    @open-perm-modal.window="
+        openPerm = true; 
+        url = $event.detail.url;
+        roleName = $event.detail.name;
+        assigned = $event.detail.assigned;
+    "
+    x-show="openPerm"
+    class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
+    x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
+
+    <div @click.away="openPerm = false"
+        class="relative my-auto w-full max-w-5xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
+
+        <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Matriks Hak Akses</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Atur perizinan (CRUD-AVE) untuk jabatan: <span class="font-bold text-purple-600 dark:text-purple-400" x-text="roleName"></span></p>
+            </div>
+            <button type="button" @click="openPerm = false"
+                class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+                <i class="fas fa-times"></i> Tutup
+            </button>
+        </div>
+
+        <form :action="url" method="POST" class="space-y-6">
+            @csrf
+            {{-- Menggunakan POST tapi bisa kita ganti methodnya jika diperlukan di web.php --}}
+            
+            <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                        <tr>
+                            <th class="px-4 py-4 font-semibold border-b dark:border-gray-700">Modul / Fitur</th>
+                            @foreach($permissions as $perm)
+                                <th class="px-2 py-4 text-center font-semibold border-b dark:border-gray-700" title="{{ $perm->permission_name }}">
+                                    {{ $perm->permission_code }}
+                                    <div class="text-[10px] text-gray-400 font-normal mt-1">{{ $perm->permission_name }}</div>
+                                </th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach($modules as $modul)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white border-r dark:border-gray-700">
+                                    {{ $modul->description }}
+                                    <div class="text-xs text-gray-500 font-normal">{{ $modul->module_code }}</div>
+                                </td>
+                                
+                                @foreach($permissions as $perm)
+                                    <td class="px-2 py-3 text-center border-r border-gray-100 dark:border-gray-700/50">
+                                        <label class="flex justify-center cursor-pointer">
+                                            <input type="checkbox" 
+                                                name="permissions[{{ $modul->id }}][]" 
+                                                value="{{ $perm->id }}"
+                                                :checked="isChecked('{{ $modul->id }}', '{{ $perm->id }}')"
+                                                class="h-5 w-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700">
+                                        </label>
+                                    </td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end pt-4">
+                <button type="submit"
+                    class="inline-flex justify-center items-center gap-2 rounded-lg bg-purple-600 px-8 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 transition dark:focus:ring-purple-900">
+                    <i class="fas fa-save"></i>
+                    Simpan Hak Akses
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

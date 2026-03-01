@@ -5,6 +5,8 @@ namespace Modules\MasterData\app\Models;
 use Illuminate\Database\Eloquent\Model;
 // Gunakan Authenticatable jika model ini dipakai untuk fitur Login bawaan Laravel
 use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable 
 {

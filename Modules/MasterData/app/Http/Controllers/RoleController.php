@@ -5,13 +5,26 @@ namespace Modules\MasterData\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\MasterData\app\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
+
     public function index()
     {
         $roles = Role::orderBy('id')->get();
-        return view('masterdata::roles.index', compact('roles'));
+
+        // Ambil data referensi untuk matriks
+        $modules = DB::table('mst_module')->orderBy('id')->get();
+        $permissions = DB::table('ref_permission')->orderBy('id')->get();
+
+        // Ambil semua izin yang sudah ada, kelompokkan berdasarkan role_id
+        $rolePermissions = DB::table('trx_role_permission')
+            ->where('allowed', 1)
+            ->get()
+            ->groupBy('role_id');
+
+        return view('masterdata::roles.index', compact('roles', 'modules', 'permissions', 'rolePermissions'));
     }
 
     public function store(Request $request)
@@ -31,30 +44,65 @@ class RoleController extends Controller
             ->with('success', 'Role baru berhasil ditambahkan!');
     }
 
+    // =================================================================
+    // FUNGSI KHUSUS UNTUK MENYIMPAN EDIT NAMA & KODE ROLE
+    // =================================================================
     public function update(Request $request, $id)
     {
-        // 1. Validasi data yang dikirim dari form Edit
+        // 1. Validasi data
         $request->validate([
-            // unique:mst_role,role_code, . $id -> Artinya kode role tidak boleh sama dengan yang lain, 
-            // KECUALI dengan kode miliknya sendiri (saat ini)
             'role_code' => 'required|string|max:5|unique:mst_role,role_code,' . $id,
             'role_name' => 'required|string|max:30',
         ]);
 
-        // 2. Cari data Role berdasarkan ID
+        // 2. Cari data & Update
         $role = Role::findOrFail($id);
-
-        // 3. Update datanya
         $role->update([
-            'role_code' => strtoupper($request->role_code), // Pastikan selalu huruf besar
+            'role_code' => strtoupper($request->role_code),
             'role_name' => $request->role_name,
-            'is_active' => $request->has('is_active') ? '1' : '0', // Ubah ke format ENUM database
+            'is_active' => $request->has('is_active') ? '1' : '0',
         ]);
 
-        // 4. Kembalikan ke halaman index dengan pesan sukses
-        // (Sesuaikan nama route redirect ini dengan nama route index kamu)
         return redirect()->route('masterdata.roles.index')
             ->with('success', 'Data Role ' . $role->role_name . ' berhasil diperbarui!');
+    }
+
+
+    // =================================================================
+    // FUNGSI KHUSUS UNTUK MENYIMPAN MATRIKS HAK AKSES (PERMISSIONS)
+    // =================================================================
+    public function updatePermissions(Request $request, $roleId)
+    {
+        $role = Role::findOrFail($roleId);
+
+        // Ambil array permissions dari form (Matriks)
+        $permissions = $request->input('permissions', []);
+
+        $insertData = [];
+
+        // Looping data
+        foreach ($permissions as $modulId => $permIds) {
+            foreach ($permIds as $permId) {
+                $insertData[] = [
+                    'role_id'       => $roleId, // Disini $roleId valid karena parameter fungsinya $roleId
+                    'modul_id'      => $modulId,
+                    'permission_id' => $permId,
+                    'allowed'       => 1,
+                ];
+            }
+        }
+
+        // Transaksi DB
+        DB::transaction(function () use ($roleId, $insertData) {
+            DB::table('trx_role_permission')->where('role_id', $roleId)->delete();
+
+            if (!empty($insertData)) {
+                DB::table('trx_role_permission')->insert($insertData);
+            }
+        });
+
+        return redirect()->route('masterdata.roles.index')
+            ->with('success', 'Hak akses untuk role ' . $role->role_name . ' berhasil diperbarui!');
     }
 
     public function destroy($id)

@@ -29,8 +29,8 @@
         </div>
 
         <form :action="url" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div>
@@ -69,9 +69,9 @@
                     <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Tipe Pengguna</label>
                     <select name="user_type" x-model="userData.type" required
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                        @foreach ($userTypes as $type)
-                            <option value="{{ $type->id }}">{{ $type->description }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $userTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($type->id); ?>"><?php echo e($type->description); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -80,9 +80,9 @@
                         Fakultas</label>
                     <select name="unit_id" x-model="userData.unit" required
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                        @foreach ($units as $unit)
-                            <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
-                        @endforeach
+                        <?php $__currentLoopData = $units; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($unit->id); ?>"><?php echo e($unit->unit_name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -91,15 +91,15 @@
                             class="text-red-500">*</span></label>
                     <div
                         class="grid grid-cols-2 gap-3 rounded-xl bg-gray-50/50 p-4 ring-1 ring-gray-200 dark:bg-gray-900/30 dark:ring-gray-700 sm:grid-cols-3">
-                        @foreach ($roles as $role)
+                        <?php $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
+                                <input type="checkbox" name="role_ids[]" value="<?php echo e($role->id); ?>"
                                     x-model="userData.roles"
                                     class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
                                 <span
-                                    class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition">{{ $role->role_name }}</span>
+                                    class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition"><?php echo e($role->role_name); ?></span>
                             </label>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
                 </div>
 
@@ -130,3 +130,4 @@
         </form>
     </div>
 </div>
+<?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/admin/modal-edit.blade.php ENDPATH**/ ?>
