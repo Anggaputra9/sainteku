@@ -3,10 +3,12 @@
 
 <head>
     <meta charset="utf-8" />
-    <title> Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto </title>
+    <title>Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Fakultas Sains dan Teknologi UIN Saifuddin Zuhri Purwokerto" name="description" />
     <meta content="Themesbrand" name="author" />
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/uin.png">
 
@@ -34,6 +36,7 @@
             --saintek-primary: #FEEB04;
             --saintek-primary-dark: #CBB800;
             --saintek-text: #856B2B;
+            --saintek-soft: rgba(254, 235, 4, 0.15);
         }
 
         .bg-primary {
@@ -148,20 +151,77 @@
         }
 
         .dropdown-item:hover {
-            background-color: rgba(254, 235, 4, 0.1);
+            background-color: var(--saintek-soft);
             color: var(--saintek-text);
         }
 
-        /* MODAL LOGIN */
+        /* MODAL LOGIN - FIX BACKGROUND */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5 !important;
+        }
+
+        .modal.show .modal-dialog {
+            transform: none;
+        }
+
+        /* BUTTON STYLES - Konsisten soft to solid */
         .btn-soft-primary {
-            background-color: rgba(254, 235, 4, 0.15) !important;
+            background-color: var(--saintek-soft) !important;
             color: var(--saintek-text) !important;
             border: none;
+            transition: all 0.2s ease;
         }
 
         .btn-soft-primary:hover {
             background-color: var(--saintek-primary) !important;
             color: #000000 !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-soft-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-masuk {
+            background-color: var(--saintek-soft) !important;
+            color: var(--saintek-text) !important;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-masuk:hover {
+            background-color: var(--saintek-primary) !important;
+            color: #000000 !important;
+        }
+
+        .btn-masuk:active {
+            background-color: var(--saintek-primary-dark) !important;
+        }
+
+        .btn-masuk:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background-color: var(--saintek-soft) !important;
+        }
+
+        /* Button Kirim Link Reset */
+        button[style*="background-color: #FEEB04"] {
+            background-color: var(--saintek-soft) !important;
+            color: var(--saintek-text) !important;
+            transition: all 0.2s ease;
+        }
+
+        button[style*="background-color: #FEEB04"]:hover {
+            background-color: var(--saintek-primary) !important;
+            color: #000000 !important;
+        }
+
+        button[style*="background-color: #FEEB04"]:active {
+            background-color: var(--saintek-primary-dark) !important;
         }
 
         /* UTILITY CLASSES */
@@ -192,29 +252,23 @@
             }
         }
 
-        /* Memastikan modal tidak full screen */
+        /* MODAL STYLING */
         .modal-dialog {
             margin: 1.75rem auto;
         }
 
-        /* Styling tambahan */
         .form-control:focus {
-            border-color: #FEEB04 !important;
+            border-color: var(--saintek-primary) !important;
             box-shadow: 0 0 0 3px rgba(254, 235, 4, 0.15) !important;
             outline: none;
         }
 
-        .btn:hover {
-            transform: translateY(-1px);
-            transition: all 0.2s;
-        }
-
         .form-check-input:checked {
-            background-color: #FEEB04;
-            border-color: #FEEB04;
+            background-color: var(--saintek-primary);
+            border-color: var(--saintek-primary);
         }
 
-        /* Membuat semua sudut lancip */
+        /* SEMUA SUDUT LANCIK */
         .modal-content,
         .col-md-5,
         .col-md-7,
@@ -225,7 +279,7 @@
             border-radius: 0 !important;
         }
 
-        /* Mobile Styles (<768px) */
+        /* Mobile Styles */
         @media (max-width: 768px) {
             .modal-dialog {
                 margin: 0.5rem;
@@ -257,7 +311,7 @@
             }
         }
 
-        /* Desktop Styles (>768px) */
+        /* Desktop Styles */
         @media (min-width: 769px) {
             .d-md-none {
                 display: none !important;
@@ -1084,10 +1138,12 @@
                             </div>
 
                             <!-- Login Form -->
-                            <form method="POST" action="/login">
+                            <form method="POST" action="/login" id="loginForm">
                                 @csrf
 
                                 <!-- Error Alert -->
+                                <div id="loginError" class="alert" style="display: none;"></div>
+
                                 @if($errors->any())
                                 <div class="alert alert-danger py-2 mb-3 small" style="background: #FEF3F2; border-color: #F04438; color: #B42318;">
                                     @foreach($errors->all() as $error)
@@ -1153,17 +1209,19 @@
                                             Ingat saya
                                         </label>
                                     </div>
-                                    <a href="#" class="small text-decoration-none" style="color: #FEEB04;">Lupa password?</a>
+                                    <a href="#" class="small text-decoration-none" style="color: #FEEB04;"
+                                        data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                                        Lupa password?
+                                    </a>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <button type="submit"
-                                    class="btn w-100 py-2 small fw-medium border-0 rounded-0"
-                                    style="background-color: #FEEB04; color: #000;">
+                                    class="btn w-100 py-2 small fw-medium border-0 btn-masuk"
+                                    style="background-color: var(--saintek-soft); color: var(--saintek-text); transition: all 0.2s ease;">
                                     Masuk
                                 </button>
                             </form>
-
                         </div>
                     </div>
                 </div>
@@ -1171,8 +1229,318 @@
         </div>
     </div>
 
+    <!-- Modal Lupa Password -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+            <div class="modal-content" style="border-radius: 0; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                <div class="modal-header border-0 pb-0 pt-4 px-4">
+                    <h5 class="modal-title fw-semibold" id="forgotPasswordModalLabel">Lupa Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Alert untuk pesan sukses/error -->
+                    <div id="forgotPasswordAlert" class="alert" style="display: none;"></div>
+
+                    <p class="text-sm text-gray-600 mb-4">Masukkan email Anda, kami akan mengirimkan link untuk reset password.</p>
+
+                    <!-- Form Lupa Password -->
+                    <form method="POST" action="{{ route('password.email') }}" id="forgotPasswordForm">
+                        @csrf
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label class="form-label d-block small fw-medium text-gray-700 mb-1">
+                                Email<span class="text-danger">*</span>
+                            </label>
+                            <input type="email"
+                                class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                name="email"
+                                id="forgot_email"
+                                placeholder="nama@email.com"
+                                style="height: 42px;"
+                                required>
+                        </div>
+
+                        <!-- Tombol -->
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                class="btn w-100 py-2 small border rounded-0"
+                                style="background: #F3F4F6; color: #000;"
+                                data-bs-dismiss="modal">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="btn w-100 py-2 small fw-medium border-0 rounded-0"
+                                style="background-color: var(--saintek-soft); color: var(--saintek-text);">
+                                Kirim Link Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Script untuk Login -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const loginError = document.getElementById('loginError');
+            const loginModal = document.getElementById('loginModal');
+
+            // Hapus loading state dari button di awal
+            const submitBtn = loginForm?.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Masuk';
+            }
+
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = 'Masuk';
+
+                    // Disable button tanpa animasi muter2
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Memproses...'; // Text biasa, tanpa spinner
+
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('success', data.message);
+                                setTimeout(() => {
+                                    window.location.href = data.redirect || '/dashboard';
+                                }, 500);
+                            } else {
+                                showAlert('error', data.message || 'Login gagal');
+                                // Enable button lagi
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalText;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('error', 'Terjadi kesalahan. Silakan coba lagi.');
+                            // Enable button lagi
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        });
+                });
+            }
+
+            function showAlert(type, message) {
+                if (!loginError) return;
+                loginError.style.display = 'block';
+                loginError.className = type === 'success' ?
+                    'alert alert-success py-2 mb-3 small' :
+                    'alert alert-danger py-2 mb-3 small';
+
+                if (type === 'error') {
+                    loginError.style.background = '#FEF3F2';
+                    loginError.style.borderColor = '#F04438';
+                    loginError.style.color = '#B42318';
+                }
+                loginError.innerHTML = message;
+            }
+
+            // Tampilkan error dari session (kalau ada)
+            @if($errors->any())
+            if (typeof bootstrap !== 'undefined' && loginModal) {
+                const modal = new bootstrap.Modal(loginModal);
+                modal.show();
+                showAlert('error', '{{ $errors->first() }}');
+            }
+            @endif
+        });
+    </script>
+
+    <!-- Script untuk Forgot Password -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const forgotForm = document.getElementById('forgotPasswordForm');
+            const forgotAlert = document.getElementById('forgotPasswordAlert');
+            const forgotModal = document.getElementById('forgotPasswordModal');
+
+            if (forgotForm) {
+                forgotForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = 'Kirim Link Reset';
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = 'Mengirim...';
+
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!forgotAlert) return;
+
+                            forgotAlert.style.display = 'block';
+
+                            if (data.success) {
+                                forgotAlert.className = 'alert alert-success py-2 mb-3 small';
+                                forgotAlert.innerHTML = data.message;
+                                forgotForm.reset();
+
+                                // Auto close after 3 seconds
+                                setTimeout(() => {
+                                    const modal = bootstrap.Modal.getInstance(forgotModal);
+                                    if (modal) modal.hide();
+                                    forgotAlert.style.display = 'none';
+                                }, 3000);
+                            } else {
+                                forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
+                                forgotAlert.style.background = '#FEF3F2';
+                                forgotAlert.style.borderColor = '#F04438';
+                                forgotAlert.style.color = '#B42318';
+                                forgotAlert.innerHTML = data.message || 'Email tidak ditemukan.';
+                            }
+
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (!forgotAlert) return;
+
+                            forgotAlert.style.display = 'block';
+                            forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
+                            forgotAlert.style.background = '#FEF3F2';
+                            forgotAlert.style.borderColor = '#F04438';
+                            forgotAlert.style.color = '#B42318';
+                            forgotAlert.innerHTML = 'Terjadi kesalahan. Silakan coba lagi.';
+
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalText;
+                        });
+                });
+            }
+
+            // Script untuk menampilkan status dari session (jika ada)
+            @if(session('status'))
+            if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
+                const modal = new bootstrap.Modal(forgotModal);
+                modal.show();
+                forgotAlert.style.display = 'block';
+                forgotAlert.className = 'alert alert-success py-2 mb-3 small';
+                forgotAlert.innerHTML = '{{ session('
+                status ') }}';
+            }
+            @endif
+
+            // Script untuk menampilkan error dari validasi (jika ada)
+            @if($errors->has('email'))
+            if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
+                const modal = new bootstrap.Modal(forgotModal);
+                modal.show();
+                forgotAlert.style.display = 'block';
+                forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
+                forgotAlert.style.background = '#FEF3F2';
+                forgotAlert.style.borderColor = '#F04438';
+                forgotAlert.style.color = '#B42318';
+                forgotAlert.innerHTML = '{{ $errors->first('
+                email ') }}';
+            }
+            @endif
+        });
+    </script>
+
+    <style>
+        /* Memastikan modal tidak full screen */
+        .modal-dialog {
+            margin: 1.75rem auto;
+        }
+
+        /* Styling tambahan */
+        .form-control:focus {
+            border-color: #FEEB04 !important;
+            box-shadow: 0 0 0 3px rgba(254, 235, 4, 0.15) !important;
+            outline: none;
+        }
+
+        .form-check-input:checked {
+            background-color: #FEEB04;
+            border-color: #FEEB04;
+        }
+
+        /* Membuat semua sudut lancip */
+        .modal-content,
+        .col-md-5,
+        .col-md-7,
+        .form-control,
+        .btn,
+        .position-absolute,
+        .border-top {
+            border-radius: 0 !important;
+        }
+
+        /* Mobile Styles (<768px) */
+        @media (max-width: 768px) {
+            .modal-dialog {
+                margin: 0.5rem;
+                max-width: calc(100% - 1rem) !important;
+            }
+
+            .modal-content {
+                margin: 0;
+            }
+
+            .col-md-5 {
+                display: none !important;
+            }
+
+            .col-md-7 {
+                width: 100% !important;
+            }
+
+            .p-4 {
+                padding: 1.25rem !important;
+            }
+
+            h1 {
+                font-size: 1.6rem !important;
+            }
+
+            .btn {
+                font-size: 0.85rem !important;
+            }
+        }
+
+        /* Desktop Styles (>768px) */
+        @media (min-width: 769px) {
+            .d-md-none {
+                display: none !important;
+            }
+
+            .col-md-7 {
+                width: 58.33333333% !important;
+            }
+        }
+    </style>
 
 </body>
 
