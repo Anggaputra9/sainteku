@@ -8,21 +8,17 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, $roleId)
     {
-        $user = Auth::user();
-        if (! $user) {
-            return redirect()->route('login');
+        if (!Auth::check()) {
+            return redirect('/');
         }
 
-        // simple check: look up trx_user_role for user
-        $has = \Illuminate\Support\Facades\DB::table('trx_user_role')
-            ->where('user_id', $user->id)
-            ->where('role_id', $role)
-            ->exists();
+        $user = Auth::user();
 
-        if (! $has) {
-            abort(403);
+        // Cek apakah user punya role yang sesuai
+        if ($user->user_type != $roleId) {
+            abort(403, 'Unauthorized access.');
         }
 
         return $next($request);

@@ -6,15 +6,17 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class Authenticate
+class CheckUserStatus
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
-            if ($request->expectsJson()) {
-                return response()->json(['error' => 'Unauthenticated.'], 401);
+        if (Auth::check()) {
+            $user = Auth::user();
+
+            if (!$user->is_active) {
+                Auth::logout();
+                return redirect('/')->with('error', 'Akun Anda tidak aktif.');
             }
-            return redirect()->guest('/');
         }
 
         return $next($request);
