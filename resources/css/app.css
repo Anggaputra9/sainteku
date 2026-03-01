@@ -2,7 +2,7 @@
 @import 'prismjs/themes/prism.min.css';
 @import 'tailwindcss';
 
-@import "../../node_modules/@fortawesome/fontawesome-free/css/all.min.css";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

@@ -8,28 +8,26 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
     /**
      * Display a listing of all users
      */
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $query = User::with('roles')->orderBy('name');
-
-        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
                     ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
-
         $users = $query->paginate(10)->withQueryString();
-
-        return view('masterdata::admin.users', compact('users'));
+        $roles = Role::all(); 
+    
+        // Masukkan $roles ke dalam compact
+        return view('masterdata::admin.users', compact('users', 'roles'));
     }
 
     /**
