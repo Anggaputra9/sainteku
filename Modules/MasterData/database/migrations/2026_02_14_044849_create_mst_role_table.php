@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mst_role', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->increments('id');
             $table->string('role_code', 5);
             $table->string('role_name', 30);
             $table->enum('is_active', ['0', '1']);

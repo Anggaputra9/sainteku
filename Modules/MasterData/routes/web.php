@@ -11,9 +11,12 @@ Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(fu
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
     Route::resource('masterdatas', MasterDataController::class);
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class);
-    
+
     // Role management read-only listing for now
-    Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
     // Curricula management
     Route::get('curricula', [CurriculaController::class, 'index'])->name('curricula.index');
@@ -25,7 +28,7 @@ Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(fu
     Route::middleware('role:1')->group(function () {
         Route::get('admin/users', [AdminController::class, 'index'])->name('admin.users.index');
         Route::post('admin/users/{id}/role', [AdminController::class, 'assignRole'])->name('admin.users.assign');
-        
+
         // User CRUD
         Route::get('admin/users/create', [AdminController::class, 'create'])->name('admin.users.create');
         Route::post('admin/users', [AdminController::class, 'store'])->name('admin.users.store');
