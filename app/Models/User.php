@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -17,8 +16,8 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    // Use existing mst_user table used by project
 
+    // Relasi dengan Role
     public function roles()
     {
         return $this->belongsToMany(
@@ -28,12 +27,15 @@ class User extends Authenticatable
             'role_id'
         );
     }
+
+    // Konfigurasi tabel
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
+    public $timestamps = false; // Karena tabel tidak punya created_at/updated_at
 
+    // Kolom yang bisa diisi (mass assignable)
     protected $fillable = [
         'id',
         'name',
@@ -48,24 +50,27 @@ class User extends Authenticatable
         'last_login_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // Kolom yang disembunyikan saat serialisasi
     protected $hidden = [
-        'password',
+        'password', 
+        'remember_token', // SEBAIKNYA INI JUGA DISEMBUNYIKAN
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // Casting tipe data
     protected function casts(): array
     {
         return [
             'password' => 'hashed',
+            'is_active' => 'boolean', // TAMBAHKAN INI
+            'last_login_at' => 'datetime', // TAMBAHKAN INI
         ];
+    }
+
+    // TAMBAHKAN METHOD INI UNTUK FITUR RESET PASSWORD
+    public function sendPasswordResetNotification($token)
+    {
+        // Ini akan dipanggil oleh Laravel saat reset password
+        // Tapi kita tidak pakai karena pakai custom implementation
+        // Bisa dikosongkan saja
     }
 }
