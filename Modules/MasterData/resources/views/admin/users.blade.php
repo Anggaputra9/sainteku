@@ -147,14 +147,14 @@
                                                 email: '{{ $user->email }}',
                                                 identity: '{{ $user->identity_id }}',
                                                 type: '{{ $user->user_type }}',
-                                                active: {{ $user->is_active ? 'true' : 'false' }},
+                                                unit: '{{ $user->unit_id }}',
+                                                active: {{ $user->is_active == '1' ? 'true' : 'false' }},
                                                 roles: {{ json_encode($user->roles->pluck('id')) }}
                                                 })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800 transition shadow-sm"
                                                 title="Ubah Data">
                                                 <i class="fa-solid fa-pencil"></i> Ubah
                                             </button>
-                                            @include('masterdata::admin.modal-edit')
 
                                             {{-- Tombol Hapus (Danger: Merah, fa-trash) --}}
                                             <button
@@ -166,7 +166,6 @@
                                                 title="Hapus Data">
                                                 <i class="fa-solid fa-trash"></i> Hapus
                                             </button>
-                                            @include('masterdata::admin.delete-modal')
                                         </div>
                                     </td>
                                 </tr>
@@ -193,4 +192,7 @@
             </div>
         </div>
     </div>
+
+    @include('masterdata::admin.modal-edit')
+     @include('masterdata::admin.delete-modal')
 @endsection

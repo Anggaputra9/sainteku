@@ -13,7 +13,8 @@
 
         <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Konfirmasi Hapus</h3>
         <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">
-            Apakah Anda yakin ingin menghapus user
+            Apakah Anda yakin ingin menghapus user <span class="font-bold text-gray-900 dark:text-white"
+                x-text="userName"></span>? Tindakan ini tidak dapat dibatalkan.
         </p>
 
         <div class="grid grid-cols-2 gap-3 mt-8">

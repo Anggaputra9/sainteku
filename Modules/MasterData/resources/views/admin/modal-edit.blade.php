@@ -1,7 +1,7 @@
 <div x-data="{
     openEdit: false,
     url: '',
-    userData: { name: '', email: '', identity: '', type: '', active: true, roles: [] }
+    userData: { name: '', email: '', identity: '', type: '', unit: '', active: true, roles: [] }
 }"
     @open-edit-modal.window="
         openEdit = true; 
@@ -67,13 +67,40 @@
 
                 <div>
                     <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Tipe Pengguna</label>
-                    <select name="user_type" x-model="userData.type"
+                    <select name="user_type" x-model="userData.type" required
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                        <option value="admin">Admin Sistem</option>
-                        <option value="staff">Staff Pegawai</option>
-                        <option value="dosen">Dosen</option>
-                        <option value="mahasiswa">Mahasiswa</option>
+                        @foreach ($userTypes as $type)
+                            <option value="{{ $type->id }}">{{ $type->description }}</option>
+                        @endforeach
                     </select>
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Unit /
+                        Fakultas</label>
+                    <select name="unit_id" x-model="userData.unit" required
+                        class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
+                        @foreach ($units as $unit)
+                            <option value="{{ $unit->id }}">{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="mb-3 block text-sm font-semibold text-gray-900 dark:text-white">Hak Akses / Role <span
+                            class="text-red-500">*</span></label>
+                    <div
+                        class="grid grid-cols-2 gap-3 rounded-xl bg-gray-50/50 p-4 ring-1 ring-gray-200 dark:bg-gray-900/30 dark:ring-gray-700 sm:grid-cols-3">
+                        @foreach ($roles as $role)
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
+                                    x-model="userData.roles"
+                                    class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700">
+                                <span
+                                    class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-blue-600 transition">{{ $role->role_name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
 
                 <div class="flex items-end pb-2">
