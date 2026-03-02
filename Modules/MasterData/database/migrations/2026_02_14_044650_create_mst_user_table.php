@@ -11,9 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mst_user', function (Blueprint $table) {
-            $table->string('id', 20)->primary();
-            $table->string('name', 30);
-            $table->string('email', 30)->nullable();
+            $table->string('id', 50)->primary();
+            $table->string('name', 100);
+            $table->string('email', 100)->nullable();
             $table->string('password', 100);
             $table->string('identity_id', 20)->index();
             $table->string('user_type', 3);
