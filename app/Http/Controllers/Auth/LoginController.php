@@ -24,14 +24,14 @@ class LoginController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email/ID atau password salah'
+                'message' => __('messages.login_failed') // GANTI
             ], 401);
         }
 
         if (!$user->is_active) {
             return response()->json([
                 'success' => false,
-                'message' => 'Akun tidak aktif'
+                'message' => __('messages.account_inactive') // GANTI
             ], 403);
         }
 
@@ -39,7 +39,7 @@ class LoginController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Login berhasil!',
+            'message' => __('messages.login_success'), // GANTI
             'redirect' => '/dashboard'
         ]);
     }
