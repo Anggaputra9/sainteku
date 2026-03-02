@@ -20,7 +20,7 @@ class MenuSeeder extends Seeder
                 'id' => 100,
                 'menu_name' => 'Dashboard',
                 'menu_link' => 'dashboard', // pastikan route ini ada
-                'menu_icon' => 'dashboard',
+                'menu_icon' => 'fa-solid fa-border-all',
                 'parent_id' => null,
                 'order_no' => 0,
                 'is_active' => 1,
@@ -35,7 +35,7 @@ class MenuSeeder extends Seeder
                 'id' => 1,
                 'menu_name' => 'Master Data',
                 'menu_link' => null,
-                'menu_icon' => 'database',
+                'menu_icon' => 'fa-solid fa-database',
                 'parent_id' => null,
                 'order_no' => 1,
                 'is_active' => 1,
@@ -57,13 +57,14 @@ class MenuSeeder extends Seeder
                 'id' => 10,
                 'menu_name' => 'Manajemen Dokumen',
                 'menu_link' => null,
-                'menu_icon' => 'document',
+                'menu_icon' => 'fa-solid fa-folder-open',
                 'parent_id' => null,
+                'module_id' => 1,
                 'order_no' => 2,
                 'is_active' => 1,
             ],
 
-            ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => '#', 'menu_icon' => null, 'parent_id' => 10, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => '#', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 1, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -74,16 +75,16 @@ class MenuSeeder extends Seeder
                 'id' => 20,
                 'menu_name' => 'Monev Akademik',
                 'menu_link' => null,
-                'menu_icon' => 'chart',
+                'menu_icon' => 'fa-solid fa-file-lines',
                 'parent_id' => null,
+                'module_id' => 3,
                 'order_no' => 3,
                 'is_active' => 1,
             ],
-
-            ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 2, 'is_active' => 1],
-            ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 3, 'is_active' => 1],
-            ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'order_no' => 4, 'is_active' => 1],
+            ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 4, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -94,7 +95,7 @@ class MenuSeeder extends Seeder
                 'id' => 30,
                 'menu_name' => 'Manajemen Event',
                 'menu_link' => '#',
-                'menu_icon' => 'calendar',
+                'menu_icon' => 'fa-solid fa-calendar-days',
                 'parent_id' => null,
                 'order_no' => 4,
                 'is_active' => 1,
@@ -107,17 +108,18 @@ class MenuSeeder extends Seeder
             */
             [
                 'id' => 40,
-                'menu_name' => 'Manajemen Achievement',
+                'menu_name' => 'Manajemen Prestasi',
                 'menu_link' => null,
-                'menu_icon' => 'trophy',
+                'menu_icon' => 'fa-solid fa-trophy',
                 'parent_id' => null,
+                'module_id' => 5,
                 'order_no' => 5,
                 'is_active' => 1,
             ],
 
-            ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 2, 'is_active' => 1],
-            ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => '#', 'parent_id' => 40, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 3, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -128,7 +130,7 @@ class MenuSeeder extends Seeder
                 'id' => 50,
                 'menu_name' => 'Pengaduan Mahasiswa',
                 'menu_link' => '#',
-                'menu_icon' => 'megaphone',
+                'menu_icon' => 'fa-solid fa-bullhorn',
                 'parent_id' => null,
                 'order_no' => 6,
                 'is_active' => 1,
@@ -141,16 +143,17 @@ class MenuSeeder extends Seeder
             */
             [
                 'id' => 60,
-                'menu_name' => 'Manajemen Infrastruktur',
+                'menu_name' => 'Infrastruktur',
                 'menu_link' => null,
-                'menu_icon' => 'building',
+                'menu_icon' => 'fa-solid fa-building',
                 'parent_id' => null,
+                'module_id' => 6,
                 'order_no' => 7,
                 'is_active' => 1,
             ],
 
-            ['id' => 61, 'menu_name' => 'Inventaris', 'menu_link' => '#', 'parent_id' => 60, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 62, 'menu_name' => 'Peminjaman', 'menu_link' => '#', 'parent_id' => 60, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 61, 'menu_name' => 'Inventaris', 'menu_link' => '#', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 62, 'menu_name' => 'Peminjaman', 'menu_link' => '#', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 2, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -161,8 +164,9 @@ class MenuSeeder extends Seeder
                 'id' => 70,
                 'menu_name' => 'Penjaminan Mutu Akademik',
                 'menu_link' => '#',
-                'menu_icon' => 'shield',
+                'menu_icon' => 'fa-solid fa-school',
                 'parent_id' => null,
+                'module_id' => 4,
                 'order_no' => 8,
                 'is_active' => 1,
             ],
@@ -176,7 +180,7 @@ class MenuSeeder extends Seeder
                 'id' => 80,
                 'menu_name' => 'Pelaporan',
                 'menu_link' => null,
-                'menu_icon' => 'report',
+                'menu_icon' => 'fa-solid fa-flag',
                 'parent_id' => null,
                 'order_no' => 9,
                 'is_active' => 1,
