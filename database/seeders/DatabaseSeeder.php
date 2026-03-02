@@ -18,7 +18,10 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Isi Tabel Referensi (Level 0 - Tidak punya FK)
         DB::table('ref_unit_type')->updateOrInsert(['id' => 1], ['description' => 'FAKULTAS']);
-        DB::table('ref_user_type')->updateOrInsert(['id' => '001'], ['description' => 'INTERNAL']);
+        DB::table('ref_user_type')->updateOrInsert(['id' => '001'], ['description' => 'DOSEN']);
+        DB::table('ref_user_type')->updateOrInsert(['id' => '002'], ['description' => 'STAFF']);
+        DB::table('ref_user_type')->updateOrInsert(['id' => '003'], ['description' => 'MAHASISWA']);
+        DB::table('ref_user_type')->updateOrInsert(['id' => '004'], ['description' => 'EXTERNAL']);
 
         // 2. Panggil Seeder Master Dasar
         $this->call([

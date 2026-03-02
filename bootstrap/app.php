@@ -3,6 +3,13 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\CheckUserStatus;
+use App\Http\Middleware\ValidateSignature;
+use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\SetLocale; // <-- TAMBAHKAN
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,15 +19,16 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
-        // MIDDLEWARE ALIAS - PAKAI BAWAAN LARAVEL
+        // MIDDLEWARE ALIAS
         $middleware->alias([
-            'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
-            'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-            'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-            'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'user.active' => \App\Http\Middleware\CheckUserStatus::class,
-        ]);
+            'auth' => Authenticate::class,
+            'guest' => RedirectIfAuthenticated::class,
+            'verified' => EnsureEmailIsVerified::class,
+            'signed' => ValidateSignature::class,
+            'role' => RoleMiddleware::class,
+            'user.active' => CheckUserStatus::class,
+            'locale' => SetLocale::class, // <--- TAMBAHKAN BARIS INI
+    ]);
 
         // MIDDLEWARE GROUP WEB
         $middleware->group('web', [
@@ -30,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            SetLocale::class, // <-- TAMBAHKAN
         ]);
 
         // GLOBAL MIDDLEWARE
@@ -52,5 +61,19 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['error' => 'Unauthenticated.'], 401);
             }
             return redirect('/')->with('error', 'Silakan login terlebih dahulu.');
+        });
+
+        $exceptions->renderable(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Unauthorized.'], 403);
+            }
+            return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        });
+
+        $exceptions->renderable(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Not Found.'], 404);
+            }
+            return response()->view('pages.errors.error-404', [], 404);
         });
     })->create();
