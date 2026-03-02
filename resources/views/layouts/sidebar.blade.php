@@ -14,15 +14,21 @@
     @mouseleave="$store.sidebar.setHovered(false)">
 
     {{-- ================= LOGO ================= --}}
-    <div class="pt-8 pb-7 flex"
-        :class="(!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen) ? 'xl:justify-center' : 'justify-start'">
-        <a href="/">
+    <div class="pt-8 pb-7 flex justify-center w-full">
+        <a href="/" class="flex justify-center">
+            {{-- Logo ukuran ideal (saat sidebar terbuka) --}}
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="dark:hidden" src="/images/logo/logo.svg" width="150">
+                class="dark:hidden rounded-full aspect-square object-cover shadow-md transition-all duration-300"
+                src="/images/logo/logo.jpg" width="80">
+
             <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                class="hidden dark:block" src="/images/logo/logo-dark.svg" width="150">
+                class="hidden dark:block rounded-full aspect-square object-cover shadow-md transition-all duration-300"
+                src="/images/logo/logo.jpg" width="80">
+
+            {{-- Logo ukuran kecil (saat sidebar ditutup) --}}
             <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
-                src="/images/logo/logo-icon.svg" width="32">
+                class="rounded-full aspect-square object-cover shadow-sm transition-all duration-300"
+                src="/images/logo/logo.jpg" width="40">
         </a>
     </div>
 
@@ -33,7 +39,7 @@
 
                 <div>
                     <h2 class="mb-4 text-xs uppercase text-gray-400">
-                        SISTEM UTAMA
+                        MENU
                     </h2>
 
                     <ul class="flex flex-col gap-1">
@@ -69,7 +75,7 @@
 
                                         {{-- ICON --}}
                                         <span class="menu-item-icon">
-                                            {!! \App\Helpers\IconHelper::render($menu->menu_icon) !!}
+                                            <i class="{{ $menu->menu_icon }} fa-xl"></i>
                                         </span>
 
                                         {{-- TEXT --}}
@@ -118,7 +124,7 @@
                                         class="menu-item group {{ $isActive ? 'menu-item-active' : 'menu-item-inactive' }}">
 
                                         <span class="menu-item-icon">
-                                            {!! \App\Helpers\IconHelper::render($menu->menu_icon) !!}
+                                            <i class="{{ $menu->menu_icon }} fa-xl"></i>
                                         </span>
 
                                         <span
