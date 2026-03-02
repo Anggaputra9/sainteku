@@ -10,7 +10,8 @@ use Modules\MasterData\Http\Controllers\CategoriesController;
 Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(function () {
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
     Route::resource('masterdatas', MasterDataController::class);
-    Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class);
+
+    Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
 
     // Role management read-only listing for now
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
@@ -25,11 +26,10 @@ Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(fu
     // Categories management
     Route::get('categories', [CategoriesController::class, 'index'])->name('categories.index');
 
-    // Admin UI: manage users & roles
+    // Admin UI: manage users 
     Route::middleware('role:1')->group(function () {
         Route::get('admin/users', [AdminController::class, 'index'])->name('admin.users.index');
         Route::post('admin/users/{id}/role', [AdminController::class, 'assignRole'])->name('admin.users.assign');
-
         // User CRUD
         Route::get('admin/users/create', [AdminController::class, 'create'])->name('admin.users.create');
         Route::post('admin/users', [AdminController::class, 'store'])->name('admin.users.store');

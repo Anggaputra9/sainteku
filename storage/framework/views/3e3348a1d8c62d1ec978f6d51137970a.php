@@ -83,6 +83,7 @@
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
+                                <th class="px-6 py-4 font-semibold">Unit</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
                                 <th class="px-6 py-4 text-center font-semibold">Aksi</th>
                             </tr>
@@ -122,6 +123,20 @@
                                                 <span class="text-xs italic text-gray-400">No Role</span>
                                             <?php endif; ?>
                                         </div>
+                                    </td>
+                                    
+                                    <td class="px-6 py-4 w-[20%] max-w-[150px]">
+                                        <?php if($user->unit_id): ?>
+                                            
+                                            <span
+                                                title="<?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?> (ID: <?php echo e($user->unit_id); ?>)"
+                                                class="inline-block max-w-full truncate rounded-md bg-indigo-50 px-2.5 py-1 align-middle text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 transition hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400">
+                                                <?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?>
+
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-xs font-medium italic text-gray-400">-</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if($user->is_active): ?>
@@ -198,7 +213,7 @@
     </div>
 
     <?php echo $__env->make('masterdata::admin.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-     <?php echo $__env->make('masterdata::admin.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::admin.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/admin/users.blade.php ENDPATH**/ ?>

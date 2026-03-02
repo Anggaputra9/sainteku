@@ -6,8 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Unit extends Model
 {
-    protected $table = 'mst_unit'; // Menyesuaikan nama tabel kamu
-    protected $keyType = 'string'; // Karena ID nya varchar ('0001')
+    // Arahkan ke nama tabel yang benar
+    protected $table = 'mst_unit';
+
+    // 1. WAJIB: Beri tahu Laravel bahwa ID kita adalah String (U001), bukan angka biasa
     public $incrementing = false;
-    protected $guarded = [];
+    protected $keyType = 'string';
+
+    // 2. WAJIB: Tambahkan 'id' ke dalam fillable agar tidak dibuang oleh Laravel
+    protected $fillable = [
+        'id',           
+        'unit_name',
+        'unit_parent',
+        'unit_type_id',
+        'is_active',
+    ];
 }
