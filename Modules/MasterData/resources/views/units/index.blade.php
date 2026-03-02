@@ -64,17 +64,22 @@
                                 </div>
 
                                 @if ($unit->unit_parent)
+                                    @php
+                                        // Mencari nama induk dari koleksi $parentUnits berdasarkan ID-nya
+                                        $parent = $parentUnits->firstWhere('id', $unit->unit_parent);
+                                        $parentName = $parent ? $parent->unit_name : $unit->unit_parent;
+                                    @endphp
                                     <div
                                         class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
                                         <i class="fa-solid fa-turn-up fa-rotate-90 text-gray-400"></i>
                                         Induk: <span
-                                            class="font-bold text-blue-600 dark:text-blue-400">{{ $unit->unit_parent }}</span>
+                                            class="text-blue-600 dark:text-blue-400">{{ $parentName }}</span>
                                     </div>
                                 @else
                                     <div
                                         class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
                                         <i class="fa-solid fa-sitemap"></i>
-                                        Induk Utama (Pusat)
+                                        Induk Universitas (Pusat)
                                     </div>
                                 @endif
                             </td>
