@@ -30,6 +30,6 @@ class User extends Authenticatable
     // Opsional: Relasi ke Unit
     public function unit()
     {
-        return $this->belongsTo(Unit::class, 'unit_id');
+        return $this->belongsTo(\Modules\MasterData\Entities\Unit::class, 'unit_id', 'id');
     }
 }

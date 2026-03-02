@@ -85,6 +85,7 @@
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
+                                <th class="px-6 py-4 font-semibold">Unit / Homebase</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
                                 <th class="px-6 py-4 text-center font-semibold">Aksi</th>
                             </tr>
@@ -120,6 +121,17 @@
                                                 <span class="text-xs italic text-gray-400">No Role</span>
                                             @endforelse
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if ($user->unit_id)
+                                            {{-- Badge ID Unit dengan efek Hover Tooltip --}}
+                                            <span title="{{ $user->unit->unit_name ?? 'Unit tidak ditemukan' }}"
+                                                class="inline-flex items-center justify-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400 uppercase transition">
+                                                {{ $user->unit_id }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs font-medium italic text-gray-400">-</span>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($user->is_active)
@@ -194,5 +206,5 @@
     </div>
 
     @include('masterdata::admin.modal-edit')
-     @include('masterdata::admin.delete-modal')
+    @include('masterdata::admin.delete-modal')
 @endsection

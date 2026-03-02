@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('mst_unit', function (Blueprint $table) {
             $table->string('id', 4)->primary();
             $table->string('unit_name', 100);
-            $table->string('unit_parent', 4);
+            $table->string('unit_parent', 4)->nullable();
             $table->integer('unit_type_id');
             $table->enum('is_active', ['0', '1']);
             $table->dateTime('created_at')->nullable();

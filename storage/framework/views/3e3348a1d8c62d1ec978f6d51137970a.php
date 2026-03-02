@@ -83,6 +83,7 @@
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
+                                <th class="px-6 py-4 font-semibold">Unit / Homebase</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
                                 <th class="px-6 py-4 text-center font-semibold">Aksi</th>
                             </tr>
@@ -122,6 +123,18 @@
                                                 <span class="text-xs italic text-gray-400">No Role</span>
                                             <?php endif; ?>
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <?php if($user->unit_id): ?>
+                                            
+                                            <span title="<?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?>"
+                                                class="inline-flex items-center justify-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400 uppercase transition">
+                                                <?php echo e($user->unit_id); ?>
+
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="text-xs font-medium italic text-gray-400">-</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <?php if($user->is_active): ?>
@@ -198,7 +211,7 @@
     </div>
 
     <?php echo $__env->make('masterdata::admin.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-     <?php echo $__env->make('masterdata::admin.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::admin.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/admin/users.blade.php ENDPATH**/ ?>

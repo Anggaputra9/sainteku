@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('ref_unit_type', function (Blueprint $table) {
             $table->integer('id', true)->primary();
-            $table->string('description', 10);
+            $table->string('description', 50);
         });
     }
 

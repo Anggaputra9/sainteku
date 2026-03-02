@@ -3,54 +3,28 @@
 namespace Modules\MasterData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Modules\Masterdata\app\models\User; // Pastikan namespace Model User benar
+use Modules\MasterData\app\Models\Unit; // Pastikan namespace Model Unit benar
+use Modules\MasterData\app\Models\Role; // Sesuaikan dengan nama model Role kamu
+// use Modules\MasterData\Models\Curriculum; // Aktifkan jika model Kurikulum sudah ada
 
 class MasterDataController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('masterdata::index');
+        // Mengambil total data secara real-time dari database
+        $totalUsers = User::count();
+        $totalRoles = Role::count();
+        $totalUnits = Unit::count();
+        
+        // Contoh untuk Kurikulum (Pastikan modelnya sudah dibuat/di-import)
+        $totalCurricula = 0; // Ganti dengan Curriculum::count() jika sudah ada
+
+        return view('masterdata::index', compact(
+            'totalUsers', 
+            'totalRoles', 
+            'totalUnits', 
+            'totalCurricula'
+        ));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('masterdata::create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
-    {
-        return view('masterdata::show');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
-    {
-        return view('masterdata::edit');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
 }

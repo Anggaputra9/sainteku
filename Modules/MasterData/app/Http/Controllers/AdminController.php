@@ -18,7 +18,7 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with('roles')->orderBy('name');
+        $query = User::with(['roles', 'unit'])->orderBy('name');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
