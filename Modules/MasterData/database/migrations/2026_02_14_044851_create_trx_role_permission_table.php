@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('trx_role_permission', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('role_id');
+            $table->unsignedInteger('role_id');
             $table->integer('modul_id');
             $table->integer('permission_id');
             $table->boolean('allowed');

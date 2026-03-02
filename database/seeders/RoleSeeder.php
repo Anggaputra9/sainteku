@@ -22,7 +22,11 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $r) {
-            DB::table('mst_role')->updateOrInsert(['id' => $r['id']], $r);
+            // Gunakan role_code sebagai patokan pencarian (karena unik)
+            DB::table('mst_role')->updateOrInsert(
+                ['role_code' => $r['role_code']], // Cari berdasarkan ini
+                $r // Jika ketemu diupdate, jika tidak maka diinsert
+            );
         }
     }
 }

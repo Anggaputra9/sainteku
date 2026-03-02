@@ -12,8 +12,11 @@ return new class extends Migration {
     {
         Schema::create('trx_user_role', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('user_id', 20);
-            $table->integer('role_id');
+            $table->string('user_id', 20); // Pastikan mst_user id juga string 20
+
+            // INI YANG BENAR: Buat kolom role_id dengan tipe Unsigned Integer
+            $table->unsignedInteger('role_id');
+
             $table->string('unit_id', 4)->nullable();
 
             $table->unique(['user_id', 'role_id']);
@@ -36,7 +39,6 @@ return new class extends Migration {
                 ->on('mst_unit')
                 ->onDelete('set null');
         });
-
     }
 
     /**
