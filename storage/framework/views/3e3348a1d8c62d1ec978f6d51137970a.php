@@ -95,6 +95,7 @@
                                         <span class="font-medium text-gray-900 dark:text-white"><?php echo e($user->id); ?></span>
                                     </td>
                                     <td class="px-6 py-4">
+                                
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">

@@ -17,8 +17,8 @@ class RoleMiddleware
         $user = Auth::user();
 
         // Cek apakah user punya role yang sesuai
-        if ($user->user_type != $roleId) {
-            abort(403, 'Unauthorized access.');
+        if (!in_array(Auth::user()->user_type, ['EKS','STF', 'DSN', 'ADM'])) {
+            abort(403, 'Unauthorized access');
         }
 
         return $next($request);

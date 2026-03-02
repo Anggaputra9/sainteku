@@ -32,7 +32,7 @@ class AdminController extends Controller
         // --- AMBIL DATA MASTER UNTUK MODAL ---
         $roles = Role::where('is_active', '1')->get();
         $units = Unit::where('is_active', '1')->get(); // Data untuk dropdown Unit
-        $userTypes = UserType::all(); // Data untuk dropdown Tipe User
+        $userTypes = DB::table('ref_user_type')->get();
 
         return view('masterdata::admin.users', compact('users', 'roles', 'units', 'userTypes'));
     }

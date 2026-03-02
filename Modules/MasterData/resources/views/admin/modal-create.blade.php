@@ -76,7 +76,9 @@
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         <option value="">-- Pilih Tipe --</option>
                         @foreach ($userTypes as $type)
-                            <option value="{{ $type->id }}">{{ $type->description }}</option>
+                            <option value="{{ $type->id }}" {{ old('user_type') == $type->id ? 'selected' : '' }}>
+                                {{ $type->description }}
+                            </option>
                         @endforeach
                     </select>
                 </div>

@@ -76,7 +76,10 @@
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         <option value="">-- Pilih Tipe --</option>
                         <?php $__currentLoopData = $userTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($type->id); ?>"><?php echo e($type->description); ?></option>
+                            <option value="<?php echo e($type->id); ?>" <?php echo e(old('user_type') == $type->id ? 'selected' : ''); ?>>
+                                <?php echo e($type->description); ?>
+
+                            </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
