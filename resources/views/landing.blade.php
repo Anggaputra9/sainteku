@@ -157,7 +157,7 @@
 
         /* MODAL LOGIN - FIX BACKGROUND */
         .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5) !important;
+            background-color: rgba(0, 0, 0, 0.2) !important;
         }
 
         .modal-backdrop.show {
@@ -168,17 +168,21 @@
             transform: none;
         }
 
-        /* BUTTON STYLES - Konsisten soft to solid */
+        /* BUTTON STYLES - Terang ke Pudar (Light to Fade) */
         .btn-soft-primary {
-            background-color: var(--saintek-soft) !important;
-            color: var(--saintek-text) !important;
+            background-color: var(--saintek-primary) !important;
+            /* TERANG */
+            color: #000000 !important;
             border: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            border-radius: 30px !important;
+            /* TIPIS */
         }
 
         .btn-soft-primary:hover {
-            background-color: var(--saintek-primary) !important;
-            color: #000000 !important;
+            background-color: var(--saintek-soft) !important;
+            /* PUDAR */
+            color: var(--saintek-text) !important;
             transform: translateY(-1px);
         }
 
@@ -187,19 +191,23 @@
         }
 
         .btn-masuk {
-            background-color: var(--saintek-soft) !important;
-            color: var(--saintek-text) !important;
+            background-color: var(--saintek-primary) !important;
+            /* TERANG */
+            color: #000000 !important;
             border: none;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            border-radius: 4px !important;
+            /* TIPIS */
         }
 
         .btn-masuk:hover {
-            background-color: var(--saintek-primary) !important;
-            color: #000000 !important;
+            background-color: var(--saintek-soft) !important;
+            /* PUDAR */
+            color: var(--saintek-text) !important;
         }
 
         .btn-masuk:active {
-            background-color: var(--saintek-primary-dark) !important;
+            background-color: rgba(254, 235, 4, 0.1) !important;
         }
 
         .btn-masuk:disabled {
@@ -209,19 +217,34 @@
         }
 
         /* Button Kirim Link Reset */
-        button[style*="background-color: #FEEB04"] {
-            background-color: var(--saintek-soft) !important;
-            color: var(--saintek-text) !important;
-            transition: all 0.2s ease;
-        }
-
-        button[style*="background-color: #FEEB04"]:hover {
+        button[style*="background-color: var(--saintek-soft)"] {
             background-color: var(--saintek-primary) !important;
+            /* TERANG */
             color: #000000 !important;
+            transition: all 0.3s ease;
+            border-radius: 4px !important;
+            /* TIPIS */
         }
 
-        button[style*="background-color: #FEEB04"]:active {
-            background-color: var(--saintek-primary-dark) !important;
+        button[style*="background-color: var(--saintek-soft)"]:hover {
+            background-color: var(--saintek-soft) !important;
+            /* PUDAR */
+            color: var(--saintek-text) !important;
+        }
+
+        button[style*="background-color: var(--saintek-soft)"]:active {
+            background-color: rgba(254, 235, 4, 0.1) !important;
+        }
+
+        /* Button Batal */
+        .btn.border {
+            border-radius: 5px !important;
+            /* TIPIS */
+            transition: all 0.3s ease;
+        }
+
+        .btn.border:hover {
+            background-color: #e5e7eb !important;
         }
 
         /* UTILITY CLASSES */
@@ -268,15 +291,19 @@
             border-color: var(--saintek-primary);
         }
 
-        /* SEMUA SUDUT LANCIK */
+        /* SEMUA SUDUT LANCIK - TAPI BUTTON PAKAI RADIUS TIPIS */
         .modal-content,
         .col-md-5,
         .col-md-7,
         .form-control,
-        .btn,
         .position-absolute,
         .border-top {
             border-radius: 0 !important;
+        }
+
+        /* KHUSUS BUTTON - RADIUS TIPIS */
+        .btn {
+            border-radius: 30px !important;
         }
 
         /* Mobile Styles */
@@ -348,7 +375,7 @@
                     </li>
                 </ul>
                 <div>
-                    <button class="btn btn-soft-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <button class="btn btn-soft-primary rounded-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
                         <i class="ri-user-3-line align-bottom me-1"></i> Login
                     </button>
                 </div>
@@ -403,10 +430,10 @@
                                         <i class="ri-mail-send-line"></i>
                                     </div>
                                 </div>
-                                <h5 class="fs-15 lh-base mb-0">Pertanyaan Umum Seputar PMB</h5>
+                                <h5 class="fs-15 lh-base mb-0">Pertanyaan Umum PMB</h5>
                             </div>
                         </div>
-                        <img src="assets/images/job-profile2.png" alt="" class="img-fluid">
+                        <img src="assets\images\image11.png" alt="" class="img-fluid">
                     </div>
                 </div>
             </div>
@@ -1209,7 +1236,7 @@
                                             Ingat saya
                                         </label>
                                     </div>
-                                    <a href="#" class="small text-decoration-none" style="color: #FEEB04;"
+                                    <a href="#" class="small text-decoration-none" style="color: #000000;"
                                         data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
                                         Lupa password?
                                     </a>
@@ -1218,7 +1245,7 @@
                                 <!-- Submit Button -->
                                 <button type="submit"
                                     class="btn w-100 py-2 small fw-medium border-0 btn-masuk"
-                                    style="background-color: var(--saintek-soft); color: var(--saintek-text); transition: all 0.2s ease;">
+                                    style="background-color: var(--saintek-primary); color: #000000; transition: all 0.3s ease;">
                                     Masuk
                                 </button>
                             </form>
@@ -1265,13 +1292,13 @@
                         <div class="d-flex gap-2">
                             <button type="button"
                                 class="btn w-100 py-2 small border rounded-0"
-                                style="background: #F3F4F6; color: #000;"
+                                style="background: #F3F4F6; color: #000; border-radius: 4px !important;"
                                 data-bs-dismiss="modal">
                                 Batal
                             </button>
                             <button type="submit"
-                                class="btn w-100 py-2 small fw-medium border-0 rounded-0"
-                                style="background-color: var(--saintek-soft); color: var(--saintek-text);">
+                                class="btn w-100 py-2 small fw-medium border-0"
+                                style="background-color: var(--saintek-primary); color: #000000; border-radius: 4px !important; transition: all 0.3s ease;">
                                 Kirim Link Reset
                             </button>
                         </div>
@@ -1291,23 +1318,18 @@
             const loginError = document.getElementById('loginError');
             const loginModal = document.getElementById('loginModal');
 
-            // Hapus loading state dari button di awal
-            const submitBtn = loginForm?.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Masuk';
-            }
-
             if (loginForm) {
                 loginForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = 'Masuk';
+                    const originalStyle = submitBtn.style.cssText;
 
-                    // Disable button tanpa animasi muter2
+                    // Disable button tapi style tetap
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = 'Memproses...'; // Text biasa, tanpa spinner
+                    submitBtn.innerHTML = 'Memproses...';
+                    // Style tetap dipertahankan
 
                     const formData = new FormData(this);
 
@@ -1328,7 +1350,7 @@
                                 }, 500);
                             } else {
                                 showAlert('error', data.message || 'Login gagal');
-                                // Enable button lagi
+                                // Enable button lagi dengan style original
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalText;
                             }
@@ -1336,7 +1358,7 @@
                         .catch(error => {
                             console.error('Error:', error);
                             showAlert('error', 'Terjadi kesalahan. Silakan coba lagi.');
-                            // Enable button lagi
+                            // Enable button lagi dengan style original
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         });
@@ -1346,15 +1368,30 @@
             function showAlert(type, message) {
                 if (!loginError) return;
                 loginError.style.display = 'block';
-                loginError.className = type === 'success' ?
-                    'alert alert-success py-2 mb-3 small' :
-                    'alert alert-danger py-2 mb-3 small';
 
-                if (type === 'error') {
+                // SESUAIKAN DENGAN TABEL
+                if (type === 'success') {
+                    loginError.className = 'alert py-2 mb-3 small';
+                    loginError.style.background = '#d1e7dd'; // Hijau soft
+                    loginError.style.borderColor = '#badbcc'; // Border hijau
+                    loginError.style.color = '#0f5132'; // Teks hijau gelap
+                } else if (type === 'warning') {
+                    loginError.className = 'alert py-2 mb-3 small';
+                    loginError.style.background = '#fff3cd'; // Kuning soft
+                    loginError.style.borderColor = '#ffecb5'; // Border kuning
+                    loginError.style.color = '#664d03'; // Teks kuning gelap
+                } else if (type === 'danger') {
+                    loginError.className = 'alert py-2 mb-3 small';
+                    loginError.style.background = '#f8d7da'; // Merah soft
+                    loginError.style.borderColor = '#f5c2c7'; // Border merah
+                    loginError.style.color = '#842029'; // Teks merah gelap
+                } else {
+                    loginError.className = 'alert alert-danger py-2 mb-3 small';
                     loginError.style.background = '#FEF3F2';
                     loginError.style.borderColor = '#F04438';
                     loginError.style.color = '#B42318';
                 }
+
                 loginError.innerHTML = message;
             }
 
@@ -1487,18 +1524,22 @@
             border-color: #FEEB04;
         }
 
-        /* Membuat semua sudut lancip */
+        /* Membuat semua sudut lancip - TAPI BUTTON KHUSUS RADIUS */
         .modal-content,
         .col-md-5,
         .col-md-7,
         .form-control,
-        .btn,
         .position-absolute,
         .border-top {
             border-radius: 0 !important;
         }
 
-        /* Mobile Styles (<768px) */
+        /* KHUSUS BUTTON - RADIUS TIPIS */
+        .btn {
+            border-radius: 5px !important;
+        }
+
+        /* Mobile Styles */
         @media (max-width: 768px) {
             .modal-dialog {
                 margin: 0.5rem;
@@ -1530,7 +1571,7 @@
             }
         }
 
-        /* Desktop Styles (>768px) */
+        /* Desktop Styles */
         @media (min-width: 769px) {
             .d-md-none {
                 display: none !important;
