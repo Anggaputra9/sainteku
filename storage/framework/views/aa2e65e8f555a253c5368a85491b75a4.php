@@ -1,1 +1,0 @@
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/modal-delete.blade.php ENDPATH**/ ?>

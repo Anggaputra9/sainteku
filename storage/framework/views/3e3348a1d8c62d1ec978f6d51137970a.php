@@ -83,7 +83,7 @@
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
-                                <th class="px-6 py-4 font-semibold">Unit / Homebase</th>
+                                <th class="px-6 py-4 font-semibold">Unit</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
                                 <th class="px-6 py-4 text-center font-semibold">Aksi</th>
                             </tr>
@@ -124,12 +124,14 @@
                                             <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    
+                                    <td class="px-6 py-4 w-[20%] max-w-[150px]">
                                         <?php if($user->unit_id): ?>
                                             
-                                            <span title="<?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?>"
-                                                class="inline-flex items-center justify-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400 uppercase transition">
-                                                <?php echo e($user->unit_id); ?>
+                                            <span
+                                                title="<?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?> (ID: <?php echo e($user->unit_id); ?>)"
+                                                class="inline-block max-w-full truncate rounded-md bg-indigo-50 px-2.5 py-1 align-middle text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 transition hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400">
+                                                <?php echo e($user->unit->unit_name ?? 'Unit tidak ditemukan'); ?>
 
                                             </span>
                                         <?php else: ?>

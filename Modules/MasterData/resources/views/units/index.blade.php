@@ -73,7 +73,7 @@
                                         class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
                                         <i class="fa-solid fa-turn-up fa-rotate-90 text-gray-400"></i>
                                         Induk: <span
-                                            class="text-blue-600 dark:text-blue-400">{{ $parentName }}</span>
+                                            class="font-bold text-blue-600 dark:text-blue-200">{{ $parentName }}</span>
                                     </div>
                                 @else
                                     <div
