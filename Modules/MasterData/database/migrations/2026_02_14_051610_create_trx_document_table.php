@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('document_type_id', 4);
             $table->string('unit_id', 4);
             $table->integer('version');
-            $table->string('file_path', 50);
+            $table->string('file_path', 255);
             $table->integer('status');
             $table->date('effective_date');
             $table->date('expired_date');

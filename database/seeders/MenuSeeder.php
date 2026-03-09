@@ -64,7 +64,8 @@ class MenuSeeder extends Seeder
                 'is_active' => 1,
             ],
 
-            ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => '#', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => 'DocumentRepository.index', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 12, 'menu_name' => 'Dashboard Dokumen', 'menu_link' => 'DocumentRepository.dashboard.index', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 1, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------

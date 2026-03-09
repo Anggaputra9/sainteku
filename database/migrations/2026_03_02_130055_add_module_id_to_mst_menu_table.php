@@ -5,15 +5,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void
+    public function up()
     {
         Schema::table('mst_menu', function (Blueprint $table) {
-            $table->unsignedInteger('module_id')->nullable()->after('parent_id');
+            // 1. Buat kolomnya
+            $table->integer('module_id')->nullable();
 
-            $table->foreign('module_id')
-                  ->references('id')
-                  ->on('mst_module')
-                  ->nullOnDelete();
+            // 2. Buat relasinya dengan nama custom agar tidak Error 121
+            $table->foreign('module_id', 'fk_custom_menu_module')
+                ->references('id')
+                ->on('mst_module')
+                ->onDelete('set null');
         });
     }
 

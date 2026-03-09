@@ -12,7 +12,7 @@
                         class="font-semibold text-blue-600 dark:text-blue-400">Sainteku</span></p>
             </div>
             <button @click="openCreate = false"
-                class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-orange-600 transition focus:ring-4 focus:ring-orange-200 dark:focus:ring-orange-900">
+                class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
                 <i class="fas fa-arrow-left"></i>
                 Kembali
             </button>
@@ -126,7 +126,7 @@
             <div
                 class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end">
                 <button type="button" @click="openCreate = false"
-                    class="inline-flex items-center gap-2 rounded-lg bg-orange-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-orange-600 focus:ring-4 focus:ring-orange-200 transition dark:focus:ring-orange-900">
+                    class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-200 transition dark:focus:ring-yellow-900">
                     <i class="fas fa-xmark"></i>
                     Batal
                 </button>

@@ -18,7 +18,7 @@
         <div class="grid grid-cols-2 gap-3 mt-8">
             {{-- Kolom 1: Tombol Batal (Orange) --}}
             <button type="button" @click="openDelete = false"
-                class="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-orange-600 transition focus:ring-4 focus:ring-orange-200 dark:focus:ring-orange-900">
+                class="inline-flex items-center justify-center gap-2 rounded-lg bg-yellow-500 px-4 py-3 text-sm font-bold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
                 <i class="fas fa-arrow-left"></i>
                 Batal
             </button>

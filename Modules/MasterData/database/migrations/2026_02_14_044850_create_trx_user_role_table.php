@@ -25,7 +25,8 @@ return new class extends Migration {
             $table->foreign('user_id')
                 ->references('id')
                 ->on('mst_user')
-                ->onDelete('cascade');
+                ->onDelete('cascade')
+                ->onUpdate('cascade'); 
 
             // FK ke mst_role
             $table->foreign('role_id')

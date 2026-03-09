@@ -32,8 +32,8 @@
         </div>
 
         <form :action="url" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div>
@@ -59,11 +59,12 @@
                     <select name="unit_type_id" x-model="unitData.type" required
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         <option value="">-- Pilih Level Unit --</option>
-                        @foreach($unitTypes as $type)
-                            <option value="{{ $type->id }}">
-                                {{ $type->description ?? 'Tipe ' . $type->id }}
+                        <?php $__currentLoopData = $unitTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($type->id); ?>">
+                                <?php echo e($type->description ?? 'Tipe ' . $type->id); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -72,11 +73,12 @@
                     <select name="unit_parent" x-model="unitData.parent"
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         <option value="">-- Tidak Ada (Sebagai Induk Tertinggi) --</option>
-                        @foreach($parentUnits as $parent)
-                            <option value="{{ $parent->id }}">
-                                {{ $parent->id }} - {{ $parent->unit_name }}
+                        <?php $__currentLoopData = $parentUnits; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $parent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($parent->id); ?>">
+                                <?php echo e($parent->id); ?> - <?php echo e($parent->unit_name); ?>
+
                             </option>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
 
@@ -103,4 +105,4 @@
             </div>
         </form>
     </div>
-</div>
+</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/units/modal-edit.blade.php ENDPATH**/ ?>

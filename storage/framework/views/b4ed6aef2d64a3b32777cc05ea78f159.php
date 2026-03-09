@@ -28,8 +28,8 @@
         </div>
 
         <form :action="url" method="POST" class="space-y-6">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div>
@@ -72,4 +72,4 @@
             </div>
         </form>
     </div>
-</div>
+</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/modal-edit.blade.php ENDPATH**/ ?>

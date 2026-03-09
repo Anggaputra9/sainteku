@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Modules\MasterData\app\Models\User;
 use Modules\MasterData\app\Models\Role;
-use Modules\MasterData\app\Models\Unit;      
+use Modules\MasterData\app\Models\Unit;
 use Modules\MasterData\app\Models\UserType;
 
 class AdminController extends Controller
@@ -71,9 +71,9 @@ class AdminController extends Controller
         if ($lastUser) {
             // Ambil angka dari ID terakhir (misal 'u0001' jadi 1), tambah 1, lalu pad dengan 0
             $lastNumber = (int) substr($lastUser->id, 1);
-            $newId = 'u' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            $newId = 'U' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
-            $newId = 'u0001';
+            $newId = 'U0001';
         }
 
         // 3. Ekstrak role_ids agar tidak ikut tersimpan ke tabel mst_user
@@ -126,39 +126,41 @@ class AdminController extends Controller
             'unit_id' => 'nullable|string',
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'integer|exists:mst_role,id',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'nullable',
         ]);
 
-        // Extract role_ids separately
         $roleIds = $data['role_ids'];
         unset($data['role_ids']);
 
-        // Only hash password if provided
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
         }
 
-        // Set default values for nullable fields
-        if (!isset($data['identity_id']) || is_null($data['identity_id'])) {
-            $data['identity_id'] = null;
-        }
-        if (!isset($data['user_type']) || is_null($data['user_type'])) {
-            $data['user_type'] = null;
-        }
-        if (!isset($data['unit_id']) || is_null($data['unit_id'])) {
-            $data['unit_id'] = null;
-        }
-        $data['is_active'] = $data['is_active'] ?? false;
+        $isSuicideAttempt = false;
 
-        // Update user
+        // CEGAH ADMIN MENONAKTIFKAN AKUN SENDIRI
+        if ($id === auth()->id() && !$request->has('is_active')) {
+            $data['is_active'] = '1';
+            $isSuicideAttempt = true; 
+        } else {
+            $data['is_active'] = $request->has('is_active') ? '1' : '0';
+        }
+
+        $data['identity_id'] = $data['identity_id'] ?? null;
+        $data['user_type'] = $data['user_type'] ?? null;
+        $data['unit_id'] = $data['unit_id'] ?? null;
+
         $user->update($data);
-
-        // Delete existing roles first
         $user->roles()->sync($roleIds);
 
-        return redirect()->route('masterdata.admin.users.index')->with('success', 'User berhasil diperbarui');
+        // KUNCI PERBAIKAN: Redirect menggunakan URL absolut untuk mencegah browser tersangkut di /U0002
+        if ($isSuicideAttempt) {
+             return redirect('/masterdata/admin/users')->with('error', 'Bahaya! Anda tidak diperbolehkan menonaktifkan akun sendiri untuk mencegah terkunci dari sistem.');
+        }
+
+        return redirect('/masterdata/admin/users')->with('success', 'Data user berhasil diperbarui.');
     }
 
     /**

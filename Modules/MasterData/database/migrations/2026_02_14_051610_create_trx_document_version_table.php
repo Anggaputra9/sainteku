@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('document_id');
             $table->integer('version');
-            $table->string('file_path', 50);
+            $table->string('file_path', 255);
             $table->string('change_note', 200);
             $table->string('approved_by', 20);
             $table->dateTime('approved_date')->nullable();

@@ -44,6 +44,19 @@
                     </div>
                 </div>
             @endif
+            @if (session('error'))
+                <div
+                    class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+                    <div
+                        class="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                        <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-sm font-semibold text-red-800 dark:text-red-400">Peringatan!</h5>
+                        <p class="text-sm text-red-700 dark:text-red-500">{{ session('error') }}</p>
+                    </div>
+                </div>
+            @endif
 
             {{-- Filter & Search --}}
             <div class="rounded-lg">
@@ -97,7 +110,7 @@
                                         <span class="font-medium text-gray-900 dark:text-white">{{ $user->id }}</span>
                                     </td>
                                     <td class="px-6 py-4">
-                                
+
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">

@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -41,14 +42,15 @@ class DatabaseSeeder extends Seeder
                 'unit_type_id' => 1,
                 'is_active' => '1',
                 'created_at' => now(),
-            ]
-        );
-
+                ]
+                );
+                
+        Schema::disableForeignKeyConstraints();
         // 4. Buat User (Level 2 - Butuh unit_id & user_type)
         DB::table('mst_user')->updateOrInsert(
             ['id' => 'u0001'],
             [
-                'id' => 'u0001',
+                'id' => 'U0001',
                 'name' => 'Admin Sainteku',
                 'email' => 'admin@sainteku.ac.id',
                 'password' => Hash::make('password'),
@@ -60,11 +62,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        DB::table('trx_user_role')->where('user_id', 'u0001')->update([
+            'user_id' => 'U0001'
+        ]);
+
         // 5. Panggil Seeder Relasi (Level 3)
         $this->call([
             RolePermissionSeeder::class,
             AssignRoleToFirstUserSeeder::class,
             MenuSeeder::class,
         ]);
+
+        Schema::enableForeignKeyConstraints();
     }
 }

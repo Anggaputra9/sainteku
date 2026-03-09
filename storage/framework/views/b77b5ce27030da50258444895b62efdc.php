@@ -1,9 +1,7 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    {{-- 2. Tambahkan CSS ini untuk memaksa kalender selalu berada di lapisan terdepan --}}
+    
     <style>
         .flatpickr-calendar {
             z-index: 9999999 !important;
@@ -14,7 +12,7 @@
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
         <div class="space-y-6">
 
-            {{-- Header & Tombol Tambah --}}
+            
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
@@ -28,7 +26,7 @@
                     </nav>
                 </div>
 
-                {{-- KUNCI PERUBAHAN: Dibungkus dengan x-data Alpine.js untuk Modal --}}
+                
                 <div x-data="{ openCreate: false, fileName: '' }">
                     <button @click="openCreate = true"
                         class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
@@ -36,13 +34,13 @@
                         Unggah Dokumen Baru
                     </button>
 
-                    {{-- Memanggil komponen file modal yang dibuat di Tahap 2 --}}
-                    @include('documentrepository::modal-create')
+                    
+                    <?php echo $__env->make('documentrepository::modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 </div>
             </div>
 
-            {{-- Pesan Sukses --}}
-            @if (session('success'))
+            
+            <?php if(session('success')): ?>
                 <div
                     class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
                     <div
@@ -51,13 +49,13 @@
                     </div>
                     <div>
                         <h5 class="text-sm font-semibold text-green-800 dark:text-green-400">Sukses!</h5>
-                        <p class="text-sm text-green-700 dark:text-green-500">{{ session('success') }}</p>
+                        <p class="text-sm text-green-700 dark:text-green-500"><?php echo e(session('success')); ?></p>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
 
-            {{-- Pesan Error --}}
-            @if (session('error') || $errors->any())
+            
+            <?php if(session('error') || $errors->any()): ?>
                 <div
                     class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
                     <div
@@ -67,33 +65,34 @@
                     <div>
                         <h5 class="text-sm font-semibold text-red-800 dark:text-red-400">Peringatan!</h5>
                         <p class="text-sm text-red-700 dark:text-red-500">
-                            {{ session('error') ?? 'Gagal menyimpan. Pastikan semua data yang diinput sudah benar dan file tidak melebihi 10MB.' }}
+                            <?php echo e(session('error') ?? 'Gagal menyimpan. Pastikan semua data yang diinput sudah benar dan file tidak melebihi 10MB.'); ?>
+
                         </p>
                     </div>
                 </div>
-            @endif
+            <?php endif; ?>
 
-            {{-- TOMBOL FILTER STATUS --}}
+            
             <div class="flex flex-wrap items-center gap-2 mb-2">
-                <a href="{{ route('DocumentRepository.index') }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'all' ? 'bg-gray-800 text-white shadow-md dark:bg-gray-200 dark:text-gray-900' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700' }}">
+                <a href="<?php echo e(route('DocumentRepository.index')); ?>"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition <?php echo e($filterStatus == 'all' ? 'bg-gray-800 text-white shadow-md dark:bg-gray-200 dark:text-gray-900' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700'); ?>">
                     Semua Dokumen
                 </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'pending']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'pending' ? 'bg-amber-500 text-white shadow-md' : 'bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 dark:bg-gray-800 dark:border-amber-900/50 dark:hover:bg-amber-900/30' }}">
+                <a href="<?php echo e(route('DocumentRepository.index', ['status' => 'pending'])); ?>"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition <?php echo e($filterStatus == 'pending' ? 'bg-amber-500 text-white shadow-md' : 'bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 dark:bg-gray-800 dark:border-amber-900/50 dark:hover:bg-amber-900/30'); ?>">
                     <i class="fa-solid fa-clock mr-1"></i> Menunggu Review
                 </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'approved']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'approved' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-green-600 border border-green-200 hover:bg-green-50 dark:bg-gray-800 dark:border-green-900/50 dark:hover:bg-green-900/30' }}">
+                <a href="<?php echo e(route('DocumentRepository.index', ['status' => 'approved'])); ?>"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition <?php echo e($filterStatus == 'approved' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-green-600 border border-green-200 hover:bg-green-50 dark:bg-gray-800 dark:border-green-900/50 dark:hover:bg-green-900/30'); ?>">
                     <i class="fa-solid fa-check-circle mr-1"></i> Disetujui
                 </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'rejected']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'rejected' ? 'bg-red-500 text-white shadow-md' : 'bg-white text-red-600 border border-red-200 hover:bg-red-50 dark:bg-gray-800 dark:border-red-900/50 dark:hover:bg-red-900/30' }}">
+                <a href="<?php echo e(route('DocumentRepository.index', ['status' => 'rejected'])); ?>"
+                    class="px-4 py-2 text-sm font-semibold rounded-full transition <?php echo e($filterStatus == 'rejected' ? 'bg-red-500 text-white shadow-md' : 'bg-white text-red-600 border border-red-200 hover:bg-red-50 dark:bg-gray-800 dark:border-red-900/50 dark:hover:bg-red-900/30'); ?>">
                     <i class="fa-solid fa-circle-exclamation mr-1"></i> Perlu Revisi
                 </a>
             </div>
 
-            {{-- Tabel Data --}}
+            
             <div x-data="{ openRevise: false, reviseUrl: '', reviseTitle: '', reviseFileName: '' }">
                 <div
                     class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
@@ -110,19 +109,19 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse($documents as $doc)
+                                <?php $__empty_1 = true; $__currentLoopData = $documents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $doc): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition items-start">
                                         <td class="px-6 py-4 align-top">
                                             <div class="font-bold text-gray-900 dark:text-white text-base">
-                                                {{ $doc->document_id }}</div>
+                                                <?php echo e($doc->document_id); ?></div>
                                             <div class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
-                                                {{ $doc->document_title }}</div>
+                                                <?php echo e($doc->document_title); ?></div>
                                             <div class="text-xs text-gray-500 mt-1.5"><i
                                                     class="fa-regular fa-user mr-1"></i>
-                                                {{ $doc->creator->name ?? 'Sistem' }}</div>
+                                                <?php echo e($doc->creator->name ?? 'Sistem'); ?></div>
 
-                                            {{-- DESAIN BARU: Kotak Catatan Revisi yang lebih elegan --}}
-                                            @if ($doc->status == 4 && $doc->versions->isNotEmpty())
+                                            
+                                            <?php if($doc->status == 4 && $doc->versions->isNotEmpty()): ?>
                                                 <div
                                                     class="mt-4 w-full rounded-lg border border-red-200 bg-red-50/80 p-3.5 dark:border-red-500/30 dark:bg-red-500/10 shadow-sm">
                                                     <div class="flex items-start gap-3">
@@ -134,20 +133,21 @@
                                                                 Revisi:</span>
                                                             <p
                                                                 class="text-sm font-medium text-red-800 dark:text-red-200 leading-relaxed">
-                                                                {{ $doc->versions->first()->change_note }}</p>
+                                                                <?php echo e($doc->versions->first()->change_note); ?></p>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
                                         <td class="px-6 py-4 align-top">
                                             <div class="font-semibold text-indigo-600 dark:text-indigo-400">
-                                                {{ $doc->type->description ?? '-' }}</div>
-                                            <div class="text-xs text-gray-500 mt-1">{{ $doc->unit->unit_name ?? '-' }}
+                                                <?php echo e($doc->type->description ?? '-'); ?></div>
+                                            <div class="text-xs text-gray-500 mt-1"><?php echo e($doc->unit->unit_name ?? '-'); ?>
+
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-center align-top">
-                                            @php
+                                            <?php
                                                 $statusColor = 'bg-gray-100 text-gray-800';
                                                 if ($doc->status == 3) {
                                                     $statusColor =
@@ -159,43 +159,45 @@
                                                     $statusColor =
                                                         'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50';
                                                 }
-                                            @endphp
+                                            ?>
                                             <span
-                                                class="inline-flex rounded-md px-2.5 py-1 text-xs font-bold border {{ $statusColor }}">
-                                                {{ $doc->workflowStatus->description ?? 'Menunggu...' }}
+                                                class="inline-flex rounded-md px-2.5 py-1 text-xs font-bold border <?php echo e($statusColor); ?>">
+                                                <?php echo e($doc->workflowStatus->description ?? 'Menunggu...'); ?>
+
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-center align-top">
                                             <span
                                                 class="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50">
-                                                v{{ $doc->version }}
+                                                v<?php echo e($doc->version); ?>
+
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center align-top">
-                                            @if ($doc->status == 4)
-                                                {{-- Kondisi 1: Status Ditolak/Revisi -> Muncul tombol orange --}}
+                                            <?php if($doc->status == 4): ?>
+                                                
                                                 <button
-                                                    @click="openRevise = true; reviseUrl = '{{ route('DocumentRepository.revise', $doc->id) }}'; reviseTitle = '{{ addslashes($doc->document_title) }}'"
+                                                    @click="openRevise = true; reviseUrl = '<?php echo e(route('DocumentRepository.revise', $doc->id)); ?>'; reviseTitle = '<?php echo e(addslashes($doc->document_title)); ?>'"
                                                     class="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-4 py-2 text-xs font-bold text-white hover:bg-orange-600 transition shadow-sm focus:ring-4 focus:ring-orange-200 dark:focus:ring-orange-900">
                                                     <i class="fa-solid fa-clock-rotate-left"></i> Revisi File
                                                 </button>
-                                            @elseif ($doc->status == 3)
-                                                {{-- Kondisi 2: Status Disetujui -> Muncul tombol Lihat (Ikon Mata) --}}
-                                                <a href="{{ route('DocumentRepository.download', $doc->id) }}"
+                                            <?php elseif($doc->status == 3): ?>
+                                                
+                                                <a href="<?php echo e(route('DocumentRepository.download', $doc->id)); ?>"
                                                     target="_blank"
                                                     class="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm border border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
                                                     <i class="fa-solid fa-eye text-blue-500"></i> Lihat File
                                                 </a>
-                                            @else
-                                                {{-- Kondisi 3: Status Draft / Menunggu Review -> Tombol dikunci (Ikon Gembok) --}}
+                                            <?php else: ?>
+                                                
                                                 <button disabled
                                                     class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-4 py-2 text-xs font-bold text-gray-400 cursor-not-allowed border border-gray-200 dark:bg-gray-800/50 dark:text-gray-500 dark:border-gray-700">
                                                     <i class="fa-solid fa-lock"></i> Terkunci
                                                 </button>
-                                            @endif
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="5" class="px-6 py-16 text-center">
                                             <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
@@ -207,11 +209,11 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
-                    {{-- MODAL REVISI DOKUMEN (KODE YANG HILANG) --}}
+                    
                     <div x-show="openRevise"
                         class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
                         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -228,7 +230,7 @@
                             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             class="relative w-full max-w-lg transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all mt-10">
 
-                            {{-- Header Modal --}}
+                            
                             <div class="mb-6 border-b border-gray-100 pb-4 dark:border-gray-700">
                                 <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                     <i class="fa-solid fa-file-pen text-orange-500"></i> Unggah Revisi
@@ -240,11 +242,11 @@
                                 </p>
                             </div>
 
-                            {{-- Form Area --}}
+                            
                             <form :action="reviseUrl" method="POST" enctype="multipart/form-data">
-                                @csrf
+                                <?php echo csrf_field(); ?>
                                 <div class="space-y-6">
-                                    {{-- Area File Upload --}}
+                                    
                                     <div>
                                         <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
                                             File Pengganti <span class="text-red-500">*</span>
@@ -277,7 +279,7 @@
                                     </div>
                                 </div>
 
-                                {{-- Tombol Aksi --}}
+                                
                                 <div
                                     class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end mt-8">
                                     <button type="button" @click="openRevise = false"
@@ -293,7 +295,9 @@
                         </div>
                     </div>
 
-                </div> {{-- Ini penutup div x-data dari tabel --}}
-            </div> {{-- Ini penutup div space-y-6 --}}
-        </div> {{-- Ini penutup mx-auto max-w-screen-2xl --}}
-    @endsection
+                </div> 
+            </div> 
+        </div> 
+    <?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/DocumentRepository\resources/views/index.blade.php ENDPATH**/ ?>
