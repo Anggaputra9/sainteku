@@ -212,6 +212,37 @@
                 </div>
             </div>
 
+            <div
+                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-teal-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-teal-700">
+                <div class="p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Data Infrastruktur</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola fasilitas ruangan dan barang inventaris</p>
+                            <div class="mt-4">
+                                <span
+                                    class="inline-flex items-center rounded-full bg-teal-50 px-2 py-1 text-xs font-medium text-teal-700 dark:bg-teal-900 dark:text-teal-300">Ruangan, Elektronik, Furnitur</span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg bg-teal-50 p-3 dark:bg-teal-900">
+                            <svg class="h-6 w-6 text-teal-600 dark:text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <a href="<?php echo e(route('masterdata.infrastructures.index')); ?>"
+                            class="inline-flex items-center text-sm font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400">
+                            Kelola Infrastruktur
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Card: Data Kategori Berkas -->
             <div
                 class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-red-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-red-700">
@@ -288,6 +319,10 @@
                     <span class="mt-0.5 text-blue-500">•</span>
                     <span>Buat <strong>Role</strong> yang diperlukan (minimal: Admin, Dekan, Kaprodi, Dosen,
                         Mahasiswa)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="mt-0.5 text-blue-500">•</span>
+                    <span>Masukkan data <strong>Infrastruktur</strong> jika institusi perlu melacak aset ruangan dan barang.</span>
                 </li>
                 <li class="flex items-start gap-2">
                     <span class="mt-0.5 text-blue-500">•</span>

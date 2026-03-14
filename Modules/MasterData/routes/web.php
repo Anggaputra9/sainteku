@@ -6,6 +6,7 @@ use Modules\MasterData\Http\Controllers\RoleController;
 use Modules\MasterData\Http\Controllers\AdminController;
 use Modules\MasterData\Http\Controllers\CurriculaController;
 use Modules\MasterData\Http\Controllers\CategoriesController;
+use Modules\MasterData\app\Http\Controllers\InfrastructureController;
 
 Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(function () {
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
@@ -37,4 +38,7 @@ Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(fu
         Route::put('admin/users/{id}', [AdminController::class, 'update'])->name('admin.users.update');
         Route::delete('admin/users/{id}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     });
+
+    // Infrastructure management
+    Route::resource('infrastructures', InfrastructureController::class);
 });

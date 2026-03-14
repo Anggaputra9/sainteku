@@ -164,96 +164,91 @@
             opacity: 0.5 !important;
         }
 
-        .modal.show .modal-dialog {
-            transform: none;
-        }
-
-        /* BUTTON STYLES - Terang ke Pudar (Light to Fade) */
+        /* BUTTON STYLES */
         .btn-soft-primary {
             background-color: var(--saintek-primary) !important;
-            /* TERANG */
             color: #000000 !important;
             border: none;
             transition: all 0.3s ease;
-            border-radius: 30px !important;
-            /* TIPIS */
+            border-radius: 4px !important;
         }
 
         .btn-soft-primary:hover {
             background-color: var(--saintek-soft) !important;
-            /* PUDAR */
             color: var(--saintek-text) !important;
             transform: translateY(-1px);
         }
 
-        .btn-soft-primary:active {
-            transform: translateY(0);
-        }
-
         .btn-masuk {
             background-color: var(--saintek-primary) !important;
-            /* TERANG */
             color: #000000 !important;
             border: none;
             transition: all 0.3s ease;
             border-radius: 4px !important;
-            /* TIPIS */
         }
 
         .btn-masuk:hover {
             background-color: var(--saintek-soft) !important;
-            /* PUDAR */
             color: var(--saintek-text) !important;
         }
 
-        .btn-masuk:active {
-            background-color: rgba(254, 235, 4, 0.1) !important;
+        /* Language Toggle Styling - Improved */
+        .language-toggle {
+            display: inline-flex;
+            align-items: center;
+            color: #4b5563;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.75rem;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            background: transparent;
+            border: none;
         }
 
-        .btn-masuk:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            background-color: var(--saintek-soft) !important;
+        .language-toggle:hover {
+            color: #1f2937;
         }
 
-        /* Button Kirim Link Reset */
-        button[style*="background-color: var(--saintek-soft)"] {
-            background-color: var(--saintek-primary) !important;
-            /* TERANG */
-            color: #000000 !important;
-            transition: all 0.3s ease;
-            border-radius: 4px !important;
-            /* TIPIS */
+        .language-toggle:focus {
+            outline: none;
+            color: #1f2937;
         }
 
-        button[style*="background-color: var(--saintek-soft)"]:hover {
-            background-color: var(--saintek-soft) !important;
-            /* PUDAR */
-            color: var(--saintek-text) !important;
+        .language-toggle:active {
+            color: #374151;
         }
 
-        button[style*="background-color: var(--saintek-soft)"]:active {
-            background-color: rgba(254, 235, 4, 0.1) !important;
+        .language-toggle i {
+            font-size: 1.1rem;
+            margin-right: 0.25rem;
         }
 
-        /* Button Batal */
-        .btn.border {
-            border-radius: 5px !important;
-            /* TIPIS */
-            transition: all 0.3s ease;
+        .dropdown-item.language-item {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            color: #374151;
         }
 
-        .btn.border:hover {
-            background-color: #e5e7eb !important;
+        .dropdown-item.language-item:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+        }
+
+        .dropdown-item.language-item.active-lang {
+            background-color: rgba(254, 235, 4, 0.1);
+            color: #856B2B;
+        }
+
+        .dropdown-item.language-item span {
+            display: inline-block;
+            width: 24px;
+            font-size: 1.1rem;
         }
 
         /* UTILITY CLASSES */
         .text-dark-50 {
             color: rgba(0, 0, 0, 0.7);
-        }
-
-        .bg-opacity-10 {
-            --bs-bg-opacity: 0.1;
         }
 
         .fs-14 {
@@ -291,19 +286,18 @@
             border-color: var(--saintek-primary);
         }
 
-        /* SEMUA SUDUT LANCIK - TAPI BUTTON PAKAI RADIUS TIPIS */
+        /* ALL CORNERS SQUARE EXCEPT BUTTONS */
         .modal-content,
         .col-md-5,
         .col-md-7,
         .form-control,
-        .position-absolute,
         .border-top {
             border-radius: 0 !important;
         }
 
-        /* KHUSUS BUTTON - RADIUS TIPIS */
+        /* BUTTONS WITH SLIGHT RADIUS */
         .btn {
-            border-radius: 30px !important;
+            border-radius: 4px !important;
         }
 
         /* Mobile Styles */
@@ -374,6 +368,30 @@
                         <a class="nav-link" href="#blog"><?php echo e(__('messages.blog')); ?></a>
                     </li>
                 </ul>
+
+                <!-- Language Toggle - Improved Version -->
+                <div class="dropdown me-2">
+                    <a href="#" class="language-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="ri-global-line align-middle"></i>
+                        <?php echo e(session('locale') == 'en' ? 'English' : 'Indonesia'); ?>
+
+                        <i class="ri-arrow-down-s-line align-middle ms-1"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 140px; padding: 0.5rem 0; border: 1px solid #f0f0f0; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                        <li>
+                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'id' ? 'active-lang' : ''); ?>" href="<?php echo e(route('language.switch', 'id')); ?>">
+                                <span>🇮🇩</span> Indonesia
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'en' ? 'active-lang' : ''); ?>" href="<?php echo e(route('language.switch', 'en')); ?>">
+                                <span>🇬🇧</span> English
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Login Button -->
                 <div>
                     <button class="btn btn-soft-primary rounded-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
                         <i class="ri-user-3-line align-bottom me-1"></i> <?php echo e(__('messages.login')); ?>
@@ -591,7 +609,7 @@
         </div>
     </section>
 
-    <!-- PRESTASI - MODERN GRID LAYOUT -->
+    <!-- PRESTASI -->
     <section class="section" id="prestasi">
         <div class="container">
             <div class="row justify-content-center">
@@ -601,7 +619,6 @@
                 </div>
             </div>
 
-            <!-- Grid Layout 3 Kolom -->
             <div class="row g-4">
                 <!-- Prestasi 1 -->
                 <div class="col-lg-4 col-md-6">
@@ -637,8 +654,74 @@
                         </div>
                     </div>
                 </div>
-                <!-- Prestasi 2-6 (sama polanya, ganti <?php echo e(__('messages.more')); ?> di setiap tombol) -->
-                <!-- ... sisanya sama, ganti setiap "Selengkapnya" dengan <?php echo e(__('messages.more')); ?> ... -->
+                <!-- Prestasi 2 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-9.jpg" class="card-img-top" alt="Arsitektur" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-trophy-line text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0"><?php echo e(__('messages.architecture')); ?></h6>
+                                    <small class="text-muted">Tim Garuda</small>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Juara 2 Lomba Desain Arsitektur</h5>
+                            <p class="text-muted small mb-3">Desain hunian vertikal ramah lingkungan.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-5.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-6.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-7.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i class="ri-arrow-right-line"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Prestasi 3 -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="position-relative">
+                            <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Ilmu Lingkungan" style="height: 200px; object-fit: cover;">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-sm me-3">
+                                    <div class="avatar-title bg-light rounded-circle">
+                                        <i class="ri-trophy-line text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0"><?php echo e(__('messages.environmental')); ?></h6>
+                                    <small class="text-muted">Tim Hijau</small>
+                                </div>
+                            </div>
+                            <h5 class="fw-bold mb-2">Juara Harapan 1 KTI</h5>
+                            <p class="text-muted small mb-3">Pengolahan sampah organik menjadi energi.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/users/avatar-8.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-9.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-10.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                </div>
+                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i class="ri-arrow-right-line"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tombol Lihat Semua -->
@@ -669,7 +752,26 @@
                         </div>
                     </div>
                 </div>
-                <!-- ... fasilitas lainnya (ganti badge dengan <?php echo e(__('messages.informatics')); ?>, <?php echo e(__('messages.architecture')); ?>, dll) ... -->
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-4.jpg" class="card-img-top rounded-top-4" alt="Studio Arsitektur" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Studio Arsitektur</h5>
+                            <p class="text-muted small mb-3">Ruang desain, workshop, peralatan lengkap</p>
+                            <span class="badge bg-primary-subtle text-primary"><?php echo e(__('messages.architecture')); ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <img src="assets/images/small/img-5.jpg" class="card-img-top rounded-top-4" alt="Lab Lingkungan" style="height: 180px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-2">Lab. Ilmu Lingkungan</h5>
+                            <p class="text-muted small mb-3">Alat ukur kualitas air, udara, dan tanah</p>
+                            <span class="badge bg-primary-subtle text-primary"><?php echo e(__('messages.environmental')); ?></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="text-center mt-5">
@@ -689,7 +791,7 @@
             <div class="row g-4">
                 <div class="col-lg-4">
                     <div class="card">
-                        <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="" style="height: 220px; object-fit: cover;">
+                        <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Blog Post 1" style="height: 220px; object-fit: cover;">
                         <div class="card-body p-4">
                             <div class="d-flex text-muted mb-3">
                                 <div class="me-3"><i class="ri-calendar-line me-1"></i> 30 Okt, 2024</div>
@@ -701,7 +803,34 @@
                         </div>
                     </div>
                 </div>
-                <!-- ... blog lainnya (ganti "Baca Selengkapnya" dengan <?php echo e(__('messages.read_more')); ?>) ... -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img src="assets/images/small/img-7.jpg" class="card-img-top" alt="Blog Post 2" style="height: 220px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="d-flex text-muted mb-3">
+                                <div class="me-3"><i class="ri-calendar-line me-1"></i> 25 Okt, 2024</div>
+                                <div><i class="ri-message-2-line me-1"></i> 8 Komentar</div>
+                            </div>
+                            <h4 class="mb-3">Pameran Arsitektur Mahasiswa 2024</h4>
+                            <p class="text-muted mb-4">Mahasiswa Arsitektur memamerkan karya desain terbaik mereka dengan tema hunian masa depan.</p>
+                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i class="ri-arrow-right-line"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <img src="assets/images/small/img-6.jpg" class="card-img-top" alt="Blog Post 3" style="height: 220px; object-fit: cover;">
+                        <div class="card-body p-4">
+                            <div class="d-flex text-muted mb-3">
+                                <div class="me-3"><i class="ri-calendar-line me-1"></i> 20 Okt, 2024</div>
+                                <div><i class="ri-message-2-line me-1"></i> 15 Komentar</div>
+                            </div>
+                            <h4 class="mb-3">Seminar Nasional Lingkungan Hidup</h4>
+                            <p class="text-muted mb-4">Membahas isu perubahan iklim dan peran generasi muda dalam pelestarian lingkungan.</p>
+                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i class="ri-arrow-right-line"></i></a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -738,7 +867,27 @@
                                         </div>
                                     </a>
                                 </li>
-                                <!-- ... social links ... -->
+                                <li class="list-inline-item">
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-twitter-fill"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-instagram-fill"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle">
+                                            <i class="ri-youtube-fill"></i>
+                                        </div>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -823,18 +972,18 @@
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/pages/job-lading.init.js"></script>
 
-    <!-- Login Modal - TailAdmin Style with Proper Margins -->
+    <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 1000px; margin: 1.75rem auto;">
-            <div class="modal-content overflow-hidden" style="border-radius: 0; background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <div class="modal-content overflow-hidden" style="background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                 <div class="row g-0">
                     <!-- Left Column - Branding (Desktop Only) -->
                     <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center"
-                        style="background: linear-gradient(145deg, #FEEB04 0%, #CBB800 100%); min-height: 550px; position: relative; border-radius: 0;">
+                        style="background: linear-gradient(145deg, #FEEB04 0%, #CBB800 100%); min-height: 550px; position: relative;">
 
                         <!-- Grid Pattern -->
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10"
-                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><path d=%22M0 0 L100 100 M100 0 L0 100%22 stroke=%22%23000000%22 stroke-width=%221%22 opacity=%220.2%22/></svg>'); background-size: 30px 30px; border-radius: 0;">
+                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><path d=%22M0 0 L100 100 M100 0 L0 100%22 stroke=%22%23000000%22 stroke-width=%221%22 opacity=%220.2%22/></svg>'); background-size: 30px 30px;">
                         </div>
 
                         <div class="text-center position-relative z-1 px-4 py-3">
@@ -855,9 +1004,9 @@
                         </div>
                     </div>
 
-                    <!-- Right Column - Login Form (Full width on mobile) -->
-                    <div class="col-md-7 bg-white" style="border-radius: 0;">
-                        <!-- Mobile Header - muncul hanya di mobile -->
+                    <!-- Right Column - Login Form -->
+                    <div class="col-md-7 bg-white">
+                        <!-- Mobile Header -->
                         <div class="d-md-none p-4 text-center border-bottom" style="background: #F9FAFB;">
                             <h2 class="fw-bold mb-1" style="color: #000000; font-size: 1.8rem;">Sainteku</h2>
                             <p class="mb-0 text-muted small"><?php echo e(__('messages.faculty_name')); ?></p>
@@ -922,7 +1071,7 @@
                                         <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
                                     </label>
                                     <input type="text"
-                                        class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                        class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
                                         id="credential"
                                         name="credential"
                                         placeholder="info@gmail.com"
@@ -934,14 +1083,14 @@
                                     </small>
                                 </div>
 
-                                <!-- Password with Alpine.js toggle -->
+                                <!-- Password -->
                                 <div class="mb-3" x-data="{ showPassword: false }">
                                     <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                         <?php echo e(__('messages.password_label')); ?><span class="text-danger">*</span>
                                     </label>
                                     <div class="position-relative">
                                         <input :type="showPassword ? 'text' : 'password'"
-                                            class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                            class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
                                             id="password"
                                             name="password"
                                             placeholder="<?php echo e(__('messages.password_placeholder')); ?>"
@@ -983,8 +1132,7 @@
 
                                 <!-- Submit Button -->
                                 <button type="submit"
-                                    class="btn w-100 py-2 small fw-medium border-0 btn-masuk"
-                                    style="background-color: var(--saintek-primary); color: #000000; transition: all 0.3s ease;">
+                                    class="btn w-100 py-2 small fw-medium border-0 btn-masuk">
                                     <?php echo e(__('messages.login')); ?>
 
                                 </button>
@@ -999,7 +1147,7 @@
     <!-- Modal Lupa Password -->
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
-            <div class="modal-content" style="border-radius: 0; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <div class="modal-content" style="border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                 <div class="modal-header border-0 pb-0 pt-4 px-4">
                     <h5 class="modal-title fw-semibold" id="forgotPasswordModalLabel"><?php echo e(__('messages.forgot_password_title')); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1020,7 +1168,7 @@
                                 <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
                             </label>
                             <input type="email"
-                                class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-0"
+                                class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
                                 name="email"
                                 id="forgot_email"
                                 placeholder="nama@email.com"
@@ -1031,15 +1179,15 @@
                         <!-- Tombol -->
                         <div class="d-flex gap-2">
                             <button type="button"
-                                class="btn w-100 py-2 small border rounded-0"
-                                style="background: #F3F4F6; color: #000; border-radius: 4px !important;"
+                                class="btn w-100 py-2 small border"
+                                style="background: #F3F4F6; color: #000;"
                                 data-bs-dismiss="modal">
                                 <?php echo e(__('messages.cancel')); ?>
 
                             </button>
                             <button type="submit"
                                 class="btn w-100 py-2 small fw-medium border-0"
-                                style="background-color: var(--saintek-primary); color: #000000; border-radius: 4px !important; transition: all 0.3s ease;">
+                                style="background-color: var(--saintek-primary); color: #000000;">
                                 <?php echo e(__('messages.send_reset_link')); ?>
 
                             </button>
@@ -1066,12 +1214,9 @@
 
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = '<?php echo e(__("messages.login")); ?>';
-                    const originalStyle = submitBtn.style.cssText;
 
-                    // Disable button tapi style tetap
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<?php echo e(__("messages.processing")); ?>...';
-                    // Style tetap dipertahankan
 
                     const formData = new FormData(this);
 
@@ -1092,7 +1237,6 @@
                                 }, 500);
                             } else {
                                 showAlert('error', data.message || '<?php echo e(__("messages.login_failed")); ?>');
-                                // Enable button lagi dengan style original
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalText;
                             }
@@ -1100,7 +1244,6 @@
                         .catch(error => {
                             console.error('Error:', error);
                             showAlert('error', '<?php echo e(__("messages.error_occurred")); ?>');
-                            // Enable button lagi dengan style original
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         });
@@ -1111,33 +1254,15 @@
                 if (!loginError) return;
                 loginError.style.display = 'block';
 
-                // SESUAIKAN DENGAN TABEL
                 if (type === 'success') {
-                    loginError.className = 'alert py-2 mb-3 small';
-                    loginError.style.background = '#d1e7dd'; // Hijau soft
-                    loginError.style.borderColor = '#badbcc'; // Border hijau
-                    loginError.style.color = '#0f5132'; // Teks hijau gelap
-                } else if (type === 'warning') {
-                    loginError.className = 'alert py-2 mb-3 small';
-                    loginError.style.background = '#fff3cd'; // Kuning soft
-                    loginError.style.borderColor = '#ffecb5'; // Border kuning
-                    loginError.style.color = '#664d03'; // Teks kuning gelap
-                } else if (type === 'danger') {
-                    loginError.className = 'alert py-2 mb-3 small';
-                    loginError.style.background = '#f8d7da'; // Merah soft
-                    loginError.style.borderColor = '#f5c2c7'; // Border merah
-                    loginError.style.color = '#842029'; // Teks merah gelap
+                    loginError.className = 'alert alert-success py-2 mb-3 small';
+                    loginError.innerHTML = message;
                 } else {
                     loginError.className = 'alert alert-danger py-2 mb-3 small';
-                    loginError.style.background = '#FEF3F2';
-                    loginError.style.borderColor = '#F04438';
-                    loginError.style.color = '#B42318';
+                    loginError.innerHTML = message;
                 }
-
-                loginError.innerHTML = message;
             }
 
-            // Tampilkan error dari session (kalau ada)
             <?php if($errors->any()): ?>
             if (typeof bootstrap !== 'undefined' && loginModal) {
                 const modal = new bootstrap.Modal(loginModal);
@@ -1185,7 +1310,6 @@
                                 forgotAlert.innerHTML = data.message;
                                 forgotForm.reset();
 
-                                // Auto close after 3 seconds
                                 setTimeout(() => {
                                     const modal = bootstrap.Modal.getInstance(forgotModal);
                                     if (modal) modal.hide();
@@ -1193,9 +1317,6 @@
                                 }, 3000);
                             } else {
                                 forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
-                                forgotAlert.style.background = '#FEF3F2';
-                                forgotAlert.style.borderColor = '#F04438';
-                                forgotAlert.style.color = '#B42318';
                                 forgotAlert.innerHTML = data.message || '<?php echo e(__("messages.email_not_found")); ?>';
                             }
 
@@ -1208,9 +1329,6 @@
 
                             forgotAlert.style.display = 'block';
                             forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
-                            forgotAlert.style.background = '#FEF3F2';
-                            forgotAlert.style.borderColor = '#F04438';
-                            forgotAlert.style.color = '#B42318';
                             forgotAlert.innerHTML = '<?php echo e(__("messages.error_occurred")); ?>';
 
                             submitBtn.disabled = false;
@@ -1219,7 +1337,6 @@
                 });
             }
 
-            // Script untuk menampilkan status dari session (jika ada)
             <?php if(session('status')): ?>
             if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
                 const modal = new bootstrap.Modal(forgotModal);
@@ -1231,16 +1348,12 @@
             }
             <?php endif; ?>
 
-            // Script untuk menampilkan error dari validasi (jika ada)
             <?php if($errors->has('email')): ?>
             if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
                 const modal = new bootstrap.Modal(forgotModal);
                 modal.show();
                 forgotAlert.style.display = 'block';
                 forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
-                forgotAlert.style.background = '#FEF3F2';
-                forgotAlert.style.borderColor = '#F04438';
-                forgotAlert.style.color = '#B42318';
                 forgotAlert.innerHTML = '<?php echo e($errors->first('
                 email ')); ?>';
             }
@@ -1248,82 +1361,26 @@
         });
     </script>
 
-    <style>
-        /* Memastikan modal tidak full screen */
-        .modal-dialog {
-            margin: 1.75rem auto;
-        }
+    <script>
+        // Back to top button functionality
+        window.onscroll = function() {
+            scrollFunction();
+        };
 
-        /* Styling tambahan */
-        .form-control:focus {
-            border-color: #FEEB04 !important;
-            box-shadow: 0 0 0 3px rgba(254, 235, 4, 0.15) !important;
-            outline: none;
-        }
-
-        .form-check-input:checked {
-            background-color: #FEEB04;
-            border-color: #FEEB04;
-        }
-
-        /* Membuat semua sudut lancip - TAPI BUTTON KHUSUS RADIUS */
-        .modal-content,
-        .col-md-5,
-        .col-md-7,
-        .form-control,
-        .position-absolute,
-        .border-top {
-            border-radius: 0 !important;
-        }
-
-        /* KHUSUS BUTTON - RADIUS TIPIS */
-        .btn {
-            border-radius: 5px !important;
-        }
-
-        /* Mobile Styles */
-        @media (max-width: 768px) {
-            .modal-dialog {
-                margin: 0.5rem;
-                max-width: calc(100% - 1rem) !important;
-            }
-
-            .modal-content {
-                margin: 0;
-            }
-
-            .col-md-5 {
-                display: none !important;
-            }
-
-            .col-md-7 {
-                width: 100% !important;
-            }
-
-            .p-4 {
-                padding: 1.25rem !important;
-            }
-
-            h1 {
-                font-size: 1.6rem !important;
-            }
-
-            .btn {
-                font-size: 0.85rem !important;
+        function scrollFunction() {
+            const backToTopButton = document.getElementById("back-to-top");
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
             }
         }
 
-        /* Desktop Styles */
-        @media (min-width: 769px) {
-            .d-md-none {
-                display: none !important;
-            }
-
-            .col-md-7 {
-                width: 58.33333333% !important;
-            }
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         }
-    </style>
+    </script>
 
 </body>
 
