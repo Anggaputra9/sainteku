@@ -12,15 +12,26 @@ class InventoryTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Hapus data lama agar tidak terjadi penumpukan/duplikasi saat dijalankan ulang
-        DB::table('mst_inventory_type')->delete();
+        // Daftar kategori sesuai kebutuhan Sainteku
+        $types = [
+            ['id' => 1, 'code' => 'ATK', 'description' => 'ALAT TULIS KANTOR'],
+            ['id' => 2, 'code' => 'ELM', 'description' => 'ELEKTRONIK DAN MULTIMEDIA'],
+            ['id' => 3, 'code' => 'FUR', 'description' => 'FURNITURE DAN RUANGAN'],
+            ['id' => 4, 'code' => 'KGT', 'description' => 'PERLENGKAPAN KEGIATAN'],
+            ['id' => 5, 'code' => 'KND', 'description' => 'KENDARAAN'],
+            ['id' => 6, 'code' => 'KBS', 'description' => 'ALAT KEBERSIHAN'],
+            ['id' => 7, 'code' => 'GDG', 'description' => 'PRASARANA GEDUNG'],
+        ];
 
-        // 2. Insert data isian utamanya
-        DB::table('mst_inventory_type')->insert([
-            ['id' => 1, 'code' => 'R', 'description' => 'Ruangan'],
-            ['id' => 2, 'code' => 'E', 'description' => 'Elektronik / Gadget'],
-            ['id' => 3, 'code' => 'F', 'description' => 'Furnitur / Mebel'],
-            ['id' => 4, 'code' => 'K', 'description' => 'Kendaraan'],
-        ]);
+        // Gunakan updateOrInsert agar aman dari bentrok Foreign Key
+        foreach ($types as $type) {
+            DB::table('mst_inventory_type')->updateOrInsert(
+                ['id' => $type['id']], // Patokan pencarian data
+                [
+                    'code' => $type['code'],
+                    'description' => $type['description']
+                ] // Data yang di-update/insert
+            );
+        }
     }
 }
