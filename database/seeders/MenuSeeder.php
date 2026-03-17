@@ -154,9 +154,9 @@ class MenuSeeder extends Seeder
                 'is_active' => 1,
             ],
 
-            ['id' => 61, 'menu_name' => 'Inventaris', 'menu_link' => '#', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 62, 'menu_name' => 'Peminjaman', 'menu_link' => '#', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 2, 'is_active' => 1],
-
+            ['id' => 61, 'menu_name' => 'Dashboard', 'menu_link' => 'manajementinfrastruktur.dashboard', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 62, 'menu_name' => 'Peminjaman', 'menu_link' => 'manajementinfrastruktur.pengajuan.index', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 63, 'menu_name' => 'Persetujuan', 'menu_link' => 'manajementinfrastruktur.persetujuan.index', 'parent_id' => 60, 'module_id' => 6, 'order_no' => 3, 'is_active' => 1],
             /*
             |--------------------------------------------------------------------------
             | 8. PENJAMINAN MUTU AKADEMIK
