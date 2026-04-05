@@ -73,4 +73,26 @@ class User extends Authenticatable
         // Tapi kita tidak pakai karena pakai custom implementation
         // Bisa dikosongkan saja
     }
+
+    /**
+     * Cek apakah user memiliki permission tertentu pada suatu modul
+     * Contoh penggunaan: Auth::user()->hasPermission(10, 'C')
+     */
+    public function hasPermission($moduleId, $permissionCode)
+    {
+        // Kalau Super Admin (misal code 'ADM'), langsung losin aja semua
+        if ($this->roles()->where('role_code', 'ADM')->exists()) {
+            return true;
+        }
+
+        $roleIds = $this->roles->pluck('id')->toArray();
+
+        return \Illuminate\Support\Facades\DB::table('trx_role_permission as rp')
+            ->join('ref_permission as p', 'rp.permission_id', '=', 'p.id')
+            ->whereIn('rp.role_id', $roleIds)
+            ->where('rp.modul_id', $moduleId)
+            ->where('p.permission_code', $permissionCode)
+            ->where('rp.allowed', 1)
+            ->exists();
+    }
 }

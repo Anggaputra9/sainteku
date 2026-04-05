@@ -83,8 +83,10 @@ class MenuSeeder extends Seeder
                 'order_no' => 3,
                 'is_active' => 1,
             ],
-            ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 2, 'is_active' => 1],
+            // UPDATE: Mengarahkan menu ke rute yang tepat
+            ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => 'monevakademik.tashih.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => 'monevakademik.banksoal.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 2, 'is_active' => 1],
+            // END UPDATE
             ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 3, 'is_active' => 1],
             ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 4, 'is_active' => 1],
 

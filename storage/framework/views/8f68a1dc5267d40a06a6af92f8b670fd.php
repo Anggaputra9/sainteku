@@ -2,50 +2,54 @@
     <button @click="open = !open" @click.outside="open = false"
         class="flex items-center gap-3 rounded-full p-1 pr-4 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none">
 
-        {{-- Avatar & Status Indikator --}}
+        
         <div class="relative">
-            <img src="{{ asset('/images/user/owner.jpg') }}" alt="avatar"
+            <img src="<?php echo e(asset('/images/user/owner.jpg')); ?>" alt="avatar"
                 class="h-9 w-9 rounded-full border-2 border-indigo-500/20 object-cover shadow-sm" />
             <span
                 class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-black"></span>
         </div>
 
-        {{-- Nama (Cuma 1 Kata) & Role --}}
+        
         <div class="hidden text-left sm:block">
             <p class="text-sm font-semibold leading-none text-gray-800 dark:text-white/90">
-                {{-- Ambil kata pertama saja menggunakan explode --}}
-                {{ explode(' ', trim(auth()->user()->name ?? 'Guest'))[0] }}
+                
+                <?php echo e(explode(' ', trim(auth()->user()->name ?? 'Guest'))[0]); ?>
+
             </p>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 capitalize">
-                {{ auth()->user()->roles->first()?->role_name ?? 'Belum Ada Akses' }}
+                <?php echo e(auth()->user()->roles->first()?->role_name ?? 'Belum Ada Akses'); ?>
+
             </p>
         </div>
 
-        {{-- Ikon Chevron --}}
+        
         <svg class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
             fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
     </button>
 
-    {{-- Dropdown Menu --}}
+    
     <div x-show="open" x-transition:enter="transition ease-out duration-100"
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95" x-cloak
         class="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
 
-        {{-- Header Dropdown (Tampil Nama Lengkap & Email) --}}
+        
         <div class="px-4 py-3 mb-1 border-b border-gray-100 dark:border-gray-700">
             <p class="text-sm font-bold text-gray-900 dark:text-white">
-                {{ auth()->user()->name ?? 'Guest User' }}
+                <?php echo e(auth()->user()->name ?? 'Guest User'); ?>
+
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                {{ auth()->user()->email ?? 'No Email' }}
+                <?php echo e(auth()->user()->email ?? 'No Email'); ?>
+
             </p>
         </div>
 
-        {{-- Menu Profil --}}
+        
         <a href="#"
             class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +58,7 @@
             Profile
         </a>
 
-        {{-- Menu Tetapan --}}
+        
         <a href="#"
             class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,9 +71,9 @@
 
         <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
 
-        {{-- Borang Log Keluar --}}
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+        
+        <form method="POST" action="<?php echo e(route('logout')); ?>">
+            <?php echo csrf_field(); ?>
             <button type="submit"
                 class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,4 +84,4 @@
             </button>
         </form>
     </div>
-</div>
+</div><?php /**PATH C:\laragon\www\sainteku\resources\views/components/header/user-dropdown.blade.php ENDPATH**/ ?>
