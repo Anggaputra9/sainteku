@@ -18,13 +18,19 @@
                     </nav>
                 </div>
                 <?php if(Auth::user()->hasPermission(3, 'C')): ?>
-                <button @click="openSelectCourse = true; courseId = ''; courseName = '';"
-                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
-                    <i class="fas fa-file-circle-plus text-lg"></i> Buat Pengajuan Baru
-                </button>
+                    <button @click="openSelectCourse = true; courseId = ''; courseName = '';"
+                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
+                        <i class="fas fa-file-circle-plus text-lg"></i> Buat Pengajuan Baru
+                    </button>
                 <?php endif; ?>
             </div>
-
+            <?php if(session('error')): ?>
+                <div
+                    class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg mb-4 mt-2">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
+                    <p class="text-sm font-bold text-red-700 dark:text-red-400"><?php echo e(session('error')); ?></p>
+                </div>
+            <?php endif; ?>
             <?php if(session('success')): ?>
                 <div
                     class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
@@ -91,7 +97,9 @@
                                         class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                                         <td class="px-6 py-4">
                                             <div class="font-bold text-gray-900 dark:text-white text-base">
-                                                <?php echo e($prop->course->course_name); ?></div>
+                                                <?php echo e($prop->course->course_name); ?>
+
+                                            </div>
                                             <div class="text-xs text-gray-500 mt-1"><?php echo e($prop->course_id); ?></div>
                                         </td>
                                         <td class="px-6 py-4 text-center"><span
@@ -145,7 +153,9 @@
                                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
                                             <td class="px-6 py-4 font-semibold"><?php echo e($queue->creator->name ?? 'Dosen'); ?></td>
                                             <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">
-                                                <?php echo e($queue->course->course_name); ?></td>
+                                                <?php echo e($queue->course->course_name); ?>
+
+                                            </td>
                                             <td class="px-6 py-4 text-center font-semibold"><?php echo e($queue->exam_type); ?></td>
                                             <td class="px-6 py-4 text-center">
                                                 <button type="button" @click="viewDetail('<?php echo e($queue->uuid); ?>', 'review')"
@@ -183,12 +193,23 @@
             Alpine.data('tashihApp', () => ({
                 activeTab: 'saya', filterStatus: 'all',
                 openSelectCourse: false, openCreate: false, openBankSoal: false,
-                openDetail: false, openApprove: false, openRevise: false, openDelete: false,
+                openDetail: false, openApprove: false, openRevise: false, openDelete: false, openSignature: false,
 
                 courseId: '', courseName: '',
                 isEditMode: false, editUuid: '',
 
+                // STATE DEFAULT & BANK SOAL
                 bankSoalList: [], searchQuery: '', isLoading: false,
+
+                // STATE BARU BUAT BANK SOAL UNIVERSAL
+                bankViewMode: 'courses', // 'courses' (lihat matkul) atau 'questions' (lihat soal)
+                facultiesList: [],
+                prodisList: [],
+                coursesList: [],
+                filterFakultas: '',
+                filterProdi: '',
+                selectedBankCourseName: '',
+                searchCourseQuery: '', // State buat search bar Matkul
 
                 // Variabel aman anti syntax error
                 myProposals: <?php echo json_encode($myProposals ?? [], 15, 512) ?>,
@@ -197,30 +218,159 @@
                 userId: '<?php echo e(Auth::id() ?? 0); ?>',
                 isReviewer: <?php echo e($isReviewer ? 'true' : 'false'); ?>,
 
-                fetchBankSoal() {
-                    this.isLoading = true;
-                    fetch(`<?php echo e(url('monev-akademik/tashih/api/bank-soal')); ?>/${this.courseId}`)
+                // ==========================================
+                // FITUR BANK SOAL UNIVERSAL
+                // ==========================================
+
+                // 1. PANGGIL INI SAAT KLIK TOMBOL BUKA MODAL BANK SOAL
+                openBankSoalModal() {
+                    this.openBankSoal = true;
+                    this.bankViewMode = 'courses'; // Set ke tampilan list matkul
+                    this.filterFakultas = '';
+                    this.filterProdi = '';
+                    this.searchCourseQuery = ''; // Reset form search
+                    this.searchQuery = '';
+
+                    this.fetchFaculties();
+                    this.fetchCourses(); // Tarik 20 matkul terbaru secara default
+                },
+
+                // 2. Fetch data Fakultas
+                fetchFaculties() {
+                    fetch("<?php echo e(url('monev-akademik/tashih/api/units')); ?>")
                         .then(res => res.json())
-                        .then(data => { this.bankSoalList = data; this.isLoading = false; })
-                        .catch(err => { console.error('Gagal fetch soal', err); this.isLoading = false; });
+                        .then(data => { this.facultiesList = data; })
+                        .catch(err => console.error('Gagal load fakultas', err));
                 },
 
+                // 3. Fetch data Prodi (kepanggil kalo Fakultas dipilih)
+                fetchProdis() {
+                    this.filterProdi = '';
+                    this.prodisList = [];
+                    if (!this.filterFakultas) return;
+
+                    fetch(`<?php echo e(url('monev-akademik/tashih/api/units')); ?>?faculty_id=${this.filterFakultas}`)
+                        .then(res => res.json())
+                        .then(data => { this.prodisList = data; })
+                        .catch(err => console.error('Gagal load prodi', err));
+                },
+
+                // 4. Fetch list Mata Kuliah berdasarkan filter & search
+                fetchCourses() {
+                    this.isLoading = true;
+                    this.coursesList = [];
+
+                    let url = `<?php echo e(url('monev-akademik/tashih/api/approved-courses')); ?>?`;
+                    if (this.filterFakultas) url += `faculty_id=${this.filterFakultas}&`;
+                    if (this.filterProdi) url += `prodi_id=${this.filterProdi}&`;
+                    if (this.searchCourseQuery) url += `search=${encodeURIComponent(this.searchCourseQuery)}`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.coursesList = data;
+                            this.isLoading = false;
+                        })
+                        .catch(err => {
+                            console.error('Gagal load matkul', err);
+                            this.isLoading = false;
+                        });
+                },
+
+                // 5. Buka daftar soal pas kotak matkul di-klik
+                openCourseQuestions(course) {
+                    this.selectedBankCourseName = course.course_name;
+                    this.bankViewMode = 'questions'; // Pindah mode ke list soal
+                    this.isLoading = true;
+                    this.bankSoalList = [];
+                    this.searchQuery = '';
+
+                    fetch(`<?php echo e(url('monev-akademik/tashih/api/bank-soal')); ?>/${course.id}`)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Network response was not ok');
+                            return res.json();
+                        })
+                        .then(data => {
+                            this.bankSoalList = data;
+                            this.isLoading = false;
+                        })
+                        .catch(err => {
+                            console.error('Gagal fetch soal', err);
+                            this.isLoading = false;
+                            if (typeof toastr !== 'undefined') toastr.error('Gagal memuat detail soal');
+                        });
+                },
+
+                // 6. GETTER: FILTER SOAL LOKAL BERDASARKAN PENCARIAN
                 get filteredBankSoal() {
+                    if (!this.bankSoalList || this.bankSoalList.length === 0) return [];
                     if (this.searchQuery === '') return this.bankSoalList;
-                    return this.bankSoalList.filter(q => q.question_text && q.question_text.toLowerCase().includes(this.searchQuery.toLowerCase()));
+
+                    return this.bankSoalList.filter(q =>
+                        q.question_text &&
+                        q.question_text.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
                 },
 
+                // 7. GUNAKAN SOAL KE DALAM FORM
                 useQuestion(q) {
                     if (typeof addQuestionCard === 'function') {
-                        addQuestionCard({ text: q.question_text, cpmk: q.cpmk_id, weight: '' });
+                        // Bawa path gambar juga ke form pas soal di-pilih!
+                        addQuestionCard({
+                            text: q.question_text,
+                            cpmk: q.cpmk_id,
+                            weight: '',
+                            image_path: q.image_path || ''
+                        });
                     }
-                    this.openBankSoal = false; this.searchQuery = '';
+                    this.openBankSoal = false;
+                    this.searchQuery = '';
+
                     setTimeout(() => {
                         const mb = document.getElementById('modal-body-scroll');
                         if (mb) mb.scrollTo({ top: mb.scrollHeight, behavior: 'smooth' });
                     }, 100);
                 },
 
+                // ==========================================
+                // FITUR UTAMA (KOMENTAR & DETAIL)
+                // ==========================================
+
+                // FUNGSI KOMENTAR
+                saveComment(orderNo) {
+                    const commentInput = document.getElementById('comment-' + orderNo);
+                    const message = commentInput.value;
+
+                    if (!message) return;
+
+                    fetch("<?php echo e(route('monevakademik.tashih.comment')); ?>", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
+                        },
+                        body: JSON.stringify({
+                            proposal_id: this.selectedProposal.id,
+                            order_no: orderNo,
+                            message: message
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (!this.selectedProposal.logs) this.selectedProposal.logs = [];
+                                this.selectedProposal.logs.push(data.log);
+                                commentInput.value = '';
+                                if (typeof toastr !== 'undefined') toastr.success('Catatan berhasil disimpan');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (typeof toastr !== 'undefined') toastr.error('Gagal menyimpan catatan');
+                        });
+                },
+
+                // LIHAT DETAIL
                 viewDetail(uuid, source) {
                     this.selectedProposal = source === 'saya'
                         ? this.myProposals.find(p => p.uuid === uuid)
@@ -228,6 +378,7 @@
                     this.openDetail = true;
                 },
 
+                // EDIT MODAL
                 openEditModal() {
                     this.openDetail = false;
                     this.isEditMode = true;
@@ -235,13 +386,13 @@
                     this.courseId = this.selectedProposal.course_id;
                     this.courseName = this.selectedProposal.course ? this.selectedProposal.course.course_name : '';
 
-                    // Antisipasi format dari JSON
                     const questions = this.selectedProposal.exam_questions || this.selectedProposal.examQuestions || [];
 
                     let existingQuestions = questions.map(eq => ({
                         text: eq.question ? eq.question.question_text : '',
                         cpmk: eq.question ? eq.question.cpmk_id : '',
-                        weight: eq.weight
+                        weight: eq.weight,
+                        image_path: eq.question ? eq.question.image_path : '' // TARIK GAMBARNYA!
                     }));
 
                     this.openCreate = true;

@@ -15,7 +15,11 @@ class Question extends Model
         'course_id',
         'cpmk_id',
         'question_text',
+        'image_path',
         'created_by',
+    ];
+    protected $casts = [
+        'cpmk_id' => 'array', // Otomatis jadi array pas dipanggil di PHP
     ];
 
     public function uniqueIds(): array

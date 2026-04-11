@@ -30,17 +30,28 @@ class MasterDataDummySeeder extends Seeder
 
         // 3. Insert Data Mata Kuliah (mst_course)
         // Catatan: unit_id '0001' merujuk pada Fakultas Teknologi Informasi yang sudah ada di databasemu
+        // Data Mata Kuliah
         $courses = [
-            ['id' => 'MK001', 'course_name' => 'Desain Antarmuka Pengguna (UI/UX)', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK002', 'course_name' => 'Pemrograman Web Lanjut', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK003', 'course_name' => 'Basis Data Relasional', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK004', 'course_name' => 'Rekayasa Perangkat Lunak', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK005', 'course_name' => 'Kecerdasan Buatan', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK006', 'course_name' => 'Jaringan Komputer', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK007', 'course_name' => 'Manajemen Proyek TI', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
-            ['id' => 'MK008', 'course_name' => 'Keamanan Siber', 'unit_id' => '0001', 'is_active' => '1', 'created_at' => $now],
+            ['id' => 'MK001', 'name' => 'Desain Antarmuka Pengguna (UI/UX)', 'unit' => 'U003'],
+            ['id' => 'MK002', 'name' => 'Pemrograman Web Lanjut', 'unit' => 'U003'],
+            ['id' => 'MK003', 'name' => 'Basis Data Relasional', 'unit' => 'U003'],
+            ['id' => 'MK004', 'name' => 'Rekayasa Perangkat Lunak', 'unit' => 'U003'],
+            ['id' => 'MK005', 'name' => 'Kecerdasan Buatan', 'unit' => 'U003'],
+            ['id' => 'MK006', 'name' => 'Jaringan Komputer', 'unit' => 'U003'],
+            ['id' => 'MK007', 'name' => 'Manajemen Proyek TI', 'unit' => 'U003'],
+            ['id' => 'MK008', 'name' => 'Keamanan Siber', 'unit' => 'U003'],
         ];
 
-        DB::table('mst_course')->insert($courses);
+        foreach ($courses as $c) {
+            DB::table('mst_course')->updateOrInsert(
+                ['id' => $c['id']], // Cari berdasarkan ID Mata Kuliah
+                [
+                    'course_name' => $c['name'],
+                    'unit_id'     => $c['unit'], // PASTIKAN PAKAI 'U003'
+                    'is_active'   => '1',
+                    'created_at'  => now(),
+                ]
+            );
+        }
     }
 }

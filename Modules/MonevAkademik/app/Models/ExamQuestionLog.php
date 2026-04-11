@@ -1,18 +1,22 @@
 <?php
 
-namespace App\Models; // (Atau sesuaikan namespace modulmu: Modules\MonevAkademik\App\Models)
+namespace Modules\MonevAkademik\App\Models; // <-- Pastikan Alamatnya Modul!
 
 use Illuminate\Database\Eloquent\Model;
 
 class ExamQuestionLog extends Model
 {
-    // Deklarasi eksplisit pakai standar trx_
+    // Kasih tahu nama tabel aslinya
     protected $table = 'trx_exam_question_logs';
+    // Di ExamQuestionLog.php
+    protected $keyType = 'string';
+    public $incrementing = false; // Karena ID lu bukan angka 1, 2, 3 murni
+
+    // Buka gembok keamanan biar bisa simpan data (Mass Assignment)
     protected $guarded = [];
 
     public function user()
     {
-        // Relasi ke tabel mst_user
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 }

@@ -6,12 +6,19 @@
 
     <div
         class="relative w-full max-w-4xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
+
+        {{-- Header dengan Tombol Kembali di Atas --}}
         <div class="mb-6 flex justify-between items-center border-b border-gray-100 pb-4 dark:border-gray-700">
             <div>
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white">Langkah 1: Pilih Mata Kuliah</h3>
                 <p class="text-sm text-gray-500 mt-1">Pilih mata kuliah yang akan Anda buatkan soal ujiannya.</p>
             </div>
-            {{-- Tombol X Dihapus dari Sini --}}
+
+            {{-- Tombol Kembali Pindah Ke Sini --}}
+            <button @click="openSelectCourse = false" type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-yellow-400 px-5 py-2.5 text-sm font-bold text-yellow-900 shadow-sm hover:bg-yellow-500 transition-all dark:bg-yellow-500 dark:text-yellow-950 dark:hover:bg-yellow-400">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </button>
         </div>
 
         <div
@@ -24,17 +31,14 @@
                         class="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-600 mb-2 dark:bg-gray-700 dark:text-gray-300">{{ $course->id }}</span>
                     <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight"
                         :class="courseId === '{{ $course->id }}' ? 'text-blue-700 dark:text-blue-400' : ''">
-                        {{ $course->course_name }}</h4>
+                        {{ $course->course_name }}
+                    </h4>
                 </div>
             @endforeach
         </div>
 
-        <div
-            class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <button @click="openSelectCourse = false" type="button"
-                class="inline-flex justify-center items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </button>
+        {{-- Footer Sekarang Sisa Tombol Lanjutkan Saja --}}
+        <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
             <button :disabled="!courseId"
                 @click="openSelectCourse = false; openCreate = true; setTimeout(() => { initCreateModal(courseId) }, 100);"
                 class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-bold text-white transition disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 shadow-md">

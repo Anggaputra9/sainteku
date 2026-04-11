@@ -31,6 +31,14 @@ class ExamProposal extends Model
         return $this->belongsTo(\App\Models\MstCourse::class, 'course_id', 'id');
     }
 
+    /**
+     * Relasi ke tabel Periode (mst_period)
+     */
+    public function period()
+    {
+        // Pastikan \App\Models\Period adalah lokasi model Period yang baru kita buat tadi
+        return $this->belongsTo(\App\Models\Period::class, 'period_id');
+    }
     // Relasi ke Dosen Pembuat
     public function creator()
     {
@@ -51,5 +59,11 @@ class ExamProposal extends Model
     public function reviews()
     {
         return $this->hasMany(ExamReview::class, 'proposal_id', 'id')->orderBy('created_at', 'desc');
+    }
+
+    public function logs()
+    {
+        // Arahkan ke namespace Modul yang bener cuy
+        return $this->hasMany(\Modules\MonevAkademik\App\Models\ExamQuestionLog::class, 'proposal_id');
     }
 }

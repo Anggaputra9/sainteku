@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('course_id', 5);
             $table->string('cpmk_id', 5);
             $table->text('question_text');
+            $table->string('image_path')->nullable();
             $table->string('created_by', 50);
             $table->timestamps();
 

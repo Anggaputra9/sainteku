@@ -3,237 +3,238 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Soal Ujian - {{ $proposal->course->course_name }}</title>
+    <title>Cetak Soal - {{ $proposal->course->course_name ?? 'Mata Kuliah' }}</title>
     <style>
-        /* Kasih padding bottom yang agak lega biar soal terakhir ga ketabrak TTD */
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+
         body {
-            font-family: 'Times New Roman', Times, serif;
+            font-family: 'Times New Roman', serif;
             font-size: 11pt;
-            line-height: 1.4;
-            color: #000;
-            margin: 0;
-            padding: 10px 10px 200px 10px;
-            position: relative;
+            line-height: 1.3;
+            color: black;
         }
 
         .kop-surat {
             width: 100%;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            overflow: hidden;
+            border-bottom: 3px solid black;
+            display: table;
+            padding-bottom: 2px;
         }
 
-        .logo-box {
-            float: left;
-            width: 70px;
-        }
-
-        .logo-img {
+        .kop-inner {
+            border-bottom: 1px solid black;
+            display: table;
             width: 100%;
-            height: auto;
+            padding-bottom: 10px;
+        }
+
+        .logo {
+            display: table-cell;
+            width: 100px;
+            vertical-align: middle;
+        }
+
+        .text-kop {
+            display: table-cell;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .text-kop h2,
+        .text-kop h3,
+        .text-kop h4,
+        .text-kop p {
+            margin: 0;
+        }
+
+        .judul {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .meta-table td {
+            padding: 4px;
+            vertical-align: top;
+        }
+
+        .label {
+            width: 25%;
+            font-weight: bold;
+        }
+
+        .box {
+            border: 1px solid black;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .box h4 {
+            margin: 0 0 5px 0;
+        }
+
+        .soal-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .img-soal {
+            max-width: 100%;
+            max-height: 250px;
             display: block;
+            margin: 10px 0;
         }
 
-        .text-box {
-            float: left;
-            width: calc(100% - 85px);
-            padding-left: 15px;
+        .ttd-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        .ttd-table td {
+            width: 50%;
             text-align: center;
+            vertical-align: bottom;
         }
 
-        .text-box h2 {
-            margin: 0;
-            font-size: 14pt;
+        .ttd-img {
+            max-height: 80px;
+            display: block;
+            margin: 5px auto;
         }
 
-        .text-box h3 {
-            margin: 0;
-            font-size: 12pt;
-            text-transform: uppercase;
-        }
-
-        .text-box p {
-            margin: 2px 0;
-            font-size: 10pt;
-        }
-
-        .clear {
-            clear: both;
-        }
-
-        .document-title {
-            text-align: center;
-            margin-top: 10px;
-            padding-top: 5px;
-        }
-
-        .document-title h3 {
-            margin: 0;
-            font-size: 12pt;
-            text-transform: uppercase;
+        .underline {
             text-decoration: underline;
-        }
-
-        .info-table {
-            width: 100%;
-            margin-bottom: 10px;
-            border-collapse: collapse;
-        }
-
-        .info-table td {
-            padding: 2px 5px;
             font-weight: bold;
-            font-size: 10pt;
-            vertical-align: top;
-        }
-
-        /* CSS Tambahan Buat Petunjuk Ujian */
-        .instruction-section {
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-
-        .instruction-section p.title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 11pt;
-        }
-
-        .instruction-section ol {
-            margin-top: 0;
-            padding-left: 20px;
-            text-align: justify;
-            font-size: 11pt;
-        }
-
-        .instruction-section ol li {
-            margin-bottom: 3px;
-        }
-
-        .question-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 11pt;
-        }
-
-        .question-list {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .question-item td {
-            padding: 5px 0;
-            vertical-align: top;
-            text-align: justify;
-        }
-
-        /* TTD FIXED DI BAWAH */
-        .signature-section {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 250px;
-            text-align: left;
-        }
-
-        .signature-img {
-            height: 70px;
-            width: auto;
-            margin: 5px 0;
-            display: block;
         }
     </style>
 </head>
 
 <body>
 
-    {{-- Kop Surat Kampus --}}
     <div class="kop-surat">
-        <div class="logo-box">
-            @if($logoBase64)
-                <img src="{{ $logoBase64 }}" class="logo-img" alt="Logo UIN">
-            @endif
+        <div class="kop-inner">
+            <div class="logo"><img src="{{ $logoBase64 }}" width="90" alt="Logo UIN"></div>
+            <div class="text-kop">
+                <h4>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h4>
+                <h2>UNIVERSITAS ISLAM NEGERI</h2>
+                <h2>PROFESOR KIAI HAJI SAIFUDDIN ZUHRI</h2>
+                <h3>FAKULTAS SAINS DAN TEKNOLOGI</h3>
+                <p>Jl. MT. Haryono, Karangsentul, Kec. Padamara, Kabupaten Purbalingga.</p>
+                <p>Telepon (0281) 635624 Faksimili (0281) 636553</p>
+                <p>www.uinsaizu.ac.id</p>
+            </div>
         </div>
-        <div class="text-box">
-            <h2>KEMENTERIAN AGAMA REPUBLIK INDONESIA</h2>
-            <h3>UNIVERSITAS ISLAM NEGERI (UIN) PROF. K.H. SAIFUDDIN ZUHRI PURWOKERTO</h3>
-            <p>Alamat: Jl. Jend. A. Yani No. 40 A Purwokerto 53126 Telp: 0281 635624, 628250, Fax: 0281 636553</p>
-            <p>Website: www.uinsaizu.ac.id</p>
-        </div>
-        <div class="clear"></div>
     </div>
 
-    <div class="document-title">
-        <h3>LEMBAR SOAL {{ $proposal->exam_type }}</h3>
+    <div class="judul">
+        NASKAH SOAL {{ $proposal->exam_type == 'UTS' ? 'UJIAN TENGAH SEMESTER' : 'UJIAN AKHIR SEMESTER' }}<br>
+        TAHUN AKADEMIK {{ optional($proposal->period)->name ?? '' }}
     </div>
 
-    {{-- Informasi Matkul --}}
-    <table class="info-table">
+    <table class="meta-table">
         <tr>
-            <td width="20%">MATA KULIAH</td>
-            <td width="2%">:</td>
-            <td width="40%">{{ $proposal->course->course_name }}</td>
-            <td width="15%">SEMESTER</td>
-            <td width="2%">:</td>
-            <td width="21%">Gasal 2024/2025</td>
+            <td class="label">Program Studi</td>
+            {{-- MANGGIL VARIABEL BYPASS DARI CONTROLLER --}}
+            <td>: {{ $unitName }}</td>
         </tr>
         <tr>
-            <td>DOSEN PENGAMPU</td>
-            <td>:</td>
-            <td>{{ ucwords(strtolower($proposal->creator->name ?? '-')) }}</td>
-            <td>JENIS UJIAN</td>
-            <td>:</td>
-            <td>{{ strtoupper($proposal->exam_type) }}</td>
+            <td class="label">Mata Kuliah</td>
+            <td>: {{ optional($proposal->course)->course_name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Dosen Penguji</td>
+            <td>: {{ optional($proposal->creator)->name ?? '-' }}</td>
         </tr>
     </table>
 
-    <div style="border-top: 2px double #000; margin-top: 5px; margin-bottom: 10px;"></div>
-
-    {{-- Petunjuk Ujian Baru Ditambahin Di Sini Cuy --}}
-    <div class="instruction-section">
-        <p class="title">PETUNJUK UJIAN!</p>
-        <ol type="a">
-            <li>Berdoalah terlebih dahulu sebelum mulai mengerjakan soal ujian.</li>
-            <li>Tulislah Nama, NIM, dan Kelas pada lembar jawaban yang telah disediakan.</li>
-            <li>Bacalah setiap soal dengan saksama dan kerjakan dengan teliti.</li>
-            <li>Bekerjalah dengan jujur dan percayalah pada kemampuan diri Anda masing-masing.</li>
-            <li>Periksa kembali seluruh jawaban Anda sebelum diserahkan/dikumpulkan kepada pengawas ujian.</li>
-        </ol>
+    <div class="box">
+        <h4>PETUNJUK UJIAN:</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+            <li>Berdoalah sebelum memulai dan sesudah menyelesaikan ujian.</li>
+            <li>Kerjakan soal dengan jujur dan dilarang bekerja sama dalam bentuk apapun.</li>
+            <li>Jawablah pertanyaan dengan jelas, sistematis, dan mudah terbaca.</li>
+            <li>Dilarang menggunakan alat komunikasi atau akses internet selama ujian berlangsung, kecuali ada instruksi khusus dari pengawas.</li>
+        </ul>
     </div>
 
-    {{-- Daftar Soal --}}
-    <p class="question-title">SOAL</p>
-    <table class="question-list">
-        @foreach($proposal->examQuestions as $eq)
-            <tr class="question-item">
-                <td width="30px" style="font-weight: bold;">{{ $eq->order_no }}.</td>
-                <td>
-                    <span>{!! nl2br(e($eq->question->question_text)) !!}</span>
-                </td>
-            </tr>
+    <div style="margin-left: 20px;">
+        @foreach($proposal->examQuestions as $index => $eq)
+            <div class="soal-item">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 25px; vertical-align: top;">{{ $index + 1 }}.</td>
+                        <td>
+                            {!! nl2br(e(optional($eq->question)->question_text)) !!}
+
+                            {{-- LOGIC BASE64 GAMBAR ANTI-GAGAL --}}
+                            @if(optional($eq->question)->image_path)
+                                @php
+                                    $cleanImgPath = ltrim($eq->question->image_path, '/');
+                                    // Tembak langsung ke direktori fisik storage bawaan Laravel
+                                    $physicalPath = storage_path('app/public/' . $cleanImgPath);
+                                    $imgBase64 = '';
+
+                                    // Kalau filenya beneran ada di harddisk server, convert ke Base64
+                                    if (file_exists($physicalPath)) {
+                                        $ext = pathinfo($physicalPath, PATHINFO_EXTENSION);
+                                        $data = file_get_contents($physicalPath);
+                                        $imgBase64 = 'data:image/' . $ext . ';base64,' . base64_encode($data);
+                                    }
+                                @endphp
+
+                                @if($imgBase64 != '')
+                                    <br>
+                                    <img src="{{ $imgBase64 }}" class="img-soal">
+                                @else
+                                    <br>
+                                    <small style="color:red; font-style:italic;">[Gambar tidak ditemukan di storage:
+                                        {{ $cleanImgPath }}]</small>
+                                @endif
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </div>
         @endforeach
-    </table>
-
-    {{-- Tanda Tangan Kaprodi (FIXED BOTTOM RIGHT) --}}
-    <div class="signature-section">
-        <p style="margin-bottom: 0;">Purwokerto,
-            {{ \Carbon\Carbon::parse($proposal->updated_at)->translatedFormat('d F Y') }}</p>
-        <p style="margin-top: 0;">Ketua Program Studi,</p>
-
-        @if($kaprodi && $kaprodi->signature)
-            <img src="{{ $kaprodi->signature }}" class="signature-img">
-        @else
-            <div style="height: 70px;"></div>
-        @endif
-
-        <p style="margin-bottom: 0; font-weight: bold; text-decoration: underline;">
-            {{ $kaprodi ? ucwords(strtolower($kaprodi->name)) : '................................................' }}
-        </p>
-        <p style="margin-top: 0;">
-            NIP. {{ $kaprodi ? $kaprodi->identity_id : '................................................' }}
-        </p>
     </div>
+
+    <table class="ttd-table">
+        <tr>
+            <td>
+                Dosen Pengampu,<br><br>
+                @if(optional($proposal->creator)->signature)
+                    <img src="{{ $proposal->creator->signature }}" class="ttd-img" alt="TTD Dosen">
+                @else
+                    <br><br><br>
+                @endif
+                <div class="underline">{{ optional($proposal->creator)->name ?? '-' }}</div>
+                NIP. {{ optional($proposal->creator)->identity_id ?? '-' }}
+            </td>
+            <td>
+                Purwokerto, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                Mengetahui, Ketua Program Studi<br><br>
+                @if(isset($kaprodi) && $kaprodi->signature)
+                    <img src="{{ $kaprodi->signature }}" class="ttd-img" alt="TTD Kaprodi">
+                @else
+                    <br><br><br>
+                @endif
+                <div class="underline">{{ optional($kaprodi)->name ?? '..........................' }}</div>
+                NIP. {{ optional($kaprodi)->identity_id ?? '-' }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 

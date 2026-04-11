@@ -15,11 +15,11 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
     */
     // Halaman Utama (Masuk ke tabel mst_menu)
     Route::get('/tashih', [ExamProposalController::class, 'index'])->name('tashih.index');
-    
+
     // Alur Create & Store
     Route::get('/tashih/create/{course_id}', [ExamProposalController::class, 'create'])->name('tashih.create');
     Route::post('/tashih/store', [ExamProposalController::class, 'store'])->name('tashih.store');
-    
+
     // Alur Detail, Edit, Update, Delete
     Route::get('/tashih/detail/{uuid}', [ExamProposalController::class, 'show'])->name('tashih.show');
     Route::get('/tashih/edit/{uuid}', [ExamProposalController::class, 'edit'])->name('tashih.edit');
@@ -41,9 +41,14 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
     */
     // Halaman Utama Bank Soal (Masuk ke tabel mst_menu)
     Route::get('/bank-soal', [BankSoalController::class, 'index'])->name('banksoal.index');
-    
+
     // API untuk ditarik ke dalam Modal Create/Edit
     Route::get('/tashih/api/bank-soal/{course_id}', [BankSoalController::class, 'getApiQuestions'])->name('tashih.api.banksoal');
-    Route::get('/tashih/print/{uuid}', [ExamProposalController::class, 'print'])->name('monevakademik.tashih.print');
 
+    // UBAH DUA BARIS INI (Hapus monevakademik.-nya)
+    Route::get('/tashih/print/{uuid}', [ExamProposalController::class, 'print'])->name('tashih.print');
+    Route::post('/tashih/comment', [ExamProposalController::class, 'storeComment'])->name('tashih.comment');
+    Route::get('tashih/api/units', [BankSoalController::class, 'getUnits']);
+    Route::get('tashih/api/approved-courses', [BankSoalController::class, 'getApprovedCourses']);
+    Route::get('tashih/api/bank-soal/{course_id}', [BankSoalController::class, 'getApiQuestions']);
 });

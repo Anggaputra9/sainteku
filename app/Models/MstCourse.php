@@ -18,4 +18,10 @@ class MstCourse extends Model
         'unit_id',
         'is_active'
     ];
+    // app/Models/MstCourse.php
+    public function unit()
+    {
+        // Kita asumsikan foreign key di tabel mst_courses adalah unit_id
+        return $this->belongsTo(\App\Models\Unit::class, 'unit_id');
+    }
 }

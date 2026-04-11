@@ -1,86 +1,104 @@
-<div x-show="openCreate" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 backdrop-blur-sm"
-    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak style="display: none;">
+<div x-show="openCreate"
+    class="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak
+    style="display: none;">
 
     <div
-        class="relative w-full max-w-5xl transform rounded-2xl bg-gray-50 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-900 dark:ring-gray-700 transition-all flex flex-col max-h-[90vh] overflow-hidden">
+        class="relative w-full max-w-5xl transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-gray-700 transition-all flex flex-col max-h-[90vh] overflow-hidden">
 
-        {{-- Header Modal --}}
+        {{-- Header Modal Responsif --}}
         <div
-            class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 z-10 dark:bg-gray-800 dark:border-gray-700 shadow-sm">
-            <div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-file-signature text-blue-500"></i>
-                    <span x-text="isEditMode ? 'Edit Pengajuan Soal' : 'Workspace Soal'"></span>
+            class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-4 sm:px-6 py-4 z-20 dark:bg-gray-800 dark:border-gray-700 shadow-sm gap-2">
+            <div class="flex-1 pr-2">
+                <h3
+                    class="text-base sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 leading-tight">
+                    <i class="fa-solid fa-file-signature text-blue-500 hidden sm:inline-block"></i>
+                    <span x-text="isEditMode ? 'Edit Pengajuan' : 'Workspace Soal'"></span>
                 </h3>
-                <p class="text-sm font-bold text-gray-500 dark:text-gray-400 mt-1"
+                <p class="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 mt-1 sm:mt-1.5 line-clamp-1"
                     x-text="courseId + ' - ' + courseName"></p>
             </div>
-            <div class="flex items-center gap-4">
+
+            <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <button @click="openCreate = false; isEditMode = false; openDetail = isEditMode ? true : false;"
+                    type="button"
+                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-yellow-400 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-yellow-900 shadow-sm hover:bg-yellow-500 transition-all dark:bg-yellow-500 dark:text-yellow-950 dark:hover:bg-yellow-400">
+                    <i class="fas fa-arrow-left"></i> <span>Kembali</span>
+                </button>
+
                 <span id="weight-badge"
-                    class="inline-flex items-center rounded-full bg-gray-100 px-4 py-2 text-sm font-bold text-gray-800 border border-gray-200 transition-colors">
-                    Total Bobot: <span id="weight-number" class="ml-1">0</span> / 100
+                    class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold text-gray-800 border border-gray-200 transition-all duration-300 whitespace-nowrap shadow-sm">
+                    Bobot: <span id="weight-number" class="ml-1 text-sm">0</span> <span
+                        class="mx-0.5 text-gray-400">/</span> 100
                 </span>
             </div>
         </div>
 
         {{-- Body Area --}}
-        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar relative" id="modal-body-scroll">
-            <form id="form-pengajuan"
+        <div class="flex-1 overflow-y-auto custom-scrollbar relative bg-slate-50 dark:bg-gray-900"
+            id="modal-body-scroll">
+            <form id="form-pengajuan" class="flex flex-col min-h-full"
                 :action="isEditMode ? '{{ url('monev-akademik/tashih/update') }}/' + editUuid : '{{ route('monevakademik.tashih.store') }}'"
-                method="POST">
+                method="POST" enctype="multipart/form-data">
                 @csrf
                 <template x-if="isEditMode">
                     <input type="hidden" name="_method" value="PUT">
                 </template>
                 <input type="hidden" name="course_id" :value="courseId">
 
-                <div
-                    class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Jenis
-                                Ujian</label>
-                            <select name="exam_type"
-                                class="w-full rounded-lg border-[1.5px] border-gray-300 bg-gray-50 px-5 py-3 font-medium outline-none focus:border-blue-500 focus:bg-white transition dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-                                required>
-                                <option value="UTS">Ujian Tengah Semester (UTS)</option>
-                                <option value="UAS">Ujian Akhir Semester (UAS)</option>
-                            </select>
+                {{-- Kontainer Konten --}}
+                <div class="p-4 sm:p-6 lg:p-8 flex-1">
+                    {{-- Section Setup --}}
+                    <div
+                        class="rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 mb-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+                            <div>
+                                <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-gray-200">Jenis
+                                    Ujian</label>
+                                <select name="exam_type"
+                                    class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                                    required>
+                                    <option value="UTS">Ujian Tengah Semester (UTS)</option>
+                                    <option value="UAS">Ujian Akhir Semester (UAS)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-gray-200">Periode
+                                    Akademik</label>
+                                <select name="period_id"
+                                    class="w-full rounded-lg border border-gray-300 bg-gray-50/50 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all dark:border-gray-600 dark:bg-gray-900 dark:text-white"
+                                    required>
+                                    <option value="">-- Pilih Periode --</option>
+                                    @foreach($periods as $period)
+                                        <option value="{{ $period->id }}" {{ $period->is_active ? 'selected' : '' }}>
+                                            {{ $period->name }} - {{ $period->semester }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Periode
-                                Akademik</label>
-                            <select name="period_id"
-                                class="w-full rounded-lg border-[1.5px] border-gray-300 bg-gray-50 px-5 py-3 font-medium outline-none focus:border-blue-500 focus:bg-white transition dark:border-gray-600 dark:bg-gray-900 dark:text-white"
-                                required>
-                                <option value="1">2024/2025 Gasal</option>
-                            </select>
-                        </div>
+                    </div>
+
+                    <div id="questions-container" class="space-y-6"></div>
+
+                    {{-- Area Aksi Tambah Soal (Hanya Bank Soal) --}}
+                    <div id="action-buttons-container" class="mt-4 flex justify-center" style="display: none;">
+                        {{-- TOMBOL INI YANG DIBENERIN --}}
+                        <button type="button" @click="openBankSoalModal()"
+                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-indigo-200 border-dashed px-8 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition w-full sm:w-1/2 shadow-sm dark:bg-gray-800 dark:border-indigo-800/50 dark:text-indigo-400 dark:hover:bg-gray-700">
+                            <i class="fas fa-search"></i> Cari dari Bank Soal
+                        </button>
                     </div>
                 </div>
 
-                <div id="questions-container" class="space-y-4"></div>
-
-                {{-- Area Aksi Tambah Soal (Hanya Bank Soal) --}}
-                <div id="action-buttons-container" class="mt-4 flex justify-center" style="display: none;">
-                    <button type="button" @click="openBankSoal = true; fetchBankSoal()"
-                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-indigo-200 border-dashed px-8 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition w-full sm:w-1/2 shadow-sm dark:bg-gray-800 dark:border-indigo-800/50 dark:text-indigo-400 dark:hover:bg-gray-700">
-                        <i class="fas fa-search"></i> Cari dari Bank Soal
-                    </button>
-                </div>
-
-                {{-- Footer Area (Kembali & Submit) --}}
+                {{-- Sticky Footer --}}
                 <div
-                    class="mt-8 flex flex-col-reverse sm:flex-row justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
-                    <button @click="openCreate = false; isEditMode = false; openDetail = isEditMode ? true : false;"
-                        type="button"
-                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
-                        <i class="fas fa-arrow-left"></i> Batal & Kembali
-                    </button>
+                    class="sticky bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-4 sm:px-8 sm:py-5 z-20 flex justify-end dark:border-gray-700 dark:bg-gray-800/95">
                     <button type="submit" id="btn-submit" disabled
-                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-green-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400">
+                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-green-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full sm:w-auto">
                         <i class="fas fa-save"></i> <span
                             x-text="isEditMode ? 'Simpan Perubahan' : 'Kirim Pengajuan'"></span>
                     </button>
@@ -94,7 +112,6 @@
     let autoAddTimer = null;
     const cpmkOptions = `@foreach($cpmkList as $cpmk) <option value="{{ $cpmk->id }}">{{ $cpmk->id }} - {{ $cpmk->name }}</option> @endforeach`;
 
-    // MENERIMA PARAMETER (cId) dan (existingData) UNTUK EDIT MODE
     function initCreateModal(cId, existingData = null) {
         activeCourseId = cId;
         storageKey = `draft_soal_${activeCourseId}`;
@@ -103,50 +120,87 @@
         const container = document.getElementById('questions-container');
         if (container) {
             container.innerHTML = '';
-
             if (existingData && existingData.length > 0) {
-                // Mode Edit: Load data lama
                 existingData.forEach(q => addQuestionCard(q));
             } else {
-                // Mode Create: Load draft dari LocalStorage
                 loadDraft();
                 if (document.querySelectorAll('.question-card').length === 0) {
                     addQuestionCard();
                 }
             }
-
             validateFormStates();
             updateQuestionNumbers();
         }
     }
 
-    function addQuestionCard(data = { text: '', weight: '', cpmk: '' }) {
+    function addQuestionCard(data = { text: '', weight: '', cpmk: '', image_path: '' }) {
         const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
+        // LAYOUT DIPERBARUI: CPMK dan Bobot bertumpuk di kiri, Gambar di kanan.
         const html = `
-            <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 overflow-hidden question-card" id="q-card-${uniqueId}">
-                <div class="bg-gray-50 border-b border-gray-200 px-6 py-3 flex justify-between items-center dark:bg-gray-700/50 dark:border-gray-700">
-                    <h5 class="font-bold text-gray-700 dark:text-gray-200 question-number-title">Soal #</h5>
-                    <button type="button" onclick="removeCard('${uniqueId}')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded p-1.5 transition dark:bg-red-900/30 delete-card-btn"><i class="fas fa-trash"></i></button>
+            <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 dark:border-gray-700 dark:bg-gray-800 overflow-hidden question-card group" id="q-card-${uniqueId}">
+                <div class="bg-slate-50/80 border-b border-gray-100 px-5 sm:px-6 py-3 flex justify-between items-center dark:bg-gray-800/80 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                        <h5 class="font-bold text-gray-700 dark:text-gray-200 question-number-title text-sm">Soal #</h5>
+                    </div>
+                    <button type="button" onclick="removeCard('${uniqueId}')" class="text-gray-400 hover:text-red-600 bg-white border border-gray-200 hover:border-red-200 hover:bg-red-50 rounded-md p-1.5 transition-all shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-red-900/30 dark:hover:border-red-800 delete-card-btn" title="Hapus Soal">
+                        <i class="fas fa-trash-alt text-xs w-4 h-4 flex items-center justify-center"></i>
+                    </button>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        <div class="lg:col-span-3">
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Pertanyaan</label>
-                            <textarea name="questions[${uniqueId}][question_text]" rows="4" oninput="validateFormStates(); saveDraft()" class="q-text w-full rounded-lg border-[1.5px] border-gray-300 bg-gray-50 px-5 py-3 font-medium outline-none transition focus:border-blue-500 focus:bg-white dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
+                
+                <div class="p-5 sm:p-6">
+                    <div class="flex flex-col gap-6">
+                        {{-- Teks Pertanyaan (Atas, Lebar Penuh) --}}
+                        <div>
+                            <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pertanyaan</label>
+                            <textarea name="questions[${uniqueId}][question_text]" rows="4" oninput="validateFormStates(); saveDraft()" class="q-text w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
                         </div>
-                        <div class="lg:col-span-1 space-y-4">
-                            <div>
-                                <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">CPMK</label>
-                                <select name="questions[${uniqueId}][cpmk_id]" onchange="validateFormStates(); saveDraft()" class="q-cpmk w-full rounded-lg border-[1.5px] border-gray-300 bg-gray-50 px-5 py-3 font-medium outline-none focus:border-blue-500 focus:bg-white dark:border-gray-600 dark:bg-gray-900 dark:text-white" required>
-                                    <option value="">-- Pilih --</option>
-                                    ${cpmkOptions}
-                                </select>
+
+                        {{-- Layout Dua Kolom: Kiri (CPMK & Bobot tumpuk) | Kanan (Gambar) --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start border-t border-gray-100 pt-5 dark:border-gray-700">
+                            
+                            {{-- Kiri: CPMK & Bobot --}}
+                            <div class="flex flex-col gap-5">
+                                <div>
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">CPMK</label>
+                                    <select name="questions[${uniqueId}][cpmk_id]" onchange="validateFormStates(); saveDraft()" class="q-cpmk w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all dark:border-gray-600 dark:bg-gray-900 dark:text-white" required>
+                                        <option value="">-- Pilih --</option>
+                                        ${cpmkOptions}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bobot (%)</label>
+                                    <div class="relative">
+                                        <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}" oninput="validateFormStates(); saveDraft()" class="q-weight w-full rounded-lg border border-gray-300 bg-white pl-4 pr-10 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="0">
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400 font-bold">%</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Bobot (%)</label>
-                                <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}" oninput="validateFormStates(); saveDraft()" class="q-weight w-full rounded-lg border-[1.5px] border-gray-300 bg-gray-50 px-5 py-3 font-medium outline-none focus:border-blue-500 focus:bg-white dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="Cth: 20">
+
+                            {{-- Kanan: Upload Gambar --}}
+                            <div class="h-full flex flex-col">
+                                <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Ilustrasi (Opsional)</label>
+                                
+                                <div class="relative flex-1 flex items-center justify-center min-h-[100px] w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-colors dark:border-gray-600 dark:bg-gray-800/50 p-2 text-center cursor-pointer group/file ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
+                                    <input type="file" name="questions[${uniqueId}][image]" accept="image/*" 
+                                        onchange="handleImagePreview(this, '${uniqueId}')"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                    <div class="flex flex-col items-center justify-center space-y-1">
+                                        <i class="fas fa-image text-gray-400 group-hover/file:text-blue-500 text-2xl mb-1 transition-colors"></i>
+                                        <span class="text-[11px] font-medium text-gray-500 group-hover/file:text-blue-600">Klik untuk menyisipkan gambar</span>
+                                    </div>
+                                </div>
+
+                                <div id="preview-container-${uniqueId}" class="relative h-full flex flex-col justify-center rounded-lg border border-gray-200 bg-slate-50 p-2 shadow-sm ${data.image_path ? '' : 'hidden'} dark:bg-gray-800 dark:border-gray-600">
+                                    <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}" 
+                                        class="w-full h-24 object-contain rounded bg-white dark:bg-gray-900">
+                                    <button type="button" onclick="removeImage('${uniqueId}')" class="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition-transform hover:scale-110" title="Hapus Gambar">
+                                        <i class="fas fa-times text-[10px]"></i>
+                                    </button>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -154,20 +208,50 @@
         `;
         document.getElementById('questions-container').insertAdjacentHTML('beforeend', html);
 
-        if (data.cpmk) { setTimeout(() => { document.querySelector(`#q-card-${uniqueId} .q-cpmk`).value = data.cpmk; validateFormStates(); }, 50); }
+        if (data.cpmk) {
+            setTimeout(() => {
+                const select = document.querySelector(`#q-card-${uniqueId} .q-cpmk`);
+                if (select) select.value = data.cpmk;
+                validateFormStates();
+            }, 50);
+        }
 
         updateQuestionNumbers();
         validateFormStates();
     }
 
+    function handleImagePreview(input, id) {
+        const container = document.getElementById(`preview-container-${id}`);
+        const preview = document.getElementById(`img-preview-${id}`);
+        const wrapper = document.getElementById(`upload-wrapper-${id}`);
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                container.classList.remove('hidden');
+                wrapper.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function removeImage(id) {
+        const input = document.querySelector(`#q-card-${id} input[type="file"]`);
+        const container = document.getElementById(`preview-container-${id}`);
+        const wrapper = document.getElementById(`upload-wrapper-${id}`);
+
+        if (input) input.value = "";
+        if (container) container.classList.add('hidden');
+        if (wrapper) wrapper.classList.remove('hidden');
+    }
+
     function removeCard(id) {
         const card = document.getElementById(`q-card-${id}`);
         if (card) card.remove();
-
         updateQuestionNumbers();
         validateFormStates();
         saveDraft();
-        checkAutoAdd();
     }
 
     function updateQuestionNumbers() {
@@ -183,10 +267,37 @@
     function validateFormStates() {
         let total = 0;
         let isLastCardFilled = true;
-        const cards = document.querySelectorAll('.question-card');
+        let cards = document.querySelectorAll('.question-card');
 
+        // Hitung total awal
         document.querySelectorAll('.q-weight').forEach(input => { total += Number(input.value) || 0; });
 
+        // LOGIKA BARU: Hapus card terakhir jika nilainya kosong dan total dari card sebelumnya sudah >= 100
+        if (total >= 100) {
+            let cardsArr = Array.from(cards);
+            // Loop dari belakang, tapi sisakan index 0 agar form tidak sepenuhnya hilang
+            for (let i = cardsArr.length - 1; i > 0; i--) {
+                let card = cardsArr[i];
+                let text = card.querySelector('.q-text').value.trim();
+                let weight = card.querySelector('.q-weight').value;
+
+                // Jika soal dan bobot kosong, hapus card tersebut
+                if (!text && !weight) {
+                    card.remove();
+                } else {
+                    // Begitu ketemu card yang ada isinya, stop looping
+                    break;
+                }
+            }
+
+            // Re-select cards & hitung ulang total untuk akurasi setelah penghapusan
+            cards = document.querySelectorAll('.question-card');
+            total = 0;
+            document.querySelectorAll('.q-weight').forEach(input => { total += Number(input.value) || 0; });
+            updateQuestionNumbers();
+        }
+
+        // Cek apakah card paling bawah sudah terisi
         if (cards.length > 0) {
             const lastCard = cards[cards.length - 1];
             const text = lastCard.querySelector('.q-text').value.trim();
@@ -203,11 +314,15 @@
         clearTimeout(autoAddTimer);
 
         if (total === 100) {
-            badge.className = 'inline-flex items-center rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-800 border border-green-200 transition-colors';
+            badge.className = 'inline-flex items-center rounded-full bg-green-100 border border-green-200 px-3 py-1 text-[11px] sm:text-xs font-bold text-green-800 transition-all duration-300 whitespace-nowrap shadow-sm';
             btnSubmit.disabled = false;
             actionContainer.style.display = 'none';
         } else {
-            badge.className = total > 100 ? 'inline-flex items-center rounded-full bg-red-100 px-4 py-2 text-sm font-bold text-red-800 border border-red-200 transition-colors' : 'inline-flex items-center rounded-full bg-gray-100 px-4 py-2 text-sm font-bold text-gray-800 border border-gray-200 transition-colors';
+            if (total > 100) {
+                badge.className = 'inline-flex items-center rounded-full bg-red-100 border border-red-200 px-3 py-1 text-[11px] sm:text-xs font-bold text-red-800 transition-all duration-300 whitespace-nowrap shadow-sm';
+            } else {
+                badge.className = 'inline-flex items-center rounded-full bg-amber-100 border border-amber-200 px-3 py-1 text-[11px] sm:text-xs font-bold text-amber-800 transition-all duration-300 whitespace-nowrap shadow-sm';
+            }
             btnSubmit.disabled = true;
             actionContainer.style.display = 'flex';
 
@@ -227,10 +342,7 @@
         }
     }
 
-    function checkAutoAdd() { validateFormStates(); }
-
     function saveDraft() {
-        // Kalau lagi di mode Edit, jangan save ke draft
         const isEditMode = document.querySelector('[name="_method"]');
         if (!storageKey || isEditMode) return;
 
@@ -254,24 +366,3 @@
         if (storageKey) localStorage.removeItem(storageKey);
     });
 </script>
-
-<style>
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #cbd5e1;
-        border-radius: 10px;
-        border: 2px solid transparent;
-        background-clip: content-box;
-    }
-
-    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #475569;
-    }
-</style>

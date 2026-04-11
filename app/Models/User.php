@@ -95,4 +95,8 @@ class User extends Authenticatable
             ->where('rp.allowed', 1)
             ->exists();
     }
+    public function courses()
+    {
+        return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
+    }
 }

@@ -14,7 +14,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('proposal_id'); // Nyambung ke pengajuan
             $table->integer('order_no'); // Nyambung ke nomor soal ke-berapa
-            $table->foreignId('user_id'); // Siapa yang ngasih komen/ngubah (bisa ditarik ke mst_user)
+
+            // UBAH JADI STRING BIAR 'u0002' BISA MASUK CUY!
+            $table->string('user_id');
+
             $table->string('type'); // Jenis log: 'Komentar', 'Ubah Bobot', 'Ubah CPMK', dll
             $table->text('message'); // Isi pesannya
             $table->timestamps();
@@ -26,6 +29,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('exam_question_logs');
+        // BENERIN NAMA TABELNYA JUGA BIAR GAK NYANGKUT PAS DI-ROLLBACK
+        Schema::dropIfExists('trx_exam_question_logs');
     }
 };

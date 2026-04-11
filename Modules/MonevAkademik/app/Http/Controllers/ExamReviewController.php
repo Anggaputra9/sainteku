@@ -9,38 +9,53 @@ use Illuminate\Support\Facades\DB;
 use Modules\MonevAkademik\App\Models\ExamProposal;
 use Modules\MonevAkademik\App\Models\ExamReview;
 use App\Models\User;
+use Modules\MonevAkademik\App\Models\ExamQuestionLog;
 
 class ExamReviewController extends Controller
 {
     // 1. FUNGSI UNTUK MINTA REVISI
     public function revise(Request $request, $uuid)
     {
-        $request->validate([
-            'comment' => 'required|string|max:1000',
-        ]);
+        $proposal = ExamProposal::where('uuid', $uuid)->firstOrFail();
 
         DB::beginTransaction();
         try {
-            $proposal = ExamProposal::where('uuid', $uuid)->firstOrFail();
-
-            // Ubah status pengajuan jadi REVISED
+            // 1. Update status jadi revisi
             $proposal->update(['status' => 'REVISED']);
 
-            // Simpan catatan revisi ke tabel histori
+            // 2. Simpan Catatan Umum
             ExamReview::create([
                 'proposal_id' => $proposal->id,
                 'reviewer_id' => Auth::id(),
                 'status' => 'REVISED',
-                'comment' => $request->comment,
+                'comment' => $request->comment ?? 'Berkas dikembalikan untuk diperbaiki.'
             ]);
 
+            // 3. Simpan Catatan PER SOAL ke tabel Log
+            if ($request->has('question_comments') && is_array($request->question_comments)) {
+                foreach ($request->question_comments as $orderNo => $msg) {
+                    if (!empty($msg)) {
+
+                        // GANTI DARI: \App\Models\ExamQuestionLog::create
+                        // JADI INI (Biar dia pake import yang dari Modules di atas):
+                        ExamQuestionLog::create([
+                            'proposal_id' => $proposal->id,
+                            'order_no' => $orderNo,
+                            'user_id' => Auth::id(),
+                            'type' => 'Komentar Kaprodi',
+                            'message' => $msg
+                        ]);
+
+                    }
+                }
+            }
+
             DB::commit();
-            return redirect()->route('monevakademik.tashih.index')
-                ->with('success', 'Catatan revisi berhasil dikirim ke Dosen bersangkutan.');
+            return redirect()->back()->with('success', 'Pengajuan dikembalikan ke dosen beserta catatan revisi.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal mengirim revisi: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses review: ' . $e->getMessage());
         }
     }
 
