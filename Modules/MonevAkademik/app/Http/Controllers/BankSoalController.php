@@ -9,7 +9,27 @@ use Modules\MonevAkademik\App\Models\Question;
 
 class BankSoalController extends Controller
 {
-    // API 1: Ambil List Fakultas & Prodi AMAN PAKE DB::table
+    // =========================================================================
+    // 1. HALAMAN UTAMA BANK SOAL
+    // =========================================================================
+    public function index()
+    {
+        $courses = DB::table('mst_course')
+            ->leftJoin('mst_unit', 'mst_course.unit_id', '=', 'mst_unit.id')
+            ->select('mst_course.*', 'mst_unit.unit_name')
+            ->get();
+
+        $units = DB::table('mst_unit')
+            ->select('id', 'unit_name')
+            ->orderBy('unit_name', 'asc')
+            ->get();
+
+        return view('monevakademik::bank-soal.index', compact('courses', 'units'));
+    }
+
+    // =========================================================================
+    // 2. KEMBALIKAN: API Ambil List Fakultas & Prodi (Dipakai di Modal Tashih)
+    // =========================================================================
     public function getUnits(Request $request)
     {
         if ($request->has('faculty_id') && $request->faculty_id != '') {
@@ -29,7 +49,9 @@ class BankSoalController extends Controller
         return response()->json($faculties);
     }
 
-    // API 2: Ambil Matkul AMAN PAKE DB::table
+    // =========================================================================
+    // 3. KEMBALIKAN: API Ambil Matkul (Dipakai di Modal Tashih)
+    // =========================================================================
     public function getApprovedCourses(Request $request)
     {
         $query = DB::table('mst_course')
@@ -37,16 +59,13 @@ class BankSoalController extends Controller
             ->select('mst_course.id', 'mst_course.course_name', 'mst_unit.unit_name')
             ->where('mst_course.is_active', '1');
 
-        // CATATAN: Ini ngecek apa matkul tsb punya soal yang udah di-Approve.
-        // Kalo lu mau ngetes dan di DB belum ada yang Approve, 
-        // MATIKAN DULU blok whereExists ini pake comment (//)
         $query->whereExists(function ($q) {
             $q->select(DB::raw(1))
                 ->from('trx_questions')
                 ->join('trx_exam_questions', 'trx_questions.id', '=', 'trx_exam_questions.question_id')
                 ->join('trx_exam_proposals', 'trx_exam_questions.proposal_id', '=', 'trx_exam_proposals.id')
                 ->whereColumn('trx_questions.course_id', 'mst_course.id')
-                ->where('trx_exam_proposals.status', 'APPROVED'); // <- WAJIB APPROVED
+                ->where('trx_exam_proposals.status', 'APPROVED');
         });
 
         if ($request->search) {
@@ -65,17 +84,54 @@ class BankSoalController extends Controller
         return response()->json($courses);
     }
 
-    // API 3: Ambil Soalnya
+    // =========================================================================
+    // 4. API Ambil Soalnya (Udah anti-badai pakai Subquery)
+    // =========================================================================
     public function getApiQuestions($course_id)
     {
-        $questions = Question::with('cpmk')
-            ->where('course_id', $course_id)
-            ->whereHas('examQuestions.proposal', function ($query) {
-                $query->where('status', 'APPROVED');
-            })
-            ->latest()
-            ->get();
+        try {
+            $questions = Question::where('course_id', $course_id)
+                ->whereIn('id', function ($query) {
+                    $query->select('trx_exam_questions.question_id')
+                        ->from('trx_exam_questions')
+                        ->join('trx_exam_proposals', 'trx_exam_questions.proposal_id', '=', 'trx_exam_proposals.id')
+                        ->where('trx_exam_proposals.status', 'APPROVED');
+                })
+                ->latest()
+                ->get();
 
-        return response()->json($questions);
+            // Pancing biar accessor 'cpmk_details' jalan buat ngerender Array JSON
+            $questions->each->append('cpmk_details');
+
+            return response()->json($questions);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'pesan_error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'baris' => $e->getLine()
+            ], 500);
+        }
+    }
+
+    // =========================================================================
+    // 5. API Ambil Paket Soal (Proposal) buat Halaman Utama Bank Soal
+    // =========================================================================
+    public function getApprovedProposals($course_id)
+    {
+        try {
+            // Tarik paket soal yang statusnya udah APPROVED, bawa data Dosen & Periodenya
+            $proposals = \Modules\MonevAkademik\App\Models\ExamProposal::with(['creator', 'period'])
+                ->where('course_id', $course_id)
+                ->where('status', 'APPROVED')
+                ->latest()
+                ->get();
+
+            return response()->json($proposals);
+        } catch (\Exception $e) {
+            return response()->json([
+                'pesan_error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

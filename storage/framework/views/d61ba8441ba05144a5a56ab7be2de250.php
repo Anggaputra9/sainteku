@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
     
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" x-data="tashihApp" x-cloak>
@@ -19,8 +17,8 @@
                 </div>
                 <?php if(Auth::user()->hasPermission(3, 'C')): ?>
                     <button @click="openSelectCourse = true; courseId = ''; courseName = '';"
-                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
-                        <i class="fas fa-file-circle-plus text-lg"></i> Buat Pengajuan Baru
+                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
+                        <i class="fas fa-file-circle-plus text-lg"></i> Buat Pengajuan
                     </button>
                 <?php endif; ?>
             </div>
@@ -61,21 +59,33 @@
             <div x-show="activeTab === 'saya'" x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="flex flex-wrap items-center gap-2 mb-4">
+                    
                     <button @click="filterStatus = 'all'"
-                        :class="filterStatus === 'all' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-500 border-gray-200'"
-                        class="px-3 py-1.5 text-xs font-bold rounded-md border transition">Semua</button>
+                        :class="filterStatus === 'all' ? 'bg-gray-800 text-white shadow-md dark:bg-gray-200 dark:text-gray-900' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700'"
+                        class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                        Semua Dokumen
+                    </button>
+
+                    
                     <button @click="filterStatus = 'SUBMITTED'"
-                        :class="filterStatus === 'SUBMITTED' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-gray-500 border-gray-200'"
-                        class="px-3 py-1.5 text-xs font-bold rounded-md border transition"><i
-                            class="fa-solid fa-clock text-blue-500 mr-1"></i> Menunggu</button>
+                        :class="filterStatus === 'SUBMITTED' ? 'bg-amber-500 text-white shadow-md' : 'bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 dark:bg-gray-800 dark:border-amber-900/50 dark:hover:bg-amber-900/30'"
+                        class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                        <i class="fa-solid fa-clock mr-1"></i> Perlu Direview
+                    </button>
+
+                    
                     <button @click="filterStatus = 'APPROVED'"
-                        :class="filterStatus === 'APPROVED' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-white text-gray-500 border-gray-200'"
-                        class="px-3 py-1.5 text-xs font-bold rounded-md border transition"><i
-                            class="fa-solid fa-check text-green-500 mr-1"></i> Disetujui</button>
+                        :class="filterStatus === 'APPROVED' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-green-600 border border-green-200 hover:bg-green-50 dark:bg-gray-800 dark:border-green-900/50 dark:hover:bg-green-900/30'"
+                        class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                        <i class="fa-solid fa-check-circle mr-1"></i> Disetujui
+                    </button>
+
+                    
                     <button @click="filterStatus = 'REVISED'"
-                        :class="filterStatus === 'REVISED' ? 'bg-orange-100 text-orange-700 border-orange-300' : 'bg-white text-gray-500 border-gray-200'"
-                        class="px-3 py-1.5 text-xs font-bold rounded-md border transition"><i
-                            class="fa-solid fa-pen text-orange-500 mr-1"></i> Revisi</button>
+                        :class="filterStatus === 'REVISED' ? 'bg-red-500 text-white shadow-md' : 'bg-white text-red-600 border border-red-200 hover:bg-red-50 dark:bg-gray-800 dark:border-red-900/50 dark:hover:bg-red-900/30'"
+                        class="px-4 py-2 text-sm font-semibold rounded-full transition">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Revisi
+                    </button>
                 </div>
 
                 <div
