@@ -13,11 +13,12 @@
         
         <div class="hidden text-left sm:block">
             <p class="text-sm font-semibold leading-none text-gray-800 dark:text-white/90">
-                <?php echo e(auth()->user()->name ?? 'Guest User'); ?>
+                
+                <?php echo e(explode(' ', trim(auth()->user()->name ?? 'Guest'))[0]); ?>
 
             </p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                <?php echo e(auth()->user()->role_name ?? 'Administrator'); ?>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 capitalize">
+                <?php echo e(auth()->user()->roles->first()?->role_name ?? 'Belum Ada Akses'); ?>
 
             </p>
         </div>
@@ -34,7 +35,19 @@
         x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95" x-cloak
-        class="absolute right-0 mt-3 w-56 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+        class="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+
+        
+        <div class="px-4 py-3 mb-1 border-b border-gray-100 dark:border-gray-700">
+            <p class="text-sm font-bold text-gray-900 dark:text-white">
+                <?php echo e(auth()->user()->name ?? 'Guest User'); ?>
+
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                <?php echo e(auth()->user()->email ?? 'No Email'); ?>
+
+            </p>
+        </div>
 
         
         <a href="<?php echo e(route('profile.edit')); ?>"

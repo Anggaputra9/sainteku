@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,20 +10,12 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-
-    // Konfigurasi tabel
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false; // Karena tabel tidak punya created_at/updated_at
+    public $timestamps = false;
 
-    // Kolom yang bisa diisi (mass assignable)
     protected $fillable = [
         'id',
         'name',
@@ -38,7 +29,6 @@ class User extends Authenticatable
         'remember_token',
         'last_login_at',
         'phone_number',
-        // KOLOM BARU
         'avatar',
         'bio',
         'address',
@@ -46,19 +36,22 @@ class User extends Authenticatable
         'birth_date',
     ];
 
-    // Kolom yang disembunyikan saat serialisasi
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    // ==================================================
-    // RELASI
-    // ==================================================
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'password' => 'hashed',
+            'last_login_at' => 'datetime',
+            'birth_date' => 'date',
+        ];
+    }
 
-    /**
-     * Relasi dengan Role (many-to-many)
-     */
+    // Relasi dengan Role
     public function roles()
     {
         return $this->belongsToMany(
@@ -69,9 +62,7 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * Relasi dengan Achievement Mahasiswa (dari tabel trx_achievements)
-     */
+    // Relasi dengan Achievement Mahasiswa
     public function achievements()
     {
         return $this->hasMany(
@@ -81,9 +72,7 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * Relasi dengan Achievement Dosen (dari tabel dosen_achievements)
-     */
+    // Relasi dengan Achievement Dosen
     public function dosenAchievements()
     {
         return $this->hasMany(
@@ -93,54 +82,8 @@ class User extends Authenticatable
         );
     }
 
-    // ==================================================
-    // METHOD
-    // ==================================================
-
-    /**
-     * Method untuk reset password (override dari Authenticatable)
-     */
     public function sendPasswordResetNotification($token)
     {
-        // Ini akan dipanggil oleh Laravel saat reset password
-        // Tapi kita tidak pakai karena pakai custom implementation
-        // Bisa dikosongkan saja
-    }
-<<<<<<< Updated upstream
-
-    /**
-     * Cek apakah user memiliki permission tertentu pada suatu modul
-     * Contoh penggunaan: Auth::user()->hasPermission(10, 'C')
-     */
-    public function hasPermission($moduleId, $permissionCode)
-    {
-        // Kalau Super Admin (misal code 'ADM'), langsung losin aja semua
-        if ($this->roles()->where('role_code', 'ADM')->exists()) {
-            return true;
-        }
-
-        $roleIds = $this->roles->pluck('id')->toArray();
-
-        return \Illuminate\Support\Facades\DB::table('trx_role_permission as rp')
-            ->join('ref_permission as p', 'rp.permission_id', '=', 'p.id')
-            ->whereIn('rp.role_id', $roleIds)
-            ->where('rp.modul_id', $moduleId)
-            ->where('p.permission_code', $permissionCode)
-            ->where('rp.allowed', 1)
-            ->exists();
-    }
-    public function courses()
-    {
-        return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
-=======
-    protected function casts(): array
-    {
-        return [
-            'password' => 'hashed',
-            'is_active' => 'boolean',
-            'last_login_at' => 'datetime',
-            'birth_date' => 'date',  // ✅ TAMBAHKAN INI
-        ];
->>>>>>> Stashed changes
+        // Custom implementation
     }
 }

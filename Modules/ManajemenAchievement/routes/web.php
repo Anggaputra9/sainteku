@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-<<<<<<< Updated upstream
+
 use Modules\ManajemenAchievement\Http\Controllers\ManajemenAchievementController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('manajemenachievements', ManajemenAchievementController::class)->names('manajemenachievement');
 });
-=======
+
 use Modules\ManajemenAchievement\app\Http\Controllers\AchievementController;
 use Modules\ManajemenAchievement\app\Http\Controllers\DosenAchievementController;
 use Modules\ManajemenAchievement\app\Http\Controllers\Admin\AchievementController as AdminAchievementController;
@@ -71,4 +71,4 @@ Route::middleware(['auth', 'role:admin_unit'])->prefix('admin/prestasi-dosen')->
     Route::post('/{id}/approve', [AdminDosenController::class, 'approve'])->name('approve');
     Route::post('/{id}/reject', [AdminDosenController::class, 'reject'])->name('reject');
 });
->>>>>>> Stashed changes
+
