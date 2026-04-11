@@ -4,7 +4,7 @@ namespace Modules\MasterData\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Pastikan ada titik koma di sini
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -32,8 +32,11 @@ class CourseController extends Controller
         $prodis = DB::table('mst_unit')
             ->where('is_active', '1')
             ->where('unit_type_id', 3)
-            ->where('parent_id', $fakultasId) // Hanya Prodi di bawah Fakultas tersebut
-            ->get();
+            // ==========================================
+            // FIX: Ganti parent_id jadi unit_parent
+            // ==========================================
+            ->where('unit_parent', $fakultasId)
+            ->get(['id', 'unit_name']);
 
         return response()->json($prodis);
     }
@@ -47,26 +50,31 @@ class CourseController extends Controller
 
         $query = DB::table('mst_course')
             ->leftJoin('mst_unit as prodi', 'mst_course.unit_id', '=', 'prodi.id')
-            ->leftJoin('mst_unit as fakultas', 'prodi.parent_id', '=', 'fakultas.id')
+            // ==========================================
+            // FIX: Ganti parent_id jadi unit_parent
+            // ==========================================
+            ->leftJoin('mst_unit as fakultas', 'prodi.unit_parent', '=', 'fakultas.id')
             ->select('mst_course.*', 'prodi.unit_name as prodi_name', 'fakultas.unit_name as fakultas_name');
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('mst_course.course_name', 'like', "%{$search}%")
-                  ->orWhere('mst_course.id', 'like', "%{$search}%");
+                    ->orWhere('mst_course.id', 'like', "%{$search}%");
             });
         }
 
         if ($prodiId) {
             $query->where('mst_course.unit_id', $prodiId);
         } elseif ($fakultasId) {
-            // Jika hanya fakultas yang dipilih, tampilkan semua MK di fakultas tersebut
-            $query->where('prodi.parent_id', $fakultasId);
+            // ==========================================
+            // FIX: Ganti parent_id jadi unit_parent
+            // ==========================================
+            $query->where('prodi.unit_parent', $fakultasId);
         }
 
         // Pagination menggunakan fitur bawaan Laravel, merespons dalam bentuk JSON
-        $courses = $query->orderBy('mst_course.id', 'asc')->paginate(10);
-        
+        $courses = $query->orderBy('mst_course.id', 'asc')->paginate(12); // Gue set 12 biar gridnya pas rata
+
         return response()->json($courses);
     }
 
@@ -75,28 +83,28 @@ class CourseController extends Controller
     {
         $request->validate([
             'course_name' => 'required|string|max:100',
-            'unit_id'     => 'required|string|exists:mst_unit,id',
-            'is_active'   => 'required|in:0,1',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'is_active' => 'required|in:0,1',
         ]);
 
         // LOGIKA AUTO-INCREMENT MENGGUNAKAN DB BUILDER
         $lastCourse = DB::table('mst_course')->orderBy('id', 'desc')->first();
-        
+
         if ($lastCourse) {
             $lastNumber = (int) substr($lastCourse->id, 2);
             $nextNumber = $lastNumber + 1;
         } else {
             $nextNumber = 1;
         }
-        
+
         $newId = 'MK' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         DB::table('mst_course')->insert([
-            'id'          => $newId,
+            'id' => $newId,
             'course_name' => $request->course_name,
-            'unit_id'     => $request->unit_id,
-            'is_active'   => $request->is_active,
-            'created_at'  => now(),
+            'unit_id' => $request->unit_id,
+            'is_active' => $request->is_active,
+            'created_at' => now(),
         ]);
 
         return redirect()->route('masterdata.courses.index')->with('success', 'Data Mata Kuliah berhasil ditambahkan dengan Kode ' . $newId);
@@ -107,14 +115,14 @@ class CourseController extends Controller
     {
         $request->validate([
             'course_name' => 'required|string|max:100',
-            'unit_id'     => 'required|string|exists:mst_unit,id',
-            'is_active'   => 'required|in:0,1',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'is_active' => 'required|in:0,1',
         ]);
 
         DB::table('mst_course')->where('id', $id)->update([
             'course_name' => $request->course_name,
-            'unit_id'     => $request->unit_id,
-            'is_active'   => $request->is_active,
+            'unit_id' => $request->unit_id,
+            'is_active' => $request->is_active,
         ]);
 
         return redirect()->route('masterdata.courses.index')->with('success', 'Data Mata Kuliah berhasil diperbarui.');

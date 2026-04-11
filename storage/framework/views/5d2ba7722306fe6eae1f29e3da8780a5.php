@@ -26,8 +26,8 @@
         </div>
 
         <form :action="formUrl" method="POST" class="space-y-5 text-left" @submit="isSubmitting = true">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
 
             <div>
                 <label class="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Nama Mata
@@ -41,12 +41,12 @@
                 <select name="unit_id" x-model="editUnit" required
                     class="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                     <option value="">-- Pilih Prodi --</option>
-                    @php
+                    <?php
                         $allProdi = \Illuminate\Support\Facades\DB::table('mst_unit')->where('unit_type_id', 3)->where('is_active', '1')->get();
-                    @endphp
-                    @foreach($allProdi as $prodi)
-                        <option value="{{ $prodi->id }}">{{ $prodi->unit_name }}</option>
-                    @endforeach
+                    ?>
+                    <?php $__currentLoopData = $allProdi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prodi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <option value="<?php echo e($prodi->id); ?>"><?php echo e($prodi->unit_name); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </select>
             </div>
 
@@ -73,4 +73,4 @@
             </div>
         </form>
     </div>
-</div>
+</div><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/courses/modal-edit.blade.php ENDPATH**/ ?>

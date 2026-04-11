@@ -26,8 +26,8 @@
         </p>
 
         <form :action="deleteUrl" method="POST" @submit="isSubmitting = true">
-            @csrf
-            @method('DELETE')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('DELETE'); ?>
             <div class="flex justify-center gap-3">
                 <button type="button" @click="openDelete = false"
                     class="rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Batal</button>
@@ -41,4 +41,4 @@
             </div>
         </form>
     </div>
-</div>
+</div><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/courses/delete-modal.blade.php ENDPATH**/ ?>

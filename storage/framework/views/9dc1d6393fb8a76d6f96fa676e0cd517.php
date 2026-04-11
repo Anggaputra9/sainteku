@@ -1,9 +1,7 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" x-data="coursesApp()" x-init="initData()" x-cloak>
 
-        {{-- Header & Navigasi Breadcrumb --}}
+        
         <div
             class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
             <div>
@@ -23,11 +21,11 @@
                     class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition active:scale-95">
                     <i class="fa-solid fa-plus"></i> Tambah Mata Kuliah
                 </button>
-                @include('masterdata::courses.modal-create')
+                <?php echo $__env->make('masterdata::courses.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
         </div>
 
-        {{-- Info Banner --}}
+        
         <div
             class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 dark:bg-gray-800 dark:border-blue-400 rounded-r-lg shadow-sm">
             <div class="flex items-center">
@@ -38,28 +36,28 @@
             </div>
         </div>
 
-        {{-- Main Container --}}
+        
         <div
             class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 min-h-[60vh] flex flex-col">
 
-            {{-- AREA FILTER (Fakultas -> Prodi -> Search) --}}
+            
             <div
                 class="mb-6 space-y-4 bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {{-- 1. Pilih Fakultas --}}
+                    
                     <div class="w-full">
                         <label
                             class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Fakultas</label>
                         <select x-model="filterFakultas" @change="fetchProdis(); fetchCourses();"
                             class="w-full rounded-lg border-[1.5px] border-gray-300 bg-white px-4 py-2.5 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition dark:border-gray-600 dark:bg-gray-900 dark:text-white">
                             <option value="">-- Semua Fakultas --</option>
-                            @foreach($faculties as $fak)
-                                <option value="{{ $fak->id }}">{{ $fak->unit_name }}</option>
-                            @endforeach
+                            <?php $__currentLoopData = $faculties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fak): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($fak->id); ?>"><?php echo e($fak->unit_name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
-                    {{-- 2. Pilih Prodi (Disabled sebelum Fakultas dipilih) --}}
+                    
                     <div class="w-full">
                         <label
                             class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 dark:text-gray-400">Program
@@ -74,7 +72,7 @@
                     </div>
                 </div>
 
-                {{-- 3. Search Bar --}}
+                
                 <div class="relative">
                     <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     <input type="text" x-model="searchQuery" @input.debounce.500ms="fetchCourses()"
@@ -83,10 +81,10 @@
                 </div>
             </div>
 
-            {{-- AREA KONTEN (TABEL) --}}
+            
             <div class="flex-1 relative rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
 
-                {{-- State Loading --}}
+                
                 <div x-show="isLoading"
                     class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
                     <i class="fas fa-circle-notch fa-spin text-4xl mb-3 text-blue-600"></i>
@@ -108,7 +106,7 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
 
-                            {{-- State Kosong --}}
+                            
                             <tr x-show="coursesList.length === 0 && !isLoading">
                                 <td colspan="5"
                                     class="px-6 py-12 text-center text-gray-500 bg-gray-50/50 dark:bg-gray-800/50">
@@ -119,7 +117,7 @@
                                 </td>
                             </tr>
 
-                            {{-- Looping Data Tabel --}}
+                            
                             <template x-for="course in coursesList" :key="course.id">
                                 <tr class="hover:bg-gray-50 transition dark:hover:bg-gray-700/30">
                                     <td class="px-6 py-4 font-bold text-gray-900 dark:text-white" x-text="course.id"></td>
@@ -139,9 +137,9 @@
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex items-center justify-center gap-2">
 
-                                            {{-- Tombol Edit Modal --}}
+                                            
                                             <button type="button" @click="$dispatch('open-edit-modal', { 
-                                                    url: '{{ url('masterdata/courses') }}/' + course.id,
+                                                    url: '<?php echo e(url('masterdata/courses')); ?>/' + course.id,
                                                     id: course.id,
                                                     name: course.course_name,
                                                     unit_id: course.unit_id,
@@ -152,9 +150,9 @@
                                                 <i class="fa-solid fa-pencil"></i> Ubah
                                             </button>
 
-                                            {{-- Tombol Delete Modal --}}
+                                            
                                             <button type="button" @click="$dispatch('open-delete-modal', { 
-                                                    url: '{{ url('masterdata/courses') }}/' + course.id,
+                                                    url: '<?php echo e(url('masterdata/courses')); ?>/' + course.id,
                                                     name: course.course_name
                                                 })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
@@ -171,7 +169,7 @@
                 </div>
             </div>
 
-            {{-- AREA PAGINATION (AJAX) --}}
+            
             <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4"
                 x-show="pagination.total > 0">
                 <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -192,14 +190,14 @@
             </div>
 
         </div>
-        {{-- End of Main Container --}}
+        
 
     </div>
-    {{-- End of Wrapper x-data="coursesApp()" --}}
+    
 
-    {{-- INCLUDE MODAL DI LUAR WRAPPER ALPINE UTAMA --}}
-    @include('masterdata::courses.modal-edit')
-    @include('masterdata::courses.delete-modal')
+    
+    <?php echo $__env->make('masterdata::courses.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::courses.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -226,7 +224,7 @@
                     if (!this.filterFakultas) return;
 
                     try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.filterFakultas}`);
+                        const response = await fetch(`<?php echo e(route('masterdata.courses.api.prodis')); ?>?fakultas_id=${this.filterFakultas}`);
                         if (!response.ok) throw new Error(`Prodi API error: ${response.status}`);
                         this.prodisList = await response.json();
                     } catch (error) {
@@ -247,7 +245,7 @@
                     });
 
                     try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.data') }}?${params.toString()}`);
+                        const response = await fetch(`<?php echo e(route('masterdata.courses.api.data')); ?>?${params.toString()}`);
                         if (!response.ok) throw new Error('Network response was not ok');
 
                         const result = await response.json();
@@ -275,4 +273,5 @@
             }));
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/courses/index.blade.php ENDPATH**/ ?>
