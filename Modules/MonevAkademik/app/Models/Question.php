@@ -18,6 +18,7 @@ class Question extends Model
         'image_path',
         'created_by',
     ];
+
     protected $casts = [
         'cpmk_id' => 'array', // Otomatis jadi array pas dipanggil di PHP
     ];
@@ -32,9 +33,24 @@ class Question extends Model
         return $this->belongsTo(\App\Models\MstCourse::class, 'course_id', 'id');
     }
 
-    public function cpmk()
+    // ❌ KITA HAPUS/COMMENT RELASI INI KARENA UDAH JADI ARRAY
+    // public function cpmk()
+    // {
+    //     return $this->belongsTo(\App\Models\MstCpmk::class, 'cpmk_id', 'id');
+    // }
+
+    // ✅ KITA GANTI PAKE ACCESSOR INI BUAT NARIK DATA MULTI-CPMK
+    public function getCpmkDetailsAttribute()
     {
-        return $this->belongsTo(\App\Models\MstCpmk::class, 'cpmk_id', 'id');
+        // Kalau cpmk_id kosong atau bukan array, balikin array kosong
+        if (empty($this->cpmk_id) || !is_array($this->cpmk_id)) {
+            return [];
+        }
+
+        // Tarik semua data MstCpmk yang ID-nya ada di dalam array cpmk_id
+        return \App\Models\MstCpmk::whereIn('id', $this->cpmk_id)
+            ->select('id', 'name') // Sesuaikan 'name' dengan nama kolom di tabel mst_cpmk lu
+            ->get();
     }
 
     public function creator()

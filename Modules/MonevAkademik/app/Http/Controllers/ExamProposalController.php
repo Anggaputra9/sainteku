@@ -21,6 +21,9 @@ class ExamProposalController extends Controller
 
     public function index()
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Anda tidak memiliki akses ke modul ini.');
+        }
         $user = Auth::user();
         $periods = DB::table('mst_period')->orderBy('name', 'desc')->get();
         $myCourses = MstCourse::where('unit_id', $user->unit_id)->get();
@@ -59,6 +62,9 @@ class ExamProposalController extends Controller
 
     public function store(Request $request)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'C')) {
+            abort(403, 'Anda tidak memiliki akses untuk membuat pengajuan.');
+        }
         $request->validate([
             'course_id' => 'required',
             'exam_type' => 'required|in:UTS,UAS',
@@ -115,6 +121,9 @@ class ExamProposalController extends Controller
 
     public function storeComment(Request $request)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'U')) {
+            abort(403, 'Anda tidak memiliki akses untuk memberikan komentar.');
+        }
         $log = ExamQuestionLog::create([
             'proposal_id' => $request->proposal_id,
             'order_no' => $request->order_no,
