@@ -90,6 +90,7 @@ return [
     'sign_in' => 'Masuk',
     'email_label' => 'Email',
     'password_label' => 'Kata Sandi',
+    'password_placeholder' => 'Password',
     'remember_me' => 'Ingat saya',
     'forgot_password' => 'Lupa password?',
     'no_account' => 'Belum punya akun?',
@@ -118,4 +119,5 @@ return [
     // Navbar & Button
     'login' => 'Masuk',
     'processing' => 'Memproses',
+    'error_occurred' => 'Terjadi kesalahan',
 ];

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Sainteku | UIN Prof. K.H. Saifuddin Zuhri Purwokerto</title>
+    <title>SAINTEKU | UIN SAIZU PURWOKERTO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Fakultas Sains dan Teknologi UIN Saifuddin Zuhri Purwokerto" name="description" />
     <meta content="Themesbrand" name="author" />
@@ -192,58 +192,79 @@
             color: var(--saintek-text) !important;
         }
 
-        /* Language Toggle Styling - Improved */
+        /* LANGUAGE TOGGLE BUTTON */
         .language-toggle {
             display: inline-flex;
             align-items: center;
-            color: #4b5563;
-            font-size: 0.95rem;
-            padding: 0.5rem 0.75rem;
+            justify-content: center;
+            gap: 0.3rem;
+            color: #1e293b;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.375rem 0.65rem;
             text-decoration: none;
-            transition: color 0.2s ease;
-            background: transparent;
-            border: none;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .language-toggle:hover {
-            color: #1f2937;
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+            color: #000000;
         }
 
         .language-toggle:focus {
             outline: none;
-            color: #1f2937;
+            border-color: var(--saintek-primary);
         }
 
         .language-toggle:active {
-            color: #374151;
+            background-color: #f3f4f6;
         }
 
         .language-toggle i {
-            font-size: 1.1rem;
-            margin-right: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        /* DROPDOWN MENU */
+        .dropdown-menu.dropdown-menu-end {
+            border: 1px solid #e5e7eb !important;
+            border-radius: 4px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+            min-width: 150px !important;
+            padding: 0.4rem 0 !important;
+            overflow: hidden !important;
         }
 
         .dropdown-item.language-item {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.8rem;
             color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.15s ease;
+            border-radius: 4px;
+            margin: 0.2rem 0.4rem;
         }
 
         .dropdown-item.language-item:hover {
             background-color: #f3f4f6;
-            color: #111827;
+            color: #1f2937;
         }
 
         .dropdown-item.language-item.active-lang {
-            background-color: rgba(254, 235, 4, 0.1);
-            color: #856B2B;
+            background-color: #e5e7eb;
+            color: #000000;
+            font-weight: 500;
+            border-radius: 2px;
         }
 
-        .dropdown-item.language-item span {
-            display: inline-block;
-            width: 24px;
-            font-size: 1.1rem;
+        .dropdown-item.language-item span:first-child {
+            font-size: 1rem;
         }
 
         /* UTILITY CLASSES */
@@ -342,6 +363,46 @@
                 width: 58.33333333% !important;
             }
         }
+
+        /* ALERT POPUP STYLES */
+        .alert-popup {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            min-width: 320px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 12px !important;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -369,22 +430,24 @@
                     </li>
                 </ul>
 
-                <!-- Language Toggle - Improved Version -->
+                <!-- Language Toggle Button -->
                 <div class="dropdown me-2">
                     <a href="#" class="language-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="ri-global-line align-middle"></i>
-                        {{ session('locale') == 'en' ? 'English' : 'Indonesia' }}
-                        <i class="ri-arrow-down-s-line align-middle ms-1"></i>
+                        <i class="ri-global-line"></i>
+                        <span class="d-none d-md-inline">{{ session('locale') == 'en' ? 'English' : 'Indonesia' }}</span>
+                        <i class="ri-arrow-down-s-line"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 140px; padding: 0.5rem 0; border: 1px solid #f0f0f0; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item language-item {{ session('locale') == 'id' ? 'active-lang' : '' }}" href="{{ route('language.switch', 'id') }}">
-                                <span>🇮🇩</span> Indonesia
+                                <span>🇮🇩</span>
+                                <span>Indonesia</span>
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item language-item {{ session('locale') == 'en' ? 'active-lang' : '' }}" href="{{ route('language.switch', 'en') }}">
-                                <span>🇬🇧</span> English
+                                <span>🇬🇧</span>
+                                <span>English</span>
                             </a>
                         </li>
                     </ul>
@@ -399,6 +462,13 @@
             </div>
         </div>
     </nav>
+
+    <!-- ALERT POPUP -->
+    <div id="loginAlert" class="alert alert-dismissible fade show alert-popup" role="alert" style="display: none;">
+        <i id="alertIcon" class="ri-checkbox-circle-line me-2 fs-5 align-middle"></i>
+        <span id="alertMessage"></span>
+        <button type="button" class="btn-close" onclick="hideAlert()"></button>
+    </div>
 
     <!-- HERO SECTION -->
     <section class="hero-section" id="hero">
@@ -1048,9 +1118,6 @@
                             <form method="POST" action="/login" id="loginForm">
                                 @csrf
 
-                                <!-- Error Alert -->
-                                <div id="loginError" class="alert" style="display: none;"></div>
-
                                 @if($errors->any())
                                 <div class="alert alert-danger py-2 mb-3 small" style="background: #FEF3F2; border-color: #F04438; color: #B42318;">
                                     @foreach($errors->all() as $error)
@@ -1072,9 +1139,6 @@
                                         value="{{ old('credential') }}"
                                         style="height: 42px;"
                                         required>
-                                    <small class="text-muted d-block mt-1 small">
-                                        <strong>{{ __('messages.test_credentials') }}:</strong> ID: u0001 | test@example.com
-                                    </small>
                                 </div>
 
                                 <!-- Password -->
@@ -1194,7 +1258,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
-            const loginError = document.getElementById('loginError');
             const loginModal = document.getElementById('loginModal');
 
             if (loginForm) {
@@ -1223,7 +1286,7 @@
                                 showAlert('success', data.message);
                                 setTimeout(() => {
                                     window.location.href = data.redirect || '/dashboard';
-                                }, 500);
+                                }, 1500);
                             } else {
                                 showAlert('error', data.message || '{{ __("messages.login_failed") }}');
                                 submitBtn.disabled = false;
@@ -1240,17 +1303,46 @@
             }
 
             function showAlert(type, message) {
-                if (!loginError) return;
-                loginError.style.display = 'block';
+                const alert = document.getElementById('loginAlert');
+                const alertIcon = document.getElementById('alertIcon');
+                const alertMessage = document.getElementById('alertMessage');
 
+                if (!alert || !alertIcon || !alertMessage) return;
+
+                // Set message
+                alertMessage.textContent = message;
+
+                // Set icon and class based on type
                 if (type === 'success') {
-                    loginError.className = 'alert alert-success py-2 mb-3 small';
-                    loginError.innerHTML = message;
+                    alertIcon.className = 'ri-checkbox-circle-line me-2 fs-5 align-middle';
+                    alert.className = 'alert alert-success alert-dismissible fade show alert-popup';
                 } else {
-                    loginError.className = 'alert alert-danger py-2 mb-3 small';
-                    loginError.innerHTML = message;
+                    alertIcon.className = 'ri-error-warning-line me-2 fs-5 align-middle';
+                    alert.className = 'alert alert-danger alert-dismissible fade show alert-popup';
+                }
+
+                // Show alert
+                alert.style.display = 'block';
+
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    hideAlert();
+                }, 5000);
+            }
+
+            function hideAlert() {
+                const alert = document.getElementById('loginAlert');
+                if (alert) {
+                    alert.style.animation = 'slideUp 0.3s ease-in';
+                    setTimeout(() => {
+                        alert.style.display = 'none';
+                        alert.style.animation = '';
+                    }, 300);
                 }
             }
+
+            // Make hideAlert global
+            window.hideAlert = hideAlert;
 
             @if($errors->any())
             if (typeof bootstrap !== 'undefined' && loginModal) {
@@ -1332,8 +1424,7 @@
                 modal.show();
                 forgotAlert.style.display = 'block';
                 forgotAlert.className = 'alert alert-success py-2 mb-3 small';
-                forgotAlert.innerHTML = '{{ session('
-                status ') }}';
+                forgotAlert.innerHTML = '{{ session("status") }}';
             }
             @endif
 
@@ -1343,8 +1434,7 @@
                 modal.show();
                 forgotAlert.style.display = 'block';
                 forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
-                forgotAlert.innerHTML = '{{ $errors->first('
-                email ') }}';
+                forgotAlert.innerHTML = '{{ $errors->first("email") }}';
             }
             @endif
         });

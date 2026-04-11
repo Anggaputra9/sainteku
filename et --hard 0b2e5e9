@@ -1,0 +1,72 @@
+[33me202ddc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mniam[m[33m, [m[1;31morigin/niam[m[33m)[m HEAD@{0}: rebase (abort): returning to refs/heads/niam
+[33m0b2e5e9[m HEAD@{1}: commit: update baru no error
+[33mb000f8f[m HEAD@{2}: commit: gabungkan perubahan dari aripian dan fitur signature + WA
+[33m3aefc70[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: pull origin main --rebase (start): checkout 3aefc702cd0be8b4a956189a046f8315d374096d
+[33me202ddc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mniam[m[33m, [m[1;31morigin/niam[m[33m)[m HEAD@{4}: reset: moving to HEAD
+[33me202ddc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mniam[m[33m, [m[1;31morigin/niam[m[33m)[m HEAD@{5}: checkout: moving from main to niam
+[33m16beaaf[m[33m ([m[1;32mmain[m[33m)[m HEAD@{6}: commit: menambahkan prestasi, ttd profil
+[33m6b51181[m HEAD@{7}: commit: update landing page alert berhasil/gagal login
+[33m3075f26[m HEAD@{8}: reset: moving to 3075f26
+[33m3075f26[m HEAD@{9}: checkout: moving from feature/achievement to main
+[33m8fe5c2e[m[33m ([m[1;32mfeature/achievement[m[33m)[m HEAD@{10}: checkout: moving from achievement-save to feature/achievement
+[33ma90aa2d[m[33m ([m[1;32machievement-save[m[33m)[m HEAD@{11}: commit: Save achievement module before reset
+[33m8fe5c2e[m[33m ([m[1;32mfeature/achievement[m[33m)[m HEAD@{12}: checkout: moving from feature/achievement to achievement-save
+[33m8fe5c2e[m[33m ([m[1;32mfeature/achievement[m[33m)[m HEAD@{13}: reset: moving to HEAD
+[33m8fe5c2e[m[33m ([m[1;32mfeature/achievement[m[33m)[m HEAD@{14}: commit: Progress: file dasar baru
+[33m3075f26[m HEAD@{15}: checkout: moving from feature/achievement to feature/achievement
+[33m3075f26[m HEAD@{16}: checkout: moving from main to feature/achievement
+[33m3075f26[m HEAD@{17}: commit: update language switcher
+[33m5d04ba0[m HEAD@{18}: reset: moving to 5d04ba0
+[33m5d04ba0[m HEAD@{19}: checkout: moving from niam to main
+[33me202ddc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mniam[m[33m, [m[1;31morigin/niam[m[33m)[m HEAD@{20}: commit: My achievement module work
+[33m5d04ba0[m HEAD@{21}: checkout: moving from main to niam
+[33m5d04ba0[m HEAD@{22}: commit: update Language Switcher
+[33mcc3b851[m HEAD@{23}: pull origin main: Fast-forward
+[33m1a6523a[m HEAD@{24}: pull: Fast-forward
+[33me5a81a8[m HEAD@{25}: commit (merge): Hapus file cache dari tracking
+[33ma9ebe81[m HEAD@{26}: commit: update
+[33m0091d8e[m HEAD@{27}: commit: update foto
+[33m174f9f8[m HEAD@{28}: commit: foto landing page
+[33md43eae9[m HEAD@{29}: commit: update ui reset password
+[33m13860f3[m HEAD@{30}: commit: update landing page
+[33mf5ad30f[m HEAD@{31}: pull: Fast-forward
+[33m981b42e[m HEAD@{32}: pull: Fast-forward
+[33mbd75843[m HEAD@{33}: pull: Fast-forward
+[33ma523ef6[m HEAD@{34}: pull: Fast-forward
+[33m734f905[m HEAD@{35}: pull: Fast-forward
+[33md1198ee[m HEAD@{36}: commit: update
+[33m6c8d2c8[m HEAD@{37}: commit: update
+[33m3da1b11[m HEAD@{38}: commit: update
+[33mc65cf4f[m HEAD@{39}: commit: update
+[33m6bfa847[m HEAD@{40}: commit: update
+[33me589e7d[m HEAD@{41}: commit: update
+[33m72dcfe7[m HEAD@{42}: commit: update
+[33m54b5d58[m HEAD@{43}: commit: update
+[33m5b174e5[m HEAD@{44}: commit: update
+[33m2615297[m HEAD@{45}: commit: update
+[33m460482a[m HEAD@{46}: commit: update modal reset password
+[33m03023ad[m HEAD@{47}: pull origin main: Fast-forward
+[33m1d0ba96[m HEAD@{48}: pull origin main: Fast-forward
+[33mbab34a6[m HEAD@{49}: pull origin main: Fast-forward
+[33m62ee177[m HEAD@{50}: commit: update ui login
+[33m2edb286[m HEAD@{51}: commit (merge): update
+[33m4150886[m HEAD@{52}: reset: moving to HEAD
+[33m4150886[m HEAD@{53}: commit: update package-lock.json
+[33m008f011[m HEAD@{54}: pull: Fast-forward
+[33m53d06f4[m HEAD@{55}: commit (merge): perbaikan
+[33m7230dcb[m HEAD@{56}: reset: moving to HEAD
+[33m7230dcb[m HEAD@{57}: reset: moving to HEAD
+[33m7230dcb[m HEAD@{58}: commit: update show/hide password
+[33mcd5525d[m HEAD@{59}: checkout: moving from c72f0f2fcb07c5a8550ea7ad7cf98e93cafc5d27 to main
+[33mc72f0f2[m HEAD@{60}: commit: update hide/show password
+[33mf383bc0[m HEAD@{61}: reset: moving to origin/main
+[33me7369fe[m HEAD@{62}: commit: Merge: menyelesaikan konflik
+[33m7e22be7[m HEAD@{63}: checkout: moving from main to 7e22be7
+[33mcd5525d[m HEAD@{64}: reset: moving to HEAD
+[33mcd5525d[m HEAD@{65}: reset: moving to cd5525d
+[33mf383bc0[m HEAD@{66}: pull origin main: Fast-forward
+[33md9e49dd[m HEAD@{67}: reset: moving to HEAD
+[33md9e49dd[m HEAD@{68}: commit: update ui masterdata
+[33mcd5525d[m HEAD@{69}: commit (merge): update landing page
+[33m365ad43[m HEAD@{70}: commit: update landing page
+[33m7036477[m HEAD@{71}: reset: moving to origin/main

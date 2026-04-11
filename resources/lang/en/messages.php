@@ -90,6 +90,7 @@ return [
     'sign_in' => 'Sign In',
     'email_label' => 'Email',
     'password_label' => 'Password',
+    'password_placeholder' => 'Password',
     'remember_me' => 'Remember Me',
     'forgot_password' => 'Forgot Password?',
     'no_account' => 'Don\'t have an account?',
@@ -118,5 +119,6 @@ return [
     // Navbar & Button
     'login' => 'Login',
     'processing' => 'Processing',
+    'error_occurred' => 'An error occurred',
 
 ];
