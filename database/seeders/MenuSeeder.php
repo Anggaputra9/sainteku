@@ -67,6 +67,7 @@ class MenuSeeder extends Seeder
 
             ['id' => 11, 'menu_name' => 'Repository Dokumen', 'menu_link' => 'DocumentRepository.index', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 2, 'is_active' => 1],
             ['id' => 12, 'menu_name' => 'Dashboard Dokumen', 'menu_link' => 'DocumentRepository.dashboard.index', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 13, 'menu_name' => 'Review Dokumen', 'menu_link' => 'DocumentRepository.review.index', 'menu_icon' => null, 'parent_id' => 10, 'module_id' => 1, 'order_no' => 3, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -87,23 +88,23 @@ class MenuSeeder extends Seeder
             ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => 'monevakademik.tashih.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 1, 'is_active' => 1],
             ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => 'monevakademik.banksoal.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 2, 'is_active' => 1],
             // END UPDATE
-            ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 3, 'is_active' => 1],
-            ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 4, 'is_active' => 1],
+            // ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 3, 'is_active' => 1],
+            // ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 4, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
             | 4. MANAJEMEN EVENT
             |--------------------------------------------------------------------------
             */
-            [
-                'id' => 30,
-                'menu_name' => 'Manajemen Event',
-                'menu_link' => '#',
-                'menu_icon' => 'fa-solid fa-calendar-days',
-                'parent_id' => null,
-                'order_no' => 4,
-                'is_active' => 1,
-            ],
+            // [
+            //     'id' => 30,
+            //     'menu_name' => 'Manajemen Event',
+            //     'menu_link' => '#',
+            //     'menu_icon' => 'fa-solid fa-calendar-days',
+            //     'parent_id' => null,
+            //     'order_no' => 4,
+            //     'is_active' => 1,
+            // ],
 
             /*
             |--------------------------------------------------------------------------
@@ -130,15 +131,15 @@ class MenuSeeder extends Seeder
             | 6. PENGADUAN MAHASISWA
             |--------------------------------------------------------------------------
             */
-            [
-                'id' => 50,
-                'menu_name' => 'Pengaduan Mahasiswa',
-                'menu_link' => '#',
-                'menu_icon' => 'fa-solid fa-bullhorn',
-                'parent_id' => null,
-                'order_no' => 6,
-                'is_active' => 1,
-            ],
+            // [
+            //     'id' => 50,
+            //     'menu_name' => 'Pengaduan Mahasiswa',
+            //     'menu_link' => '#',
+            //     'menu_icon' => 'fa-solid fa-bullhorn',
+            //     'parent_id' => null,
+            //     'order_no' => 6,
+            //     'is_active' => 1,
+            // ],
 
             /*
             |--------------------------------------------------------------------------
@@ -164,37 +165,37 @@ class MenuSeeder extends Seeder
             | 8. PENJAMINAN MUTU AKADEMIK
             |--------------------------------------------------------------------------
             */
-            [
-                'id' => 70,
-                'menu_name' => 'Penjaminan Mutu Akademik',
-                'menu_link' => '#',
-                'menu_icon' => 'fa-solid fa-school',
-                'parent_id' => null,
-                'module_id' => 4,
-                'order_no' => 8,
-                'is_active' => 1,
-            ],
+            // [
+            //     'id' => 70,
+            //     'menu_name' => 'Penjaminan Mutu Akademik',
+            //     'menu_link' => '#',
+            //     'menu_icon' => 'fa-solid fa-school',
+            //     'parent_id' => null,
+            //     'module_id' => 4,
+            //     'order_no' => 8,
+            //     'is_active' => 1,
+            // ],
 
             /*
             |--------------------------------------------------------------------------
             | 9. PELAPORAN
             |--------------------------------------------------------------------------
             */
-            [
-                'id' => 80,
-                'menu_name' => 'Pelaporan',
-                'menu_link' => null,
-                'menu_icon' => 'fa-solid fa-flag',
-                'parent_id' => null,
-                'order_no' => 9,
-                'is_active' => 1,
-            ],
+            // [
+            //     'id' => 80,
+            //     'menu_name' => 'Pelaporan',
+            //     'menu_link' => null,
+            //     'menu_icon' => 'fa-solid fa-flag',
+            //     'parent_id' => null,
+            //     'order_no' => 9,
+            //     'is_active' => 1,
+            // ],
 
-            ['id' => 81, 'menu_name' => 'Status Review Soal', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 82, 'menu_name' => 'Status Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 2, 'is_active' => 1],
-            ['id' => 83, 'menu_name' => 'Dokumen Expired', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 3, 'is_active' => 1],
-            ['id' => 84, 'menu_name' => 'Statistik Achievement', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 4, 'is_active' => 1],
-            ['id' => 85, 'menu_name' => 'Trend Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 5, 'is_active' => 1],
+            // ['id' => 81, 'menu_name' => 'Status Review Soal', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 1, 'is_active' => 1],
+            // ['id' => 82, 'menu_name' => 'Status Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 2, 'is_active' => 1],
+            // ['id' => 83, 'menu_name' => 'Dokumen Expired', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 3, 'is_active' => 1],
+            // ['id' => 84, 'menu_name' => 'Statistik Achievement', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 4, 'is_active' => 1],
+            // ['id' => 85, 'menu_name' => 'Trend Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 80, 'order_no' => 5, 'is_active' => 1],
         ];
 
         foreach ($menus as $menu) {

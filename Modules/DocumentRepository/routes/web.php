@@ -9,18 +9,21 @@ use Modules\DocumentRepository\app\Http\Controllers\DocumentRepositoryController
 |--------------------------------------------------------------------------
 */
 
-// UBAH: prefix biarkan kecil, tetapi 'name' diubah menjadi DocumentRepository. (dengan D dan R besar)
-Route::middleware(['web', 'auth'])
-    ->prefix('documentrepository')
-    ->name('DocumentRepository.') // <-- Bagian ini yang saya ubah
-    ->group(function () {
-        Route::get('/', [DocumentRepositoryController::class, 'index'])->name('index');
-        // Route::get('/create', [DocumentRepositoryController::class, 'create'])->name('create');
-        Route::post('/', [DocumentRepositoryController::class, 'store'])->name('store');
-        Route::get('/{id}/download', [DocumentRepositoryController::class, 'download'])->name('download');
+Route::prefix('documentrepository')->middleware(['web', 'auth'])->group(function () {
+    
+    // 1. Route Dashboard Statistik
+    Route::get('/dashboard', [DocumentRepositoryController::class, 'dashboard'])->name('DocumentRepository.dashboard.index');
+    
+    // 2. Route Utama (Daftar & Unggah Dokumen)
+    Route::get('/', [DocumentRepositoryController::class, 'index'])->name('DocumentRepository.index');
+    Route::post('/store', [DocumentRepositoryController::class, 'store'])->name('DocumentRepository.store');
+    Route::get('/download/{id}', [DocumentRepositoryController::class, 'download'])->name('DocumentRepository.download');
 
-            // Route untuk dashboard khusus Document Repository
-        Route::get('/dashboard', [DocumentRepositoryController::class, 'dashboard'])->name('dashboard.index');
-        Route::post('/{id}/review', [DocumentRepositoryController::class, 'review'])->name('review');
-        Route::post('/{id}/revise', [DocumentRepositoryController::class, 'revise'])->name('revise');
+    // 3. Route Tabel Reviewer (Persetujuan)
+    Route::get('/review', [DocumentRepositoryController::class, 'reviewIndex'])->name('DocumentRepository.review.index');
+
+    // 4. Route Aksi Review & Revisi
+    Route::post('/{id}/review', [DocumentRepositoryController::class, 'review'])->name('DocumentRepository.review');
+    Route::post('/{id}/revise', [DocumentRepositoryController::class, 'revise'])->name('DocumentRepository.revise');
+
 });
