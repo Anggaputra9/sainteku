@@ -124,6 +124,8 @@ class MenuSeeder extends Seeder
             ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 1, 'is_active' => 1],
             ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 2, 'is_active' => 1],
             ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 44, 'menu_name' => 'Approval Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 4, 'is_active' => 1],
+            ['id' => 45, 'menu_name' => 'Approval Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 5, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
