@@ -19,7 +19,7 @@ return new class extends Migration {
 
             // Foreign Keys
             $table->foreign('course_id')->references('id')->on('mst_course')->onDelete('restrict');
-            $table->foreign('cpmk_id')->references('id')->on('mst_cpmk')->onDelete('restrict');
+            // $table->foreign('cpmk_id')->references('id')->on('mst_cpmk')->onDelete('restrict');
             $table->foreign('created_by')->references('id')->on('mst_user')->onDelete('restrict');
         });
     }
