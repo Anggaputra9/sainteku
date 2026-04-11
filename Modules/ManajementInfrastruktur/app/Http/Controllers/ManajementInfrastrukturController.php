@@ -9,11 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ManajementInfrastrukturController extends Controller
 {
+    private $moduleId = 6;
+
     // =========================================================================
     // 1. DASHBOARD
     // =========================================================================
    public function index()
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
         // 1. Ambil data statistik untuk Widget/Card
         $totalBarang = DB::table('mst_inventory')->where('status', 1)->count();
         $totalPending = DB::table('trx_inventory_loans')->where('status', 0)->count();
@@ -44,6 +50,10 @@ class ManajementInfrastrukturController extends Controller
     // =========================================================================
     public function pengajuanIndex(Request $request)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'C')) {
+            abort(403, 'Unauthorized');
+        }
+
         $user = Auth::user();
         
         // 1. Tangkap status filter dari URL (default: 'all')
@@ -80,6 +90,10 @@ class ManajementInfrastrukturController extends Controller
 
     public function pengajuanStore(Request $request)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'C')) {
+            abort(403, 'Unauthorized');
+        }
+
         $request->validate([
             'inventory_id' => 'required',
             'quantity'     => 'required|integer|min:1',
@@ -112,6 +126,10 @@ class ManajementInfrastrukturController extends Controller
     // =========================================================================
     public function persetujuanIndex(Request $request)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'A')) {
+            abort(403, 'Unauthorized');
+        }
+
         // 1. Tangkap status filter dari URL (Default: 'pending' agar admin langsung fokus ke yang butuh ACC)
         $filterStatus = $request->query('status', 'pending');
 
@@ -140,6 +158,10 @@ class ManajementInfrastrukturController extends Controller
 
     public function persetujuanUpdate(Request $request, $id)
     {
+        if (!Auth::user()->hasPermission($this->moduleId, 'A')) {
+            abort(403, 'Unauthorized');
+        }
+
         // Status: 1=Setuju, 2=Tolak, 3=Selesai/Dikembalikan
         $request->validate([
             'status'     => 'required|in:1,2,3', 
