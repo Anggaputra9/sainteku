@@ -98,4 +98,4 @@
     </div>
 </div>
 
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/ecommerce/monthly-target.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\sainteku\resources\views/components/ecommerce/monthly-target.blade.php ENDPATH**/ ?>

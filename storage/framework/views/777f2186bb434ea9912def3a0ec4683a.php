@@ -134,4 +134,4 @@ window.addEventListener('resize', checkMobile);">
 <?php echo $__env->yieldPushContent('scripts'); ?>
 
 </html>
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/layouts/fullscreen-layout.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\sainteku\resources\views/layouts/fullscreen-layout.blade.php ENDPATH**/ ?>

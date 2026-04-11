@@ -72,4 +72,4 @@
     </div>
 </div>
 
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/ecommerce/statistics-chart.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\sainteku\resources\views/components/ecommerce/statistics-chart.blade.php ENDPATH**/ ?>

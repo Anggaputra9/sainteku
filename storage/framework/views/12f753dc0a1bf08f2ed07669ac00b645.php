@@ -104,4 +104,4 @@
         </span>
       </div>
     </div>
-  </div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/ecommerce/ecommerce-metrics.blade.php ENDPATH**/ ?>
+  </div><?php /**PATH C:\laragon\www\sainteku\resources\views/components/ecommerce/ecommerce-metrics.blade.php ENDPATH**/ ?>

@@ -164,4 +164,4 @@ unset($__defined_vars, $__key, $__value); ?>
             </tbody>
         </table>
     </div>
-</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/ecommerce/recent-orders.blade.php ENDPATH**/ ?>
+</div><?php /**PATH C:\laragon\www\sainteku\resources\views/components/ecommerce/recent-orders.blade.php ENDPATH**/ ?>
