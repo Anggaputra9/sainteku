@@ -7,6 +7,7 @@ use Modules\MasterData\Http\Controllers\AdminController;
 use Modules\MasterData\Http\Controllers\CurriculaController;
 use Modules\MasterData\Http\Controllers\CategoriesController;
 use Modules\MasterData\app\Http\Controllers\InfrastructureController;
+use Modules\MasterData\app\Http\Controllers\CourseController;
 
 // =========================================================================
 // 🛡️ GEMBOK BRUTAL: Panggil class middleware lengkap langsung di sini
@@ -51,4 +52,11 @@ Route::middleware([
 
     // Infrastructure management
     Route::resource('infrastructures', InfrastructureController::class);
+
+    // BENAR: API ditaruh di ATAS Route::resource
+    Route::get('courses/api/prodis', [CourseController::class, 'getProdi'])->name('courses.api.prodis');
+    Route::get('courses/api/data', [CourseController::class, 'getCoursesData'])->name('courses.api.data');
+
+    // Route Resource ditaruh di BAWAH API
+    Route::resource('courses', CourseController::class);
 });

@@ -1,5 +1,5 @@
 <?php $__env->startSection('content'); ?>
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" x-data="bankSoalApp()" x-cloak>
+    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" x-data="bankSoalApp()" x-init="init()" x-cloak>
         <div class="space-y-6">
             
             <div
@@ -216,9 +216,11 @@
                 async fetchFaculties() {
                     try {
                         const res = await fetch(`<?php echo e(url('monev-akademik/tashih/api/units')); ?>`);
+                        if (!res.ok) throw new Error(`Fakultas API error: ${res.status}`);
                         this.facultiesList = await res.json();
                     } catch (error) {
                         console.error('Error fetching faculties:', error);
+                        this.facultiesList = [];
                     }
                 },
 
@@ -227,13 +229,18 @@
                     this.filterProdi = '';
                     this.prodisList = [];
 
-                    if (!this.filterFakultas) return;
+                    if (!this.filterFakultas) {
+                        this.prodisList = [];
+                        return;
+                    }
 
                     try {
                         const res = await fetch(`<?php echo e(url('monev-akademik/tashih/api/units')); ?>?faculty_id=${this.filterFakultas}`);
+                        if (!res.ok) throw new Error(`Prodi API error: ${res.status}`);
                         this.prodisList = await res.json();
                     } catch (error) {
                         console.error('Error fetching prodis:', error);
+                        this.prodisList = [];
                     }
                 },
 
@@ -242,16 +249,18 @@
                     this.isLoading = true;
                     this.coursesList = [];
 
-                    let url = new URL(`<?php echo e(url('monev-akademik/tashih/api/approved-courses')); ?>`);
+                    const url = new URL(`<?php echo e(url('monev-akademik/tashih/api/approved-courses')); ?>`);
                     if (this.filterFakultas) url.searchParams.append('faculty_id', this.filterFakultas);
                     if (this.filterProdi) url.searchParams.append('prodi_id', this.filterProdi);
                     if (this.searchCourseQuery.trim()) url.searchParams.append('search', this.searchCourseQuery.trim());
 
                     try {
                         const res = await fetch(url);
+                        if (!res.ok) throw new Error(`Approved courses API error: ${res.status}`);
                         this.coursesList = await res.json();
                     } catch (error) {
                         console.error('Error fetching courses:', error);
+                        this.coursesList = [];
                     } finally {
                         this.isLoading = false;
                     }

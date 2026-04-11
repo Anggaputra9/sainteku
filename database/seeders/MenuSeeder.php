@@ -48,6 +48,7 @@ class MenuSeeder extends Seeder
             // ['id' => 6, 'menu_name' => 'Data Kurikulum', 'menu_link' => 'masterdata.curricula.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 7, 'is_active' => 1],
             // ['id' => 7, 'menu_name' => 'Data Kategori Berkas', 'menu_link' => 'masterdata.categories.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
             ['id' => 8, 'menu_name' => 'Data Infrastruktur', 'menu_link' => 'masterdata.infrastructures.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 5, 'is_active' => 1],
+            ['id' => 9, 'menu_name' => 'Data Mata Kuliah', 'menu_link' => 'masterdata.courses.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
