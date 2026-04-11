@@ -51,4 +51,8 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
     Route::get('tashih/api/units', [BankSoalController::class, 'getUnits']);
     Route::get('tashih/api/approved-courses', [BankSoalController::class, 'getApprovedCourses']);
     Route::get('tashih/api/bank-soal/{course_id}', [BankSoalController::class, 'getApiQuestions']);
+    // Ganti yang lama jadi ini (pastiin pake getApiQuestions)
+    // Route::get('/bank-soal/api/questions/{course_id}', [BankSoalController::class, 'getApiQuestions']);
+    // API buat narik daftar Paket Soal (Proposal) yang udah di-ACC
+    Route::get('/bank-soal/api/proposals/{course_id}', [BankSoalController::class, 'getApprovedProposals']);
 });
