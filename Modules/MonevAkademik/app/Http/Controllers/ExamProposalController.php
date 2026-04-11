@@ -18,24 +18,19 @@ use Illuminate\Support\Facades\Storage;
 class ExamProposalController extends Controller
 {
     private $moduleId = 3;
+
     public function index()
     {
         $user = Auth::user();
         $periods = DB::table('mst_period')->orderBy('name', 'desc')->get();
-        // Ambil matkul sesuai unit dosen
         $myCourses = MstCourse::where('unit_id', $user->unit_id)->get();
-
-        // Pilihan CPMK untuk form
         $cpmkList = MstCpmk::where('is_active', '1')->get();
 
-        // Load semua relasi biar JSON-nya komplit buat Alpine SPA
         $myProposals = ExamProposal::with(['course', 'creator', 'examQuestions.question', 'reviews.reviewer', 'logs.user'])
             ->where('created_by', $user->id)
             ->latest()
             ->get();
 
-        // CEK MULTI-ROLE DINAMIS TANPA HARDCODE
-        // Pastikan 'role_name' disesuaikan kalau di tabelmu namanya 'name' atau pakai 'role_id'
         $isReviewer = $user->roles()->whereIn('role_name', [
             'Kaprodi',
             'Reviewer Internal',
@@ -70,7 +65,7 @@ class ExamProposalController extends Controller
             'period_id' => 'required',
             'questions' => 'required|array',
             'questions.*.question_text' => 'required',
-            'questions.*.cpmk_id' => 'required|array', // Validasi Array
+            'questions.*.cpmk_id' => 'required|array', // Validasi Array sudah benar
             'questions.*.weight' => 'required|numeric',
         ]);
 
@@ -96,7 +91,7 @@ class ExamProposalController extends Controller
 
                 $question = Question::create([
                     'course_id' => $request->course_id,
-                    'cpmk_id' => $q['cpmk_id'], // Otomatis jadi JSON karena casting
+                    'cpmk_id' => $q['cpmk_id'], // Otomatis jadi JSON karena model casts array
                     'question_text' => $q['question_text'],
                     'image_path' => $imagePath,
                     'created_by' => Auth::id(),
@@ -105,7 +100,7 @@ class ExamProposalController extends Controller
                 ExamQuestion::create([
                     'proposal_id' => $proposal->id,
                     'question_id' => $question->id,
-                    'order_no' => $loop->iteration ?? 1, // Atau pake counter
+                    'order_no' => $loop->iteration ?? 1,
                     'weight' => $q['weight'],
                 ]);
             }
@@ -120,7 +115,6 @@ class ExamProposalController extends Controller
 
     public function storeComment(Request $request)
     {
-        // Langsung panggil ExamQuestionLog karena udah di-import di atas
         $log = ExamQuestionLog::create([
             'proposal_id' => $request->proposal_id,
             'order_no' => $request->order_no,
@@ -157,6 +151,7 @@ class ExamProposalController extends Controller
             'exam_type' => 'required|in:UTS,UAS',
             'period_id' => 'required',
             'questions' => 'required|array',
+            'questions.*.cpmk_id' => 'required|array', // TAMBAHAN: Biar ga error pas update
             'questions.*.image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -172,7 +167,6 @@ class ExamProposalController extends Controller
                 return redirect()->route('monevakademik.tashih.index')->with('error', 'Anda tidak memiliki hak akses untuk mengedit pengajuan ini.');
             }
 
-            // 1. Ambil data soal yang LAMA untuk komparasi & ambil path gambar lama
             $oldQuestions = ExamQuestion::with('question')
                 ->where('proposal_id', $proposal->id)
                 ->get()
@@ -180,16 +174,26 @@ class ExamProposalController extends Controller
 
             $orderCounter = 1;
 
-            // 2. Looping data soal BARU untuk Logging
             foreach ($request->questions as $key => $q) {
                 $oldEq = $oldQuestions->get($orderCounter);
 
                 if ($oldEq) {
                     $changes = [];
-                    if ($oldEq->question->question_text != $q['question_text'])
+                    if ($oldEq->question->question_text != $q['question_text']) {
                         $changes[] = "Teks pertanyaan diperbarui";
-                    if ($oldEq->weight != $q['weight'])
+                    }
+                    if ($oldEq->weight != $q['weight']) {
                         $changes[] = "Bobot diubah";
+                    }
+
+                    // Cek perubahan array CPMK
+                    $oldCpmk = is_array($oldEq->question->cpmk_id) ? $oldEq->question->cpmk_id : (json_decode($oldEq->question->cpmk_id, true) ?? []);
+                    $newCpmk = $q['cpmk_id'];
+                    sort($oldCpmk);
+                    sort($newCpmk);
+                    if ($oldCpmk !== $newCpmk) {
+                        $changes[] = "Target CPMK diubah";
+                    }
 
                     if ($request->hasFile("questions.{$key}.image")) {
                         $changes[] = "Gambar ilustrasi diperbarui";
@@ -216,14 +220,12 @@ class ExamProposalController extends Controller
                 $orderCounter++;
             }
 
-            // 3. Update Status Proposal
             $proposal->update([
                 'exam_type' => $request->exam_type,
                 'period_id' => $request->period_id,
                 'status' => 'SUBMITTED',
             ]);
 
-            // 4. Re-Insert Soal (Hapus link lama, buat Question baru)
             ExamQuestion::where('proposal_id', $proposal->id)->delete();
 
             $reinsertCounter = 1;
@@ -231,16 +233,16 @@ class ExamProposalController extends Controller
                 $oldEq = $oldQuestions->get($reinsertCounter);
                 $imagePath = $oldEq ? $oldEq->question->image_path : null;
 
-                // Jika ada upload gambar baru, simpan yang baru & hapus yang lama (opsional)
                 if ($request->hasFile("questions.{$key}.image")) {
-                    if ($imagePath)
+                    if ($imagePath) {
                         Storage::disk('public')->delete($imagePath);
+                    }
                     $imagePath = $request->file("questions.{$key}.image")->store('soal_images', 'public');
                 }
 
                 $question = Question::create([
                     'course_id' => $proposal->course_id,
-                    'cpmk_id' => $q['cpmk_id'],
+                    'cpmk_id' => $q['cpmk_id'], // Tetap array, model handle JSON
                     'question_text' => $q['question_text'],
                     'image_path' => $imagePath,
                     'created_by' => Auth::id(),
@@ -276,32 +278,18 @@ class ExamProposalController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Ambil relasi ExamQuestion beserta Question-nya untuk ngecek path gambar
             $examQuestions = ExamQuestion::with('question')->where('proposal_id', $proposal->id)->get();
 
-            // 2. Looping untuk menghapus file fisik gambar di Storage
             foreach ($examQuestions as $eq) {
                 if ($eq->question && $eq->question->image_path) {
-                    // Cek apakah filenya beneran ada di disk 'public' biar ga error pas mau dihapus
                     if (Storage::disk('public')->exists($eq->question->image_path)) {
                         Storage::disk('public')->delete($eq->question->image_path);
                     }
-
-                    /* * CATATAN PENTING:
-                     * Kalo soal ini dibikin khusus buat pengajuan ini aja (bukan dari Bank Soal), 
-                     * kamu bisa hapus data tabel 'questions'-nya sekalian biar db ga kotor:
-                     * * $eq->question->delete(); 
-                     * * TAPI kalau sistemnya ngambil dari Bank Soal (dipakai rame-rame), 
-                     * JANGAN di-delete data 'question'-nya, cukup file image atau pivotnya aja.
-                     */
                 }
             }
 
-            // 3. Hapus relasi Pivot & Review
             \Modules\MonevAkademik\App\Models\ExamReview::where('proposal_id', $proposal->id)->delete();
             ExamQuestion::where('proposal_id', $proposal->id)->delete();
-
-            // 4. Hapus Dokumen Utama
             $proposal->delete();
 
             DB::commit();
@@ -331,9 +319,6 @@ class ExamProposalController extends Controller
             return back()->with('error', 'Soal belum disetujui, tidak dapat dicetak!');
         }
 
-        // ==============================================================
-        // BYPASS PRODI: Tembak Langsung ke DB (Jaminan 100% Anti Error)
-        // ==============================================================
         $unitName = '-';
         if ($proposal->course && $proposal->course->unit_id) {
             $unit = \Illuminate\Support\Facades\DB::table('mst_unit')
@@ -344,14 +329,12 @@ class ExamProposalController extends Controller
             }
         }
 
-        // Ambil Review Terakhir
         $approval = \Modules\MonevAkademik\App\Models\ExamReview::where('proposal_id', $proposal->id)
             ->latest()
             ->first();
 
         $kaprodi = $approval ? \App\Models\User::find($approval->reviewer_id) : null;
 
-        // Path Logo UIN
         $logoPath = public_path('assets/images/uin.png');
         $logoBase64 = '';
         if (file_exists($logoPath)) {
@@ -363,7 +346,6 @@ class ExamProposalController extends Controller
             'isRemoteEnabled' => true,
             'isHtml5ParserEnabled' => true
         ])
-            // PASSING VARIABEL $unitName KE VIEW
             ->loadView('monevakademik::tashih.print', compact('proposal', 'kaprodi', 'logoBase64', 'unitName'))
             ->setPaper('a4', 'portrait');
 

@@ -388,9 +388,9 @@
 
                     let existingQuestions = questions.map(eq => ({
                         text: eq.question ? eq.question.question_text : '',
-                        cpmk: eq.question ? eq.question.cpmk_id : '',
+                        cpmk: eq.question ? eq.question.cpmk_id : [], // <-- Pastiin ini array defaultnya ya!
                         weight: eq.weight,
-                        image_path: eq.question ? eq.question.image_path : '' // TARIK GAMBARNYA!
+                        image_path: eq.question ? eq.question.image_path : ''
                     }));
 
                     this.openCreate = true;

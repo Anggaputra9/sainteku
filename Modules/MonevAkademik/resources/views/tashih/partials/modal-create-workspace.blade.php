@@ -86,7 +86,6 @@
 
                     {{-- Area Aksi Tambah Soal (Hanya Bank Soal) --}}
                     <div id="action-buttons-container" class="mt-4 flex justify-center" style="display: none;">
-                        {{-- TOMBOL INI YANG DIBENERIN --}}
                         <button type="button" @click="openBankSoalModal()"
                             class="inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-indigo-200 border-dashed px-8 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition w-full sm:w-1/2 shadow-sm dark:bg-gray-800 dark:border-indigo-800/50 dark:text-indigo-400 dark:hover:bg-gray-700">
                             <i class="fas fa-search"></i> Cari dari Bank Soal
@@ -110,7 +109,9 @@
 
 <script>
     let autoAddTimer = null;
-    const cpmkOptions = `@foreach($cpmkList as $cpmk) <option value="{{ $cpmk->id }}">{{ $cpmk->id }} - {{ $cpmk->name }}</option> @endforeach`;
+
+    // GANTI KE JSON BIAR BISA DI-LOOP BIKIN CHECKBOX
+    const cpmkDataList = @json($cpmkList);
 
     function initCreateModal(cId, existingData = null) {
         activeCourseId = cId;
@@ -133,10 +134,19 @@
         }
     }
 
-    function addQuestionCard(data = { text: '', weight: '', cpmk: '', image_path: '' }) {
+    function addQuestionCard(data = { text: '', weight: '', cpmk: [], image_path: '' }) {
         const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
-        // LAYOUT DIPERBARUI: CPMK dan Bobot bertumpuk di kiri, Gambar di kanan.
+        // Generate Checkbox HTML dari variabel cpmkDataList
+        let checkboxesHtml = cpmkDataList.map(cpmk => `
+            <label class="flex items-center p-2 rounded hover:bg-gray-100 cursor-pointer transition-colors dark:hover:bg-gray-800">
+                <input type="checkbox" name="questions[${uniqueId}][cpmk_id][]" value="${cpmk.id}" 
+                    onchange="validateFormStates(); saveDraft()" 
+                    class="q-cpmk-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800">
+                <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300 select-none">${cpmk.id} - ${cpmk.name}</span>
+            </label>
+        `).join('');
+
         const html = `
             <div class="rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 dark:border-gray-700 dark:bg-gray-800 overflow-hidden question-card group" id="q-card-${uniqueId}">
                 <div class="bg-slate-50/80 border-b border-gray-100 px-5 sm:px-6 py-3 flex justify-between items-center dark:bg-gray-800/80 dark:border-gray-700">
@@ -151,23 +161,24 @@
                 
                 <div class="p-5 sm:p-6">
                     <div class="flex flex-col gap-6">
-                        {{-- Teks Pertanyaan (Atas, Lebar Penuh) --}}
+                        {{-- Teks Pertanyaan --}}
                         <div>
                             <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pertanyaan</label>
                             <textarea name="questions[${uniqueId}][question_text]" rows="4" oninput="validateFormStates(); saveDraft()" class="q-text w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
                         </div>
 
-                        {{-- Layout Dua Kolom: Kiri (CPMK & Bobot tumpuk) | Kanan (Gambar) --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start border-t border-gray-100 pt-5 dark:border-gray-700">
                             
                             {{-- Kiri: CPMK & Bobot --}}
                             <div class="flex flex-col gap-5">
                                 <div>
-                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">CPMK</label>
-                                    <select name="questions[${uniqueId}][cpmk_id]" onchange="validateFormStates(); saveDraft()" class="q-cpmk w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all dark:border-gray-600 dark:bg-gray-900 dark:text-white" required>
-                                        <option value="">-- Pilih --</option>
-                                        ${cpmkOptions}
-                                    </select>
+                                    <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Multi CPMK</label>
+                                    
+                                    {{-- CONTAINER CHECKBOX --}}
+                                    <div class="space-y-1 max-h-36 overflow-y-auto custom-scrollbar p-2 border border-gray-300 rounded-lg bg-gray-50/50 dark:bg-gray-900 dark:border-gray-600">
+                                        ${checkboxesHtml}
+                                    </div>
+                                    <p class="text-[10px] text-red-500 mt-1.5 font-medium hidden error-cpmk" id="err-cpmk-${uniqueId}">* Pilih minimal 1 CPMK</p>
                                 </div>
                                 <div>
                                     <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bobot (%)</label>
@@ -208,10 +219,17 @@
         `;
         document.getElementById('questions-container').insertAdjacentHTML('beforeend', html);
 
+        // LOGIKA CENTANG CHECKBOX OTOMATIS (Edit Mode / Import Bank Soal)
         if (data.cpmk) {
             setTimeout(() => {
-                const select = document.querySelector(`#q-card-${uniqueId} .q-cpmk`);
-                if (select) select.value = data.cpmk;
+                let cpmkVals = Array.isArray(data.cpmk) ? data.cpmk : [data.cpmk];
+                const checkboxes = document.querySelectorAll(`#q-card-${uniqueId} .q-cpmk-checkbox`);
+
+                checkboxes.forEach(cb => {
+                    if (cpmkVals.includes(cb.value) || cpmkVals.includes(Number(cb.value))) {
+                        cb.checked = true;
+                    }
+                });
                 validateFormStates();
             }, 50);
         }
@@ -266,44 +284,58 @@
 
     function validateFormStates() {
         let total = 0;
-        let isLastCardFilled = true;
+        let isAllCardsFilled = true;
         let cards = document.querySelectorAll('.question-card');
 
         // Hitung total awal
         document.querySelectorAll('.q-weight').forEach(input => { total += Number(input.value) || 0; });
 
-        // LOGIKA BARU: Hapus card terakhir jika nilainya kosong dan total dari card sebelumnya sudah >= 100
         if (total >= 100) {
             let cardsArr = Array.from(cards);
-            // Loop dari belakang, tapi sisakan index 0 agar form tidak sepenuhnya hilang
             for (let i = cardsArr.length - 1; i > 0; i--) {
                 let card = cardsArr[i];
                 let text = card.querySelector('.q-text').value.trim();
                 let weight = card.querySelector('.q-weight').value;
 
-                // Jika soal dan bobot kosong, hapus card tersebut
                 if (!text && !weight) {
                     card.remove();
                 } else {
-                    // Begitu ketemu card yang ada isinya, stop looping
                     break;
                 }
             }
 
-            // Re-select cards & hitung ulang total untuk akurasi setelah penghapusan
             cards = document.querySelectorAll('.question-card');
             total = 0;
             document.querySelectorAll('.q-weight').forEach(input => { total += Number(input.value) || 0; });
             updateQuestionNumbers();
         }
 
-        // Cek apakah card paling bawah sudah terisi
+        // CEK SEMUA CARD APAKAH SUDAH TERISI PENUH
+        cards.forEach(card => {
+            const text = card.querySelector('.q-text').value.trim();
+            const weight = card.querySelector('.q-weight').value;
+            const checkedCpmks = card.querySelectorAll('.q-cpmk-checkbox:checked');
+
+            // Validasi Error Message untuk CPMK per card
+            const errCpmk = card.querySelector('.error-cpmk');
+            if (checkedCpmks.length === 0) {
+                isAllCardsFilled = false;
+                if (errCpmk) errCpmk.classList.remove('hidden');
+            } else {
+                if (errCpmk) errCpmk.classList.add('hidden');
+            }
+
+            if (!text || !weight) isAllCardsFilled = false;
+        });
+
+        // Ambil info card paling terakhir buat auto-add
+        let isLastCardFilled = false;
         if (cards.length > 0) {
             const lastCard = cards[cards.length - 1];
             const text = lastCard.querySelector('.q-text').value.trim();
-            const cpmk = lastCard.querySelector('.q-cpmk').value;
             const weight = lastCard.querySelector('.q-weight').value;
-            if (!text || !cpmk || !weight) isLastCardFilled = false;
+            const hasCpmk = lastCard.querySelectorAll('.q-cpmk-checkbox:checked').length > 0;
+            if (text && weight && hasCpmk) isLastCardFilled = true;
         }
 
         const badge = document.getElementById('weight-badge');
@@ -313,7 +345,8 @@
 
         clearTimeout(autoAddTimer);
 
-        if (total === 100) {
+        // SYARAT BISA SUBMIT: Total 100 DAN semua card wajib terisi (Termasuk min 1 CPMK per card)
+        if (total === 100 && isAllCardsFilled) {
             badge.className = 'inline-flex items-center rounded-full bg-green-100 border border-green-200 px-3 py-1 text-[11px] sm:text-xs font-bold text-green-800 transition-all duration-300 whitespace-nowrap shadow-sm';
             btnSubmit.disabled = false;
             actionContainer.style.display = 'none';
@@ -326,6 +359,7 @@
             btnSubmit.disabled = true;
             actionContainer.style.display = 'flex';
 
+            // Auto add logic berjalan kalau card terakhir udah diisi, tapi total < 100
             if (isLastCardFilled && total < 100) {
                 autoAddTimer = setTimeout(() => {
                     let recheckTotal = 0;
@@ -348,7 +382,18 @@
 
         let draftData = [];
         document.querySelectorAll('.question-card').forEach(card => {
-            draftData.push({ text: card.querySelector('.q-text').value, cpmk: card.querySelector('.q-cpmk').value, weight: card.querySelector('.q-weight').value });
+            // TARIK ARRAY DARI CHECKBOX YANG DICENTANG
+            let cpmkValues = [];
+            const checkboxes = card.querySelectorAll('.q-cpmk-checkbox:checked');
+            checkboxes.forEach(cb => {
+                cpmkValues.push(cb.value);
+            });
+
+            draftData.push({
+                text: card.querySelector('.q-text').value,
+                cpmk: cpmkValues,
+                weight: card.querySelector('.q-weight').value
+            });
         });
         localStorage.setItem(storageKey, JSON.stringify(draftData));
     }

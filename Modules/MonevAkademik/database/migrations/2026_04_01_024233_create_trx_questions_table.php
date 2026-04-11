@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('course_id', 5);
-            $table->string('cpmk_id', 5);
+            $table->json('cpmk_id');
             $table->text('question_text');
             $table->string('image_path')->nullable();
             $table->string('created_by', 50);
