@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Menu;
+use App\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {

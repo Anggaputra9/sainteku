@@ -18,6 +18,7 @@
     "dependencies": {
         "alpinejs": "^3.15.8",
         "axios": "^1.13.6",
-        "prismjs": "^1.30.0"
+        "prismjs": "^1.30.0",
+        "signature_pad": "^5.1.3"
     }
 }

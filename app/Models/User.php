@@ -17,17 +17,6 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-    // Relasi dengan Role
-    public function roles()
-    {
-        return $this->belongsToMany(
-            Role::class,
-            'trx_user_role',
-            'user_id',
-            'role_id'
-        );
-    }
-
     // Konfigurasi tabel
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
@@ -48,31 +37,76 @@ class User extends Authenticatable
         'is_active',
         'remember_token',
         'last_login_at',
+        'phone_number',
+        // KOLOM BARU
+        'avatar',
+        'bio',
+        'address',
+        'gender',
+        'birth_date',
     ];
 
     // Kolom yang disembunyikan saat serialisasi
     protected $hidden = [
-        'password', 
-        'remember_token', // SEBAIKNYA INI JUGA DISEMBUNYIKAN
+        'password',
+        'remember_token',
     ];
 
-    // Casting tipe data
-    protected function casts(): array
+    // ==================================================
+    // RELASI
+    // ==================================================
+
+    /**
+     * Relasi dengan Role (many-to-many)
+     */
+    public function roles()
     {
-        return [
-            'password' => 'hashed',
-            'is_active' => 'boolean', // TAMBAHKAN INI
-            'last_login_at' => 'datetime', // TAMBAHKAN INI
-        ];
+        return $this->belongsToMany(
+            Role::class,
+            'trx_user_role',
+            'user_id',
+            'role_id'
+        );
     }
 
-    // TAMBAHKAN METHOD INI UNTUK FITUR RESET PASSWORD
+    /**
+     * Relasi dengan Achievement Mahasiswa (dari tabel trx_achievements)
+     */
+    public function achievements()
+    {
+        return $this->hasMany(
+            \Modules\ManajemenAchievement\Models\Achievement::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    /**
+     * Relasi dengan Achievement Dosen (dari tabel dosen_achievements)
+     */
+    public function dosenAchievements()
+    {
+        return $this->hasMany(
+            \Modules\ManajemenAchievement\Models\DosenAchievement::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    // ==================================================
+    // METHOD
+    // ==================================================
+
+    /**
+     * Method untuk reset password (override dari Authenticatable)
+     */
     public function sendPasswordResetNotification($token)
     {
         // Ini akan dipanggil oleh Laravel saat reset password
         // Tapi kita tidak pakai karena pakai custom implementation
         // Bisa dikosongkan saja
     }
+<<<<<<< Updated upstream
 
     /**
      * Cek apakah user memiliki permission tertentu pada suatu modul
@@ -98,5 +132,15 @@ class User extends Authenticatable
     public function courses()
     {
         return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
+=======
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
+            'birth_date' => 'date',  // ✅ TAMBAHKAN INI
+        ];
+>>>>>>> Stashed changes
     }
 }

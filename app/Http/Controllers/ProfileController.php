@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -24,15 +26,40 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . $user->getTable() . ',email,' . $user->id],
+            'phone_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
+            'signature' => ['nullable', 'string', 'max:100000'], // ✅ Base64 signature
+            'signature_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // ✅ Upload file signature
+        ]);
+
+        // ✅ Upload signature file (jika user upload file)
+        if ($request->hasFile('signature_file')) {
+            $file = $request->file('signature_file');
+            $fileData = base64_encode(file_get_contents($file));
+            $mimeType = $file->getMimeType();
+            $user->signature = 'data:' . $mimeType . ';base64,' . $fileData;
+        }
+        // ✅ Jika user membuat signature via canvas (sudah berupa base64)
+        elseif ($request->filled('signature')) {
+            $user->signature = $validated['signature'];
         }
 
-        $request->user()->save();
+        // Update data
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->phone_number = $validated['phone_number'] ?? $user->phone_number;
+
+        if ($user->email !== $validated['email']) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
