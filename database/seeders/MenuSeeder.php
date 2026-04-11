@@ -45,8 +45,8 @@ class MenuSeeder extends Seeder
             ['id' => 3, 'menu_name' => 'Data Pengguna (User)', 'menu_link' => 'masterdata.admin.users.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 2, 'is_active' => 1],
             ['id' => 4, 'menu_name' => 'Data Role / Akses', 'menu_link' => 'masterdata.roles.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 3, 'is_active' => 1],
             ['id' => 5, 'menu_name' => 'Data Unit / Prodi', 'menu_link' => 'masterdata.units.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 4, 'is_active' => 1],
-            ['id' => 6, 'menu_name' => 'Data Kurikulum', 'menu_link' => 'masterdata.curricula.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 7, 'is_active' => 1],
-            ['id' => 7, 'menu_name' => 'Data Kategori Berkas', 'menu_link' => 'masterdata.categories.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
+            // ['id' => 6, 'menu_name' => 'Data Kurikulum', 'menu_link' => 'masterdata.curricula.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 7, 'is_active' => 1],
+            // ['id' => 7, 'menu_name' => 'Data Kategori Berkas', 'menu_link' => 'masterdata.categories.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
             ['id' => 8, 'menu_name' => 'Data Infrastruktur', 'menu_link' => 'masterdata.infrastructures.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 5, 'is_active' => 1],
 
             /*

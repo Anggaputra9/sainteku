@@ -176,4 +176,7 @@
         </div> 
     </div>
 <?php $__env->stopSection(); ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/ManajementInfrastruktur\resources/views/pengajuan/index.blade.php ENDPATH**/ ?>
