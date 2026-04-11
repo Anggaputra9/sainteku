@@ -8,7 +8,15 @@ use Modules\MasterData\Http\Controllers\CurriculaController;
 use Modules\MasterData\Http\Controllers\CategoriesController;
 use Modules\MasterData\app\Http\Controllers\InfrastructureController;
 
-Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(function () {
+// =========================================================================
+// 🛡️ GEMBOK BRUTAL: Panggil class middleware lengkap langsung di sini
+// =========================================================================
+Route::middleware([
+    'web',
+    'auth',
+    \App\Http\Middleware\RoleMiddleware::class . ':ADM|Administrator'
+])->prefix('masterdata')->name('masterdata.')->group(function () {
+
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
     Route::resource('masterdatas', MasterDataController::class);
 
@@ -28,15 +36,17 @@ Route::middleware(['auth'])->prefix('masterdata')->name('masterdata.')->group(fu
     Route::get('categories', [CategoriesController::class, 'index'])->name('categories.index');
 
     // Admin UI: manage users 
-    Route::middleware('role:1')->group(function () {
-        Route::get('admin/users', [AdminController::class, 'index'])->name('admin.users.index');
-        Route::post('admin/users/{id}/role', [AdminController::class, 'assignRole'])->name('admin.users.assign');
+    // (Middleware role:1 dihapus karena grup luar udah khusus Admin)
+    Route::prefix('admin')->group(function () {
+        Route::get('users', [AdminController::class, 'index'])->name('admin.users.index');
+        Route::post('users/{id}/role', [AdminController::class, 'assignRole'])->name('admin.users.assign');
+
         // User CRUD
-        Route::get('admin/users/create', [AdminController::class, 'create'])->name('admin.users.create');
-        Route::post('admin/users', [AdminController::class, 'store'])->name('admin.users.store');
-        Route::get('admin/users/{id}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
-        Route::put('admin/users/{id}', [AdminController::class, 'update'])->name('admin.users.update');
-        Route::delete('admin/users/{id}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
+        Route::get('users/create', [AdminController::class, 'create'])->name('admin.users.create');
+        Route::post('users', [AdminController::class, 'store'])->name('admin.users.store');
+        Route::get('users/{id}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
+        Route::put('users/{id}', [AdminController::class, 'update'])->name('admin.users.update');
+        Route::delete('users/{id}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
     });
 
     // Infrastructure management

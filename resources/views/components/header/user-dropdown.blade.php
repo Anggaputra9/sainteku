@@ -55,7 +55,7 @@
         </a>
 
         {{-- Menu Tetapan --}}
-        <a href="#"
+        <!-- <a href="#"
             class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -63,7 +63,7 @@
                 <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             Settings
-        </a>
+        </a> -->
 
         <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
 

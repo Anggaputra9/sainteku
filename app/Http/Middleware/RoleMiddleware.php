@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next, string $role = null)
     {
         // 1. Pastikan user udah login
@@ -27,17 +24,26 @@ class RoleMiddleware
             ->toArray();
 
         // =========================================================
+        // 🛡️ PENJAGAAN KHUSUS UNTUK URL MASTER DATA 🛡️
+        // =========================================================
+        // Sesuaikan parameter is() dengan prefix URL master data lu
+        if ($request->is('masterdata*') || $request->is('*/masterdata*')) {
+            if (!in_array('ADM', $userRoles) && !in_array('Administrator', $userRoles)) {
+                abort(403, 'Akses Ditolak: Halaman Master Data hanya untuk Administrator.');
+            }
+        }
+
+        // =========================================================
         // 🌟 JALUR VIP: BYPASS UNTUK ADMIN 🌟
         // =========================================================
-        // Kalau user punya role 'ADM', langsung bukain pintu!
-        if (in_array('ADM', $userRoles)) {
+        // Kalau user punya role 'ADM' atau 'Administrator', langsung bukain pintu!
+        if (in_array('ADM', $userRoles) || in_array('Administrator', $userRoles)) {
             return $next($request);
         }
 
         // 3. Pengecekan normal untuk rakyat jelata (Non-Admin)
         if ($role) {
             $allowedRoles = explode('|', $role);
-
             $hasAccess = count(array_intersect($userRoles, $allowedRoles)) > 0;
 
             if (!$hasAccess) {
