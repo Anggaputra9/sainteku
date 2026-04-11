@@ -10,6 +10,7 @@ use Modules\MonevAkademik\App\Models\ExamProposal;
 use Modules\MonevAkademik\App\Models\ExamReview;
 use App\Models\User;
 use Modules\MonevAkademik\App\Models\ExamQuestionLog;
+use App\Services\NotifService;
 
 class ExamReviewController extends Controller
 {
@@ -51,6 +52,15 @@ class ExamReviewController extends Controller
             }
 
             DB::commit();
+            NotifService::sendToUser($proposal->created_by, [
+                'action' => 'memberikan catatan revisi pada soal',
+                'item_name' => $proposal->exam_type . ' (' . ($proposal->course->course_name ?? 'Matkul') . ')',
+                'type' => 'Revisi',
+                'url' => route('monevakademik.tashih.index'),
+                'reference_id' => $proposal->uuid,
+                'click_action' => 'open_tashih_modal',
+                'status' => 'offline' // Bikin titik merah di UI
+            ]);
             return redirect()->back()->with('success', 'Pengajuan dikembalikan ke dosen beserta catatan revisi.');
 
         } catch (\Exception $e) {
@@ -91,6 +101,15 @@ class ExamReviewController extends Controller
             ]);
 
             DB::commit();
+            NotifService::sendToUser($proposal->created_by, [
+                'action' => 'telah menyetujui pengajuan soal',
+                'item_name' => $proposal->exam_type . ' (' . ($proposal->course->course_name ?? 'Matkul') . ')',
+                'type' => 'Disetujui',
+                'url' => route('monevakademik.tashih.index'),
+                'reference_id' => $proposal->uuid,
+                'click_action' => 'open_tashih_modal',
+                'status' => 'online' // Bikin titik hijau di UI
+            ]);
             return redirect()->route('monevakademik.tashih.index')
                 ->with('success', 'Pengajuan ujian berhasil disetujui!');
 

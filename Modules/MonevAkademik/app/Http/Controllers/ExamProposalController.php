@@ -14,6 +14,7 @@ use App\Models\MstCpmk;
 use App\Models\Period;
 use Modules\MonevAkademik\App\Models\ExamQuestionLog;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotifService;
 
 class ExamProposalController extends Controller
 {
@@ -112,6 +113,19 @@ class ExamProposalController extends Controller
             }
 
             DB::commit();
+            NotifService::sendToApprovers(
+                'RVW_SL', // Kode Modul Review Soal
+                'A',      // Kode Permission Approve
+                Auth::user()->unit_id,
+                [
+                    'action' => 'mengajukan review untuk soal',
+                    'item_name' => $proposal->exam_type . ' (' . ($proposal->course->course_name ?? 'Matkul') . ')',
+                    'type' => 'Tashih Soal',
+                    'url' => route('monevakademik.tashih.index'),
+                    'reference_id' => $proposal->uuid,
+                    'click_action' => 'open_tashih_modal'
+                ]
+            );
             return redirect()->route('monevakademik.tashih.index')->with('success', 'Berhasil dikirim!');
         } catch (\Exception $e) {
             DB::rollBack();

@@ -11,6 +11,7 @@ use Modules\DocumentRepository\app\Models\Document;
 use Modules\DocumentRepository\app\Models\DocumentVersion;
 use Modules\DocumentRepository\app\Models\DocumentType;
 use Modules\MasterData\app\Models\Unit;
+use App\Services\NotifService;
 
 
 class DocumentRepositoryController extends Controller
@@ -23,9 +24,15 @@ class DocumentRepositoryController extends Controller
         }
 
         $filterStatus = $request->query('status', 'all');
-        $query = Document::with(['type', 'unit', 'creator', 'workflowStatus', 'versions' => function ($q) {
-            $q->orderBy('version', 'desc');
-        }]);
+        $query = Document::with([
+            'type',
+            'unit',
+            'creator',
+            'workflowStatus',
+            'versions' => function ($q) {
+                $q->orderBy('version', 'desc');
+            }
+        ]);
 
         if ($filterStatus === 'pending') {
             $query->whereIn('status', [1, 2]);
@@ -49,12 +56,12 @@ class DocumentRepositoryController extends Controller
         }
 
         $request->validate([
-            'document_title'   => 'required|string|max:255',
+            'document_title' => 'required|string|max:255',
             'document_type_id' => 'required|string|exists:ref_document_type,id',
-            'unit_id'          => 'required|string|exists:mst_unit,id',
-            'document_file'    => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'effective_date'   => 'nullable|date',
-            'expired_date'     => 'nullable|date|after_or_equal:effective_date',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'document_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
+            'effective_date' => 'nullable|date',
+            'expired_date' => 'nullable|date|after_or_equal:effective_date',
         ]);
 
         DB::beginTransaction();
@@ -69,29 +76,42 @@ class DocumentRepositoryController extends Controller
             $documentId = 'DC' . date('y') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $document = Document::create([
-                'document_id'      => $documentId,
-                'document_title'   => $request->document_title,
+                'document_id' => $documentId,
+                'document_title' => $request->document_title,
                 'document_type_id' => $request->document_type_id,
-                'unit_id'          => $request->unit_id,
-                'version'          => 1,
-                'file_path'        => $filePath,
-                'status'           => 1,
-                'effective_date'   => $request->effective_date,
-                'expired_date'     => $request->expired_date,
-                'created_by'       => auth()->id(),
-                'created_at'       => now(),
+                'unit_id' => $request->unit_id,
+                'version' => 1,
+                'file_path' => $filePath,
+                'status' => 1,
+                'effective_date' => $request->effective_date,
+                'expired_date' => $request->expired_date,
+                'created_by' => auth()->id(),
+                'created_at' => now(),
             ]);
 
             DocumentVersion::create([
-                'document_id'   => $document->id,
-                'version'       => 1,
-                'file_path'     => $filePath,
-                'change_note'   => 'Dokumen baru diunggah ke sistem',
-                'approved_by'   => auth()->id(),
+                'document_id' => $document->id,
+                'version' => 1,
+                'file_path' => $filePath,
+                'change_note' => 'Dokumen baru diunggah ke sistem',
+                'approved_by' => auth()->id(),
                 'approved_date' => now(),
             ]);
 
             DB::commit();
+            
+            // 1. Definisikan isi pesan notifikasinya
+            $dataNotif = [
+                'action' => 'telah mengunggah dokumen baru untuk divalidasi',
+                'item_name' => $document->document_title,
+                'type' => 'Repositori Dokumen',
+                'url' => route('DocumentRepository.index'),
+                'reference_id' => $document->id, // Lempar ID dokumennya biar gampang dicari
+                'click_action' => 'redirect' // Ganti jadi 'open_modal_dokumen' kalau lu pake modal juga
+            ];
+
+            // 2. Tembak notif ke orang yang punya hak 'V' (Validasi) di modul DOC_REP
+            NotifService::sendToApprovers('DOC_REP', 'V', Auth::user()->unit_id, $dataNotif);
             return redirect()->route('DocumentRepository.index')->with('success', 'Dokumen diunggah dengan kode ' . $documentId);
         } catch (\Exception $e) {
             DB::rollBack();
