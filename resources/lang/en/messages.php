@@ -115,6 +115,7 @@ return [
 
     'enter_credentials' => 'Enter your email and password',
     'password_hint' => 'Password: password',
+    'quote' => 'To become an excellent, innovative, and globally competitive Faculty of Science and Technology in the development of science and technology based on the integration of scientific knowledge and Islamic values by 2045.',
 
     // Navbar & Button
     'login' => 'Login',

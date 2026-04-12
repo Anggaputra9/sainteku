@@ -115,6 +115,7 @@ return [
 
     'enter_credentials' => 'Masukkan email dan password Anda',
     'password_hint' => 'Kata Sandi: password',
+    'quote' => 'Menjadi Fakultas Sains dan Teknologi yang unggul, inovatif, dan berdaya saing global dalam pengembangan ilmu pengetahuan dan teknologi berbasis integrasi keilmuan dan nilai-nilai keislaman pada tahun 2045.',
 
     // Navbar & Button
     'login' => 'Masuk',

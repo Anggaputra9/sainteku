@@ -3,22 +3,38 @@
 namespace Modules\ManajemenAchievement\app\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;  // ✅ TAMBAHKAN INI
+use App\Models\User;
 use Illuminate\Http\Request;
 use Modules\ManajemenAchievement\Models\DosenAchievement;
 use Modules\ManajemenAchievement\Models\DosenKategori;
 use Modules\ManajemenAchievement\Models\DosenTingkat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Services\WhatsappService;  // ✅ PASTIKAN INI, BUKAN TRAIT!
+use App\Services\WhatsappService;
 
 class DosenController extends Controller
 {
+    /**
+     * Cek akses: hanya admin unit atau admin super
+     */
+    private function checkAccess()
+    {
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
+        $isAdminUnit = $user->roles()->where('role_code', 'OPS')->exists();
+
+        if (!$isAdminUnit && !$isAdmin) {
+            abort(403, 'Unauthorized access. Hanya admin yang dapat mengakses halaman ini.');
+        }
+    }
+
     /**
      * Display a listing of all dosen achievements
      */
     public function index(Request $request)
     {
+        $this->checkAccess();
+
         $query = DosenAchievement::with(['user', 'kategori', 'tingkat']);
 
         // Filter by status
@@ -47,6 +63,8 @@ class DosenController extends Controller
      */
     public function pending(Request $request)
     {
+        $this->checkAccess();
+
         $query = DosenAchievement::with(['user', 'kategori', 'tingkat'])
             ->where('status', 'pending');
 
@@ -71,6 +89,8 @@ class DosenController extends Controller
      */
     public function show($id)
     {
+        $this->checkAccess();
+
         $achievement = DosenAchievement::with(['user', 'kategori', 'tingkat', 'approver'])
             ->findOrFail($id);
 
@@ -82,6 +102,8 @@ class DosenController extends Controller
      */
     public function approve(Request $request, $id)
     {
+        $this->checkAccess();
+
         $achievement = DosenAchievement::findOrFail($id);
 
         $achievement->status = 'approved';
@@ -101,9 +123,13 @@ class DosenController extends Controller
             ->with('success', 'Prestasi dosen berhasil disetujui');
     }
 
-
+    /**
+     * Reject dosen achievement
+     */
     public function reject(Request $request, $id)
     {
+        $this->checkAccess();
+
         $request->validate([
             'rejection_note' => 'required|string|min:10'
         ]);
@@ -133,5 +159,4 @@ class DosenController extends Controller
         return redirect()->route('admin.dosen.pending')
             ->with('success', 'Prestasi dosen ditolak');
     }
-    
 }

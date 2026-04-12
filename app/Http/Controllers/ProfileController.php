@@ -34,19 +34,28 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:' . $user->getTable() . ',email,' . $user->id],
             'phone_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\-\s]+$/'],
-            'signature' => ['nullable', 'string', 'max:100000'], // ✅ Base64 signature
-            'signature_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'], // ✅ Upload file signature
+            'signature' => ['nullable', 'string', 'max:100000'],
+            'signature_file' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
-        // ✅ Upload signature file (jika user upload file)
+        // Upload avatar
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::delete('public/avatars/' . $user->avatar);
+            }
+            $avatarName = time() . '.' . $request->avatar->extension();
+            $request->avatar->storeAs('public/avatars', $avatarName);
+            $user->avatar = $avatarName;
+        }
+
+        // Upload signature
         if ($request->hasFile('signature_file')) {
             $file = $request->file('signature_file');
             $fileData = base64_encode(file_get_contents($file));
             $mimeType = $file->getMimeType();
             $user->signature = 'data:' . $mimeType . ';base64,' . $fileData;
-        }
-        // ✅ Jika user membuat signature via canvas (sudah berupa base64)
-        elseif ($request->filled('signature')) {
+        } elseif ($request->filled('signature')) {
             $user->signature = $validated['signature'];
         }
 
@@ -63,7 +72,6 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
-
     /**
      * Delete the user's account.
      */

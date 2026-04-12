@@ -3,7 +3,7 @@
         @csrf
         @method('patch')
 
-        {{-- Name --}}
+        {{-- Nama Lengkap --}}
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nama Lengkap <span class="text-red-500">*</span>
@@ -38,7 +38,7 @@
             @enderror
         </div>
 
-        {{-- Phone Number --}}
+        {{-- Nomor WhatsApp --}}
         <div>
             <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nomor WhatsApp
@@ -63,73 +63,27 @@
                 Tanda Tangan Digital
             </label>
 
-            {{-- Pilihan Upload atau Canvas --}}
-            <div class="flex gap-2 mb-3">
-                <button type="button"
-                    id="tabUploadBtn"
-                    class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white transition">
-                    <i class="fas fa-upload"></i> Upload File
-                </button>
-                <button type="button"
-                    id="tabCanvasBtn"
-                    class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300">
-                    <i class="fas fa-pen"></i> Buat Canvas
-                </button>
-            </div>
+            {{-- Tombol buka modal --}}
+            <button type="button"
+                id="openSignatureModal"
+                class="inline-flex items-center gap-2 rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition">
+                <i class="fas fa-pen"></i>
+                Buat Tanda Tangan
+            </button>
 
-            {{-- Panel Upload File --}}
-            <div id="uploadPanel" class="space-y-3">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
-                    <input type="file"
-                        id="signatureFile"
-                        name="signature_file"
-                        accept="image/jpeg,image/png,image/jpg"
-                        class="hidden">
-                    <button type="button"
-                        id="triggerFileUpload"
-                        class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700">
-                        <i class="fas fa-cloud-upload-alt text-2xl"></i>
-                        <span>Klik untuk upload file (JPG/PNG)</span>
-                    </button>
-                    <p class="text-xs text-gray-500 mt-2">Maksimal 2MB. Disarankan gambar dengan background putih.</p>
-                </div>
-                <div id="uploadPreview" class="hidden p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <p class="text-xs text-gray-500 mb-2">Preview gambar:</p>
-                    <img id="uploadPreviewImg" src="" alt="Signature Preview" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
-                </div>
-            </div>
-
-            {{-- Panel Canvas (hidden by default) --}}
-            <div id="canvasPanel" class="hidden space-y-3">
-                <div class="border border-gray-300 rounded-lg p-3 bg-white">
-                    <canvas id="signatureCanvas"
-                        width="400"
-                        height="150"
-                        style="width: 100%; height: auto; border-radius: 4px; background: white;"></canvas>
-                </div>
-                <div class="flex gap-2">
-                    <button type="button"
-                        id="clearSignatureBtn"
-                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-                        <i class="fas fa-eraser"></i> Hapus Canvas
-                    </button>
-                    <button type="button"
-                        id="saveCanvasBtn"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-save"></i> Simpan Canvas
-                    </button>
-                </div>
-            </div>
-
-            {{-- Hidden input untuk menyimpan signature (base64) --}}
+            {{-- Hidden input untuk menyimpan signature --}}
             <input type="hidden" name="signature" id="signatureData" value="{{ old('signature', $user->signature) }}">
 
-            {{-- Preview signature yang sudah disimpan --}}
+            {{-- Preview signature --}}
             <div id="signaturePreview" class="mt-3">
                 @if($user->signature)
                 <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p class="text-xs text-gray-500 mb-2">Tanda tangan tersimpan:</p>
-                    <img src="{{ $user->signature }}" alt="Signature" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                    <img src="{{ $user->signature }}" alt="Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                @else
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+                    <p class="text-xs text-gray-400 italic">Belum ada tanda tangan. Klik "Buat Tanda Tangan"</p>
                 </div>
                 @endif
             </div>
@@ -142,7 +96,7 @@
             @enderror
         </div>
 
-        {{-- Submit Button --}}
+        {{-- Tombol Simpan --}}
         <div class="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button type="submit"
                 class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
@@ -159,37 +113,140 @@
     </form>
 </div>
 
+{{-- MODAL TANDA TANGAN --}}
+<div id="signatureModal"
+    class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/50 backdrop-blur-sm"
+    style="display: none;">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4">
+        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                <i class="fas fa-pen mr-2"></i>
+                Tanda Tangan Digital
+            </h3>
+            <button type="button" id="closeSignatureModal" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            {{-- Pilihan Upload atau Canvas --}}
+            <div class="flex gap-2 mb-4">
+                <button type="button"
+                    id="modalTabUploadBtn"
+                    class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white transition">
+                    <i class="fas fa-upload"></i> Upload File
+                </button>
+                <button type="button"
+                    id="modalTabCanvasBtn"
+                    class="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
+                    <i class="fas fa-pen"></i> Buat Canvas
+                </button>
+            </div>
+
+            {{-- Panel Upload File --}}
+            <div id="modalUploadPanel" class="space-y-3">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+                    <input type="file"
+                        id="modalSignatureFile"
+                        accept="image/jpeg,image/png,image/jpg"
+                        class="hidden">
+                    <button type="button"
+                        id="modalTriggerFileUpload"
+                        class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700">
+                        <i class="fas fa-cloud-upload-alt text-2xl"></i>
+                        <span>Klik untuk upload file (JPG/PNG)</span>
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2">Maksimal 2MB. Disarankan gambar dengan background putih.</p>
+                </div>
+                <div id="modalUploadPreview" class="hidden p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <p class="text-xs text-gray-500 mb-2">Preview gambar:</p>
+                    <img id="modalUploadPreviewImg" src="" alt="Preview Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+
+            {{-- Panel Canvas --}}
+            <div id="modalCanvasPanel" class="hidden space-y-3">
+                <div class="border border-gray-300 rounded-lg p-3 bg-white">
+                    <canvas id="modalSignatureCanvas"
+                        width="400"
+                        height="150"
+                        style="width: 100%; height: auto; border-radius: 4px; background: white;"></canvas>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button"
+                        id="modalClearCanvasBtn"
+                        class="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+                        <i class="fas fa-eraser"></i> Hapus
+                    </button>
+                    <button type="button"
+                        id="modalSaveCanvasBtn"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // DOM Elements
-        const tabUpload = document.getElementById('tabUploadBtn');
-        const tabCanvas = document.getElementById('tabCanvasBtn');
-        const uploadPanel = document.getElementById('uploadPanel');
-        const canvasPanel = document.getElementById('canvasPanel');
-        const signatureFile = document.getElementById('signatureFile');
-        const triggerFileUpload = document.getElementById('triggerFileUpload');
-        const uploadPreview = document.getElementById('uploadPreview');
-        const uploadPreviewImg = document.getElementById('uploadPreviewImg');
-        const canvas = document.getElementById('signatureCanvas');
-        const clearBtn = document.getElementById('clearSignatureBtn');
-        const saveCanvasBtn = document.getElementById('saveCanvasBtn');
+        // Modal elements
+        const modal = document.getElementById('signatureModal');
+        const openBtn = document.getElementById('openSignatureModal');
+        const closeBtn = document.getElementById('closeSignatureModal');
+
+        // Tab elements
+        const tabUpload = document.getElementById('modalTabUploadBtn');
+        const tabCanvas = document.getElementById('modalTabCanvasBtn');
+        const uploadPanel = document.getElementById('modalUploadPanel');
+        const canvasPanel = document.getElementById('modalCanvasPanel');
+
+        // Upload elements
+        const signatureFile = document.getElementById('modalSignatureFile');
+        const triggerUpload = document.getElementById('modalTriggerFileUpload');
+        const uploadPreview = document.getElementById('modalUploadPreview');
+        const uploadPreviewImg = document.getElementById('modalUploadPreviewImg');
+
+        // Canvas elements
+        const canvas = document.getElementById('modalSignatureCanvas');
+        const clearCanvas = document.getElementById('modalClearCanvasBtn');
+        const saveCanvas = document.getElementById('modalSaveCanvasBtn');
+
+        // Hidden input & preview
         const signatureInput = document.getElementById('signatureData');
         const signaturePreview = document.getElementById('signaturePreview');
 
         let signaturePad = null;
 
-        // Toggle Tabs
+        // Buka modal
+        openBtn.addEventListener('click', function() {
+            modal.style.display = 'flex';
+        });
+
+        // Tutup modal
+        function closeModal() {
+            modal.style.display = 'none';
+            if (signaturePad) signaturePad.clear();
+        }
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+
+        // Tab Upload
         tabUpload.addEventListener('click', function() {
             tabUpload.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white transition';
-            tabCanvas.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300';
+            tabCanvas.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition';
             uploadPanel.classList.remove('hidden');
             canvasPanel.classList.add('hidden');
         });
 
+        // Tab Canvas
         tabCanvas.addEventListener('click', function() {
             tabCanvas.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white transition';
-            tabUpload.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300';
+            tabUpload.className = 'flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition';
             canvasPanel.classList.remove('hidden');
             uploadPanel.classList.add('hidden');
 
@@ -209,8 +266,8 @@
             }
         });
 
-        // Upload file signature
-        triggerFileUpload.addEventListener('click', function() {
+        // Upload file
+        triggerUpload.addEventListener('click', function() {
             signatureFile.click();
         });
 
@@ -239,22 +296,23 @@
                 signaturePreview.innerHTML = `
                 <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p class="text-xs text-gray-500 mb-2">Tanda tangan tersimpan:</p>
-                    <img src="${dataURL}" alt="Signature" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                    <img src="${dataURL}" alt="Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
             `;
 
-                alert('Gambar berhasil diupload! Jangan lupa klik "Simpan Perubahan" di bawah.');
+                alert('Tanda tangan berhasil disimpan!');
+                closeModal();
             };
             reader.readAsDataURL(file);
         });
 
-        // Clear canvas signature
-        clearBtn.addEventListener('click', function() {
+        // Hapus canvas
+        clearCanvas.addEventListener('click', function() {
             if (signaturePad) signaturePad.clear();
         });
 
-        // Save canvas signature
-        saveCanvasBtn.addEventListener('click', function() {
+        // Simpan canvas
+        saveCanvas.addEventListener('click', function() {
             if (!signaturePad) return;
 
             if (signaturePad.isEmpty()) {
@@ -268,23 +326,15 @@
             signaturePreview.innerHTML = `
             <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <p class="text-xs text-gray-500 mb-2">Tanda tangan tersimpan:</p>
-                <img src="${dataURL}" alt="Signature" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                <img src="${dataURL}" alt="Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
         `;
 
-            alert('Tanda tangan berhasil disimpan! Jangan lupa klik "Simpan Perubahan" di bawah.');
+            alert('Tanda tangan berhasil disimpan!');
+            closeModal();
         });
 
-        const existingSignature = signatureInput.value;
-        if (existingSignature && !signaturePreview.innerHTML.includes('Tanda tangan tersimpan')) {
-            signaturePreview.innerHTML = `
-            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p class="text-xs text-gray-500 mb-2">Tanda tangan tersimpan:</p>
-                <img src="${existingSignature}" alt="Signature" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
-        `;
-        }
-
+        // Set default tab
         tabUpload.click();
     });
 </script>

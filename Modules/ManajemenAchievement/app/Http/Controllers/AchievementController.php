@@ -13,10 +13,26 @@ use Illuminate\Support\Facades\Storage;
 class AchievementController extends Controller
 {
     /**
+     * Cek akses: hanya mahasiswa atau admin super
+     */
+    private function checkAccess()
+    {
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
+        $isMahasiswa = ($user->user_type == 'MHS' || $user->roles()->where('role_code', 'MHS')->exists());
+
+        if (!$isMahasiswa && !$isAdmin) {
+            abort(403, 'Unauthorized access. Anda tidak memiliki izin untuk mengakses halaman ini.');
+        }
+    }
+
+    /**
      * Menampilkan daftar prestasi mahasiswa
      */
     public function index(Request $request)
     {
+        $this->checkAccess();
+
         $user = Auth::user();
 
         $query = Achievement::with(['type', 'level'])
@@ -36,6 +52,8 @@ class AchievementController extends Controller
 
     public function create()
     {
+        $this->checkAccess();
+
         $types = AchievementType::where('is_active', '1')->get();
         $levels = AchievementLevel::where('is_active', '1')->get();
 
@@ -44,6 +62,8 @@ class AchievementController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkAccess();
+
         $request->validate([
             'achievement_type_id' => 'required|exists:mst_achievement_type,id',
             'achievement_level_id' => 'required|exists:mst_achievement_level,id',
@@ -89,6 +109,8 @@ class AchievementController extends Controller
 
     public function show($id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::with(['user', 'type', 'level'])
             ->where('id', $id)
             ->where('user_id', Auth::user()->id)
@@ -99,6 +121,8 @@ class AchievementController extends Controller
 
     public function edit($id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->where('status', 'pending')
@@ -112,6 +136,8 @@ class AchievementController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->where('status', 'pending')
@@ -136,6 +162,8 @@ class AchievementController extends Controller
 
     public function destroy($id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->firstOrFail();
@@ -152,6 +180,8 @@ class AchievementController extends Controller
 
     public function download($id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::findOrFail($id);
 
         if (!Storage::exists($achievement->file_path)) {

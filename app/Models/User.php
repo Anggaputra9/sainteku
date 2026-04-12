@@ -11,29 +11,12 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-
-    // Relasi dengan Role
-    public function roles()
-    {
-        return $this->belongsToMany(
-            Role::class,
-            'trx_user_role',
-            'user_id',
-            'role_id'
-        );
-    }
-
     // Konfigurasi tabel
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false; // Karena tabel tidak punya created_at/updated_at
+    public $timestamps = false;
 
     // Kolom yang bisa diisi (mass assignable)
     protected $fillable = [
@@ -48,12 +31,13 @@ class User extends Authenticatable
         'is_active',
         'remember_token',
         'last_login_at',
+        'phone_number',
     ];
 
     // Kolom yang disembunyikan saat serialisasi
     protected $hidden = [
-        'password', 
-        'remember_token', // SEBAIKNYA INI JUGA DISEMBUNYIKAN
+        'password',
+        'remember_token',
     ];
 
     // Casting tipe data
@@ -61,18 +45,63 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'is_active' => 'boolean', // TAMBAHKAN INI
-            'last_login_at' => 'datetime', // TAMBAHKAN INI
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
     }
 
-    // TAMBAHKAN METHOD INI UNTUK FITUR RESET PASSWORD
-    public function sendPasswordResetNotification($token)
+    // ==================================================
+    // RELASI
+    // ==================================================
+
+    /**
+     * Relasi dengan Role (many-to-many)
+     */
+    public function roles()
     {
-        // Ini akan dipanggil oleh Laravel saat reset password
-        // Tapi kita tidak pakai karena pakai custom implementation
-        // Bisa dikosongkan saja
+        return $this->belongsToMany(
+            Role::class,
+            'trx_user_role',
+            'user_id',
+            'role_id'
+        );
     }
+
+    /**
+     * Relasi dengan Achievement Mahasiswa (dari tabel trx_achievements)
+     */
+    public function achievements()
+    {
+        return $this->hasMany(
+            \Modules\ManajemenAchievement\Models\Achievement::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    /**
+     * Relasi dengan Achievement Dosen (dari tabel dosen_achievements)
+     */
+    public function dosenAchievements()
+    {
+        return $this->hasMany(
+            \Modules\ManajemenAchievement\Models\DosenAchievement::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    /**
+     * Relasi dengan Course
+     */
+    public function courses()
+    {
+        return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
+    }
+
+    // ==================================================
+    // PERMISSION
+    // ==================================================
 
     /**
      * Cek apakah user memiliki permission tertentu pada suatu modul
@@ -80,7 +109,7 @@ class User extends Authenticatable
      */
     public function hasPermission($moduleId, $permissionCode)
     {
-        // Kalau Super Admin (misal code 'ADM'), langsung losin aja semua
+        // Kalau Super Admin (role_code 'ADM'), langsung return true
         if ($this->roles()->where('role_code', 'ADM')->exists()) {
             return true;
         }
@@ -95,8 +124,18 @@ class User extends Authenticatable
             ->where('rp.allowed', 1)
             ->exists();
     }
-    public function courses()
+
+    // ==================================================
+    // METHOD LAIN
+    // ==================================================
+
+    /**
+     * Method untuk reset password (override dari Authenticatable)
+     */
+    public function sendPasswordResetNotification($token)
     {
-        return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
+        // Ini akan dipanggil oleh Laravel saat reset password
+        // Tapi kita tidak pakai karena pakai custom implementation
+        // Bisa dikosongkan saja
     }
 }

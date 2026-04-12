@@ -35,11 +35,11 @@ class WhatsappService
 
             $response = Http::withHeaders([
                 'Authorization' => $this->apiKey
-            ])->withoutVerifying() // Untuk local development
+            ])->withoutVerifying()
                 ->post($this->baseUrl . '/send', [
                     'target' => $target,
                     'message' => $message,
-                    'countryCode' => '62', // Kode negara Indonesia
+                    'countryCode' => '62',
                 ]);
 
             if ($response->successful()) {
@@ -73,20 +73,28 @@ class WhatsappService
             return false;
         }
 
-        // Ambil judul dan tanggal sesuai tipe
+        // Ambil judul, tanggal, dan kategori sesuai tipe
         $judul = ($type == 'dosen') ? $achievement->judul : $achievement->title;
+        $kategori = ($type == 'dosen')
+            ? ($achievement->kategori->nama ?? 'Prestasi Dosen')
+            : ($achievement->type->description ?? 'Prestasi Mahasiswa');
 
         $tanggal = ($type == 'dosen')
             ? date('d/m/Y', strtotime($achievement->tanggal))
             : date('d/m/Y', strtotime($achievement->achievement_date));
 
-        $message = "🎉 *PRESTASI DISETUJUI*\n\n";
-        $message .= "Halo *{$user->name}*,\n";
-        $message .= "Prestasi Anda telah disetujui oleh admin.\n\n";
-        $message .= "📌 *Judul:* {$judul}\n";
-        $message .= "📅 *Tanggal:* {$tanggal}\n\n";
-        $message .= "Terima kasih telah berkontribusi.\n";
-        $message .= "- SaintekU";
+        $message = "✅ *PENGUMUMAN PRESTASI*\n\n";
+        $message .= "Yth. *{$user->name}*\n\n";
+        $message .= "Selamat! Prestasi Anda telah *DISETUJUI* oleh admin.\n\n";
+        $message .= "📋 *Detail Prestasi:*\n";
+        $message .= "──────────────────\n";
+        $message .= "🏆 *Judul:* {$judul}\n";
+        $message .= "📅 *Tanggal:* {$tanggal}\n";
+        $message .= "🏷️ *Kategori:* {$kategori}\n";
+        $message .= "──────────────────\n\n";
+        $message .= "💡 Prestasi Anda akan ditampilkan di portofolio.\n\n";
+        $message .= "_Terima kasih atas dedikasi Anda._\n";
+        $message .= "Sainteku";
 
         return $this->sendMessage($user->phone_number, $message);
     }
@@ -103,13 +111,18 @@ class WhatsappService
 
         $judul = ($type == 'dosen') ? $achievement->judul : $achievement->title;
 
-        $message = "⚠️ *PRESTASI DITOLAK*\n\n";
-        $message .= "Halo *{$user->name}*,\n";
-        $message .= "Mohon maaf, prestasi Anda ditolak.\n\n";
-        $message .= "📌 *Judul:* {$judul}\n";
-        $message .= "📝 *Catatan:* {$note}\n\n";
-        $message .= "Silakan perbaiki dan ajukan ulang.\n";
-        $message .= "- SaintekU";
+        $message = "⚠️ *PENGUMUMAN PRESTASI*\n\n";
+        $message .= "Yth. *{$user->name}*\n\n";
+        $message .= "Mohon maaf, prestasi Anda *DITOLAK* oleh admin.\n\n";
+        $message .= "📋 *Detail Prestasi:*\n";
+        $message .= "──────────────────\n";
+        $message .= "🏆 *Judul:* {$judul}\n";
+        $message .= "📝 *Catatan Penolakan:*\n";
+        $message .= "{$note}\n";
+        $message .= "──────────────────\n\n";
+        $message .= "📌 Silakan perbaiki sesuai catatan dan ajukan ulang.\n\n";
+        $message .= "_Terima kasih._\n";
+        $message .= "Sainteku";
 
         return $this->sendMessage($user->phone_number, $message);
     }

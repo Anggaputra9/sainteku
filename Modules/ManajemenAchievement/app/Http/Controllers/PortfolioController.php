@@ -7,6 +7,7 @@ use App\Models\User;
 use Modules\ManajemenAchievement\Models\Achievement;
 use Modules\ManajemenAchievement\Models\DosenAchievement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PortfolioController extends Controller
 {
@@ -44,6 +45,14 @@ class PortfolioController extends Controller
      */
     public function show($userId, Request $request)
     {
+        $currentUser = Auth::user();
+        $isAdmin = $currentUser->roles()->where('role_code', 'ADM')->exists();
+
+        // Cek akses: hanya admin atau user sendiri
+        if (!$isAdmin && $currentUser->id != $userId) {
+            abort(403, 'Anda hanya dapat melihat portofolio Anda sendiri.');
+        }
+
         $user = User::with([
             'achievements' => function ($q) {
                 $q->with(['type', 'level'])->where('status', 'approved');

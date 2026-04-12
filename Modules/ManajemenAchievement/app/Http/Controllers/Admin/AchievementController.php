@@ -5,8 +5,8 @@ namespace Modules\ManajemenAchievement\app\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\ManajemenAchievement\Models\Achievement;
-use Modules\ManajemenAchievement\app\Models\AchievementType;
-use Modules\ManajemenAchievement\app\Models\AchievementLevel;
+use Modules\ManajemenAchievement\Models\AchievementType;
+use Modules\ManajemenAchievement\Models\AchievementLevel;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Services\WhatsappService;
@@ -15,10 +15,26 @@ use Illuminate\Support\Facades\Log;
 class AchievementController extends Controller
 {
     /**
+     * Cek akses: hanya admin unit atau admin super
+     */
+    private function checkAccess()
+    {
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
+        $isAdminUnit = $user->roles()->where('role_code', 'OPS')->exists();
+
+        if (!$isAdminUnit && !$isAdmin) {
+            abort(403, 'Unauthorized access. Hanya admin yang dapat mengakses halaman ini.');
+        }
+    }
+
+    /**
      * Display a listing of all achievements (for admin)
      */
     public function index(Request $request)
     {
+        $this->checkAccess();
+
         $query = Achievement::with(['user', 'type', 'level']);
 
         // Filter by status
@@ -55,6 +71,8 @@ class AchievementController extends Controller
      */
     public function pending(Request $request)
     {
+        $this->checkAccess();
+
         $query = Achievement::with(['user', 'type', 'level'])
             ->where('status', 'pending');
 
@@ -79,6 +97,8 @@ class AchievementController extends Controller
      */
     public function show($id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::with(['user', 'type', 'level', 'approver'])
             ->findOrFail($id);
 
@@ -90,6 +110,8 @@ class AchievementController extends Controller
      */
     public function approve(Request $request, $id)
     {
+        $this->checkAccess();
+
         $achievement = Achievement::findOrFail($id);
 
         $achievement->status = 'approved';
@@ -108,11 +130,14 @@ class AchievementController extends Controller
         return redirect()->route('admin.achievements.pending')
             ->with('success', 'Prestasi berhasil disetujui');
     }
+
     /**
      * Reject achievement
      */
     public function reject(Request $request, $id)
     {
+        $this->checkAccess();
+
         $request->validate([
             'rejection_note' => 'required|string|min:10'
         ]);
@@ -127,7 +152,7 @@ class AchievementController extends Controller
 
         // ✅ KIRIM NOTIFIKASI WA
         try {
-            $whatsapp = new \App\Services\WhatsappService();
+            $whatsapp = new WhatsappService();
             $whatsapp->notifyRejected(
                 $achievement->user,
                 $achievement,
@@ -141,11 +166,14 @@ class AchievementController extends Controller
         return redirect()->route('admin.achievements.pending')
             ->with('success', 'Prestasi ditolak');
     }
+
     /**
      * Get achievement statistics
      */
     public function statistics()
     {
+        $this->checkAccess();
+
         $total = Achievement::count();
         $pending = Achievement::where('status', 'pending')->count();
         $approved = Achievement::where('status', 'approved')->count();

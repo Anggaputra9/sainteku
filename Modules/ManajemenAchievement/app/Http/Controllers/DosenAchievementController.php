@@ -12,8 +12,24 @@ use Illuminate\Support\Facades\Storage;
 
 class DosenAchievementController extends Controller
 {
+    /**
+     * Cek akses: hanya dosen atau admin super
+     */
+    private function checkAccess()
+    {
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
+        $isDosen = ($user->user_type == 'DSN' || $user->roles()->where('role_code', 'DSN')->exists());
+
+        if (!$isDosen && !$isAdmin) {
+            abort(403, 'Unauthorized access. Hanya dosen yang dapat mengakses halaman ini.');
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->checkAccess();
+
         $user = Auth::user();
 
         $query = DosenAchievement::with(['kategori', 'tingkat'])
@@ -38,20 +54,22 @@ class DosenAchievementController extends Controller
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');
 
-        // ✅ TAMBAHKAN INI UNTUK MODAL
+        // Data untuk modal
         $kategori = DosenKategori::where('is_active', true)->get();
         $tingkat = DosenTingkat::where('is_active', true)->get();
 
         return view('manajemenachievement::dosen.index', compact(
             'achievements',
             'tahunList',
-            'kategori',      // ✅ Pastikan ini ada
-            'tingkat'        // ✅ Pastikan ini ada
+            'kategori',
+            'tingkat'
         ));
     }
 
     public function create()
     {
+        $this->checkAccess();
+
         $kategori = DosenKategori::where('is_active', true)->get();
         $tingkat = DosenTingkat::where('is_active', true)->get();
 
@@ -60,6 +78,8 @@ class DosenAchievementController extends Controller
 
     public function store(Request $request)
     {
+        $this->checkAccess();
+
         $request->validate([
             'kategori_id' => 'required|exists:dosen_kategori,id',
             'tingkat_id' => 'required|exists:dosen_tingkat,id',
@@ -110,6 +130,8 @@ class DosenAchievementController extends Controller
 
     public function show($id)
     {
+        $this->checkAccess();
+
         $achievement = DosenAchievement::with(['user', 'kategori', 'tingkat'])
             ->where('id', $id)
             ->where('user_id', Auth::user()->id)
@@ -120,6 +142,8 @@ class DosenAchievementController extends Controller
 
     public function edit($id)
     {
+        $this->checkAccess();
+
         $achievement = DosenAchievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->where('status', 'pending')
@@ -133,7 +157,8 @@ class DosenAchievementController extends Controller
 
     public function update(Request $request, $id)
     {
-        // ✅ PASTIKAN PAKAI MODEL
+        $this->checkAccess();
+
         $achievement = DosenAchievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->where('status', 'pending')
@@ -154,7 +179,8 @@ class DosenAchievementController extends Controller
 
     public function destroy($id)
     {
-        // ✅ PASTIKAN PAKAI MODEL
+        $this->checkAccess();
+
         $achievement = DosenAchievement::where('id', $id)
             ->where('user_id', Auth::user()->id)
             ->firstOrFail();
@@ -171,6 +197,8 @@ class DosenAchievementController extends Controller
 
     public function download($id)
     {
+        $this->checkAccess();
+
         $achievement = DosenAchievement::findOrFail($id);
 
         if (!Storage::exists($achievement->file_path)) {

@@ -123,12 +123,11 @@ class MenuSeeder extends Seeder
                 'is_active' => 1,
             ],
 
-            ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 1, 'is_active' => 1],
-            ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 2, 'is_active' => 1],
-            ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 3, 'is_active' => 1],
-            ['id' => 44, 'menu_name' => 'Approval Prestasi Mahasiswa', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 4, 'is_active' => 1],
-            ['id' => 45, 'menu_name' => 'Approval Prestasi Dosen', 'menu_link' => '#', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 5, 'is_active' => 1],
-
+            ['id' => 41, 'menu_name' => 'Prestasi Mahasiswa', 'menu_link' => 'student.achievements.index', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 1, 'is_active' => 1],
+            ['id' => 42, 'menu_name' => 'Repository Prestasi Dosen', 'menu_link' => 'dosen.repository.index', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 2, 'is_active' => 1],
+            ['id' => 43, 'menu_name' => 'Portofolio User', 'menu_link' => 'portfolio.index', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 3, 'is_active' => 1],
+            ['id' => 44, 'menu_name' => 'Approval Prestasi Mahasiswa', 'menu_link' => 'admin.achievements.index', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 4, 'is_active' => 1],
+            ['id' => 45, 'menu_name' => 'Approval Prestasi Dosen', 'menu_link' => 'admin.dosen.index', 'parent_id' => 40, 'module_id' => 5, 'order_no' => 5, 'is_active' => 1],
             /*
             |--------------------------------------------------------------------------
             | 6. PENGADUAN MAHASISWA
