@@ -29,7 +29,12 @@
                     <select x-model="selectedFakultas" @change="
                             listProdi = [];
                             if(selectedFakultas) {
-                                fetch(`<?php echo e(route('masterdata.courses.api.prodis')); ?>?fakultas_id=${selectedFakultas}`)
+                                fetch(`<?php echo e(route('masterdata.courses.api.prodis')); ?>?fakultas_id=${selectedFakultas}`, {
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name=\"csrf-token\"]').getAttribute('content'),
+                                        'Accept': 'application/json'
+                                    }
+                                })
                                 .then(res => res.json())
                                 .then(data => listProdi = data);
                             }

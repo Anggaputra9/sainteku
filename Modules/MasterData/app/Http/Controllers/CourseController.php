@@ -38,7 +38,10 @@ class CourseController extends Controller
             ->where('unit_parent', $fakultasId)
             ->get(['id', 'unit_name']);
 
-        return response()->json($prodis);
+        return response()->json($prodis)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     // 3. API: Mendapatkan data Mata Kuliah berdasarkan Filter & Pencarian
@@ -75,7 +78,10 @@ class CourseController extends Controller
         // Pagination menggunakan fitur bawaan Laravel, merespons dalam bentuk JSON
         $courses = $query->orderBy('mst_course.id', 'asc')->paginate(12); // Gue set 12 biar gridnya pas rata
 
-        return response()->json($courses);
+        return response()->json($courses)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     // 4. Menyimpan Data Baru (Auto-Increment)
