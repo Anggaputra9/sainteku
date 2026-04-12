@@ -1,13 +1,13 @@
 <?php $__env->startSection('content'); ?>
 
 
-    <div class="mb-10 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="flex flex-col gap-1 px-6 py-5 border-b border-gray-200 dark:border-gray-700">
+    <div class="mb-8 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="flex flex-col gap-3 px-8 py-6 border-b border-gray-200 dark:border-gray-700">
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Utama</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">Ringkasan jumlah pengajuan berdasarkan modul dan periode akademik. Data ditampilkan sesuai role Anda.</p>
         </div>
 
-        <div class="grid grid-cols-1 gap-10 p-10 md:grid-cols-2 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4">
             <?php if($showMonev): ?>
                 <div class="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-900/20">
                     <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">Tashih Pending</p>
@@ -50,15 +50,14 @@
 
     <?php if($showMonev): ?>
 
-    
-    <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="min-w-0 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">Distribusi Status Tashih</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Proporsi pengajuan berdasarkan status saat ini.</p>
             </div>
-            <div class="p-8">
+            <div class="p-6">
                 <div class="flex flex-wrap gap-4 mb-6">
                     <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span>
@@ -73,7 +72,7 @@
                         Direvisi (<?php echo e(number_format($examRevised)); ?>)
                     </span>
                 </div>
-                <div class="relative" style="height:240px;">
+                <div class="relative w-full" style="height:240px;">
                     <canvas id="donutStatusChart" role="img" aria-label="Donut chart distribusi status tashih">
                         Pending: <?php echo e($examSubmitted); ?>, Disetujui: <?php echo e($examApproved); ?>, Direvisi: <?php echo e($examRevised); ?>.
                     </canvas>
@@ -81,12 +80,12 @@
             </div>
         </div>
 
-        <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div class="min-w-0 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">Histogram per Periode Akademik</h3>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Jumlah pengajuan tashih tiap periode, dipecah per status.</p>
             </div>
-            <div class="p-8">
+            <div class="p-6">
                 <div class="flex flex-wrap gap-4 mb-6">
                     <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span> Pending
@@ -98,7 +97,7 @@
                         <span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span> Direvisi
                     </span>
                 </div>
-                <div class="relative" style="height:240px;">
+                <div class="relative w-full" style="height:240px;">
                     <canvas id="barPeriodChart" role="img" aria-label="Stacked bar chart pengajuan per periode akademik">
                         Histogram pengajuan per periode.
                     </canvas>
@@ -107,13 +106,12 @@
         </div>
     </div>
 
-    
-    <div class="my-10 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div class="my-8  rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Tren Pengajuan per Bulan</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pergerakan jumlah pengajuan tashih dalam 6 bulan terakhir.</p>
         </div>
-        <div class="p-10">
+        <div class="p-6">
             <div class="flex flex-wrap gap-4 mb-8">
                 <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span> Pending
@@ -125,7 +123,7 @@
                     <span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span> Direvisi
                 </span>
             </div>
-            <div class="relative" style="height:220px;">
+            <div class="relative w-full" style="height:220px;">
                 <canvas id="lineTrendChart" role="img" aria-label="Line chart tren pengajuan tashih 6 bulan terakhir">
                     Tren pengajuan bulanan.
                 </canvas>
@@ -139,29 +137,29 @@
             <h3 class="text-base font-semibold text-gray-900 dark:text-white">Ringkasan Pengajuan per Periode Akademik</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Detail jumlah pengajuan setiap periode akademik sesuai role Anda.</p>
         </div>
-        <div class="p-10 overflow-x-auto">
-            <table class="min-w-full text-left text-sm text-gray-600 dark:text-gray-400">
+        <div class="p-6">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
                 <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                     <tr>
-                        <th class="px-4 py-3">Periode Akademik</th>
-                        <th class="px-4 py-3 text-right">Total</th>
-                        <th class="px-4 py-3 text-right">Pending</th>
-                        <th class="px-4 py-3 text-right">Disetujui</th>
-                        <th class="px-4 py-3 text-right">Direvisi</th>
+                        <th class="px-2 py-3">Periode Akademik</th>
+                        <th class="px-2 py-3 text-right">Total</th>
+                        <th class="px-2 py-3 text-right">Pending</th>
+                        <th class="px-2 py-3 text-right">Disetujui</th>
+                        <th class="px-2 py-3 text-right">Direvisi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
                     <?php $__empty_1 = true; $__currentLoopData = $examByPeriod; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td class="px-4 py-4 font-medium text-gray-900 dark:text-white"><?php echo e($period->name); ?> &mdash; <?php echo e($period->semester); ?></td>
-                            <td class="px-4 py-4 text-right font-semibold"><?php echo e(number_format($period->total_count)); ?></td>
-                            <td class="px-4 py-4 text-right text-blue-600 dark:text-blue-400"><?php echo e(number_format($period->submitted_count)); ?></td>
-                            <td class="px-4 py-4 text-right text-emerald-600 dark:text-emerald-400"><?php echo e(number_format($period->approved_count)); ?></td>
-                            <td class="px-4 py-4 text-right text-amber-600 dark:text-amber-400"><?php echo e(number_format($period->revised_count)); ?></td>
+                            <td class="px-2 py-4 font-medium text-gray-900 dark:text-white"><?php echo e($period->name); ?> &mdash; <?php echo e($period->semester); ?></td>
+                            <td class="px-2 py-4 text-right font-semibold"><?php echo e(number_format($period->total_count)); ?></td>
+                            <td class="px-2 py-4 text-right text-blue-600 dark:text-blue-400"><?php echo e(number_format($period->submitted_count)); ?></td>
+                            <td class="px-2 py-4 text-right text-emerald-600 dark:text-emerald-400"><?php echo e(number_format($period->approved_count)); ?></td>
+                            <td class="px-2 py-4 text-right text-amber-600 dark:text-amber-400"><?php echo e(number_format($period->revised_count)); ?></td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Tidak ada data periode yang tersedia.</td>
+                            <td colspan="5" class="px-2 py-8 text-center text-gray-500 dark:text-gray-400">Tidak ada data periode yang tersedia.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
