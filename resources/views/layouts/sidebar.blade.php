@@ -61,8 +61,8 @@
                         $isActive = false;
                         $visibleChildren = collect();
 
-                        // Filter children berdasarkan role untuk menu Manajemen Prestasi (id = 50)
-                        if ($hasChildren && $menu->id == 50) {
+                        // Filter children berdasarkan role untuk menu Manajemen Prestasi (id = 40)
+                        if ($hasChildren && $menu->id == 40) {
                         foreach ($menu->children as $child) {
                         $show = false;
                         if ($child->id == 41 && ($isMahasiswa || $isAdminSuper)) $show = true; // Prestasi Mahasiswa

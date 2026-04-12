@@ -55,6 +55,23 @@ class RolePermissionSeeder extends Seeder
             ['role_id' => 9, 'modul_id' => 5, 'permission_id' => 2, 'allowed' => true],
             ['role_id' => 9, 'modul_id' => 5, 'permission_id' => 3, 'allowed' => true],
 
+            // Dosen (5) - PRESTASI (5) - C, R, U (1,2,3) for Repository Dosen
+            ['role_id' => 5, 'modul_id' => 5, 'permission_id' => 1, 'allowed' => true],
+            ['role_id' => 5, 'modul_id' => 5, 'permission_id' => 2, 'allowed' => true],
+            ['role_id' => 5, 'modul_id' => 5, 'permission_id' => 3, 'allowed' => true],
+
+            // Administrator (1) - PRESTASI (5) - C, R, U, D, A, E (1,2,3,4,5,7)
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 1, 'allowed' => true],
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 2, 'allowed' => true],
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 3, 'allowed' => true],
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 4, 'allowed' => true],
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 5, 'allowed' => true],
+            ['role_id' => 1, 'modul_id' => 5, 'permission_id' => 7, 'allowed' => true],
+
+            // Operator / Admin Unit (8) - PRESTASI (5) - R, A (2,5) for Approval Prestasi
+            ['role_id' => 8, 'modul_id' => 5, 'permission_id' => 2, 'allowed' => true],
+            ['role_id' => 8, 'modul_id' => 5, 'permission_id' => 5, 'allowed' => true],
+
             // Operator / Admin Unit (8) - PPEPP (6) - C, R, U, D, E (1,2,3,4,7)
             ['role_id' => 8, 'modul_id' => 6, 'permission_id' => 1, 'allowed' => true],
             ['role_id' => 8, 'modul_id' => 6, 'permission_id' => 2, 'allowed' => true],

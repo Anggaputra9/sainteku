@@ -10,7 +10,7 @@ use Modules\ManajemenAchievement\app\Http\Controllers\PortfolioController;
 // ==================================================
 // 1. PRESTASI MAHASISWA (mahasiswa + admin super)
 // ==================================================
-Route::middleware(['auth', 'role:mahasiswa,admin'])->prefix('prestasi-mahasiswa')->name('student.achievements.')->group(function () {
+Route::middleware(['auth', 'role:MHS|ADM'])->prefix('prestasi-mahasiswa')->name('student.achievements.')->group(function () {
     Route::get('/', [AchievementController::class, 'index'])->name('index');
     Route::get('/create', [AchievementController::class, 'create'])->name('create');
     Route::post('/', [AchievementController::class, 'store'])->name('store');
@@ -24,7 +24,7 @@ Route::middleware(['auth', 'role:mahasiswa,admin'])->prefix('prestasi-mahasiswa'
 // ==================================================
 // 2. REPOSITORY PRESTASI DOSEN (dosen + admin super)
 // ==================================================
-Route::middleware(['auth', 'role:dosen,admin'])->prefix('repositori-dosen')->name('dosen.repository.')->group(function () {
+Route::middleware(['auth', 'role:DSN|ADM'])->prefix('repositori-dosen')->name('dosen.repository.')->group(function () {
     Route::get('/', [DosenAchievementController::class, 'index'])->name('index');
     Route::get('/create', [DosenAchievementController::class, 'create'])->name('create');
     Route::post('/', [DosenAchievementController::class, 'store'])->name('store');
@@ -46,7 +46,7 @@ Route::middleware(['auth'])->prefix('portfolio')->name('portfolio.')->group(func
 // ==================================================
 // 4. ADMIN PRESTASI MAHASISWA (admin unit + admin super)
 // ==================================================
-Route::middleware(['auth', 'role:admin_unit,admin'])->prefix('admin/prestasi')->name('admin.achievements.')->group(function () {
+Route::middleware(['auth', 'role:OPS|ADM'])->prefix('admin/prestasi')->name('admin.achievements.')->group(function () {
     Route::get('/', [AdminAchievementController::class, 'index'])->name('index');
     Route::get('/pending', [AdminAchievementController::class, 'pending'])->name('pending');
     Route::get('/{id}', [AdminAchievementController::class, 'show'])->name('show');
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'role:admin_unit,admin'])->prefix('admin/prestasi')->
 // ==================================================
 // 5. ADMIN PRESTASI DOSEN (admin unit + admin super)
 // ==================================================
-Route::middleware(['auth', 'role:admin_unit,admin'])->prefix('admin/prestasi-dosen')->name('admin.dosen.')->group(function () {
+Route::middleware(['auth', 'role:OPS|ADM'])->prefix('admin/prestasi-dosen')->name('admin.dosen.')->group(function () {
     Route::get('/', [AdminDosenController::class, 'index'])->name('index');
     Route::get('/pending', [AdminDosenController::class, 'pending'])->name('pending');
     Route::get('/{id}', [AdminDosenController::class, 'show'])->name('show');
@@ -65,14 +65,3 @@ Route::middleware(['auth', 'role:admin_unit,admin'])->prefix('admin/prestasi-dos
     Route::post('/{id}/reject', [AdminDosenController::class, 'reject'])->name('reject');
 });
 
-// HAPUS 'role:mahasiswa,admin' SEMENTARA
-Route::middleware(['auth'])->prefix('prestasi-mahasiswa')->name('student.achievements.')->group(function () {
-    Route::get('/', [AchievementController::class, 'index'])->name('index');
-    Route::get('/create', [AchievementController::class, 'create'])->name('create');
-    Route::post('/', [AchievementController::class, 'store'])->name('store');
-    Route::get('/{id}', [AchievementController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [AchievementController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AchievementController::class, 'update'])->name('update');
-    Route::delete('/{id}', [AchievementController::class, 'destroy'])->name('destroy');
-    Route::get('/{id}/download', [AchievementController::class, 'download'])->name('download');
-});
