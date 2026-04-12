@@ -55,4 +55,7 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
     // Route::get('/bank-soal/api/questions/{course_id}', [BankSoalController::class, 'getApiQuestions']);
     // API buat narik daftar Paket Soal (Proposal) yang udah di-ACC
     Route::get('/bank-soal/api/proposals/{course_id}', [BankSoalController::class, 'getApprovedProposals']);
+    // Route::get('/monev-akademik/bank-soal/api/periods', [BankSoalController::class, 'getPeriods']);
+    Route::get('/bank-soal/api/periods', [BankSoalController::class, 'getPeriods']);
+    // Route::get('/bank-soal/api/proposals/{course_id}', [BankSoalController::class, 'getApprovedProposals']);
 });

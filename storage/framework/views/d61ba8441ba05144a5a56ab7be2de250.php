@@ -1,6 +1,6 @@
 <?php $__env->startSection('content'); ?>
     
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10" x-data="tashihApp" x-cloak>
+    <div class="mx-auto max-w-screen-2xl 2xl:p-10" x-data="tashihApp" x-cloak>
 
         <div class="space-y-6">
             

@@ -50,7 +50,7 @@ class BankSoalController extends Controller
     }
 
     // =========================================================================
-    // 3. KEMBALIKAN: API Ambil Matkul (Dipakai di Modal Tashih)
+    // 3. KEMBALIKAN: API Ambil Matkul (Dipakai di Modal Tashih) + PAGINATION
     // =========================================================================
     public function getApprovedCourses(Request $request)
     {
@@ -79,7 +79,9 @@ class BankSoalController extends Controller
             $query->whereIn('mst_course.unit_id', $prodiIds);
         }
 
-        $courses = $query->orderBy('mst_course.course_name', 'asc')->take(20)->get();
+        // Ambil param per_page, defaultnya 12
+        $perPage = $request->input('per_page', 12);
+        $courses = $query->orderBy('mst_course.course_name', 'asc')->paginate($perPage);
 
         return response()->json($courses);
     }
@@ -100,7 +102,6 @@ class BankSoalController extends Controller
                 ->latest()
                 ->get();
 
-            // Pancing biar accessor 'cpmk_details' jalan buat ngerender Array JSON
             $questions->each->append('cpmk_details');
 
             return response()->json($questions);
@@ -115,17 +116,41 @@ class BankSoalController extends Controller
     }
 
     // =========================================================================
-    // 5. API Ambil Paket Soal (Proposal) buat Halaman Utama Bank Soal
+    // API Ambil List Periode Akademik (Untuk Dropdown Filter di Modal)
     // =========================================================================
-    public function getApprovedProposals($course_id)
+    public function getPeriods()
+    {
+        // Sesuaikan nama tabel 'mst_period' dengan database lu kalau beda ya cuy
+        $periods = DB::table('mst_period')
+            ->where('is_active', '1')
+            ->orderBy('id', 'desc')
+            ->get(['id', 'name']); // Ambil id dan nama periode
+
+        return response()->json($periods);
+    }
+
+    // =========================================================================
+    // 5. API Ambil Paket Soal (Proposal) + UPDATE: DUKUNGAN FILTER
+    // =========================================================================
+    // Tambahin Request $request di parameternya
+    public function getApprovedProposals(Request $request, $course_id)
     {
         try {
-            // Tarik paket soal yang statusnya udah APPROVED, bawa data Dosen & Periodenya
-            $proposals = \Modules\MonevAkademik\App\Models\ExamProposal::with(['creator', 'period'])
+            $query = \Modules\MonevAkademik\App\Models\ExamProposal::with(['creator', 'period'])
                 ->where('course_id', $course_id)
-                ->where('status', 'APPROVED')
-                ->latest()
-                ->get();
+                ->where('status', 'APPROVED');
+
+            // Tangkap Filter Jenis Ujian (contoh: UTS, UAS)
+            if ($request->exam_type) {
+                $query->where('exam_type', $request->exam_type);
+            }
+
+            // Tangkap Filter Periode
+            if ($request->period_id) {
+                $query->where('period_id', $request->period_id);
+            }
+
+            $proposals = $query->latest()->get();
 
             return response()->json($proposals);
         } catch (\Exception $e) {

@@ -60,14 +60,24 @@
             <div class="rounded-lg">
                 <form method="GET" class="flex flex-wrap items-center justify-between gap-3">
 
-                    
-                    <div class="relative w-full sm:max-w-xs">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </span>
-                        <input type="text" name="search" value="<?php echo e(request('search')); ?>"
-                            placeholder="Cari nama atau email..."
-                            class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        
+                        <div class="relative w-full sm:max-w-xs">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" name="search" value="<?php echo e(request('search')); ?>"
+                                placeholder="Cari nama atau email..."
+                                class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
+                        </div>
+                        
+                        <select name="per_page" onchange="this.form.submit()"
+                            class="rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-3 pr-8 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white transition cursor-pointer shadow-sm">
+                            <option value="10" <?php echo e(request('per_page') == 10 ? 'selected' : ''); ?>>10 Baris</option>
+                            <option value="25" <?php echo e(request('per_page') == 25 ? 'selected' : ''); ?>>25 Baris</option>
+                            <option value="50" <?php echo e(request('per_page') == 50 ? 'selected' : ''); ?>>50 Baris</option>
+                            <option value="100" <?php echo e(request('per_page') == 100 ? 'selected' : ''); ?>>100 Baris</option>
+                        </select>
                     </div>
 
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -156,8 +166,7 @@
                                         <?php if($user->is_active): ?>
                                             <span
                                                 class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                                                <span
-                                                    class="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
+                                                <span class="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
                                                 Aktif
                                             </span>
                                         <?php else: ?>
@@ -171,29 +180,27 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             
-                                            <button
-                                                @click="$dispatch('open-edit-modal', { 
-                                                url: '<?php echo e(route('masterdata.admin.users.update', $user->id)); ?>',
-                                                name: '<?php echo e($user->name); ?>',
-                                                email: '<?php echo e($user->email); ?>',
-                                                identity: '<?php echo e($user->identity_id); ?>',
-                                                type: '<?php echo e($user->user_type); ?>',
-                                                unit: '<?php echo e($user->unit_id); ?>',
-                                                active: <?php echo e($user->is_active == '1' ? 'true' : 'false'); ?>,
-                                                roles: <?php echo e(json_encode($user->roles->pluck('id'))); ?>
+                                            <button @click="$dispatch('open-edit-modal', { 
+                                                        url: '<?php echo e(route('masterdata.admin.users.update', $user->id)); ?>',
+                                                        name: '<?php echo e($user->name); ?>',
+                                                        email: '<?php echo e($user->email); ?>',
+                                                        identity: '<?php echo e($user->identity_id); ?>',
+                                                        type: '<?php echo e($user->user_type); ?>',
+                                                        unit: '<?php echo e($user->unit_id); ?>',
+                                                        active: <?php echo e($user->is_active == '1' ? 'true' : 'false'); ?>,
+                                                        roles: <?php echo e(json_encode($user->roles->pluck('id'))); ?>
 
-                                                })"
+                                                        })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800 transition shadow-sm"
                                                 title="Ubah Data">
                                                 <i class="fa-solid fa-pencil"></i> Ubah
                                             </button>
 
                                             
-                                            <button
-                                                @click="$dispatch('open-delete-modal', { 
-                                                url: '<?php echo e(route('masterdata.admin.users.destroy', $user->id)); ?>',
-                                                name: '<?php echo e($user->name); ?>'
-                                                })"
+                                            <button @click="$dispatch('open-delete-modal', { 
+                                                        url: '<?php echo e(route('masterdata.admin.users.destroy', $user->id)); ?>',
+                                                        name: '<?php echo e($user->name); ?>'
+                                                        })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900 transition shadow-sm"
                                                 title="Hapus Data">
                                                 <i class="fa-solid fa-trash"></i> Hapus
@@ -229,5 +236,4 @@
     <?php echo $__env->make('masterdata::admin.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <?php echo $__env->make('masterdata::admin.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/admin/users.blade.php ENDPATH**/ ?>

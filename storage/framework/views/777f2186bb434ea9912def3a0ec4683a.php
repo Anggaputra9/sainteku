@@ -1,25 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>" class="h-full">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-    <title>{{ $title ?? 'Dashboard' }} | TailAdmin - Laravel Tailwind CSS Admin Dashboard Template</title>
-
-    <style>
-        [x-cloak] {
-            display: none !important;
-        }
-    </style>
+    <title><?php echo e($title ?? 'Dashboard'); ?> | TailAdmin - Laravel Tailwind CSS Admin Dashboard Template</title>
 
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 
     <!-- Alpine.js -->
-    {{--
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
+    
 
     <!-- Theme Store -->
     <script>
@@ -53,7 +46,7 @@
 
             Alpine.store('sidebar', {
                 // Initialize based on screen size
-                isExpanded: false,
+                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
                 isMobileOpen: false,
                 isHovered: false,
 
@@ -84,56 +77,61 @@
 
     <!-- Apply dark mode immediately to prevent flash -->
     <script>
-        (function () {
+        (function() {
             const savedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = savedTheme || systemTheme;
             if (theme === 'dark') {
-                // Cukup html-nya aja yang dikasih class dark
                 document.documentElement.classList.add('dark');
+                document.body.classList.add('dark', 'bg-gray-900');
             } else {
                 document.documentElement.classList.remove('dark');
+                document.body.classList.remove('dark', 'bg-gray-900');
             }
         })();
     </script>
-
 </head>
 
-<body x-data="{ 'loaded': true }" x-init="$store.sidebar.isExpanded = false;
+<body x-data="{ 'loaded': true}" x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
 const checkMobile = () => {
     if (window.innerWidth < 1280) {
         $store.sidebar.setMobileOpen(false);
         $store.sidebar.isExpanded = false;
     } else {
         $store.sidebar.isMobileOpen = false;
-        $store.sidebar.isExpanded = false; 
+        $store.sidebar.isExpanded = true;
     }
 };
 window.addEventListener('resize', checkMobile);">
 
-    {{-- preloader --}}
-    <x-common.preloader />
-    {{-- preloader end --}}
+    
+    <?php if (isset($component)) { $__componentOriginal33757e58bef6aaec67779bf03774fc2d = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal33757e58bef6aaec67779bf03774fc2d = $attributes; } ?>
+<?php $component = App\View\Components\Common\Preloader::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('common.preloader'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Common\Preloader::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal33757e58bef6aaec67779bf03774fc2d)): ?>
+<?php $attributes = $__attributesOriginal33757e58bef6aaec67779bf03774fc2d; ?>
+<?php unset($__attributesOriginal33757e58bef6aaec67779bf03774fc2d); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal33757e58bef6aaec67779bf03774fc2d)): ?>
+<?php $component = $__componentOriginal33757e58bef6aaec67779bf03774fc2d; ?>
+<?php unset($__componentOriginal33757e58bef6aaec67779bf03774fc2d); ?>
+<?php endif; ?>
+    
 
-    <div class="min-h-screen xl:flex">
-        @include('layouts.backdrop')
-        @include('layouts.sidebar')
+    <?php echo $__env->yieldContent('content'); ?>
 
-        <div class="flex-1 transition-all duration-300 ease-in-out" :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
-            }">
-            <!-- app header start -->
-            @include('layouts.app-header')
-            <!-- app header end -->
-            <div class="p-4 mx-auto w-full max-w-full md:p-6">
-                @yield('content')
-            </div>
-        </div>
-    </div>
 </body>
 
-@stack('scripts')
+<?php echo $__env->yieldPushContent('scripts'); ?>
 
 </html>
+<?php /**PATH C:\laragon\www\sainteku\resources\views/layouts/fullscreen-layout.blade.php ENDPATH**/ ?>

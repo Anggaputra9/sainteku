@@ -18,6 +18,7 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
+        // Pake Eager Loading biar nggak kena N+1 Query (Udah bener ini)
         $query = User::with(['roles', 'unit'])->orderBy('name');
 
         if ($request->filled('search')) {
@@ -27,14 +28,25 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->paginate(10)->withQueryString();
+        // --- TAMBAHAN: Logic Custom Pagination ---
+        // Ambil request per_page, kalau kosong defaultnya 10
+        $perPage = $request->input('per_page', 10);
+        // Validasi biar user gak iseng masukin angka 1 juta di URL yang bikin server jebol
+        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+
+        $users = $query->paginate($perPage)->withQueryString();
 
         // --- AMBIL DATA MASTER UNTUK MODAL ---
         $roles = Role::where('is_active', '1')->get();
-        $units = Unit::where('is_active', '1')->get(); // Data untuk dropdown Unit
+
+        // Saran: Kalau data unit ini ribuan, lebih baik dropdown unit di modal diubah 
+        // pakai Select2 AJAX biar narik datanya pas diketik aja (nggak bikin berat browser).
+        // Sementara kita pakai get() biasa dengan select kolom seperlunya biar ringan.
+        $units = Unit::where('is_active', '1')->select('id', 'unit_name')->get();
+
         $userTypes = DB::table('ref_user_type')->get();
 
-        return view('masterdata::admin.users', compact('users', 'roles', 'units', 'userTypes'));
+        return view('masterdata::admin.users', compact('users', 'roles', 'units', 'userTypes', 'perPage'));
     }
 
     /**
@@ -51,47 +63,35 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input (HAPUS validasi 'id' karena kita akan generate otomatis)
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|email|unique:mst_user,email',
-            'password'    => 'required|string|min:8|confirmed',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:mst_user,email',
+            'password' => 'required|string|min:8|confirmed',
             'identity_id' => 'nullable|string|max:20',
-
-            // Pastikan input user_type & unit_id benar-benar ada di tabel referensi
-            'user_type'   => 'required|string|exists:ref_user_type,id',
-            'unit_id'     => 'required|string|exists:mst_unit,id',
-
-            'role_ids'    => 'required|array|min:1',
-            'role_ids.*'  => 'integer|exists:mst_role,id',
+            'user_type' => 'required|string|exists:ref_user_type,id',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'role_ids' => 'required|array|min:1',
+            'role_ids.*' => 'integer|exists:mst_role,id',
         ]);
 
-        // 2. Generate ID User Otomatis (Format: u0001, u0002, dst)
         $lastUser = User::orderBy('id', 'desc')->first();
         if ($lastUser) {
-            // Ambil angka dari ID terakhir (misal 'u0001' jadi 1), tambah 1, lalu pad dengan 0
             $lastNumber = (int) substr($lastUser->id, 1);
             $newId = 'U' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
         } else {
             $newId = 'U0001';
         }
 
-        // 3. Ekstrak role_ids agar tidak ikut tersimpan ke tabel mst_user
         $roleIds = $data['role_ids'];
         unset($data['role_ids']);
 
-        // 4. Siapkan sisa data
-        $data['id'] = $newId; // Masukkan ID yang sudah digenerate
-        $data['password'] = Hash::make($data['password']); // Hash password
+        $data['id'] = $newId;
+        $data['password'] = Hash::make($data['password']);
 
-        // Sesuaikan tipe ENUM di database ('1' atau '0')
         $data['is_active'] = $request->has('is_active') ? '1' : '0';
         $data['identity_id'] = $data['identity_id'] ?? null;
 
-        // 5. Simpan ke tabel mst_user
         $user = User::create($data);
-
-        // 6. Assign roles ke tabel trx_user_role
         $user->roles()->sync($roleIds);
 
         return redirect()->route('masterdata.admin.users.index')
@@ -140,10 +140,9 @@ class AdminController extends Controller
 
         $isSuicideAttempt = false;
 
-        // CEGAH ADMIN MENONAKTIFKAN AKUN SENDIRI
         if ($id === auth()->id() && !$request->has('is_active')) {
             $data['is_active'] = '1';
-            $isSuicideAttempt = true; 
+            $isSuicideAttempt = true;
         } else {
             $data['is_active'] = $request->has('is_active') ? '1' : '0';
         }
@@ -155,9 +154,8 @@ class AdminController extends Controller
         $user->update($data);
         $user->roles()->sync($roleIds);
 
-        // KUNCI PERBAIKAN: Redirect menggunakan URL absolut untuk mencegah browser tersangkut di /U0002
         if ($isSuicideAttempt) {
-             return redirect('/masterdata/admin/users')->with('error', 'Bahaya! Anda tidak diperbolehkan menonaktifkan akun sendiri untuk mencegah terkunci dari sistem.');
+            return redirect('/masterdata/admin/users')->with('error', 'Bahaya! Anda tidak diperbolehkan menonaktifkan akun sendiri untuk mencegah terkunci dari sistem.');
         }
 
         return redirect('/masterdata/admin/users')->with('success', 'Data user berhasil diperbarui.');
@@ -169,8 +167,6 @@ class AdminController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-
-        // Delete role mapping
         $user->roles()->detach();
         $user->delete();
 

@@ -17,6 +17,9 @@ class MasterDataDummySeeder extends Seeder
             ['id' => 1, 'name' => '2024/2025', 'semester' => 'Gasal', 'is_active' => '1', 'created_at' => $now],
             ['id' => 2, 'name' => '2024/2025', 'semester' => 'Genap', 'is_active' => '0', 'created_at' => $now],
             ['id' => 3, 'name' => '2025/2026', 'semester' => 'Gasal', 'is_active' => '0', 'created_at' => $now],
+            ['id' => 4, 'name' => '2025/2026', 'semester' => 'Genap', 'is_active' => '0', 'created_at' => $now],
+            ['id' => 5, 'name' => '2026/2027', 'semester' => 'Gasal', 'is_active' => '0', 'created_at' => $now],
+            ['id' => 6, 'name' => '2026/2027', 'semester' => 'Genap', 'is_active' => '0', 'created_at' => $now],
         ]);
 
         // 2. Insert Data CPMK (mst_cpmk)
