@@ -228,6 +228,34 @@
                 userId: '<?php echo e(Auth::id() ?? 0); ?>',
                 isReviewer: <?php echo e($isReviewer ? 'true' : 'false'); ?>,
 
+                init() {
+                    // 1. Bikin Radar buat ngecek URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const openModalUuid = urlParams.get('open_modal');
+
+                    // 2. Kalau ada perintah buka modal di URL
+                    if (openModalUuid) {
+                        // Cari UUID-nya ada di tab mana (Reviewer atau Pengaju)
+                        let foundInReview = this.reviewQueue.find(p => p.uuid === openModalUuid);
+                        let foundInSaya = this.myProposals.find(p => p.uuid === openModalUuid);
+
+                        // Kasih jeda 300ms biar halaman & animasi tab-nya kelar dulu
+                        setTimeout(() => {
+                            if (foundInReview) {
+                                this.activeTab = 'review';
+                                this.viewDetail(openModalUuid, 'review');
+                            } else if (foundInSaya) {
+                                this.activeTab = 'saya';
+                                this.viewDetail(openModalUuid, 'saya');
+                            }
+                        }, 300);
+
+                        // 3. (Opsional tapi Keren) Bersihin URL-nya biar param ?open_modal ilang
+                        // Jadi kalau user nge-refresh web, modalnya ga kebuka-buka terus
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                },
+
                 // ==========================================
                 // FITUR BANK SOAL UNIVERSAL
                 // ==========================================

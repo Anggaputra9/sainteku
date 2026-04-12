@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Period;
 
 // ==================================================
 // PUBLIC ROUTES
@@ -42,7 +44,66 @@ Route::middleware(['auth'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', function () {
-        return view('pages.dashboard', ['title' => 'Sainteku | Dashboard']);
+        $user = Auth::user();
+        $userRoleCodes = $user->roles->pluck('role_code')->toArray();
+        $isAdmin = in_array('ADM', $userRoleCodes) || in_array('Administrator', $userRoleCodes);
+
+        $showInfrastructure = $isAdmin || $user->hasPermission(6, 'R') || $user->hasPermission(6, 'C');
+        $showMonev = $isAdmin || $user->hasPermission(2, 'R') || $user->hasPermission(2, 'C');
+
+        $infrastructurePending = null;
+        $infrastructureCompleted = null;
+        if ($showInfrastructure) {
+            $baseLoanQuery = DB::table('trx_inventory_loans');
+            if (!$isAdmin) {
+                $baseLoanQuery->where('user_id', $user->id);
+            }
+            $infrastructurePending = (clone $baseLoanQuery)->where('status', 0)->count();
+            $infrastructureCompleted = (clone $baseLoanQuery)->where('status', 3)->count();
+        }
+
+        $examSubmitted = null;
+        $examApproved = null;
+        $examRevised = null;
+        $examByPeriod = collect([]);
+        if ($showMonev) {
+            $examCountQuery = DB::table('trx_exam_proposals');
+            if (!$isAdmin) {
+                $examCountQuery->where('created_by', $user->id);
+            }
+            $examSubmitted = (clone $examCountQuery)->where('status', 'SUBMITTED')->count();
+            $examApproved = (clone $examCountQuery)->where('status', 'APPROVED')->count();
+            $examRevised = (clone $examCountQuery)->where('status', 'REVISED')->count();
+
+            $examByPeriod = DB::table('mst_period')
+                ->leftJoin('trx_exam_proposals', 'mst_period.id', '=', 'trx_exam_proposals.period_id')
+                ->when(!$isAdmin, function ($query) use ($user) {
+                    $query->where('trx_exam_proposals.created_by', $user->id);
+                })
+                ->select(
+                    'mst_period.id',
+                    'mst_period.name',
+                    'mst_period.semester',
+                    DB::raw("SUM(CASE WHEN trx_exam_proposals.status = 'SUBMITTED' THEN 1 ELSE 0 END) as submitted_count"),
+                    DB::raw("SUM(CASE WHEN trx_exam_proposals.status = 'APPROVED' THEN 1 ELSE 0 END) as approved_count"),
+                    DB::raw("SUM(CASE WHEN trx_exam_proposals.status = 'REVISED' THEN 1 ELSE 0 END) as revised_count"),
+                    DB::raw('COUNT(trx_exam_proposals.id) as total_count')
+                )
+                ->groupBy('mst_period.id', 'mst_period.name', 'mst_period.semester')
+                ->orderBy('mst_period.name', 'desc')
+                ->get();
+        }
+
+        return view('pages.dashboard', compact(
+            'showInfrastructure',
+            'showMonev',
+            'infrastructurePending',
+            'infrastructureCompleted',
+            'examSubmitted',
+            'examApproved',
+            'examRevised',
+            'examByPeriod'
+        ))->with('title', 'Sainteku | Dashboard');
     })->name('dashboard');
 
     // Profile routes

@@ -110,6 +110,7 @@
 
 <script>
     let autoAddTimer = null;
+    let autoRemoveTimer = null; // TAMBAHAN: Timer buat hapus form kosong
 
     // GANTI KE JSON BIAR BISA DI-LOOP BIKIN CHECKBOX
     const cpmkDataList = <?php echo json_encode($cpmkList, 15, 512) ?>;
@@ -118,6 +119,7 @@
         activeCourseId = cId;
         storageKey = `draft_soal_${activeCourseId}`;
         clearTimeout(autoAddTimer);
+        clearTimeout(autoRemoveTimer);
 
         const container = document.getElementById('questions-container');
         if (container) {
@@ -162,20 +164,15 @@
                 
                 <div class="p-5 sm:p-6">
                     <div class="flex flex-col gap-6">
-                        
                         <div>
                             <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pertanyaan</label>
                             <textarea name="questions[${uniqueId}][question_text]" rows="4" oninput="validateFormStates(); saveDraft()" class="q-text w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-gray-600 dark:bg-gray-900 dark:text-white" required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 items-start border-t border-gray-100 pt-5 dark:border-gray-700">
-                            
-                            
                             <div class="flex flex-col gap-5">
                                 <div>
                                     <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Multi CPMK</label>
-                                    
-                                    
                                     <div class="space-y-1 max-h-36 overflow-y-auto custom-scrollbar p-2 border border-gray-300 rounded-lg bg-gray-50/50 dark:bg-gray-900 dark:border-gray-600">
                                         ${checkboxesHtml}
                                     </div>
@@ -190,7 +187,6 @@
                                 </div>
                             </div>
 
-                            
                             <div class="h-full flex flex-col">
                                 <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Ilustrasi (Opsional)</label>
                                 
@@ -212,7 +208,6 @@
                                     </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -220,7 +215,6 @@
         `;
         document.getElementById('questions-container').insertAdjacentHTML('beforeend', html);
 
-        // LOGIKA CENTANG CHECKBOX OTOMATIS (Edit Mode / Import Bank Soal)
         if (data.cpmk) {
             setTimeout(() => {
                 let cpmkVals = Array.isArray(data.cpmk) ? data.cpmk : [data.cpmk];
@@ -250,6 +244,8 @@
                 preview.src = e.target.result;
                 container.classList.remove('hidden');
                 wrapper.classList.add('hidden');
+                validateFormStates(); // Trigger validasi saat gambar nambah
+                saveDraft();
             }
             reader.readAsDataURL(input.files[0]);
         }
@@ -263,6 +259,8 @@
         if (input) input.value = "";
         if (container) container.classList.add('hidden');
         if (wrapper) wrapper.classList.remove('hidden');
+        validateFormStates(); // Trigger validasi saat gambar dihapus
+        saveDraft();
     }
 
     function removeCard(id) {
@@ -291,6 +289,7 @@
         // Hitung total awal
         document.querySelectorAll('.q-weight').forEach(input => { total += Number(input.value) || 0; });
 
+        // Logic membuang kelebihan otomatis dari bawah (Existing)
         if (total >= 100) {
             let cardsArr = Array.from(cards);
             for (let i = cardsArr.length - 1; i > 0; i--) {
@@ -317,7 +316,6 @@
             const weight = card.querySelector('.q-weight').value;
             const checkedCpmks = card.querySelectorAll('.q-cpmk-checkbox:checked');
 
-            // Validasi Error Message untuk CPMK per card
             const errCpmk = card.querySelector('.error-cpmk');
             if (checkedCpmks.length === 0) {
                 isAllCardsFilled = false;
@@ -346,7 +344,6 @@
 
         clearTimeout(autoAddTimer);
 
-        // SYARAT BISA SUBMIT: Total 100 DAN semua card wajib terisi (Termasuk min 1 CPMK per card)
         if (total === 100 && isAllCardsFilled) {
             badge.className = 'inline-flex items-center rounded-full bg-green-100 border border-green-200 px-3 py-1 text-[11px] sm:text-xs font-bold text-green-800 transition-all duration-300 whitespace-nowrap shadow-sm';
             btnSubmit.disabled = false;
@@ -360,7 +357,6 @@
             btnSubmit.disabled = true;
             actionContainer.style.display = 'flex';
 
-            // Auto add logic berjalan kalau card terakhir udah diisi, tapi total < 100
             if (isLastCardFilled && total < 100) {
                 autoAddTimer = setTimeout(() => {
                     let recheckTotal = 0;
@@ -375,6 +371,43 @@
                 }, 800);
             }
         }
+
+        // ====================================================================
+        // 🔥 FITUR BARU: AUTO-REMOVE CARD KOSONG (KECUALI CARD TERAKHIR) 🔥
+        // ====================================================================
+        clearTimeout(autoRemoveTimer);
+        autoRemoveTimer = setTimeout(() => {
+            let currentCards = document.querySelectorAll('.question-card');
+            let isDeleted = false;
+
+            // Loop semua card, TAPI JANGAN ngecek card yang paling terakhir (length - 1)
+            // Biar card kosong yang baru dibikin di bawah tetep aman buat diketik
+            for (let i = 0; i < currentCards.length - 1; i++) {
+                let card = currentCards[i];
+                let text = card.querySelector('.q-text').value.trim();
+                let weight = card.querySelector('.q-weight').value;
+                let cpmksCount = card.querySelectorAll('.q-cpmk-checkbox:checked').length;
+                let previewContainer = card.querySelector('[id^="preview-container-"]');
+                let hasImage = previewContainer && !previewContainer.classList.contains('hidden');
+
+                // Kalau semua inputan benar-benar kosong... hanguskan!
+                if (!text && !weight && cpmksCount === 0 && !hasImage) {
+                    card.remove();
+                    isDeleted = true;
+                }
+            }
+
+            if (isDeleted) {
+                updateQuestionNumbers();
+                saveDraft();
+                // Opsional: panggil validasi ualng biar badge nilai reset (tapi tanpa loop timer biar ga tabrakan)
+                let newTotal = 0;
+                document.querySelectorAll('.q-weight').forEach(input => { newTotal += Number(input.value) || 0; });
+                document.getElementById('weight-number').innerText = newTotal;
+            }
+        }, 1000); // 1 Detik Delay
+        // ====================================================================
+
     }
 
     function saveDraft() {
@@ -383,7 +416,6 @@
 
         let draftData = [];
         document.querySelectorAll('.question-card').forEach(card => {
-            // TARIK ARRAY DARI CHECKBOX YANG DICENTANG
             let cpmkValues = [];
             const checkboxes = card.querySelectorAll('.q-cpmk-checkbox:checked');
             checkboxes.forEach(cb => {

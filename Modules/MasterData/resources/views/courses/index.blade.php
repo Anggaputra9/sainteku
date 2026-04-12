@@ -226,7 +226,12 @@
                     if (!this.filterFakultas) return;
 
                     try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.filterFakultas}`);
+                        const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.filterFakultas}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
                         if (!response.ok) throw new Error(`Prodi API error: ${response.status}`);
                         this.prodisList = await response.json();
                     } catch (error) {
@@ -247,7 +252,12 @@
                     });
 
                     try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.data') }}?${params.toString()}`);
+                        const response = await fetch(`{{ route('masterdata.courses.api.data') }}?${params.toString()}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        });
                         if (!response.ok) throw new Error('Network response was not ok');
 
                         const result = await response.json();
