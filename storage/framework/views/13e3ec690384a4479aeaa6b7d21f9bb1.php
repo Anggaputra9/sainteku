@@ -7,4 +7,4 @@
     class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent"
   ></div>
 </div>
-<?php /**PATH D:\Unduhan\sainteku\resources\views/components/common/preloader.blade.php ENDPATH**/ ?>
+<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/common/preloader.blade.php ENDPATH**/ ?>

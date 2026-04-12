@@ -137,7 +137,7 @@ window.addEventListener('resize', checkMobile);">
         <?php echo $__env->make('layouts.backdrop', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        <div class="flex-1 transition-all duration-300 ease-in-out" :class="{
+        <div class="flex-1 transition-all duration-300 ease-in-out w-full overflow-hidden" :class="{
                 'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
                 'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
                 'ml-0': $store.sidebar.isMobileOpen
@@ -145,7 +145,7 @@ window.addEventListener('resize', checkMobile);">
             <!-- app header start -->
             <?php echo $__env->make('layouts.app-header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             <!-- app header end -->
-            <div class="p-4 mx-auto w-full max-w-full md:p-6">
+            <div class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
                 <?php echo $__env->yieldContent('content'); ?>
             </div>
         </div>
@@ -154,4 +154,4 @@ window.addEventListener('resize', checkMobile);">
 
 <?php echo $__env->yieldPushContent('scripts'); ?>
 
-</html><?php /**PATH D:\Unduhan\sainteku\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/layouts/app.blade.php ENDPATH**/ ?>
