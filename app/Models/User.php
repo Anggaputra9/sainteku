@@ -32,6 +32,7 @@ class User extends Authenticatable
         'remember_token',
         'last_login_at',
         'phone_number',
+        'avatar',
     ];
 
     // Kolom yang disembunyikan saat serialisasi
