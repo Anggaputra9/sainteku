@@ -1460,4 +1460,4 @@
 
 </body>
 
-</html><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/landing.blade.php ENDPATH**/ ?>
+</html><?php /**PATH D:\Unduhan\sainteku\resources\views/landing.blade.php ENDPATH**/ ?>

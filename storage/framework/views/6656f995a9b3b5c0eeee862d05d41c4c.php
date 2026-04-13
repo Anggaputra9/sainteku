@@ -6,4 +6,4 @@
         <img src="/images/shape/grid-01.svg" alt="grid" />
     </div>
 </div>
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/common/common-grid-shape.blade.php ENDPATH**/ ?>
+<?php /**PATH D:\Unduhan\sainteku\resources\views/components/common/common-grid-shape.blade.php ENDPATH**/ ?>

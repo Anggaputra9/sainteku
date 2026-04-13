@@ -1,9 +1,9 @@
 <div>
-    <form method="post" action="{{ route('profile.update') }}" class="space-y-6" enctype="multipart/form-data">
-        @csrf
-        @method('patch')
+    <form method="post" action="<?php echo e(route('profile.update')); ?>" class="space-y-6" enctype="multipart/form-data">
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('patch'); ?>
 
-        {{-- Foto Profil --}}
+        
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Foto Profil
@@ -11,11 +11,12 @@
             <div class="flex items-center gap-4">
                 <div class="relative">
                     <div id="avatarPreview" class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold overflow-hidden">
-                        @if($user->avatar && file_exists(public_path('storage/avatars/' . $user->avatar)))
-                        <img src="{{ asset('storage/avatars/' . $user->avatar) }}" class="w-full h-full object-cover">
-                        @else
-                        {{ strtoupper(substr($user->name, 0, 1)) }}
-                        @endif
+                        <?php if($user->avatar && file_exists(public_path('storage/avatars/' . $user->avatar))): ?>
+                        <img src="<?php echo e(asset('storage/avatars/' . $user->avatar)); ?>" class="w-full h-full object-cover">
+                        <?php else: ?>
+                        <?php echo e(strtoupper(substr($user->name, 0, 1))); ?>
+
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="flex-1">
@@ -27,12 +28,19 @@
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: JPG, PNG (Max 2MB)</p>
                 </div>
             </div>
-            @error('avatar')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <?php $__errorArgs = ['avatar'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
 
-        {{-- Nama Lengkap --}}
+        
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nama Lengkap <span class="text-red-500">*</span>
@@ -41,14 +49,21 @@
                 name="name"
                 type="text"
                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                value="{{ old('name', $user->name) }}"
+                value="<?php echo e(old('name', $user->name)); ?>"
                 required>
-            @error('name')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <?php $__errorArgs = ['name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
 
-        {{-- Email --}}
+        
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email <span class="text-red-500">*</span>
@@ -57,14 +72,21 @@
                 name="email"
                 type="email"
                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                value="{{ old('email', $user->email) }}"
+                value="<?php echo e(old('email', $user->email)); ?>"
                 required>
-            @error('email')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
 
-        {{-- Nomor WhatsApp --}}
+        
         <div>
             <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nomor WhatsApp
@@ -73,17 +95,24 @@
                 name="phone_number"
                 type="text"
                 class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                value="{{ old('phone_number', $user->phone_number) }}"
+                value="<?php echo e(old('phone_number', $user->phone_number)); ?>"
                 placeholder="081234567890" />
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Digunakan untuk notifikasi status prestasi via WhatsApp
             </p>
-            @error('phone_number')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <?php $__errorArgs = ['phone_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
 
-        {{-- Tanda Tangan Digital --}}
+        
         <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Tanda Tangan Digital
@@ -96,30 +125,44 @@
                 Buat Tanda Tangan
             </button>
 
-            <input type="hidden" name="signature" id="signatureData" value="{{ old('signature', $user->signature) }}">
+            <input type="hidden" name="signature" id="signatureData" value="<?php echo e(old('signature', $user->signature)); ?>">
 
             <div id="signaturePreview" class="mt-3">
-                @if($user->signature)
+                <?php if($user->signature): ?>
                 <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <p class="text-xs text-gray-500 mb-2">Tanda tangan tersimpan:</p>
-                    <img src="{{ $user->signature }}" alt="Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
+                    <img src="<?php echo e($user->signature); ?>" alt="Tanda Tangan" style="max-height: 80px; border: 1px solid #ddd; border-radius: 4px;">
                 </div>
-                @else
+                <?php else: ?>
                 <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
                     <p class="text-xs text-gray-400 italic">Belum ada tanda tangan. Klik "Buat Tanda Tangan"</p>
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
 
-            @error('signature')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-            @error('signature_file')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <?php $__errorArgs = ['signature'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            <?php $__errorArgs = ['signature_file'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+            <p class="mt-2 text-sm text-red-600"><?php echo e($message); ?></p>
+            <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
         </div>
 
-        {{-- Tombol Simpan --}}
+        
         <div class="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button type="submit"
                 class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
@@ -127,16 +170,16 @@
                 Simpan Perubahan
             </button>
 
-            @if (session('status') === 'profile-updated')
+            <?php if(session('status') === 'profile-updated'): ?>
             <p class="text-sm text-green-600 dark:text-green-400">
                 <i class="fas fa-check-circle mr-1"></i> Tersimpan.
             </p>
-            @endif
+            <?php endif; ?>
         </div>
     </form>
 </div>
 
-{{-- Preview Avatar dengan JavaScript --}}
+
 <script>
     document.getElementById('avatar')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -153,7 +196,7 @@
     });
 </script>
 
-{{-- MODAL TANDA TANGAN (sama seperti sebelumnya) --}}
+
 <div id="signatureModal"
     class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/50 backdrop-blur-sm"
     style="display: none;">
@@ -362,4 +405,4 @@
 
         tabUpload.click();
     });
-</script>
+</script><?php /**PATH D:\Unduhan\sainteku\resources\views/profile/partials/update-profile-information-form.blade.php ENDPATH**/ ?>

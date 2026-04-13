@@ -4,8 +4,15 @@
 
         
         <div class="relative">
-            <img src="<?php echo e(asset('/images/user/owner.jpg')); ?>" alt="avatar"
-                class="h-9 w-9 rounded-full border-2 border-indigo-500/20 object-cover shadow-sm" />
+            
+            <div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold overflow-hidden border-2 border-indigo-500/20">
+                <?php if(Auth::user()->avatar && file_exists(public_path('storage/avatars/' . Auth::user()->avatar))): ?>
+                <img src="<?php echo e(asset('storage/avatars/' . Auth::user()->avatar)); ?>" class="h-full w-full object-cover">
+                <?php else: ?>
+                <?php echo e(strtoupper(substr(Auth::user()->name, 0, 1))); ?>
+
+                <?php endif; ?>
+            </div>
             <span
                 class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-black"></span>
         </div>
@@ -58,17 +65,6 @@
             Profile
         </a>
 
-        
-        <!-- <a href="#"
-            class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
-        </a> -->
-
         <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
 
         
@@ -84,4 +80,4 @@
             </button>
         </form>
     </div>
-</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/components/header/user-dropdown.blade.php ENDPATH**/ ?>
+</div><?php /**PATH D:\Unduhan\sainteku\resources\views/components/header/user-dropdown.blade.php ENDPATH**/ ?>
