@@ -14,13 +14,28 @@ class InfrastructureController extends Controller
      */
     public function index(Request $request)
     {
-        // Ambil data inventaris beserta relasinya
+        // Ambil parameter dari query string
+        $search = $request->input('search', '');
+        $perPage = max(1, $request->input('per_page', 10));
+
+        // Ambil data inventaris beserta relasinya dengan search filter
         $infrastructures = DB::table('mst_inventory')
             ->leftJoin('mst_inventory_type', 'mst_inventory.inventory_type', '=', 'mst_inventory_type.id')
             ->leftJoin('mst_unit', 'mst_inventory.unit_id', '=', 'mst_unit.id')
-            ->select('mst_inventory.*', 'mst_inventory_type.description as type_description', 'mst_unit.unit_name')
+            ->select('mst_inventory.*', 'mst_inventory_type.description as type_description', 'mst_unit.unit_name');
+
+        // Terapkan filter search (cari di item_name, brand, description)
+        if (!empty($search)) {
+            $infrastructures->where(function ($query) use ($search) {
+                $query->where('mst_inventory.item_name', 'like', '%' . $search . '%')
+                    ->orWhere('mst_inventory.brand', 'like', '%' . $search . '%')
+                    ->orWhere('mst_inventory.description', 'like', '%' . $search . '%');
+            });
+        }
+
+        $infrastructures = $infrastructures
             ->orderBy('mst_inventory.created_at', 'desc')
-            ->paginate(10);
+            ->paginate($perPage);
 
         // Ambil data untuk opsi dropdown di Modal Create & Edit
         $inventoryTypes = DB::table('mst_inventory_type')->get();

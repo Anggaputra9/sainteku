@@ -124,11 +124,6 @@
 
             <div
                 class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end">
-                <button type="button" @click="openCreate = false"
-                    class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-200 transition dark:focus:ring-yellow-900">
-                    <i class="fas fa-xmark"></i>
-                    Batal
-                </button>
                 <button type="submit"
                     class="inline-flex justify-center items-center gap-2 rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
                     <i class="fas fa-save"></i>

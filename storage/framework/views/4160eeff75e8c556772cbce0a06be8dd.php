@@ -18,8 +18,8 @@
             </button>
         </div>
 
-        <form action="{{ route('masterdata.roles.store') }}" method="POST" class="space-y-6">
-            @csrf
+        <form action="<?php echo e(route('masterdata.roles.store')); ?>" method="POST" class="space-y-6">
+            <?php echo csrf_field(); ?>
 
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div>
@@ -28,7 +28,7 @@
                     </label>
                     <input type="text" name="role_code" required maxlength="5"
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 uppercase dark:bg-gray-900 dark:text-white dark:ring-gray-600"
-                        placeholder="Cth: ADM" value="{{ old('role_code') }}">
+                        placeholder="Cth: ADM" value="<?php echo e(old('role_code')); ?>">
                     <p class="mt-1.5 text-xs text-gray-500">Maksimal 5 karakter huruf kapital.</p>
                 </div>
 
@@ -38,7 +38,7 @@
                     </label>
                     <input type="text" name="role_name" required maxlength="30"
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600"
-                        placeholder="Cth: Administrator" value="{{ old('role_name') }}">
+                        placeholder="Cth: Administrator" value="<?php echo e(old('role_name')); ?>">
                 </div>
 
                 <div class="md:col-span-2 flex items-end pb-2">
@@ -63,3 +63,4 @@
         </form>
     </div>
 </div>
+<?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/modal-create.blade.php ENDPATH**/ ?>

@@ -25,11 +25,11 @@
             </button>
         </div>
 
-        <form action="{{ route('masterdata.infrastructures.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-            @csrf
+        <form action="<?php echo e(route('masterdata.infrastructures.store')); ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <?php echo csrf_field(); ?>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {{-- Kiri: Informasi Dasar --}}
+                
                 <div class="space-y-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
                     <h4 class="text-sm font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 border-b border-gray-200 pb-2 dark:border-gray-600">Info Utama</h4>
                     
@@ -37,7 +37,7 @@
                         <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">
                             Nama Barang / Ruangan <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="item_name" required value="{{ old('item_name') }}"
+                        <input type="text" name="item_name" required value="<?php echo e(old('item_name')); ?>"
                             class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600"
                             placeholder="Contoh: Proyektor Epson X500">
                     </div>
@@ -49,18 +49,19 @@
                         <select name="inventory_type" required
                             class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                             <option value="">-- Pilih Kategori --</option>
-                            @foreach($inventoryTypes ?? [] as $type)
-                                <option value="{{ $type->id }}" {{ old('inventory_type') == $type->id ? 'selected' : '' }}>
-                                    {{ $type->description }}
+                            <?php $__currentLoopData = $inventoryTypes ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($type->id); ?>" <?php echo e(old('inventory_type') == $type->id ? 'selected' : ''); ?>>
+                                    <?php echo e($type->description); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">Merk Barang</label>
-                            <input type="text" name="brand" value="{{ old('brand') }}"
+                            <input type="text" name="brand" value="<?php echo e(old('brand')); ?>"
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600"
                                 placeholder="Cth: Epson, Olympic">
                         </div>
@@ -69,17 +70,17 @@
                             <select name="unit_measure"
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                                 <option value="">-- Pilih Satuan --</option>
-                                <option value="PCS" {{ old('unit_measure') == 'PCS' ? 'selected' : '' }}>PCS</option>
-                                <option value="UNIT" {{ old('unit_measure') == 'UNIT' ? 'selected' : '' }}>UNIT</option>
-                                <option value="SET" {{ old('unit_measure') == 'SET' ? 'selected' : '' }}>SET</option>
-                                <option value="LEMBAR" {{ old('unit_measure') == 'LEMBAR' ? 'selected' : '' }}>LEMBAR</option>
-                                <option value="PAK" {{ old('unit_measure') == 'PAK' ? 'selected' : '' }}>PAK</option>
+                                <option value="PCS" <?php echo e(old('unit_measure') == 'PCS' ? 'selected' : ''); ?>>PCS</option>
+                                <option value="UNIT" <?php echo e(old('unit_measure') == 'UNIT' ? 'selected' : ''); ?>>UNIT</option>
+                                <option value="SET" <?php echo e(old('unit_measure') == 'SET' ? 'selected' : ''); ?>>SET</option>
+                                <option value="LEMBAR" <?php echo e(old('unit_measure') == 'LEMBAR' ? 'selected' : ''); ?>>LEMBAR</option>
+                                <option value="PAK" <?php echo e(old('unit_measure') == 'PAK' ? 'selected' : ''); ?>>PAK</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                {{-- Kanan: Detail & Ketersediaan --}}
+                
                 <div class="space-y-4 rounded-xl border border-gray-100 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/50">
                     <h4 class="text-sm font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300 border-b border-gray-200 pb-2 dark:border-gray-600">Manajemen Aset</h4>
 
@@ -88,12 +89,12 @@
                             <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">
                                 Jumlah Stok <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" name="stock" required min="0" value="{{ old('stock', 0) }}"
+                            <input type="number" name="stock" required min="0" value="<?php echo e(old('stock', 0)); ?>"
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">Harga (Rp)</label>
-                            <input type="number" name="price" min="0" value="{{ old('price', 0) }}"
+                            <input type="number" name="price" min="0" value="<?php echo e(old('price', 0)); ?>"
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                         </div>
                     </div>
@@ -104,19 +105,20 @@
                             <select name="unit_id"
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
                                 <option value="">-- Universitas / Umum --</option>
-                                @foreach($units ?? [] as $unit)
-                                    <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->unit_name }}
+                                <?php $__currentLoopData = $units ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($unit->id); ?>" <?php echo e(old('unit_id') == $unit->id ? 'selected' : ''); ?>>
+                                        <?php echo e($unit->unit_name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">Status</label>
                             <select name="status" required
                                 class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                                <option value="1" {{ old('status') == '1' ? 'selected' : '' }}>🟢 Aktif / Baik</option>
-                                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>🔴 Rusak / Nonaktif</option>
+                                <option value="1" <?php echo e(old('status') == '1' ? 'selected' : ''); ?>>🟢 Aktif / Baik</option>
+                                <option value="0" <?php echo e(old('status') == '0' ? 'selected' : ''); ?>>🔴 Rusak / Nonaktif</option>
                             </select>
                         </div>
                     </div>
@@ -132,7 +134,7 @@
                         <label class="mb-1 block text-sm font-semibold text-gray-900 dark:text-white">Spesifikasi / Deskripsi</label>
                         <textarea name="description" rows="2"
                             class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600"
-                            placeholder="Catatan tambahan terkait barang ini...">{{ old('description') }}</textarea>
+                            placeholder="Catatan tambahan terkait barang ini..."><?php echo e(old('description')); ?></textarea>
                     </div>
                 </div>
             </div>
@@ -145,4 +147,4 @@
             </div>
         </form>
     </div>
-</div>
+</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/infrastructures/modal-create.blade.php ENDPATH**/ ?>

@@ -10,9 +10,24 @@ use Illuminate\Support\Facades\DB;
 class RoleController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::orderBy('id')->get();
+        // Ambil parameter dari query string
+        $search = $request->input('search', '');
+        $perPage = max(1, $request->input('per_page', 10));
+
+        // Query data roles dengan search filter
+        $rolesQuery = Role::query();
+
+        // Terapkan filter search (cari di role_code dan role_name)
+        if (!empty($search)) {
+            $rolesQuery->where(function ($query) use ($search) {
+                $query->where('role_code', 'like', '%' . $search . '%')
+                    ->orWhere('role_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $roles = $rolesQuery->orderBy('id')->paginate($perPage);
 
         // Ambil data referensi untuk matriks
         $modules = DB::table('mst_module')->orderBy('id')->get();

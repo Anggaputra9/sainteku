@@ -10,10 +10,21 @@ use Illuminate\Support\Facades\DB;
 class UnitController extends Controller
 {
     // 1. Menampilkan Halaman Utama (Index) beserta Modalnya
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil daftar unit untuk tabel
-        $units = Unit::orderBy('id')->paginate(15);
+        // Ambil parameter dari query string
+        $search = $request->input('search', '');
+        $perPage = max(1, $request->input('per_page', 10));
+
+        // Query data units dengan search filter
+        $unitsQuery = Unit::query();
+
+        // Terapkan filter search (cari di unit_name)
+        if (!empty($search)) {
+            $unitsQuery->where('unit_name', 'like', '%' . $search . '%');
+        }
+
+        $units = $unitsQuery->orderBy('id')->paginate($perPage);
 
         // Mengambil data untuk Dropdown di Modal Create & Edit
         $parentUnits = Unit::where('is_active', '1')->orderBy('unit_name')->get();

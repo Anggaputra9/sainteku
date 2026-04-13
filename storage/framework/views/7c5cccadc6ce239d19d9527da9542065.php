@@ -6,7 +6,7 @@
             class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-book-open text-blue-600"></i> Master Data Mata Kuliah
+                 Master Data Mata Kuliah
                 </h2>
                 <nav>
                     <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
@@ -16,25 +16,15 @@
                 </nav>
             </div>
 
-            <div x-data="{ openCreate: false }">
+            <div>
                 <button @click="$dispatch('open-create-modal')" type="button"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition active:scale-95">
-                    <i class="fa-solid fa-plus"></i> Tambah Mata Kuliah
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 sm:w-auto">
+                <i class="fas fa-plus"></i>Tambah Mata Kuliah
                 </button>
                 <?php echo $__env->make('masterdata::courses.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
         </div>
 
-        
-        <div
-            class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 dark:bg-gray-800 dark:border-blue-400 rounded-r-lg shadow-sm">
-            <div class="flex items-center">
-                <i class="fa-solid fa-circle-info text-blue-500 text-xl mr-3"></i>
-                <p class="text-sm font-bold text-blue-700 dark:text-blue-400">
-                    Kelola data mata kuliah. Pilih Fakultas dan Program Studi untuk menyaring data dengan lebih spesifik.
-                </p>
-            </div>
-        </div>
 
         
         <div
