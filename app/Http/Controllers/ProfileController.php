@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -23,9 +20,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
@@ -42,14 +36,14 @@ class ProfileController extends Controller
         // Upload avatar
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
-                Storage::delete('public/avatars/' . $user->avatar);
+                Storage::disk('public')->delete('avatars/' . $user->avatar);
             }
             $avatarName = time() . '.' . $request->avatar->extension();
-            $request->avatar->storeAs('public/avatars', $avatarName);
+            $request->avatar->storeAs('avatars', $avatarName, 'public');
             $user->avatar = $avatarName;
         }
 
-        // Upload signature
+        // Upload signature file
         if ($request->hasFile('signature_file')) {
             $file = $request->file('signature_file');
             $fileData = base64_encode(file_get_contents($file));
@@ -72,9 +66,7 @@ class ProfileController extends Controller
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
-    /**
-     * Delete the user's account.
-     */
+
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
