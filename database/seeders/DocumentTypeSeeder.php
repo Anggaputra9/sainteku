@@ -76,5 +76,9 @@ class DocumentTypeSeeder extends Seeder
             ['id' => 3],
             ['description' => 'Disetujui', 'is_active' => '1', 'created_at' => now()]
         );
+        DB::table('mst_workflow_status')->updateOrInsert(
+            ['id' => 4],
+            ['description' => 'Ditolak', 'is_active' => '1', 'created_at' => now()]
+        );
     }
 }
