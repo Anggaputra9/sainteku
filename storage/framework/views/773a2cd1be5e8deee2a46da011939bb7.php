@@ -7,27 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Fakultas Sains dan Teknologi UIN Saifuddin Zuhri Purwokerto" name="description" />
     <meta content="Themesbrand" name="author" />
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <!-- App favicon -->
     <link rel="shortcut icon" href="assets/images/uin.png">
 
-    <!-- Swiper slider css -->
     <link href="assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Layout config Js -->
     <script src="assets/js/layout.js"></script>
 
-    <!-- Bootstrap Css -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Icons Css -->
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- App Css -->
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
 
-    <!-- Custom Css -->
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
     <style>
@@ -403,19 +395,227 @@
                 opacity: 0;
             }
         }
+
+        /* ===== HAMBURGER MENU STYLES ===== */
+        .hamburger-btn {
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            padding: 0;
+            z-index: 1001;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn span {
+            width: 24px;
+            height: 2.5px;
+            background: #1e293b;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn.active span:nth-child(1) {
+            transform: translateY(8.5px) rotate(45deg);
+        }
+
+        .hamburger-btn.active span:nth-child(2) {
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .hamburger-btn.active span:nth-child(3) {
+            transform: translateY(-8.5px) rotate(-45deg);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .mobile-menu-header h5 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .mobile-menu-close {
+            width: 36px;
+            height: 36px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu-close:hover {
+            background: #e2e8f0;
+        }
+
+        .mobile-menu-body {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mobile-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-nav li {
+            margin-bottom: 12px;
+        }
+
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border-radius: 14px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #334155;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-nav-link:hover {
+            background: var(--saintek-soft);
+            color: var(--saintek-text);
+            transform: translateX(5px);
+        }
+
+        .mobile-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+            margin: 20px 0;
+        }
+
+        .mobile-lang-section {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-lang-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .mobile-lang-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-lang-link:hover {
+            background: var(--saintek-soft);
+            color: var(--saintek-text);
+        }
+
+        .mobile-login-btn {
+            background: var(--saintek-primary);
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-login-btn:hover {
+            background: var(--saintek-primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Hide desktop menu on mobile */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
 <body data-bs-spy="scroll" data-bs-target="#navbar-example">
 
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-landing fixed-top" id="navbar">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">Sainteku</a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
@@ -429,12 +629,13 @@
                         <a class="nav-link" href="#blog"><?php echo e(__('messages.blog')); ?></a>
                     </li>
                 </ul>
+            </div>
 
-                <!-- Language Toggle Button -->
+            <div class="d-none d-lg-flex align-items-center gap-2">
                 <div class="dropdown me-2">
                     <a href="#" class="language-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="ri-global-line"></i>
-                        <span class="d-none d-md-inline"><?php echo e(session('locale') == 'en' ? 'English' : 'Indonesia'); ?></span>
+                        <span><?php echo e(session('locale') == 'en' ? 'English' : 'Indonesia'); ?></span>
                         <i class="ri-arrow-down-s-line"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -452,26 +653,51 @@
                         </li>
                     </ul>
                 </div>
+                <button class="btn btn-soft-primary rounded-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="ri-user-3-line align-bottom me-1"></i> <?php echo e(__('messages.login')); ?>
 
-                <!-- Login Button -->
-                <div>
-                    <button class="btn btn-soft-primary rounded-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <i class="ri-user-3-line align-bottom me-1"></i> <?php echo e(__('messages.login')); ?>
-
-                    </button>
-                </div>
+                </button>
             </div>
+
+            <button class="hamburger-btn d-lg-none" id="hamburgerBtn" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
-    <!-- ALERT POPUP -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h5>Menu</h5>
+            <button class="mobile-menu-close" id="closeMenuBtn">&times;</button>
+        </div>
+        <div class="mobile-menu-body">
+            <ul class="mobile-nav">
+                <li><a href="#event" class="mobile-nav-link"><?php echo e(__('messages.event')); ?></a></li>
+                <li><a href="#prestasi" class="mobile-nav-link"><?php echo e(__('messages.achievements')); ?></a></li>
+                <li><a href="#blog" class="mobile-nav-link"><?php echo e(__('messages.blog')); ?></a></li>
+            </ul>
+            <div class="mobile-divider"></div>
+            <div class="mobile-lang-section">
+                <div class="mobile-lang-title">Language</div>
+                <a href="<?php echo e(route('language.switch', 'id')); ?>" class="mobile-lang-link">Indonesia</a>
+                <a href="<?php echo e(route('language.switch', 'en')); ?>" class="mobile-lang-link">English</a>
+            </div>
+            <button class="mobile-login-btn" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="ri-user-3-line me-2"></i> <?php echo e(__('messages.login')); ?>
+
+            </button>
+        </div>
+    </div>
+
     <div id="loginAlert" class="alert alert-dismissible fade show alert-popup" role="alert" style="display: none;">
         <i id="alertIcon" class="ri-checkbox-circle-line me-2 fs-5 align-middle"></i>
         <span id="alertMessage"></span>
         <button type="button" class="btn-close" onclick="hideAlert()"></button>
     </div>
 
-    <!-- HERO SECTION -->
     <section class="hero-section pb-0" id="hero">
         <div class="container">
             <div class="row align-items-center">
@@ -515,7 +741,6 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="position-relative text-center mt-5 mt-lg-0">
-                        <!-- Image -->
                         <img src="assets/images/image11.png" alt="Hero Illustration" class="img-fluid">
                     </div>
                 </div>
@@ -523,7 +748,6 @@
         </div>
     </section>
 
-    <!-- TENTANG FAKULTAS -->
     <section class="section bg-light pt-0" id="tentang">
         <div class="container">
             <div class="row align-items-center g-5">
@@ -590,7 +814,6 @@
         </div>
     </section>
 
-    <!-- PROGRAM STUDI -->
     <section class="section" id="program-studi">
         <div class="container">
             <div class="text-center mb-5">
@@ -651,7 +874,6 @@
         </div>
     </section>
 
-    <!-- CTA BERGABUNG -->
     <section class="py-5 bg-primary mt-0">
         <div class="container py-4">
             <div class="row align-items-center">
@@ -666,7 +888,6 @@
         </div>
     </section>
 
-    <!-- PRESTASI -->
     <section class="section" id="prestasi">
         <div class="container">
             <div class="row justify-content-center">
@@ -677,7 +898,6 @@
             </div>
 
             <div class="row g-4">
-                <!-- Prestasi 1 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
@@ -711,7 +931,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Prestasi 2 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
@@ -745,7 +964,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Prestasi 3 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
@@ -781,14 +999,12 @@
                 </div>
             </div>
 
-            <!-- Tombol Lihat Semua -->
             <div class="text-center mt-5">
                 <a href="#" class="btn btn-outline-primary px-5 py-3 rounded-pill"><?php echo e(__('messages.view_all')); ?></a>
             </div>
         </div>
     </section>
 
-    <!-- FASILITAS -->
     <section class="section" id="fasilitas">
         <div class="container">
             <div class="row justify-content-center">
@@ -837,7 +1053,6 @@
         </div>
     </section>
 
-    <!-- BLOG -->
     <section class="section bg-light" id="blog">
         <div class="container">
             <div class="text-center mb-5">
@@ -892,7 +1107,6 @@
         </div>
     </section>
 
-    <!-- CTA NEWSLETTER -->
     <section class="py-5 bg-primary">
         <div class="container py-4">
             <div class="row align-items-center">
@@ -907,7 +1121,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="custom-footer bg-dark py-5 position-relative">
         <div class="container">
             <div class="row">
@@ -1014,12 +1227,10 @@
         </div>
     </footer>
 
-    <!-- BACK TO TOP -->
     <button onclick="topFunction()" class="btn btn-primary btn-icon rounded-circle" id="back-to-top" style="position: fixed; bottom: 30px; right: 30px; display: none;">
         <i class="ri-arrow-up-line"></i>
     </button>
 
-    <!-- JAVASCRIPT -->
     <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="assets/libs/simplebar/simplebar.min.js"></script>
     <script src="assets/libs/node-waves/waves.min.js"></script>
@@ -1029,16 +1240,13 @@
     <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
     <script src="assets/js/pages/job-lading.init.js"></script>
 
-    <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 1000px; margin: 1.75rem auto;">
             <div class="modal-content overflow-hidden" style="background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                 <div class="row g-0">
-                    <!-- Left Column - Branding (Desktop Only) -->
                     <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center"
                         style="background: linear-gradient(145deg, #FEEB04 0%, #CBB800 100%); min-height: 550px; position: relative;">
 
-                        <!-- Grid Pattern -->
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10"
                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><path d=%22M0 0 L100 100 M100 0 L0 100%22 stroke=%22%23000000%22 stroke-width=%221%22 opacity=%220.2%22/></svg>'); background-size: 30px 30px;">
                         </div>
@@ -1049,7 +1257,6 @@
                             <p class="mb-0 text-dark" style="font-size: 0.9rem;"><?php echo e(__('messages.faculty_name')); ?></p>
                             <p class="mb-3 text-dark" style="font-size: 0.9rem;"><?php echo e(__('UIN Prof. K.H. Saifuddin Zuhri Purwokerto')); ?></p>
 
-                            <!-- Quote -->
                             <div class="mt-4 pt-2">
                                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 opacity-75">
                                     <path d="M10 11H6V7H10V11ZM18 11H14V7H18V11Z" fill="#000000" />
@@ -1061,9 +1268,7 @@
                         </div>
                     </div>
 
-                    <!-- Right Column - Login Form -->
                     <div class="col-md-7 bg-white">
-                        <!-- Mobile Header -->
                         <div class="d-md-none p-4 text-center border-bottom" style="background: #F9FAFB;">
                             <h2 class="fw-bold mb-1" style="color: #000000; font-size: 1.8rem;">Sainteku</h2>
                             <p class="mb-0 text-muted small"><?php echo e(__('messages.faculty_name')); ?></p>
@@ -1071,7 +1276,6 @@
                         </div>
 
                         <div class="p-4" style="max-width: 450px; margin: 0 auto;">
-                            <!-- Back Link -->
                             <div class="mb-3">
                                 <a href="#" class="d-inline-flex align-items-center text-sm text-gray-500 text-decoration-none" data-bs-dismiss="modal">
                                     <svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -1082,29 +1286,11 @@
                                 </a>
                             </div>
 
-                            <!-- Header -->
                             <div class="mb-4">
                                 <h1 class="fw-semibold text-gray-800" style="font-size: 1.8rem; margin-bottom: 0.25rem;"><?php echo e(__('messages.sign_in')); ?></h1>
                                 <p class="text-sm text-gray-500"><?php echo e(__('messages.enter_credentials')); ?></p>
                             </div>
 
-                            <!-- Social Buttons -->
-                            <!-- <button class="btn btn-light w-100 py-2 d-flex align-items-center justify-content-center gap-2 border-0" style="background: #F3F4F6; font-size: 0.85rem;">
-                                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                    <path d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z" fill="#4285F4" />
-                                    <path d="M10.1788 18.75C12.5895 18.75 14.6133 17.9722 16.0915 16.6305L13.274 14.4916C12.5201 15.0068 11.5081 15.3666 10.1788 15.3666C7.81773 15.3666 5.81379 13.8402 5.09944 11.7305L4.99473 11.7392L2.23868 13.8295L2.20264 13.9277C3.67087 16.786 6.68674 18.75 10.1788 18.75Z" fill="#34A853" />
-                                    <path d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20333 6.0721C1.5982 7.25823 1.25098 8.5902 1.25098 9.99992C1.25098 11.4096 1.5982 12.7415 2.20333 13.9277L5.10014 11.7305Z" fill="#FBBC05" />
-                                    <path d="M10.1789 4.63331C11.8554 4.63331 12.9864 5.34303 13.6312 5.93612L16.1511 3.525C14.6035 2.11528 12.5895 1.25 10.1789 1.25C6.68676 1.25 3.67088 3.21387 2.20264 6.07218L5.08953 8.26943C5.81381 6.15972 7.81776 4.63331 10.1789 4.63331Z" fill="#EB4335" />
-                                </svg>
-                                <span><?php echo e(__('Sign in with Google')); ?></span>
-                            </button> -->
-                            <!--
-                            <div class="divider">
-                                <div class="border-top border-gray-200" style="position: absolute; top: 50%; left: 0; right: 0;"></div>
-                                <span class="px-2 bg-white text-gray-400 small position-relative"><?php echo e(__('or')); ?></span>
-                            </div> -->
-
-                            <!-- Login Form -->
                             <form method="POST" action="/login" id="loginForm">
                                 <?php echo csrf_field(); ?>
 
@@ -1116,7 +1302,6 @@
                                 </div>
                                 <?php endif; ?>
 
-                                <!-- Email -->
                                 <div class="mb-3">
                                     <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                         <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
@@ -1131,7 +1316,6 @@
                                         required>
                                 </div>
 
-                                <!-- Password -->
                                 <div class="mb-3" x-data="{ showPassword: false }">
                                     <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                         <?php echo e(__('messages.password_label')); ?><span class="text-danger">*</span>
@@ -1160,7 +1344,6 @@
                                     <small class="text-muted d-block mt-1 small"><?php echo e(__('messages.password_hint')); ?></small>
                                 </div>
 
-                                <!-- Remember Me & Forgot Password -->
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div class="form-check">
                                         <input type="checkbox"
@@ -1180,7 +1363,6 @@
                                     </a>
                                 </div>
 
-                                <!-- Submit Button -->
                                 <button type="submit"
                                     class="btn w-100 py-2 small fw-medium border-0 btn-masuk">
                                     <?php echo e(__('messages.login')); ?>
@@ -1194,7 +1376,6 @@
         </div>
     </div>
 
-    <!-- Modal Lupa Password -->
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
             <div class="modal-content" style="border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
@@ -1203,16 +1384,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Alert untuk pesan sukses/error -->
                     <div id="forgotPasswordAlert" class="alert" style="display: none;"></div>
 
                     <p class="text-sm text-gray-600 mb-4"><?php echo e(__('messages.forgot_password_desc')); ?></p>
 
-                    <!-- Form Lupa Password -->
                     <form method="POST" action="<?php echo e(route('password.email')); ?>" id="forgotPasswordForm">
                         <?php echo csrf_field(); ?>
 
-                        <!-- Email -->
                         <div class="mb-4">
                             <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                 <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
@@ -1226,7 +1404,6 @@
                                 required>
                         </div>
 
-                        <!-- Tombol -->
                         <div class="d-flex gap-2">
                             <button type="button"
                                 class="btn w-100 py-2 small border"
@@ -1248,10 +1425,8 @@
         </div>
     </div>
 
-    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Script untuk Login -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('loginForm');
@@ -1266,7 +1441,6 @@
 
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<?php echo e(__("messages.processing")); ?>...';
-
                     const formData = new FormData(this);
 
                     fetch(this.action, {
@@ -1351,7 +1525,6 @@
         });
     </script>
 
-    <!-- Script untuk Forgot Password -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const forgotForm = document.getElementById('forgotPasswordForm');
@@ -1438,24 +1611,72 @@
     </script>
 
     <script>
-        // Back to top button functionality
-        window.onscroll = function() {
-            scrollFunction();
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuOverlay = document.getElementById('mobileMenuOverlay');
+            const closeMenuBtn = document.getElementById('closeMenuBtn');
+            const body = document.body;
 
-        function scrollFunction() {
-            const backToTopButton = document.getElementById("back-to-top");
-            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
-                backToTopButton.style.display = "block";
-            } else {
-                backToTopButton.style.display = "none";
+            function openMenu() {
+                mobileMenu.classList.add('open');
+                menuOverlay.classList.add('active');
+                hamburgerBtn.classList.add('active');
+                body.style.overflow = 'hidden';
             }
-        }
 
-        function topFunction() {
-            document.body.scrollTop = 0;
-            document.documentElement.scrollTop = 0;
-        }
+            function closeMenu() {
+                mobileMenu.classList.remove('open');
+                menuOverlay.classList.remove('active');
+                hamburgerBtn.classList.remove('active');
+                body.style.overflow = '';
+            }
+
+            if (hamburgerBtn) {
+                hamburgerBtn.addEventListener('click', openMenu);
+            }
+
+            if (closeMenuBtn) {
+                closeMenuBtn.addEventListener('click', closeMenu);
+            }
+
+            if (menuOverlay) {
+                menuOverlay.addEventListener('click', closeMenu);
+            }
+
+            // Close menu when clicking on mobile nav links
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    closeMenu();
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId !== '#') {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Close menu when clicking mobile login button (modal will open)
+            const mobileLoginBtn = document.querySelector('.mobile-login-btn');
+            if (mobileLoginBtn) {
+                mobileLoginBtn.addEventListener('click', function() {
+                    closeMenu();
+                });
+            }
+
+            // Close menu when window resize to desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    closeMenu();
+                }
+            });
+        });
     </script>
 
 </body>
