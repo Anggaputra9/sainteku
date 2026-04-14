@@ -4,9 +4,9 @@ namespace Modules\MasterData\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Modules\Masterdata\app\models\User; // Pastikan namespace Model User benar
-use Modules\MasterData\app\Models\Unit; // Pastikan namespace Model Unit benar
-use Modules\MasterData\app\Models\Role; // Sesuaikan dengan nama model Role kamu
+use App\models\User; // Pastikan namespace Model User benar
+use App\Models\Unit; // Pastikan namespace Model Unit benar
+use App\Models\Role; // Sesuaikan dengan nama model Role kamu
 // use Modules\MasterData\Models\Curriculum; // Aktifkan jika model Kurikulum sudah ada
 
 class MasterDataController extends Controller
