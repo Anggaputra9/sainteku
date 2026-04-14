@@ -1,5 +1,5 @@
-<div x-data="{ openDelete: false, url: '', unitName: '' }"
-    @open-delete-modal.window="openDelete = true; url = $event.detail.url; unitName = $event.detail.name"
+<div x-data="{ openDelete: false, url: '', roleName: '' }"
+    @open-delete-modal.window="openDelete = true; url = $event.detail.url; roleName = $event.detail.name"
     x-show="openDelete" class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
     x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
@@ -12,7 +12,7 @@
 
         <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Konfirmasi Hapus</h3>
         <p class="mb-8 text-sm text-gray-500 dark:text-gray-400">
-            Apakah Anda yakin ingin menghapus unit <span class="font-bold text-gray-900 dark:text-white" x-text="unitName"></span>? Tindakan ini tidak dapat dibatalkan.
+            Apakah Anda yakin ingin menghapus role <span class="font-bold text-gray-900 dark:text-white" x-text="roleName"></span>? Tindakan ini tidak dapat dibatalkan.
         </p>
 
         <div class="grid grid-cols-2 gap-3 mt-8">
@@ -35,4 +35,8 @@
             </form>
         </div>
     </div>
+<<<<<<<< HEAD:storage/framework/views/548333ba70695d5fa117c728c7f6b4bc.php
 </div><?php /**PATH D:\Unduhan\sainteku\Modules/MasterData\resources/views/units/delete-modal.blade.php ENDPATH**/ ?>
+========
+</div><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/roles/delete-modal.blade.php ENDPATH**/ ?>
+>>>>>>>> 9a3f851383482c3a2a807bbf6f4c8e4ac565c565:storage/framework/views/f3c4ccdf4520ba63d2208b2b537f1bc9.php

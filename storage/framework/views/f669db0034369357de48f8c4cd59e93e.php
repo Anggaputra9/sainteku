@@ -6,12 +6,12 @@
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                        Daftar Unit / Prodi
+                        Daftar Role
                     </h2>
                     <nav>
                         <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
                             <li>Master Data /</li>
-                            <li class="text-blue-600 dark:text-blue-400">Unit</li>
+                            <li class="text-blue-600 dark:text-blue-400">Role</li>
                         </ol>
                     </nav>
                 </div>
@@ -21,10 +21,10 @@
                     <button @click="$dispatch('open-create-modal')"
                         class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
                         <i class="fas fa-plus"></i>
-                        Tambah Unit
+                        Tambah Role
                     </button>
 
-                    <?php echo $__env->make('masterdata::units.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php echo $__env->make('masterdata::roles.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                 </div>
             </div>
 
@@ -67,7 +67,7 @@
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </span>
                             <input type="text" name="search" value="<?php echo e(request('search')); ?>"
-                                placeholder="Cari nama unit..."
+                                placeholder="Cari nama role..."
                                 class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
                         </div>
                         
@@ -88,7 +88,7 @@
                         </button>
 
                         
-                        <a href="<?php echo e(route('masterdata.units.index')); ?>"
+                        <a href="<?php echo e(route('masterdata.roles.index')); ?>"
                             class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-teal-700 focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800 transition shadow-sm">
                             <i class="fa-solid fa-rotate text-xs"></i> Reset
                         </a>
@@ -104,131 +104,120 @@
                 <thead class="bg-gray-50/50 text-left text-sm dark:bg-gray-700/30">
                     <tr class="border-b border-gray-100 dark:border-gray-700/50">
                         <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">ID</th>
-                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Nama Unit
+                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Nama Role
                         </th>
-                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Tipe</th>
-                        <th
-                            class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-center">
-                            Status</th>
+                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Deskripsi
+                        </th>
                         <th
                             class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-center">
                             Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                    <?php $__empty_1 = true; $__currentLoopData = $units; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $unit): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <tr class="bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700/20 transition">
-                            <td class="px-4 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">#<?php echo e($unit->id); ?>
+                    <?php $__empty_1 = true; $__currentLoopData = $roles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $role): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <tr class="bg-transparent">
+                            <td class="px-4 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">
+                                #<?php echo e($loop->iteration); ?>
 
                             </td>
-
                             <td class="px-4 py-4">
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white"><?php echo e($unit->unit_name); ?>
-
-                                </div>
-
-                                <?php if($unit->unit_parent): ?>
-                                    <?php
-                                        // Mencari nama induk dari koleksi $parentUnits berdasarkan ID-nya
-                                        $parent = $parentUnits->firstWhere('id', $unit->unit_parent);
-                                        $parentName = $parent ? $parent->unit_name : $unit->unit_parent;
-                                    ?>
-                                    <div
-                                        class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                                        <i class="fa-solid fa-turn-up fa-rotate-90 text-gray-400"></i>
-                                        Induk: <span
-                                            class="font-bold text-blue-600 dark:text-blue-200"><?php echo e($parentName); ?></span>
-                                    </div>
-                                <?php else: ?>
-                                    <div
-                                        class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                                        <i class="fa-solid fa-sitemap"></i>
-                                        Induk Universitas (Pusat)
-                                    </div>
-                                <?php endif; ?>
-                            </td>
-
-                            <td class="px-4 py-4 text-sm">
-                                <?php
-                                    // Menggunakan $type->description sesuai dengan nama kolom di database
-                                    $type = $unitTypes->firstWhere('id', $unit->unit_type_id);
-                                    $typeName = $type
-                                        ? $type->description ?? 'Level ' . $unit->unit_type_id
-                                        : 'Level ' . $unit->unit_type_id;
-                                ?>
                                 <span
-                                    class="inline-flex rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-900/30 dark:text-purple-300">
-                                    <?php echo e($typeName); ?>
+                                    class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                    <?php echo e(strtoupper($role->role_name)); ?>
 
                                 </span>
                             </td>
+                            <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                <?php echo e($role->description ?? 'Tidak ada deskripsi'); ?>
 
-                            <td class="px-4 py-4 text-center">
-                                <?php if($unit->is_active): ?>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Aktif
-                                    </span>
-                                <?php else: ?>
-                                    <span
-                                        class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> Non-aktif
-                                    </span>
-                                <?php endif; ?>
                             </td>
-
                             <td class="px-4 py-4 text-sm">
                                 <div class="flex items-center justify-center gap-2">
+                                    <?php
+                                        // Siapkan array izin khusus untuk role ini agar bisa dibaca oleh Alpine.js
+                                        // Formatnya: "modul_id-permission_id" (Contoh: "1-2" berarti Modul 1 punya Izin 2)
+                                        $perms = isset($rolePermissions[$role->id])
+                                            ? $rolePermissions[$role->id]
+                                            : collect();
+                                        $assignedPerms = $perms
+                                            ->map(function ($p) {
+                                                return $p->modul_id . '-' . $p->permission_id;
+                                            })
+                                            ->values()
+                                            ->toJson();
+                                    ?>
+
+                                    
+                                    <button type="button"
+                                        @click="$dispatch('open-perm-modal', { 
+                                            url: '<?php echo e(route('masterdata.roles.permissions.update', $role->id ?? 0)); ?>',
+                                            name: '<?php echo e($role->role_name); ?>',
+                                            assigned: <?php echo e($assignedPerms); ?> 
+                                        })"
+                                        class="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-purple-700 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-900"
+                                        title="Atur Hak Akses">
+                                        <i class="fa-solid fa-shield-halved"></i> Akses
+                                    </button>
+
+                                    
                                     <button type="button"
                                         @click="$dispatch('open-edit-modal', { 
-                                            url: '<?php echo e(route('masterdata.units.update', $unit->id)); ?>',
-                                            id: '<?php echo e($unit->id); ?>',
-                                            name: '<?php echo e($unit->unit_name); ?>',
-                                            type: '<?php echo e($unit->unit_type_id); ?>',
-                                            parent: '<?php echo e($unit->unit_parent); ?>',
-                                            active: <?php echo e($unit->is_active == '1' ? 'true' : 'false'); ?>
+                                            url: '<?php echo e(route('masterdata.roles.update', $role->id)); ?>',
+                                            code: '<?php echo e($role->role_code); ?>',
+                                            name: '<?php echo e($role->role_name); ?>',
+                                            active: <?php echo e($role->is_active == '1' ? 'true' : 'false'); ?>
 
                                         })"
                                         class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800"
-                                        title="Ubah Unit">
+                                        title="Edit Role">
                                         <i class="fa-solid fa-pencil"></i> Ubah
                                     </button>
 
                                     <button type="button"
                                         @click="$dispatch('open-delete-modal', { 
-                                            url: '<?php echo e(route('masterdata.units.destroy', $unit->id)); ?>',
-                                            name: '<?php echo e($unit->unit_name); ?>'
+                                            url: '<?php echo e(route('masterdata.roles.destroy', $role->id)); ?>',
+                                            name: '<?php echo e($role->role_name); ?>'
                                         })"
                                         class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
-                                        title="Hapus Unit">
+                                        title="Hapus Role">
                                         <i class="fa-solid fa-trash"></i> Hapus
                                     </button>
+
                                 </div>
                             </td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="5" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
-                                <i class="fas fa-building text-3xl mb-2 opacity-20"></i>
-                                <p>Belum ada data unit yang terdaftar.</p>
+                            <td colspan="4" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-shield-alt text-3xl mb-2 opacity-20"></i>
+                                <p>Belum ada data role yang dikonfigurasi.</p>
                             </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
+        
+        
+        <?php if(isset($roles) && $roles->hasPages()): ?>
+            <div class="mt-6">
+                <?php echo e($roles->appends(request()->query())->links()); ?>
 
-                <div class="mt-6">
-                    <?php echo e($units->appends(request()->query())->links()); ?>
-
-                </div>
+            </div>
+        <?php endif; ?>
             </div>
         </div>
     </div>
 
     
-    <?php echo $__env->make('masterdata::units.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-    <?php echo $__env->make('masterdata::units.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.modal-create', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.modal-permissions', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.modal-edit', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <?php echo $__env->make('masterdata::roles.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
 
+<<<<<<<< HEAD:storage/framework/views/f669db0034369357de48f8c4cd59e93e.php
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Unduhan\sainteku\Modules/MasterData\resources/views/units/index.blade.php ENDPATH**/ ?>
+========
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/roles/index.blade.php ENDPATH**/ ?>
+>>>>>>>> 9a3f851383482c3a2a807bbf6f4c8e4ac565c565:storage/framework/views/3e70e4d721e0d234f21d543a42c7590b.php

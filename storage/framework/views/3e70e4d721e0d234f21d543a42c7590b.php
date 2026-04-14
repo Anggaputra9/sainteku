@@ -216,4 +216,8 @@
     <?php echo $__env->make('masterdata::roles.delete-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/index.blade.php ENDPATH**/ ?>
+<<<<<<<< HEAD:storage/framework/views/f669db0034369357de48f8c4cd59e93e.php
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH D:\Unduhan\sainteku\Modules/MasterData\resources/views/units/index.blade.php ENDPATH**/ ?>
+========
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/roles/index.blade.php ENDPATH**/ ?>
+>>>>>>>> 9a3f851383482c3a2a807bbf6f4c8e4ac565c565:storage/framework/views/3e70e4d721e0d234f21d543a42c7590b.php

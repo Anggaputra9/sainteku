@@ -63,4 +63,4 @@
         </form>
     </div>
 </div>
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/modal-create.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/roles/modal-create.blade.php ENDPATH**/ ?>

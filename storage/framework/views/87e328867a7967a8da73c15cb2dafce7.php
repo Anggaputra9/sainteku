@@ -49,4 +49,4 @@
   </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.fullscreen-layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/pages/errors/error-404.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.fullscreen-layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\resources\views/pages/errors/error-404.blade.php ENDPATH**/ ?>

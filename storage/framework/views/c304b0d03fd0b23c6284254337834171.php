@@ -8,6 +8,12 @@
 
     <title><?php echo e($title ?? 'Dashboard'); ?> | TailAdmin - Laravel Tailwind CSS Admin Dashboard Template</title>
 
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     <!-- Scripts -->
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
 
@@ -46,7 +52,7 @@
 
             Alpine.store('sidebar', {
                 // Initialize based on screen size
-                isExpanded: window.innerWidth >= 1280, // true for desktop, false for mobile
+                isExpanded: false,
                 isMobileOpen: false,
                 isHovered: false,
 
@@ -77,29 +83,29 @@
 
     <!-- Apply dark mode immediately to prevent flash -->
     <script>
-        (function() {
+        (function () {
             const savedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = savedTheme || systemTheme;
             if (theme === 'dark') {
+                // Cukup html-nya aja yang dikasih class dark
                 document.documentElement.classList.add('dark');
-                document.body.classList.add('dark', 'bg-gray-900');
             } else {
                 document.documentElement.classList.remove('dark');
-                document.body.classList.remove('dark', 'bg-gray-900');
             }
         })();
     </script>
+
 </head>
 
-<body x-data="{ 'loaded': true}" x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
+<body x-data="{ 'loaded': true }" x-init="$store.sidebar.isExpanded = false;
 const checkMobile = () => {
     if (window.innerWidth < 1280) {
         $store.sidebar.setMobileOpen(false);
         $store.sidebar.isExpanded = false;
     } else {
         $store.sidebar.isMobileOpen = false;
-        $store.sidebar.isExpanded = true;
+        $store.sidebar.isExpanded = false; 
     }
 };
 window.addEventListener('resize', checkMobile);">
@@ -127,11 +133,25 @@ window.addEventListener('resize', checkMobile);">
 <?php endif; ?>
     
 
-    <?php echo $__env->yieldContent('content'); ?>
+    <div class="min-h-screen xl:flex">
+        <?php echo $__env->make('layouts.backdrop', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+        <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+        <div class="flex-1 transition-all duration-300 ease-in-out w-full overflow-hidden" :class="{
+                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
+                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+                'ml-0': $store.sidebar.isMobileOpen
+            }">
+            <!-- app header start -->
+            <?php echo $__env->make('layouts.app-header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+            <!-- app header end -->
+            <div class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
+                <?php echo $__env->yieldContent('content'); ?>
+            </div>
+        </div>
+    </div>
 </body>
 
 <?php echo $__env->yieldPushContent('scripts'); ?>
 
-</html>
-<?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/layouts/fullscreen-layout.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\laragon\www\sainteku\resources\views/layouts/app.blade.php ENDPATH**/ ?>

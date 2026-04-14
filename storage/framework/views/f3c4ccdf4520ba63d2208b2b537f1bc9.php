@@ -35,4 +35,8 @@
             </form>
         </div>
     </div>
-</div><?php /**PATH E:\kuliah\semester6\laravel\sainteku\Modules/MasterData\resources/views/roles/delete-modal.blade.php ENDPATH**/ ?>
+<<<<<<<< HEAD:storage/framework/views/548333ba70695d5fa117c728c7f6b4bc.php
+</div><?php /**PATH D:\Unduhan\sainteku\Modules/MasterData\resources/views/units/delete-modal.blade.php ENDPATH**/ ?>
+========
+</div><?php /**PATH C:\laragon\www\sainteku\Modules/MasterData\resources/views/roles/delete-modal.blade.php ENDPATH**/ ?>
+>>>>>>>> 9a3f851383482c3a2a807bbf6f4c8e4ac565c565:storage/framework/views/f3c4ccdf4520ba63d2208b2b537f1bc9.php

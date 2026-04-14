@@ -1681,4 +1681,4 @@
 
 </body>
 
-</html><?php /**PATH E:\kuliah\semester6\laravel\sainteku\resources\views/landing.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\laragon\www\sainteku\resources\views/landing.blade.php ENDPATH**/ ?>
