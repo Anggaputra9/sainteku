@@ -248,4 +248,24 @@ class DocumentRepositoryController extends Controller
             return back()->with('error', 'Gagal revisi: ' . $e->getMessage());
         }
     }
+    public function publicIndex(Request $request)
+    {
+        $search = $request->query('search');
+
+        $query = Document::with(['type', 'unit', 'creator'])
+            ->where('status', 3); // Hanya dokumen yang sudah disetujui
+
+        // Filter pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('document_title', 'like', '%' . $search . '%')
+                    ->orWhere('document_id', 'like', '%' . $search . '%');
+            });
+        }
+
+        $documents = $query->orderBy('created_at', 'desc')->paginate(9);
+
+        // Return view khusus untuk landing page
+        return view('documentrepository::public-index', compact('documents', 'search'));
+    }
 }

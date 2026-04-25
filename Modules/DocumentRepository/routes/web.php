@@ -26,4 +26,5 @@ Route::prefix('documentrepository')->middleware(['web', 'auth'])->group(function
     Route::post('/{id}/review', [DocumentRepositoryController::class, 'review'])->name('DocumentRepository.review');
     Route::post('/{id}/revise', [DocumentRepositoryController::class, 'revise'])->name('DocumentRepository.revise');
 
+    Route::get('/repository-publik', [DocumentRepositoryController::class, 'publicIndex'])->name('repository.publik');
 });
