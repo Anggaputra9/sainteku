@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="w-full max-w-full 2xl:p-10" x-data="bankSoalApp()" x-init="init()" x-cloak>
+    <div class="w-full" x-data="bankSoalApp()" x-init="init()" x-cloak>
         <div class="space-y-6 flex flex-col min-h-[calc(100vh-8rem)]">
 
             {{-- Header & Navigasi Breadcrumb --}}

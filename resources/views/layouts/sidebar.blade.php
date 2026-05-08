@@ -33,12 +33,11 @@
             this.open = this.open === i ? null : i
         }
     }" :class="{
-        'w-[280px] px-4': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen || $store.sidebar.isHovered,
-        'w-[84px] px-4': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+        'w-[280px] px-4': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen,
+        'w-[84px] px-4': !$store.sidebar.isExpanded,
         'translate-x-0': $store.sidebar.isMobileOpen,
         '-translate-x-full xl:translate-x-0': !$store.sidebar.isMobileOpen
-    }" @mouseenter="if (!$store.sidebar.isExpanded) $store.sidebar.setHovered(true)"
-    @mouseleave="$store.sidebar.setHovered(false)">
+    }">
 
     {{-- ================= LOGO & TEKS KAMPUS ================= --}}
     <div
@@ -47,21 +46,20 @@
         <a href="/" class="flex flex-col items-center justify-center group shrink-0 outline-none w-full">
 
             {{-- Gambar Logo --}}
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                 class="dark:hidden rounded-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105 shadow-sm shrink-0"
                 src="/images/logo/logo.svg" width="65">
 
-            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+            <img x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                 class="hidden dark:block rounded-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105 shadow-sm shrink-0"
                 src="/images/logo/logo.svg" width="65">
 
-            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isHovered && !$store.sidebar.isMobileOpen"
+            <img x-show="!$store.sidebar.isExpanded && !$store.sidebar.isMobileOpen"
                 class="rounded-full aspect-square object-cover transition-transform duration-300 group-hover:scale-110 shadow-sm shrink-0"
                 src="/images/logo/logo.svg" width="40">
 
             {{-- Teks Full: UIN PROF... --}}
-            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
-                x-transition.opacity.duration.300ms
+            <span x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen" x-transition.opacity.duration.300ms
                 class="mt-3 px-2 text-center text-[10px] font-extrabold text-gray-700 dark:text-gray-300 uppercase tracking-[0.1em] leading-tight shrink-0 whitespace-nowrap">
                 UIN PROF K.H.<br>SAIFUDDIN ZUHRI
             </span>
@@ -74,8 +72,8 @@
             <div class="flex flex-col gap-2">
 
                 <div>
-                    {{-- Judul Seksi Kalcer (Tambahan whitespace-nowrap dan truncate biar gak patah) --}}
-                    <h2 x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                    {{-- Judul Seksi Kalcer --}}
+                    <h2 x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                         class="mb-3 px-3 text-[10px] font-extrabold tracking-[0.2em] text-gray-400 dark:text-gray-500 uppercase whitespace-nowrap truncate">
                         Menu Utama
                     </h2>
@@ -105,29 +103,24 @@
 
                                 {{-- ================= PARENT WITH CHILD ================= --}}
                                 @if($hasChildren)
-                                    {{-- Tambahan overflow-hidden biar isi tombol kaga loncat --}}
                                     <button @click="toggle({{ $i }})"
                                         class="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] outline-none overflow-hidden"
                                         :class="(open === {{ $i }} || {{ $isActive ? 'true' : 'false' }}) 
-                                                    ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold' 
-                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200 font-medium'">
+                                                            ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold' 
+                                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200 font-medium'">
 
-                                        {{-- ICON (Kasih shrink-0 biar pas nutup iconnya gak ikutan gepeng) --}}
                                         <span
                                             class="flex shrink-0 items-center justify-center w-6 h-6 transition-transform duration-300"
                                             :class="(open === {{ $i }} || {{ $isActive ? 'true' : 'false' }}) ? 'scale-110' : 'group-hover:scale-110'">
                                             <i class="{{ $menu->menu_icon }} text-lg"></i>
                                         </span>
 
-                                        {{-- TEXT (Tambahan whitespace-nowrap) --}}
-                                        <span
-                                            x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                                             class="text-sm truncate whitespace-nowrap">
                                             {{ $menu->menu_name }}
                                         </span>
 
-                                        {{-- CHEVRON (Kasih shrink-0 juga) --}}
-                                        <svg x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                        <svg x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                                             class="ml-auto shrink-0 w-4 h-4 transition-transform duration-300 ease-in-out"
                                             :class="{ 'rotate-180 text-indigo-500': open === {{ $i }}, 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300': open !== {{ $i }} }"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +130,7 @@
                                     </button>
 
                                     {{-- SUBMENU --}}
-                                    <div x-show="open === {{ $i }} && ($store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen)"
+                                    <div x-show="open === {{ $i }} && ($store.sidebar.isExpanded || $store.sidebar.isMobileOpen)"
                                         x-transition:enter="transition-all ease-out duration-300"
                                         x-transition:enter-start="opacity-0 max-h-0 translate-y-[-10px]"
                                         x-transition:enter-end="opacity-100 max-h-[500px] translate-y-0"
@@ -153,7 +146,6 @@
                                                     $childActive = $child->menu_link && (Route::is($child->menu_link) || Route::is($child->menu_link . '*'));
                                                 @endphp
                                                 <li>
-                                                    {{-- Di submenu a href kasih whitespace-nowrap dan truncate --}}
                                                     <a href="{{ $child->menu_link && $child->menu_link !== '#' ? route($child->menu_link) : '#' }}"
                                                         class="block px-3 py-2 text-[13px] rounded-lg transition-all duration-200 active:scale-[0.98] whitespace-nowrap truncate {{ $childActive ? 'text-indigo-600 bg-indigo-50/50 font-semibold dark:text-indigo-400 dark:bg-indigo-500/10' : 'text-gray-500 font-medium hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/40' }}">
                                                         {{ $child->menu_name }}
@@ -165,19 +157,15 @@
 
                                     {{-- ================= SIMPLE MENU ================= --}}
                                 @else
-                                    {{-- Tambahan overflow-hidden di sini --}}
                                     <a href="{{ $menu->menu_link && $menu->menu_link !== '#' ? route($menu->menu_link) : '#' }}"
                                         class="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] outline-none overflow-hidden {{ $isActive ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200 font-medium' }}">
 
-                                        {{-- Kasih shrink-0 --}}
                                         <span
                                             class="flex shrink-0 items-center justify-center w-6 h-6 transition-transform duration-300 {{ $isActive ? 'scale-110' : 'group-hover:scale-110' }}">
                                             <i class="{{ $menu->menu_icon }} text-lg"></i>
                                         </span>
 
-                                        {{-- Kasih whitespace-nowrap --}}
-                                        <span
-                                            x-show="$store.sidebar.isExpanded || $store.sidebar.isHovered || $store.sidebar.isMobileOpen"
+                                        <span x-show="$store.sidebar.isExpanded || $store.sidebar.isMobileOpen"
                                             class="text-sm truncate whitespace-nowrap">
                                             {{ $menu->menu_name }}
                                         </span>

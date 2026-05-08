@@ -19,7 +19,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         // Pake Eager Loading biar nggak kena N+1 Query (Udah bener ini)
-        $query = User::with(['roles', 'unit'])->orderBy('name');
+        $query = User::with(['roles', 'unitUtama'])->orderBy('name');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -42,7 +42,7 @@ class AdminController extends Controller
         // Saran: Kalau data unit ini ribuan, lebih baik dropdown unit di modal diubah 
         // pakai Select2 AJAX biar narik datanya pas diketik aja (nggak bikin berat browser).
         // Sementara kita pakai get() biasa dengan select kolom seperlunya biar ringan.
-        $units = Unit::where('is_active', '1')->select('id', 'unit_name')->get();
+        $units = Unit::where('is_active', '1')->select('id', 'unit_name', 'unit_parent')->get();
 
         $userTypes = DB::table('ref_user_type')->get();
 
@@ -57,23 +57,30 @@ class AdminController extends Controller
         $roles = Role::orderBy('id')->get();
         return view('masterdata::admin.create', compact('roles'));
     }
-
     /**
      * Store a newly created user in storage
      */
     public function store(Request $request)
     {
+        // 1. VALIDASI
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:mst_user,email',
             'password' => 'required|string|min:8|confirmed',
             'identity_id' => 'nullable|string|max:20',
             'user_type' => 'required|string|exists:ref_user_type,id',
+
+            // Validasi baru untuk Unit Utama & Tambahan
+            'tingkatUtama' => 'required|string|in:kampus,fakultas,prodi',
             'unit_id' => 'required|string|exists:mst_unit,id',
+            'unit_tambahan' => 'nullable|array',
+            'unit_tambahan.*' => 'string|exists:mst_unit,id',
+
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'integer|exists:mst_role,id',
         ]);
 
+        // Generate ID Custom
         $lastUser = User::orderBy('id', 'desc')->first();
         if ($lastUser) {
             $lastNumber = (int) substr($lastUser->id, 1);
@@ -82,22 +89,44 @@ class AdminController extends Controller
             $newId = 'U0001';
         }
 
+        // 2. EKSTRAK DATA YANG BUKAN KOLOM TABEL mst_user
         $roleIds = $data['role_ids'];
-        unset($data['role_ids']);
+        $unitTambahan = $data['unit_tambahan'] ?? []; // Default array kosong kalau gak ada centangan
+        $tingkatUtama = $data['tingkatUtama'];
 
+        // Wajib di-unset biar gak error pas User::create()
+        unset($data['role_ids'], $data['unit_tambahan'], $data['tingkatUtama']);
+
+        // Set data sisa untuk tabel mst_user
         $data['id'] = $newId;
         $data['password'] = Hash::make($data['password']);
-
         $data['is_active'] = $request->has('is_active') ? '1' : '0';
         $data['identity_id'] = $data['identity_id'] ?? null;
 
+        // 3. EKSEKUSI PENYIMPANAN
+        // A. Simpan Data User (sekaligus nyimpen unit_id utama)
         $user = User::create($data);
+
+        // B. Simpan Hak Akses / Role
         $user->roles()->sync($roleIds);
+
+        // --- TAMBAHIN BARIS INI SEMENTARA BUAT NGECEK ---
+        //dd('Isi Tingkat Utama:', $tingkatUtama, 'Isi Unit Tambahan:', $unitTambahan);
+
+        // C. Simpan Unit Tambahan dengan Logic Strict
+        if ($tingkatUtama === 'kampus') {
+            // Kalau levelnya kampus, bersihin unit tambahannya (jaga-jaga kalau ada data bocor)
+            $user->unitTambahan()->sync([]);
+        } else {
+            // Kalau fakultas/prodi dan array-nya nggak kosong, masukin ke tabel pivot
+            if (!empty($unitTambahan)) {
+                $user->unitTambahan()->sync($unitTambahan);
+            }
+        }
 
         return redirect()->route('masterdata.admin.users.index')
             ->with('success', 'User berhasil ditambahkan dengan ID: ' . $newId);
     }
-
     /**
      * Show the form for editing the specified user
      */
@@ -123,14 +152,22 @@ class AdminController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'identity_id' => 'nullable|string',
             'user_type' => 'nullable|string',
-            'unit_id' => 'nullable|string',
+
+            // Validasi Baru
+            'tingkatUtama' => 'required|string|in:kampus,fakultas,prodi',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'unit_tambahan' => 'nullable|array',
+            'unit_tambahan.*' => 'string|exists:mst_unit,id',
+
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'integer|exists:mst_role,id',
-            'is_active' => 'nullable',
         ]);
 
         $roleIds = $data['role_ids'];
-        unset($data['role_ids']);
+        $unitTambahan = $data['unit_tambahan'] ?? [];
+        $tingkatUtama = $data['tingkatUtama'];
+
+        unset($data['role_ids'], $data['unit_tambahan'], $data['tingkatUtama']);
 
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -149,13 +186,31 @@ class AdminController extends Controller
 
         $data['identity_id'] = $data['identity_id'] ?? null;
         $data['user_type'] = $data['user_type'] ?? null;
-        $data['unit_id'] = $data['unit_id'] ?? null;
 
+        // Eksekusi Update Tabel mst_user
         $user->update($data);
+
+        // Sync Roles
         $user->roles()->sync($roleIds);
 
+        // Eksekusi Update Unit Tambahan (Pakai Query Builder biar anti error String ID)
+        \Illuminate\Support\Facades\DB::table('mst_user_unit')
+            ->where('user_id', $user->id)
+            ->delete(); // Hapus yang lama dulu
+
+        if ($tingkatUtama !== 'kampus' && !empty($unitTambahan)) {
+            $pivotData = [];
+            foreach ($unitTambahan as $uId) {
+                $pivotData[] = [
+                    'user_id' => $user->id,
+                    'unit_id' => $uId
+                ];
+            }
+            \Illuminate\Support\Facades\DB::table('mst_user_unit')->insert($pivotData);
+        }
+
         if ($isSuicideAttempt) {
-            return redirect('/masterdata/admin/users')->with('error', 'Bahaya! Anda tidak diperbolehkan menonaktifkan akun sendiri untuk mencegah terkunci dari sistem.');
+            return redirect('/masterdata/admin/users')->with('error', 'Bahaya! Anda tidak diperbolehkan menonaktifkan akun sendiri.');
         }
 
         return redirect('/masterdata/admin/users')->with('success', 'Data user berhasil diperbarui.');
