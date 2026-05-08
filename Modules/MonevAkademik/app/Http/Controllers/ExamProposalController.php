@@ -27,7 +27,42 @@ class ExamProposalController extends Controller
         }
         $user = Auth::user();
         $periods = DB::table('mst_period')->orderBy('name', 'desc')->get();
-        $myCourses = MstCourse::where('unit_id', $user->unit_id)->get();
+        // --- LOGIC BARU: AMBIL MATKUL BERDASARKAN MULTI-UNIT DOSEN ---
+        // 1. Kumpulin semua ID Unit yang boleh diakses user (Utama + Tambahan)
+        $userUnitIds = DB::table('mst_user_unit')->where('user_id', $user->id)->pluck('unit_id')->toArray();
+        $userUnitIds[] = $user->unit_id; // Masukin unit utamanya juga
+        $userUnitIds = array_unique($userUnitIds);
+
+        // 2. Ambil data unit user buat ngecek dia level apa (Univ / Fak / Prodi)
+        $userUnits = DB::table('mst_unit')->whereIn('id', $userUnitIds)->get();
+        $isUniv = $userUnits->where('unit_type_id', 1)->isNotEmpty();
+        $fakultasIds = $userUnits->where('unit_type_id', 2)->pluck('id')->toArray();
+
+        // 3. Tarik Mata Kuliah + Join ke Unit & Parent Unit (biar gampang difilter di frontend)
+        $queryCourse = MstCourse::query()
+            ->join('mst_unit as prodi', 'mst_course.unit_id', '=', 'prodi.id')
+            ->leftJoin('mst_unit as fakultas', 'prodi.unit_parent', '=', 'fakultas.id')
+            ->select(
+                'mst_course.id',
+                'mst_course.course_name',
+                'prodi.id as prodi_id',
+                'prodi.unit_name as prodi_name',
+                'fakultas.id as fakultas_id',
+                'fakultas.unit_name as fakultas_name'
+            );
+
+        // Kalau dia BUKAN orang Universitas, batasin matkulnya
+        if (!$isUniv) {
+            $queryCourse->where(function ($q) use ($userUnitIds, $fakultasIds) {
+                // Matkul milik Prodi yang ID-nya ada di daftar unit user
+                $q->whereIn('mst_course.unit_id', $userUnitIds)
+                    // ATAU Matkul milik Prodi yang bernaung di bawah Fakultas si user
+                    ->orWhereIn('prodi.unit_parent', $fakultasIds);
+            });
+        }
+
+        $myCourses = $queryCourse->get();
+        // -------------------------------------------------------------
         $cpmkList = MstCpmk::where('is_active', '1')->get();
 
         $myProposals = ExamProposal::with(['course', 'creator', 'examQuestions.question', 'reviews.reviewer', 'logs.user'])

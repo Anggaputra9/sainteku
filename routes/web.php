@@ -33,6 +33,7 @@ Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordControlle
 // Reset Password Routes
 Route::get('reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
 // Check Auth (untuk AJAX)
 Route::get('/check-auth', [LoginController::class, 'checkAuth'])->name('check.auth');

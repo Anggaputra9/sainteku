@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+    <div class="mx-auto">
         <div class="space-y-6">
 
             {{-- Breadcrumb & Title --}}
@@ -108,7 +108,7 @@
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
-                                <th class="px-6 py-4 font-semibold">Unit</th>
+                                <th class="px-6 py-4 font-semibold">Unit Utama</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
                                 <th class="px-6 py-4 text-center font-semibold">Aksi</th>
                             </tr>
@@ -151,9 +151,9 @@
                                         @if ($user->unit_id)
                                             {{-- max-w-full memastikan badge tidak akan melebihi ukuran td --}}
                                             <span
-                                                title="{{ $user->unit->unit_name ?? 'Unit tidak ditemukan' }} (ID: {{ $user->unit_id }})"
+                                                title="{{ $user->unitUtama->unit_name ?? 'Unit tidak ditemukan' }} (ID: {{ $user->unit_id }})"
                                                 class="inline-block max-w-full truncate rounded-md bg-indigo-50 px-2.5 py-1 align-middle text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 transition hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400">
-                                                {{ $user->unit->unit_name ?? 'Unit tidak ditemukan' }}
+                                                {{ $user->unitUtama->unit_name ?? 'Unit tidak ditemukan' }}
                                             </span>
                                         @else
                                             <span class="text-xs font-medium italic text-gray-400">-</span>
@@ -177,16 +177,23 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         <div class="flex items-center justify-center gap-2">
                                             {{-- Tombol Ubah (Warning: Oranye, fa-pencil) --}}
-                                            <button @click="$dispatch('open-edit-modal', { 
-                                                        url: '{{ route('masterdata.admin.users.update', $user->id) }}',
-                                                        name: '{{ $user->name }}',
-                                                        email: '{{ $user->email }}',
-                                                        identity: '{{ $user->identity_id }}',
-                                                        type: '{{ $user->user_type }}',
-                                                        unit: '{{ $user->unit_id }}',
-                                                        active: {{ $user->is_active == '1' ? 'true' : 'false' }},
-                                                        roles: {{ json_encode($user->roles->pluck('id')) }}
-                                                        })"
+                                            @php
+                                                $editPayload = [
+                                                    'url' => route('masterdata.admin.users.update', $user->id),
+                                                    'userData' => [
+                                                        'name' => $user->name,
+                                                        'email' => $user->email,
+                                                        'identity' => $user->identity_id,
+                                                        'type' => $user->user_type,
+                                                        'unit' => $user->unit_id,
+                                                        'active' => $user->is_active == '1',
+                                                        'roles' => $user->roles->pluck('id'),
+                                                        'unitTambahan' => $user->unitTambahan->pluck('id')
+                                                    ]
+                                                ];
+                                            @endphp
+                                            <button data-payload="{{ json_encode($editPayload) }}"
+                                                @click="$dispatch('open-edit-modal', JSON.parse($el.dataset.payload))"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800 transition shadow-sm"
                                                 title="Ubah Data">
                                                 <i class="fa-solid fa-pencil"></i> Ubah
@@ -194,9 +201,9 @@
 
                                             {{-- Tombol Hapus (Danger: Merah, fa-trash) --}}
                                             <button @click="$dispatch('open-delete-modal', { 
-                                                        url: '{{ route('masterdata.admin.users.destroy', $user->id) }}',
-                                                        name: '{{ $user->name }}'
-                                                        })"
+                                                                                            url: '{{ route('masterdata.admin.users.destroy', $user->id) }}',
+                                                                                            name: '{{ $user->name }}'
+                                                                                            })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900 transition shadow-sm"
                                                 title="Hapus Data">
                                                 <i class="fa-solid fa-trash"></i> Hapus

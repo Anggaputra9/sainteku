@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,14 +10,12 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Konfigurasi tabel
     protected $table = 'mst_user';
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
     public $timestamps = false;
 
-    // Kolom yang bisa diisi (mass assignable)
     protected $fillable = [
         'id',
         'name',
@@ -35,13 +32,11 @@ class User extends Authenticatable
         'avatar',
     ];
 
-    // Kolom yang disembunyikan saat serialisasi
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    // Casting tipe data
     protected function casts(): array
     {
         return [
@@ -51,13 +46,6 @@ class User extends Authenticatable
         ];
     }
 
-    // ==================================================
-    // RELASI
-    // ==================================================
-
-    /**
-     * Relasi dengan Role (many-to-many)
-     */
     public function roles()
     {
         return $this->belongsToMany(
@@ -68,9 +56,6 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * Relasi dengan Achievement Mahasiswa (dari tabel trx_achievements)
-     */
     public function achievements()
     {
         return $this->hasMany(
@@ -80,9 +65,6 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * Relasi dengan Achievement Dosen (dari tabel dosen_achievements)
-     */
     public function dosenAchievements()
     {
         return $this->hasMany(
@@ -92,25 +74,28 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * Relasi dengan Course
-     */
     public function courses()
     {
         return $this->hasMany(\App\Models\MstCourse::class, 'unit_id');
     }
 
-    // ==================================================
-    // PERMISSION
-    // ==================================================
+    public function unitUtama()
+    {
+        return $this->belongsTo(\App\Models\MstUnit::class, 'unit_id', 'id');
+    }
 
-    /**
-     * Cek apakah user memiliki permission tertentu pada suatu modul
-     * Contoh penggunaan: Auth::user()->hasPermission(10, 'C')
-     */
+    public function unitTambahan()
+    {
+        return $this->belongsToMany(
+            \App\Models\MstUnit::class,
+            'mst_user_unit',           
+            'user_id',                 
+            'unit_id'                  
+        );
+    }
+
     public function hasPermission($moduleId, $permissionCode)
     {
-        // Kalau Super Admin (role_code 'ADM'), langsung return true
         if ($this->roles()->where('role_code', 'ADM')->exists()) {
             return true;
         }
@@ -126,17 +111,7 @@ class User extends Authenticatable
             ->exists();
     }
 
-    // ==================================================
-    // METHOD LAIN
-    // ==================================================
-
-    /**
-     * Method untuk reset password (override dari Authenticatable)
-     */
     public function sendPasswordResetNotification($token)
     {
-        // Ini akan dipanggil oleh Laravel saat reset password
-        // Tapi kita tidak pakai karena pakai custom implementation
-        // Bisa dikosongkan saja
     }
 }

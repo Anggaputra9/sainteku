@@ -2,7 +2,12 @@
 
 @section('content')
     {{-- KUNCI SPA: Dibungkus fungsi tashihApp (tanpa kurung tutup) --}}
-    <div class="mx-auto max-w-screen-2xl 2xl:p-10" x-data="tashihApp" x-cloak>
+    <div class="mx-auto" x-data="tashihApp"
+        @buka-modal-matkul.window="openSelectCourse = true; courseId = ''; courseName = '';" @lanjut-bikin-soal.window="
+            courseId = $event.detail; 
+            openCreate = true; 
+            setTimeout(() => { if(typeof initCreateModal === 'function') initCreateModal(courseId) }, 100);
+        " x-cloak>
 
         <div class="space-y-6">
             {{-- Header & Tombol Utama --}}
@@ -18,7 +23,7 @@
                     </nav>
                 </div>
                 @if(Auth::user()->hasPermission(3, 'C'))
-                    <button @click="openSelectCourse = true; courseId = ''; courseName = '';"
+                    <button @click="$dispatch('buka-modal-matkul')"
                         class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
                         <i class="fas fa-file-circle-plus text-lg"></i> Buat Pengajuan
                     </button>
