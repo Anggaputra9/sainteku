@@ -41,7 +41,7 @@ class InfrastructureController extends Controller
         $inventoryTypes = DB::table('mst_inventory_type')->get();
         $units = DB::table('mst_unit')->where('is_active', '1')->get();
 
-        return view('masterdata::infrastructures.index', compact('infrastructures', 'inventoryTypes', 'units'));
+        return view('masterdata::infrastructures.index', compact('infrastructures', 'inventoryTypes', 'units'))->with('title', 'Daftar Infrastruktur & Inventaris');
     }
 
     /**

@@ -17,7 +17,7 @@ class CourseController extends Controller
             ->where('unit_type_id', 2) // Asumsi 2 adalah tipe Fakultas
             ->get();
 
-        return view('masterdata::courses.index', compact('faculties'));
+        return view('masterdata::courses.index', compact('faculties'))->with('title', 'Daftar Mata Kuliah');
     }
 
     // 2. API: Mendapatkan daftar Prodi berdasarkan Fakultas yang dipilih

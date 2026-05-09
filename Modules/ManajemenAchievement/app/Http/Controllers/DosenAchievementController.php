@@ -63,7 +63,7 @@ class DosenAchievementController extends Controller
             'tahunList',
             'kategori',
             'tingkat'
-        ));
+        ))->with('title', 'Daftar Prestasi Saya');
     }
 
     public function create()
@@ -73,7 +73,7 @@ class DosenAchievementController extends Controller
         $kategori = DosenKategori::where('is_active', true)->get();
         $tingkat = DosenTingkat::where('is_active', true)->get();
 
-        return view('manajemenachievement::dosen.create', compact('kategori', 'tingkat'));
+        return view('manajemenachievement::dosen.create', compact('kategori', 'tingkat'))->with('title', 'Tambah Prestasi Baru');
     }
 
     public function store(Request $request)
@@ -137,7 +137,7 @@ class DosenAchievementController extends Controller
             ->where('user_id', Auth::user()->id)
             ->firstOrFail();
 
-        return view('manajemenachievement::dosen.show', compact('achievement'));
+        return view('manajemenachievement::dosen.show', compact('achievement'))->with('title', 'Detail Prestasi');
     }
 
     public function edit($id)
@@ -152,7 +152,7 @@ class DosenAchievementController extends Controller
         $kategori = DosenKategori::where('is_active', true)->get();
         $tingkat = DosenTingkat::where('is_active', true)->get();
 
-        return view('manajemenachievement::dosen.edit', compact('achievement', 'kategori', 'tingkat'));
+        return view('manajemenachievement::dosen.edit', compact('achievement', 'kategori', 'tingkat'))->with('title', 'Edit Prestasi');
     }
 
     public function update(Request $request, $id)

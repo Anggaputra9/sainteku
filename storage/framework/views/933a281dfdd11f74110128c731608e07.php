@@ -1,306 +1,323 @@
 <?php $__env->startSection('content'); ?>
+    <div class="mx-auto space-y-10">
 
-
-    <div class="mb-8 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="flex flex-col gap-3 px-8 py-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Utama</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Ringkasan jumlah pengajuan berdasarkan modul dan periode akademik. Data ditampilkan sesuai role Anda.</p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4">
-            <?php if($showMonev): ?>
-                <div class="rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-900/20">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-300">Tashih Pending</p>
-                    <p class="mt-3 text-4xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examSubmitted)); ?></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Menunggu persetujuan</p>
-                </div>
-                <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-800 dark:bg-emerald-900/20">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-300">Tashih Disetujui</p>
-                    <p class="mt-3 text-4xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examApproved)); ?></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Sudah mendapat persetujuan</p>
-                </div>
-                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-900/20">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-300">Tashih Direvisi</p>
-                    <p class="mt-3 text-4xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examRevised)); ?></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Dikembalikan untuk revisi</p>
-                </div>
-            <?php endif; ?>
-
-            <?php if($showInfrastructure): ?>
-                <div class="rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-800 dark:bg-violet-900/20">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-violet-600 dark:text-violet-300">Peminjaman Pending</p>
-                    <p class="mt-3 text-4xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infrastructurePending)); ?></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Belum selesai</p>
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/40">
-                    <p class="text-xs font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">Peminjaman Selesai</p>
-                    <p class="mt-3 text-4xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infrastructureCompleted)); ?></p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Sudah dikembalikan</p>
-                </div>
-            <?php endif; ?>
-
-            <?php if(!$showMonev && !$showInfrastructure): ?>
-                <div class="col-span-1 md:col-span-2 xl:col-span-4 rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-900">
-                    <p class="font-semibold text-gray-900 dark:text-white">Tidak ada data dashboard yang dapat ditampilkan.</p>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Role Anda belum memberikan akses ke modul yang tersedia saat ini.</p>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <?php if($showMonev): ?>
-
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        <div class="min-w-0 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Distribusi Status Tashih</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Proporsi pengajuan berdasarkan status saat ini.</p>
+        
+        <div
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 p-8 shadow-lg dark:from-gray-800 dark:to-gray-900">
+            <div class="absolute -right-10 -top-10 text-white/10 pointer-events-none">
+                <i class="fa-solid fa-shapes text-9xl"></i>
             </div>
-            <div class="p-6">
-                <div class="flex flex-wrap gap-4 mb-6">
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span>
-                        Pending (<?php echo e(number_format($examSubmitted)); ?>)
-                    </span>
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#10b981"></span>
-                        Disetujui (<?php echo e(number_format($examApproved)); ?>)
-                    </span>
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span>
-                        Direvisi (<?php echo e(number_format($examRevised)); ?>)
-                    </span>
+            <div class="relative z-10 flex items-center gap-6">
+                <div
+                    class="h-20 w-20 rounded-full border-4 border-white/20 bg-white/10 p-1 backdrop-blur-md hidden sm:block">
+                    <img src="<?php echo e(Auth::user()->avatar ? asset('storage/avatars/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random'); ?>"
+                        class="h-full w-full rounded-full object-cover">
                 </div>
-                <div class="relative w-full" style="height:240px;">
-                    <canvas id="donutStatusChart" role="img" aria-label="Donut chart distribusi status tashih">
-                        Pending: <?php echo e($examSubmitted); ?>, Disetujui: <?php echo e($examApproved); ?>, Direvisi: <?php echo e($examRevised); ?>.
-                    </canvas>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Selamat Datang, <?php echo e(Auth::user()->name); ?>!
+                    </h1>
+                    <p class="mt-2 text-sm text-indigo-100 font-medium max-w-xl leading-relaxed">
+                        Selamat datang di Pusat Kendali Terpadu Sainteku. Halaman ini menyajikan ringkasan informasi dan
+                        akses cepat menuju layanan akademik serta administratif sesuai dengan kewenangan Anda.
+                    </p>
                 </div>
             </div>
         </div>
 
-        <div class="min-w-0 rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">Histogram per Periode Akademik</h3>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Jumlah pengajuan tashih tiap periode, dipecah per status.</p>
-            </div>
-            <div class="p-6">
-                <div class="flex flex-wrap gap-4 mb-6">
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span> Pending
-                    </span>
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#10b981"></span> Disetujui
-                    </span>
-                    <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span> Direvisi
-                    </span>
+        
+        
+        
+        <?php if(isset($isAdmin) && $isAdmin): ?>
+            <div class="space-y-4">
+                <div class="border-b border-gray-200 pb-3 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
+                            class="fas fa-database text-blue-500 mr-2"></i> Master Data System</h2>
                 </div>
-                <div class="relative w-full" style="height:240px;">
-                    <canvas id="barPeriodChart" role="img" aria-label="Stacked bar chart pengajuan per periode akademik">
-                        Histogram pengajuan per periode.
-                    </canvas>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                    
+                    <a href="<?php echo e(route('masterdata.admin.users.index')); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-blue-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-blue-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-blue-100 p-2.5 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/50 dark:text-blue-400">
+                                <i class="fas fa-users text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
+                                    Pengguna</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalUsers)); ?></p>
+                            </div>
+                        </div>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('masterdata.roles.index')); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-green-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-green-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-green-100 p-2.5 text-green-600 transition-colors group-hover:bg-green-600 group-hover:text-white dark:bg-green-900/50 dark:text-green-400">
+                                <i class="fas fa-user-shield text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Role
+                                    / Akses</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalRoles)); ?></p>
+                            </div>
+                        </div>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('masterdata.units.index')); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-purple-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-purple-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-purple-100 p-2.5 text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white dark:bg-purple-900/50 dark:text-purple-400">
+                                <i class="fas fa-building text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Unit
+                                    / Prodi</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalUnits)); ?></p>
+                            </div>
+                        </div>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('masterdata.curricula.index') ?? '#'); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-amber-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-amber-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-amber-100 p-2.5 text-amber-600 transition-colors group-hover:bg-amber-600 group-hover:text-white dark:bg-amber-900/50 dark:text-amber-400">
+                                <i class="fas fa-calendar-alt text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
+                                    Kurikulum / TA</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalPeriods)); ?>
+
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('masterdata.courses.index')); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-yellow-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-yellow-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-yellow-100 p-2.5 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-white dark:bg-yellow-900/50 dark:text-yellow-400">
+                                <i class="fas fa-book-open text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Mata
+                                    Kuliah</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalCourses)); ?>
+
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('masterdata.infrastructures.index')); ?>"
+                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-teal-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-teal-500">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="rounded-full bg-teal-100 p-2.5 text-teal-600 transition-colors group-hover:bg-teal-600 group-hover:text-white dark:bg-teal-900/50 dark:text-teal-400">
+                                <i class="fas fa-boxes-stacked text-base"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
+                                    Infrastruktur</p>
+                                <p class="text-xl font-bold text-gray-900 dark:text-white">
+                                    <?php echo e(number_format($totalInfraMaster)); ?>
+
+                                </p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
+        <?php endif; ?>
 
-    <div class="my-8  rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Tren Pengajuan per Bulan</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pergerakan jumlah pengajuan tashih dalam 6 bulan terakhir.</p>
-        </div>
-        <div class="p-6">
-            <div class="flex flex-wrap gap-4 mb-8">
-                <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span class="inline-block w-3 h-3 rounded-sm" style="background:#3b82f6"></span> Pending
-                </span>
-                <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span class="inline-block w-3 h-3 rounded-sm" style="background:#10b981"></span> Disetujui
-                </span>
-                <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span class="inline-block w-3 h-3 rounded-sm" style="background:#f59e0b"></span> Direvisi
-                </span>
-            </div>
-            <div class="relative w-full" style="height:220px;">
-                <canvas id="lineTrendChart" role="img" aria-label="Line chart tren pengajuan tashih 6 bulan terakhir">
-                    Tren pengajuan bulanan.
-                </canvas>
-            </div>
-        </div>
-    </div>
+        
+        
+        
+        <?php if(isset($showTashih) && $showTashih): ?>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
+                            class="fas fa-file-signature text-emerald-500 mr-2"></i> Monev Akademik (Tashih Soal)</h2>
+                </div>
 
-    
-    <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="border-b border-gray-200 px-6 py-5 dark:border-gray-700">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">Ringkasan Pengajuan per Periode Akademik</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Detail jumlah pengajuan setiap periode akademik sesuai role Anda.</p>
-        </div>
-        <div class="p-6">
-            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
-                <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                    <tr>
-                        <th class="px-2 py-3">Periode Akademik</th>
-                        <th class="px-2 py-3 text-right">Total</th>
-                        <th class="px-2 py-3 text-right">Pending</th>
-                        <th class="px-2 py-3 text-right">Disetujui</th>
-                        <th class="px-2 py-3 text-right">Direvisi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                    <?php $__empty_1 = true; $__currentLoopData = $examByPeriod; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $period): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <tr>
-                            <td class="px-2 py-4 font-medium text-gray-900 dark:text-white"><?php echo e($period->name); ?> &mdash; <?php echo e($period->semester); ?></td>
-                            <td class="px-2 py-4 text-right font-semibold"><?php echo e(number_format($period->total_count)); ?></td>
-                            <td class="px-2 py-4 text-right text-blue-600 dark:text-blue-400"><?php echo e(number_format($period->submitted_count)); ?></td>
-                            <td class="px-2 py-4 text-right text-emerald-600 dark:text-emerald-400"><?php echo e(number_format($period->approved_count)); ?></td>
-                            <td class="px-2 py-4 text-right text-amber-600 dark:text-amber-400"><?php echo e(number_format($period->revised_count)); ?></td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr>
-                            <td colspan="5" class="px-2 py-8 text-center text-gray-500 dark:text-gray-400">Tidak ada data periode yang tersedia.</td>
-                        </tr>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    
+                    <?php if(isset($isReviewerMonev) && $isReviewerMonev): ?>
+                        <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
+                            class="group block rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-widest text-rose-100"><i
+                                            class="fas fa-bell mr-1"></i> Antrean ACC</p>
+                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($examNeedAcc)); ?></p>
+                                </div>
+                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
+                                        class="fas fa-clipboard-check"></i></div>
+                            </div>
+                            <p class="mt-2 text-xs text-rose-100">Perlu review & persetujuan Anda</p>
+                        </a>
                     <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+
+                    
+                    <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
+                        class="group block rounded-2xl border border-blue-200 bg-blue-50 p-5 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/40">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">Pengajuan
+                            Pending</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examSubmitted)); ?></p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Menunggu antrean review</p>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
+                        class="group block rounded-2xl border border-emerald-200 bg-emerald-50 p-5 hover:bg-emerald-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-emerald-800 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Telah
+                            Disetujui</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examApproved)); ?></p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Siap dicetak/digunakan</p>
+                    </a>
+
+                    
+                    <a href="<?php echo e(route('monevakademik.banksoal.index')); ?>"
+                        class="group block rounded-2xl border border-purple-200 bg-purple-50 p-5 hover:bg-purple-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-purple-800 dark:bg-purple-900/20 dark:hover:bg-purple-900/40">
+                        <p class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">Total
+                            Bank Soal</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalBankSoal)); ?>
+
+                            <span class="text-sm font-normal text-gray-500">Butir</span>
+                        </p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Klik untuk mencari butir soal</p>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        
+        
+        
+        <?php if(isset($showInfra) && $showInfra): ?>
+            <div class="space-y-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
+                            class="fas fa-building text-amber-500 mr-2"></i> Peminjaman Infrastruktur</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    
+                    <?php if(isset($isReviewerInfra) && $isReviewerInfra): ?>
+                        <a href="<?php echo e(route('manajementinfrastruktur.persetujuan.index')); ?>"
+                            class="group block rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-widest text-amber-100"><i
+                                            class="fas fa-bell mr-1"></i> Antrean ACC Peminjaman</p>
+                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($infraNeedAcc)); ?></p>
+                                </div>
+                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
+                                        class="fas fa-calendar-check"></i></div>
+                            </div>
+                        </a>
+                    <?php endif; ?>
+
+                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
+                        class="group block rounded-2xl border border-amber-200 bg-amber-50 p-5 hover:bg-amber-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/40">
+                        <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest">Pengajuan
+                            Saya</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraPending)); ?></p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Menunggu ACC</p>
+                    </a>
+
+                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
+                        class="group block rounded-2xl border border-blue-200 bg-blue-50 p-5 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/40">
+                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Sedang
+                            Dipinjam</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraDipinjam)); ?></p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Barang/Fasilitas sedang digunakan</p>
+                    </a>
+
+                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
+                        class="group block rounded-2xl border border-gray-200 bg-gray-50 p-5 hover:bg-gray-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Dikembalikan
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraSelesai)); ?></p>
+                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Peminjaman selesai</p>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        
+        
+        
+        <?php if(isset($showDoc) && $showDoc): ?>
+            <div class="space-y-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
+                            class="fas fa-folder-open text-indigo-500 mr-2"></i> Repositori Dokumen</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    
+                    <?php if(isset($isReviewerDoc) && $isReviewerDoc): ?>
+                        <a href="<?php echo e(route('DocumentRepository.review.index')); ?>"
+                            class="group block rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-widest text-indigo-100"><i
+                                            class="fas fa-bell mr-1"></i> Antrean ACC Dokumen</p>
+                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($docNeedAcc)); ?></p>
+                                </div>
+                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
+                                        class="fas fa-file-signature"></i></div>
+                            </div>
+                        </a>
+                    <?php endif; ?>
+
+                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
+                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-indigo-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-indigo-500">
+                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Dokumen
+                        </p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalDokumen)); ?></p>
+                    </a>
+
+                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
+                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-amber-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-amber-500">
+                        <p class="text-xs font-semibold text-amber-500 uppercase tracking-wider">Menunggu Review</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($docPending)); ?></p>
+                    </a>
+
+                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
+                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-emerald-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-emerald-500">
+                        <p class="text-xs font-semibold text-emerald-500 uppercase tracking-wider">Telah Disetujui</p>
+                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($docApproved)); ?></p>
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        
+        <?php if(!isset($isAdmin) && !isset($showTashih) && !isset($showInfra) && !isset($showDoc)): ?>
+            <div
+                class="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800 mt-10">
+                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 mb-4">
+                    <i class="fas fa-lock text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Akses Terbatas</h3>
+                <p class="mt-2 text-gray-500 dark:text-gray-400">Akun Anda belum memiliki hak akses (role) ke modul manapun.
+                    Silakan hubungi Administrator sistem.</p>
+            </div>
+        <?php endif; ?>
+
     </div>
-
-    <?php endif; ?>
-
-</div>
 <?php $__env->stopSection(); ?>
-
-<?php $__env->startPush('scripts'); ?>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<?php if($showMonev): ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var d         = window._dashboardData || {};
-    var isDark    = document.documentElement.classList.contains('dark')
-                 || window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
-    var textColor = isDark ? '#9ca3af' : '#6b7280';
-    var borderBg  = isDark ? '#1f2937' : '#ffffff';
-
-    // 1. Donut
-    var donutCtx = document.getElementById('donutStatusChart');
-    if (donutCtx) {
-        new Chart(donutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pending', 'Disetujui', 'Direvisi'],
-                datasets: [{
-                    data: [d.examSubmitted, d.examApproved, d.examRevised],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-                    borderColor: borderBg,
-                    borderWidth: 3,
-                    hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(ctx) {
-                                return '  ' + ctx.label + ': ' + ctx.parsed.toLocaleString('id-ID');
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // 2. Stacked Bar
-    var barCtx = document.getElementById('barPeriodChart');
-    if (barCtx) {
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: d.chartLabels,
-                datasets: [
-                    { label: 'Pending',   data: d.chartPending,  backgroundColor: '#3b82f6', borderRadius: 3, borderSkipped: false },
-                    { label: 'Disetujui', data: d.chartApproved, backgroundColor: '#10b981', borderRadius: 3, borderSkipped: false },
-                    { label: 'Direvisi',  data: d.chartRevised,  backgroundColor: '#f59e0b', borderRadius: 3, borderSkipped: false }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        ticks: { color: textColor, font: { size: 11 }, autoSkip: false, maxRotation: 30 },
-                        grid: { color: gridColor }
-                    },
-                    y: {
-                        stacked: true,
-                        ticks: { color: textColor, font: { size: 11 } },
-                        grid: { color: gridColor },
-                        beginAtZero: true
-                    }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    // 3. Line Chart
-    var lineCtx = document.getElementById('lineTrendChart');
-    if (lineCtx) {
-        new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: d.trendLabels,
-                datasets: [
-                    {
-                        label: 'Pending',
-                        data: d.trendPending,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59,130,246,0.10)',
-                        fill: true, tension: 0.38,
-                        pointRadius: 4, pointBackgroundColor: '#3b82f6',
-                        borderDash: []
-                    },
-                    {
-                        label: 'Disetujui',
-                        data: d.trendApproved,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16,185,129,0.07)',
-                        fill: true, tension: 0.38,
-                        pointRadius: 4, pointBackgroundColor: '#10b981',
-                        borderDash: [6, 4]
-                    },
-                    {
-                        label: 'Direvisi',
-                        data: d.trendRevised,
-                        borderColor: '#f59e0b',
-                        backgroundColor: 'rgba(245,158,11,0.07)',
-                        fill: true, tension: 0.38,
-                        pointRadius: 4, pointBackgroundColor: '#f59e0b',
-                        borderDash: [2, 3]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
-                    y: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor }, beginAtZero: true }
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-});
-</script>
-<?php endif; ?>
-<?php $__env->stopPush(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\resources\views/pages/dashboard.blade.php ENDPATH**/ ?>

@@ -35,6 +35,6 @@ class MasterDataController extends Controller
             'totalRoles',
             'totalUnits',
             'totalCurricula'
-        ));
+        ))->with('title', 'Dashboard Master Data');
     }
 }

@@ -46,7 +46,7 @@ class AdminController extends Controller
 
         $userTypes = DB::table('ref_user_type')->get();
 
-        return view('masterdata::admin.users', compact('users', 'roles', 'units', 'userTypes', 'perPage'));
+        return view('masterdata::admin.users', compact('users', 'roles', 'units', 'userTypes', 'perPage'))->with('title', 'Daftar User');
     }
 
     /**
@@ -55,7 +55,7 @@ class AdminController extends Controller
     public function create()
     {
         $roles = Role::orderBy('id')->get();
-        return view('masterdata::admin.create', compact('roles'));
+        return view('masterdata::admin.create', compact('roles'))->with('title', 'Tambah User Baru');
     }
     /**
      * Store a newly created user in storage
@@ -136,7 +136,7 @@ class AdminController extends Controller
         $roles = Role::orderBy('id')->get();
         $userRoles = DB::table('trx_user_role')->where('user_id', $id)->pluck('role_id')->toArray();
 
-        return view('masterdata::admin.edit', compact('user', 'roles', 'userRoles'));
+        return view('masterdata::admin.edit', compact('user', 'roles', 'userRoles'))->with('title', 'Edit User');
     }
 
     /**

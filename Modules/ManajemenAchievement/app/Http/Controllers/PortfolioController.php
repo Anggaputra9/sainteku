@@ -37,7 +37,7 @@ class PortfolioController extends Controller
 
         $users = $query->paginate(12);
 
-        return view('manajemenachievement::portfolio.index', compact('users'));
+        return view('manajemenachievement::portfolio.index', compact('users'))->with('title', 'Daftar Portofolio Prestasi');
     }
 
     /**
@@ -134,6 +134,6 @@ class PortfolioController extends Controller
             'achievementsByYear',
             'statistics',
             'tahunList'
-        ));
+        ))->with('title', 'Detail Portofolio Prestasi');
     }
 }

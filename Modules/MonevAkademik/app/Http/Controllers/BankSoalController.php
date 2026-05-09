@@ -24,7 +24,7 @@ class BankSoalController extends Controller
             ->orderBy('unit_name', 'asc')
             ->get();
 
-        return view('monevakademik::bank-soal.index', compact('courses', 'units'));
+        return view('monevakademik::bank-soal.index', compact('courses', 'units'))->with('title', 'Bank Soal');
     }
 
     // =========================================================================

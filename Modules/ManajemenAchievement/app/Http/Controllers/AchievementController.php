@@ -47,7 +47,7 @@ class AchievementController extends Controller
         $types = AchievementType::where('is_active', '1')->get();
         $levels = AchievementLevel::where('is_active', '1')->get();
 
-        return view('manajemenachievement::index', compact('achievements', 'types', 'levels'));
+        return view('manajemenachievement::index', compact('achievements', 'types', 'levels'))->with('title', 'Daftar Prestasi Saya');
     }
 
     public function create()
@@ -57,7 +57,7 @@ class AchievementController extends Controller
         $types = AchievementType::where('is_active', '1')->get();
         $levels = AchievementLevel::where('is_active', '1')->get();
 
-        return view('manajemenachievement::create', compact('types', 'levels'));
+        return view('manajemenachievement::create', compact('types', 'levels'))->with('title', 'Tambah Prestasi Baru');
     }
 
     public function store(Request $request)
@@ -116,7 +116,7 @@ class AchievementController extends Controller
             ->where('user_id', Auth::user()->id)
             ->firstOrFail();
 
-        return view('manajemenachievement::show', compact('achievement'));
+        return view('manajemenachievement::show', compact('achievement'))->with('title', 'Detail Prestasi');
     }
 
     public function edit($id)
@@ -131,7 +131,7 @@ class AchievementController extends Controller
         $types = AchievementType::where('is_active', '1')->get();
         $levels = AchievementLevel::where('is_active', '1')->get();
 
-        return view('manajemenachievement::edit', compact('achievement', 'types', 'levels'));
+        return view('manajemenachievement::edit', compact('achievement', 'types', 'levels'))->with('title', 'Edit Prestasi');
     }
 
     public function update(Request $request, $id)

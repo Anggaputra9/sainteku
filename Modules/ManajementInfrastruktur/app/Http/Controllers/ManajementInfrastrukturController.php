@@ -42,7 +42,7 @@ class ManajementInfrastrukturController extends Controller
             'totalDipinjam', 
             'totalSelesai', 
             'transaksiTerbaru'
-        ));
+        ))->with('title', 'Dashboard Manajemen Infrastruktur');
     }
 
     // =========================================================================
@@ -85,7 +85,7 @@ class ManajementInfrastrukturController extends Controller
             ->where('stock', '>', 0)
             ->get();
 
-        return view('manajementinfrastruktur::pengajuan.index', compact('riwayat', 'inventories', 'filterStatus'));
+        return view('manajementinfrastruktur::pengajuan.index', compact('riwayat', 'inventories', 'filterStatus'))->with('title', 'Pengajuan Peminjaman');
     }
 
     public function pengajuanStore(Request $request)
@@ -153,7 +153,7 @@ class ManajementInfrastrukturController extends Controller
         // 4. Eksekusi query
         $peminjaman = $query->orderBy('trx_inventory_loans.created_at', 'desc')->get();
 
-        return view('manajementinfrastruktur::persetujuan.index', compact('peminjaman', 'filterStatus'));
+        return view('manajementinfrastruktur::persetujuan.index', compact('peminjaman', 'filterStatus'))->with('title', 'Persetujuan Peminjaman');
     }
 
     public function persetujuanUpdate(Request $request, $id)

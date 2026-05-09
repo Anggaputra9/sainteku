@@ -88,7 +88,7 @@ class ExamProposalController extends Controller
                 ->get();
         }
 
-        return view('monevakademik::tashih.index', compact('periods', 'myCourses', 'myProposals', 'isReviewer', 'reviewQueue', 'cpmkList'));
+        return view('monevakademik::tashih.index', compact('periods', 'myCourses', 'myProposals', 'isReviewer', 'reviewQueue', 'cpmkList'))->with('title', 'Tashih Soal & Pengajuan Review');
     }
 
     public function create($course_id)

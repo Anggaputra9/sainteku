@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'DASHBOARD' }} | SAINTEKKU UIN PROF. K.H. SAIFUDDIN ZUHRI</title>
+    <title>{{ $title ?? 'DASHBOARD' }} | UIN Prof. K.H. Saifuddin Zuhri</title>
 
     {{-- ================= FAVICON GLOBAL ================= --}}
     <link rel="icon" type="image/png" href="{{ asset('assets/images/uin.svg') }}">

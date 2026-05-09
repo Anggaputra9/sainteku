@@ -17,7 +17,7 @@ class KaprodiReviewController extends Controller
             ->where('status', 'SUBMITTED')
             ->get(); // Nanti bisa difilter sesuai unit_id Kaprodi
 
-        return view('monevakademik::kaprodi.review.index', compact('proposals'));
+        return view('monevakademik::kaprodi.review.index', compact('proposals'))->with('title', 'Daftar Pengajuan Soal Masuk Prodi');
     }
 
     // Menyetujui soal (ACC) + trigger logic canvas tanda tangan

@@ -31,7 +31,7 @@ class UnitController extends Controller
         $unitTypes = DB::table('ref_unit_type')->orderBy('id')->get(); // Mengambil dari tabel referensi tipe unit
 
         // Kirimkan ke view
-        return view('masterdata::units.index', compact('units', 'parentUnits', 'unitTypes'));
+        return view('masterdata::units.index', compact('units', 'parentUnits', 'unitTypes'))->with('title', 'Daftar Unit');
     }
 
     // 2. Memproses Data dari Modal Tambah (Create)

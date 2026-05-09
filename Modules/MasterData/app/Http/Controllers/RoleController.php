@@ -39,7 +39,7 @@ class RoleController extends Controller
             ->get()
             ->groupBy('role_id');
 
-        return view('masterdata::roles.index', compact('roles', 'modules', 'permissions', 'rolePermissions'));
+        return view('masterdata::roles.index', compact('roles', 'modules', 'permissions', 'rolePermissions'))->with('title', 'Daftar Role & Hak Akses');
     }
 
     public function store(Request $request)

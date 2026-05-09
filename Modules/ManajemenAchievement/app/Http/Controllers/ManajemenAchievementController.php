@@ -12,7 +12,7 @@ class ManajemenAchievementController extends Controller
      */
     public function index()
     {
-        return view('manajemenachievement::index');
+        return view('manajemenachievement::index')->with('title', 'Daftar Prestasi Saya');
     }
 
     /**
@@ -20,7 +20,7 @@ class ManajemenAchievementController extends Controller
      */
     public function create()
     {
-        return view('manajemenachievement::create');
+        return view('manajemenachievement::create')->with('title', 'Tambah Prestasi Baru');
     }
 
     /**
@@ -33,7 +33,7 @@ class ManajemenAchievementController extends Controller
      */
     public function show($id)
     {
-        return view('manajemenachievement::show');
+        return view('manajemenachievement::show')->with('title', 'Detail Prestasi');
     }
 
     /**
@@ -41,7 +41,7 @@ class ManajemenAchievementController extends Controller
      */
     public function edit($id)
     {
-        return view('manajemenachievement::edit');
+        return view('manajemenachievement::edit')->with('title', 'Edit Prestasi');
     }
 
     /**

@@ -46,7 +46,7 @@ class DocumentRepositoryController extends Controller
         $documentTypes = DocumentType::all();
         $units = Unit::where('is_active', '1')->get();
 
-        return view('documentrepository::index', compact('documents', 'documentTypes', 'units', 'filterStatus'));
+        return view('documentrepository::index', compact('documents', 'documentTypes', 'units', 'filterStatus'))->with('title', 'Repositori Dokumen');
     }
 
     public function store(Request $request)
@@ -179,7 +179,7 @@ class DocumentRepositoryController extends Controller
         }
 
         $documents = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->query());
-        return view('documentrepository::review.index', compact('documents', 'filterStatus'));
+        return view('documentrepository::review.index', compact('documents', 'filterStatus'))->with('title', 'Review Dokumen');
     }
 
     public function review(Request $request, $id)
