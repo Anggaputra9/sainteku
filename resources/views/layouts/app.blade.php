@@ -115,7 +115,33 @@ const checkMobile = () => {
 window.addEventListener('resize', checkMobile);">
 
     {{-- preloader --}}
-    <x-common.preloader />
+    {{-- ================= SAFE WRAPPER PRELOADER BAWAAN ================= --}}
+    <div id="preloader-wrapper" class="relative z-[99999] transition-opacity duration-500">
+        {{-- Ini manggil komponen asli lu --}}
+        <x-common.preloader />
+    </div>
+
+    <script>
+        // Fungsi buat narik tirai preloader
+        const hilangkanPreloader = () => {
+            const wrapper = document.getElementById('preloader-wrapper');
+            if (wrapper) {
+                wrapper.style.opacity = '0'; // Bikin memudar
+                setTimeout(() => wrapper.remove(), 500); // Hapus dari HTML setelah memudar
+            }
+        };
+
+        // SKENARIO 1: Server lancar jaya
+        // Begitu web selesai dimuat, tahan 0.8 detik (biar keren), lalu hilangkan
+        window.addEventListener('load', () => {
+            setTimeout(hilangkanPreloader, 800); 
+        });
+
+        // SKENARIO 2: Jurus Anti-Nyangkut (Infinite Load)
+        // Kalau Alpine.js error atau sinyal macet, PAKSA hapus dalam waktu 3 detik!
+        setTimeout(hilangkanPreloader, 3000);
+    </script>
+    {{-- ================= END SAFE WRAPPER ================= --}}
     {{-- preloader end --}}
 
     <div class="min-h-screen xl:flex">
