@@ -114,7 +114,10 @@ const checkMobile = () => {
 window.addEventListener('resize', checkMobile);">
 
     
-    <?php if (isset($component)) { $__componentOriginal33757e58bef6aaec67779bf03774fc2d = $component; } ?>
+    
+    <div id="preloader-wrapper" class="relative z-[99999] transition-opacity duration-500">
+        
+        <?php if (isset($component)) { $__componentOriginal33757e58bef6aaec67779bf03774fc2d = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal33757e58bef6aaec67779bf03774fc2d = $attributes; } ?>
 <?php $component = App\View\Components\Common\Preloader::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('common.preloader'); ?>
@@ -134,6 +137,29 @@ window.addEventListener('resize', checkMobile);">
 <?php $component = $__componentOriginal33757e58bef6aaec67779bf03774fc2d; ?>
 <?php unset($__componentOriginal33757e58bef6aaec67779bf03774fc2d); ?>
 <?php endif; ?>
+    </div>
+
+    <script>
+        // Fungsi buat narik tirai preloader
+        const hilangkanPreloader = () => {
+            const wrapper = document.getElementById('preloader-wrapper');
+            if (wrapper) {
+                wrapper.style.opacity = '0'; // Bikin memudar
+                setTimeout(() => wrapper.remove(), 500); // Hapus dari HTML setelah memudar
+            }
+        };
+
+        // SKENARIO 1: Server lancar jaya
+        // Begitu web selesai dimuat, tahan 0.8 detik (biar keren), lalu hilangkan
+        window.addEventListener('load', () => {
+            setTimeout(hilangkanPreloader, 800); 
+        });
+
+        // SKENARIO 2: Jurus Anti-Nyangkut (Infinite Load)
+        // Kalau Alpine.js error atau sinyal macet, PAKSA hapus dalam waktu 3 detik!
+        setTimeout(hilangkanPreloader, 3000);
+    </script>
+    
     
 
     <div class="min-h-screen xl:flex">

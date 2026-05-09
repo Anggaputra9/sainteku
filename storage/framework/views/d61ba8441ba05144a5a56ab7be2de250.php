@@ -2,7 +2,8 @@
     
     <div class="mx-auto" x-data="tashihApp"
         @buka-modal-matkul.window="openSelectCourse = true; courseId = ''; courseName = '';" @lanjut-bikin-soal.window="
-            courseId = $event.detail; 
+            courseId = $event.detail.id; 
+            courseName = $event.detail.name; 
             openCreate = true; 
             setTimeout(() => { if(typeof initCreateModal === 'function') initCreateModal(courseId) }, 100);
         " x-cloak>
