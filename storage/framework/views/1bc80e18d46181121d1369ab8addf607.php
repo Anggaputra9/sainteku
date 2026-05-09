@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg" data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
+<html lang="en" data-layout="vertical" data-topbar="light" data-sidebar="dark" data-sidebar-size="lg"
+    data-sidebar-image="none" data-preloader="disable" data-theme="default" data-theme-colors="default">
 
 <head>
     <meta charset="utf-8" />
@@ -11,15 +12,10 @@
     <link rel="shortcut icon" href="assets/images/uin.png">
 
     <link href="assets/libs/swiper/swiper-bundle.min.css" rel="stylesheet" type="text/css" />
-
     <script src="assets/js/layout.js"></script>
-
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-
     <link href="assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-
     <link href="assets/css/app.min.css" rel="stylesheet" type="text/css" />
-
     <link href="assets/css/custom.min.css" rel="stylesheet" type="text/css" />
 
     <style>
@@ -65,7 +61,6 @@
             background-color: rgba(254, 235, 4, 0.2) !important;
         }
 
-        /* TIPOGRAFI */
         body {
             font-family: 'Inter', 'DM Sans', 'Plus Jakarta Sans', sans-serif;
             color: #1e293b;
@@ -81,7 +76,6 @@
             letter-spacing: -0.02em;
         }
 
-        /* NAVBAR */
         .navbar-landing {
             background-color: white !important;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.03);
@@ -104,7 +98,6 @@
             color: var(--saintek-text) !important;
         }
 
-        /* CARD */
         .card {
             border: none;
             border-radius: 28px;
@@ -117,18 +110,15 @@
             transform: translateY(-6px);
         }
 
-        /* SECTION */
         .section {
             padding: 100px 0;
         }
 
-        /* HERO SECTION */
         .hero-section {
             background: linear-gradient(145deg, #ffffff 0%, #fffaf0 100%);
             padding: 160px 0 100px;
         }
 
-        /* DROPDOWN */
         .dropdown-menu {
             border: none;
             border-radius: 20px;
@@ -147,16 +137,23 @@
             color: var(--saintek-text);
         }
 
-        /* MODAL LOGIN - FIX BACKGROUND */
+        /* MODAL BACKGROUND FIX - BLUR ALA TAILWIND */
         .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.2) !important;
+            background-color: rgba(15, 23, 42, 0.6) !important;
+            backdrop-filter: blur(4px) !important;
+            -webkit-backdrop-filter: blur(4px) !important;
         }
 
         .modal-backdrop.show {
-            opacity: 0.5 !important;
+            opacity: 1 !important;
         }
 
-        /* BUTTON STYLES */
+        .modal-content {
+            border-radius: 1rem !important;
+            border: none;
+            overflow: hidden;
+        }
+
         .btn-soft-primary {
             background-color: var(--saintek-primary) !important;
             color: #000000 !important;
@@ -184,7 +181,6 @@
             color: var(--saintek-text) !important;
         }
 
-        /* LANGUAGE TOGGLE BUTTON */
         .language-toggle {
             display: inline-flex;
             align-items: center;
@@ -221,7 +217,6 @@
             font-size: 0.85rem;
         }
 
-        /* DROPDOWN MENU */
         .dropdown-menu.dropdown-menu-end {
             border: 1px solid #e5e7eb !important;
             border-radius: 4px !important;
@@ -259,7 +254,6 @@
             font-size: 1rem;
         }
 
-        /* UTILITY CLASSES */
         .text-dark-50 {
             color: rgba(0, 0, 0, 0.7);
         }
@@ -272,7 +266,6 @@
             font-size: 15px;
         }
 
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .hero-section {
                 padding: 140px 0 60px;
@@ -283,7 +276,6 @@
             }
         }
 
-        /* MODAL STYLING */
         .modal-dialog {
             margin: 1.75rem auto;
         }
@@ -299,8 +291,6 @@
             border-color: var(--saintek-primary);
         }
 
-        /* ALL CORNERS SQUARE EXCEPT BUTTONS */
-        .modal-content,
         .col-md-5,
         .col-md-7,
         .form-control,
@@ -308,12 +298,10 @@
             border-radius: 0 !important;
         }
 
-        /* BUTTONS WITH SLIGHT RADIUS */
         .btn {
             border-radius: 4px !important;
         }
 
-        /* Mobile Styles */
         @media (max-width: 768px) {
             .modal-dialog {
                 margin: 0.5rem;
@@ -345,7 +333,6 @@
             }
         }
 
-        /* Desktop Styles */
         @media (min-width: 769px) {
             .d-md-none {
                 display: none !important;
@@ -356,7 +343,6 @@
             }
         }
 
-        /* ALERT POPUP STYLES */
         .alert-popup {
             position: fixed;
             top: 80px;
@@ -396,7 +382,6 @@
             }
         }
 
-        /* ===== HAMBURGER MENU STYLES ===== */
         .hamburger-btn {
             width: 44px;
             height: 44px;
@@ -435,7 +420,6 @@
             transform: translateY(-8.5px) rotate(-45deg);
         }
 
-        /* Mobile Menu */
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -583,7 +567,6 @@
             transform: translateY(-2px);
         }
 
-        /* Overlay */
         .mobile-menu-overlay {
             position: fixed;
             top: 0;
@@ -602,7 +585,6 @@
             visibility: visible;
         }
 
-        /* Hide desktop menu on mobile */
         @media (max-width: 991px) {
             .navbar-collapse {
                 display: none !important;
@@ -619,15 +601,9 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#event"><?php echo e(__('messages.event')); ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#prestasi"><?php echo e(__('messages.achievements')); ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#blog"><?php echo e(__('messages.blog')); ?></a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="#event"><?php echo e(__('messages.event')); ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#prestasi"><?php echo e(__('messages.achievements')); ?></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#blog"><?php echo e(__('messages.blog')); ?></a></li>
                 </ul>
             </div>
 
@@ -640,15 +616,15 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'id' ? 'active-lang' : ''); ?>" href="<?php echo e(route('language.switch', 'id')); ?>">
-                                <span>🇮🇩</span>
-                                <span>Indonesia</span>
+                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'id' ? 'active-lang' : ''); ?>"
+                                href="<?php echo e(route('language.switch', 'id')); ?>">
+                                <span>🇮🇩</span><span>Indonesia</span>
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'en' ? 'active-lang' : ''); ?>" href="<?php echo e(route('language.switch', 'en')); ?>">
-                                <span>🇬🇧</span>
-                                <span>English</span>
+                            <a class="dropdown-item language-item <?php echo e(session('locale') == 'en' ? 'active-lang' : ''); ?>"
+                                href="<?php echo e(route('language.switch', 'en')); ?>">
+                                <span>🇬🇧</span><span>English</span>
                             </a>
                         </li>
                     </ul>
@@ -660,9 +636,7 @@
             </div>
 
             <button class="hamburger-btn d-lg-none" id="hamburgerBtn" type="button">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </button>
         </div>
     </nav>
@@ -702,7 +676,9 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7">
-                    <h1 class="display-4 fw-semibold text-capitalize mb-3 lh-base"><?php echo e(__('messages.faculty_name')); ?></h1>
+                    <h1 class="display-4 fw-semibold text-capitalize mb-3 lh-base"><?php echo e(__('messages.faculty_name')); ?>
+
+                    </h1>
                     <p class="lead fs-4 text-muted lh-base mb-4">
                         <?php echo __('messages.faculty_desc', ['study_programs' => '<strong>' . __('messages.study_programs') . '</strong>']); ?>
 
@@ -711,7 +687,8 @@
                     <form action="#" class="job-panel-filter bg-white p-4 rounded-4 shadow-sm">
                         <div class="row g-2">
                             <div class="col-md-5">
-                                <input type="search" class="form-control form-control-lg" placeholder="<?php echo e(__('messages.search_placeholder')); ?>">
+                                <input type="search" class="form-control form-control-lg"
+                                    placeholder="<?php echo e(__('messages.search_placeholder')); ?>">
                             </div>
                             <div class="col-md-4">
                                 <select class="form-control form-control-lg">
@@ -732,11 +709,17 @@
                     </form>
 
                     <ul class="list-inline mb-0 mt-4 fs-14">
-                        <li class="list-inline-item text-danger fw-semibold"><i class="mdi mdi-tag-multiple-outline align-middle"></i> <?php echo e(__('messages.featured_programs')); ?></li>
-                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline"><?php echo e(__('messages.informatics')); ?>,</a></li>
-                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline"><?php echo e(__('messages.architecture')); ?>,</a></li>
-                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline"><?php echo e(__('messages.environmental')); ?>,</a></li>
-                        <li class="list-inline-item"><a href="javascript:void(0)" class="text-decoration-underline"><?php echo e(__('messages.library')); ?></a></li>
+                        <li class="list-inline-item text-danger fw-semibold"><i
+                                class="mdi mdi-tag-multiple-outline align-middle"></i>
+                            <?php echo e(__('messages.featured_programs')); ?></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"
+                                class="text-decoration-underline"><?php echo e(__('messages.informatics')); ?>,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"
+                                class="text-decoration-underline"><?php echo e(__('messages.architecture')); ?>,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"
+                                class="text-decoration-underline"><?php echo e(__('messages.environmental')); ?>,</a></li>
+                        <li class="list-inline-item"><a href="javascript:void(0)"
+                                class="text-decoration-underline"><?php echo e(__('messages.library')); ?></a></li>
                     </ul>
                 </div>
                 <div class="col-lg-5">
@@ -755,7 +738,8 @@
                     <div class="position-relative">
                         <img src="assets/images/about.jpg" alt="" class="img-fluid rounded-4 shadow-lg">
 
-                        <div class="card position-absolute bottom-0 start-0 mb-4 ms-4 shadow-lg" style="max-width: 250px;">
+                        <div class="card position-absolute bottom-0 start-0 mb-4 ms-4 shadow-lg"
+                            style="max-width: 250px;">
                             <div class="card-body d-flex align-items-center p-3">
                                 <div class="flex-shrink-0 me-3">
                                     <img src="assets/images/image.png" alt="" class="avatar-md rounded-circle">
@@ -764,11 +748,9 @@
                                     <h6 class="fw-bold mb-1">Prof. Dr. Kholid Mawardi, M. Hum.</h6>
                                     <p class="text-muted small mb-1"><?php echo e(__('messages.dean')); ?></p>
                                     <div class="text-warning small">
-                                        <i class="ri-star-s-fill"></i>
-                                        <i class="ri-star-s-fill"></i>
-                                        <i class="ri-star-s-fill"></i>
-                                        <i class="ri-star-s-fill"></i>
-                                        <i class="ri-star-s-fill"></i>
+                                        <i class="ri-star-s-fill"></i><i class="ri-star-s-fill"></i><i
+                                            class="ri-star-s-fill"></i><i class="ri-star-s-fill"></i><i
+                                            class="ri-star-s-fill"></i>
                                     </div>
                                 </div>
                             </div>
@@ -782,7 +764,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <h5 class="fs-15 lh-base mb-0"><span class="text-secondary fw-semibold">1000+</span> <?php echo e(__('Mahasiswa')); ?></h5>
+                                    <h5 class="fs-15 lh-base mb-0"><span class="text-secondary fw-semibold">1000+</span>
+                                        <?php echo e(__('Mahasiswa')); ?></h5>
                                 </div>
                             </div>
                         </div>
@@ -796,7 +779,8 @@
                     <div class="vstack gap-3 mb-4">
                         <div class="d-flex align-items-center">
                             <i class="ri-checkbox-circle-fill text-primary fs-4 me-3"></i>
-                            <span class="fs-5"><strong><?php echo e(__('messages.about_list1')); ?></strong> (Informatika, Arsitektur, Ilmu Lingkungan, Ilmu Perpustakaan)</span>
+                            <span class="fs-5"><strong><?php echo e(__('messages.about_list1')); ?></strong> (Informatika,
+                                Arsitektur, Ilmu Lingkungan, Ilmu Perpustakaan)</span>
                         </div>
                         <div class="d-flex align-items-center">
                             <i class="ri-checkbox-circle-fill text-primary fs-4 me-3"></i>
@@ -808,7 +792,8 @@
                         </div>
                     </div>
 
-                    <a href="#!" class="btn btn-primary btn-lg px-5 rounded-pill"><?php echo e(__('messages.explore_button')); ?> <i class="ri-arrow-right-line align-bottom ms-1"></i></a>
+                    <a href="#!" class="btn btn-primary btn-lg px-5 rounded-pill"><?php echo e(__('messages.explore_button')); ?> <i
+                            class="ri-arrow-right-line align-bottom ms-1"></i></a>
                 </div>
             </div>
         </div>
@@ -817,7 +802,8 @@
     <section class="section" id="program-studi">
         <div class="container">
             <div class="text-center mb-5">
-                <h1 class="display-6 mb-3 ff-secondary fw-semibold"><span class="text-primary"><?php echo e(__('messages.our_programs')); ?></span></h1>
+                <h1 class="display-6 mb-3 ff-secondary fw-semibold"><span
+                        class="text-primary"><?php echo e(__('messages.our_programs')); ?></span></h1>
                 <p class="fs-5 text-muted col-lg-8 mx-auto"><?php echo e(__('messages.programs_desc')); ?></p>
             </div>
 
@@ -825,49 +811,49 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="card h-100 text-center p-4">
                         <div class="avatar-lg mx-auto mb-4">
-                            <div class="avatar-title bg-primary-subtle rounded-3">
-                                <i class="ri-computer-line fs-1 text-primary"></i>
-                            </div>
+                            <div class="avatar-title bg-primary-subtle rounded-3"><i
+                                    class="ri-computer-line fs-1 text-primary"></i></div>
                         </div>
                         <h4 class="mb-3"><?php echo e(__('messages.informatics')); ?></h4>
                         <p class="text-muted mb-4"><?php echo e(__('messages.informatics_desc')); ?></p>
-                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i class="ri-arrow-right-line"></i></a>
+                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i
+                                class="ri-arrow-right-line"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="card h-100 text-center p-4">
                         <div class="avatar-lg mx-auto mb-4">
-                            <div class="avatar-title bg-primary-subtle rounded-3">
-                                <i class="ri-building-2-line fs-1 text-primary"></i>
-                            </div>
+                            <div class="avatar-title bg-primary-subtle rounded-3"><i
+                                    class="ri-building-2-line fs-1 text-primary"></i></div>
                         </div>
                         <h4 class="mb-3"><?php echo e(__('messages.architecture')); ?></h4>
                         <p class="text-muted mb-4"><?php echo e(__('messages.architecture_desc')); ?></p>
-                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i class="ri-arrow-right-line"></i></a>
+                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i
+                                class="ri-arrow-right-line"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="card h-100 text-center p-4">
                         <div class="avatar-lg mx-auto mb-4">
-                            <div class="avatar-title bg-primary-subtle rounded-3">
-                                <i class="ri-leaf-line fs-1 text-primary"></i>
-                            </div>
+                            <div class="avatar-title bg-primary-subtle rounded-3"><i
+                                    class="ri-leaf-line fs-1 text-primary"></i></div>
                         </div>
                         <h4 class="mb-3"><?php echo e(__('messages.environmental')); ?></h4>
                         <p class="text-muted mb-4"><?php echo e(__('messages.environmental_desc')); ?></p>
-                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i class="ri-arrow-right-line"></i></a>
+                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i
+                                class="ri-arrow-right-line"></i></a>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <div class="card h-100 text-center p-4">
                         <div class="avatar-lg mx-auto mb-4">
-                            <div class="avatar-title bg-primary-subtle rounded-3">
-                                <i class="ri-book-open-line fs-1 text-primary"></i>
-                            </div>
+                            <div class="avatar-title bg-primary-subtle rounded-3"><i
+                                    class="ri-book-open-line fs-1 text-primary"></i></div>
                         </div>
                         <h4 class="mb-3"><?php echo e(__('messages.library')); ?></h4>
                         <p class="text-muted mb-4"><?php echo e(__('messages.library_desc')); ?></p>
-                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i class="ri-arrow-right-line"></i></a>
+                        <a href="#" class="link-primary stretched-link"><?php echo e(__('messages.detail')); ?> <i
+                                class="ri-arrow-right-line"></i></a>
                     </div>
                 </div>
             </div>
@@ -882,7 +868,8 @@
                     <p class="text-dark-50 fs-5 mb-0"><?php echo e(__('messages.cta_desc')); ?></p>
                 </div>
                 <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                    <a href="#!" class="btn btn-danger btn-lg px-5 py-3 rounded-pill"><?php echo e(__('messages.register_button')); ?></a>
+                    <a href="#!"
+                        class="btn btn-danger btn-lg px-5 py-3 rounded-pill"><?php echo e(__('messages.register_button')); ?></a>
                 </div>
             </div>
         </div>
@@ -901,7 +888,8 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
-                            <img src="assets/images/small/img-10.jpg" class="card-img-top" alt="Gemastik" style="height: 200px; object-fit: cover;">
+                            <img src="assets/images/small/img-10.jpg" class="card-img-top" alt="Gemastik"
+                                style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-3">
                                 <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
                             </div>
@@ -909,9 +897,8 @@
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="avatar-sm me-3">
-                                    <div class="avatar-title bg-light rounded-circle">
-                                        <i class="ri-trophy-line text-primary"></i>
-                                    </div>
+                                    <div class="avatar-title bg-light rounded-circle"><i
+                                            class="ri-trophy-line text-primary"></i></div>
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-0"><?php echo e(__('messages.informatics')); ?></h6>
@@ -922,11 +909,15 @@
                             <p class="text-muted small mb-3">Aplikasi Smart Campus untuk efisiensi energi kampus.</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-3.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-4.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-2.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-3.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-4.jpg" class="rounded-circle" width="28"
+                                        height="28" alt="Member">
                                 </div>
-                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i class="ri-arrow-right-line"></i></a>
+                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i
+                                        class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
@@ -934,7 +925,8 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
-                            <img src="assets/images/small/img-9.jpg" class="card-img-top" alt="Arsitektur" style="height: 200px; object-fit: cover;">
+                            <img src="assets/images/small/img-9.jpg" class="card-img-top" alt="Arsitektur"
+                                style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-3">
                                 <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
                             </div>
@@ -942,9 +934,8 @@
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="avatar-sm me-3">
-                                    <div class="avatar-title bg-light rounded-circle">
-                                        <i class="ri-trophy-line text-primary"></i>
-                                    </div>
+                                    <div class="avatar-title bg-light rounded-circle"><i
+                                            class="ri-trophy-line text-primary"></i></div>
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-0"><?php echo e(__('messages.architecture')); ?></h6>
@@ -955,11 +946,15 @@
                             <p class="text-muted small mb-3">Desain hunian vertikal ramah lingkungan.</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/avatar-5.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-6.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-7.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-5.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-6.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-7.jpg" class="rounded-circle" width="28"
+                                        height="28" alt="Member">
                                 </div>
-                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i class="ri-arrow-right-line"></i></a>
+                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i
+                                        class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
@@ -967,7 +962,8 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="position-relative">
-                            <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Ilmu Lingkungan" style="height: 200px; object-fit: cover;">
+                            <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Ilmu Lingkungan"
+                                style="height: 200px; object-fit: cover;">
                             <div class="position-absolute top-0 end-0 m-3">
                                 <span class="badge bg-white text-dark px-3 py-2 rounded-pill shadow-sm">2024</span>
                             </div>
@@ -975,9 +971,8 @@
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="avatar-sm me-3">
-                                    <div class="avatar-title bg-light rounded-circle">
-                                        <i class="ri-trophy-line text-primary"></i>
-                                    </div>
+                                    <div class="avatar-title bg-light rounded-circle"><i
+                                            class="ri-trophy-line text-primary"></i></div>
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-0"><?php echo e(__('messages.environmental')); ?></h6>
@@ -988,11 +983,15 @@
                             <p class="text-muted small mb-3">Pengolahan sampah organik menjadi energi.</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/avatar-8.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-9.jpg" class="rounded-circle me-2" width="28" height="28" alt="Member">
-                                    <img src="assets/images/users/avatar-10.jpg" class="rounded-circle" width="28" height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-8.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-9.jpg" class="rounded-circle me-2" width="28"
+                                        height="28" alt="Member">
+                                    <img src="assets/images/users/avatar-10.jpg" class="rounded-circle" width="28"
+                                        height="28" alt="Member">
                                 </div>
-                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i class="ri-arrow-right-line"></i></a>
+                                <a href="#" class="text-primary small"><?php echo e(__('messages.more')); ?> <i
+                                        class="ri-arrow-right-line"></i></a>
                             </div>
                         </div>
                     </div>
@@ -1017,7 +1016,8 @@
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100 rounded-4">
-                        <img src="assets/images/small/img-3.jpg" class="card-img-top rounded-top-4" alt="Lab Informatika" style="height: 180px; object-fit: cover;">
+                        <img src="assets/images/small/img-3.jpg" class="card-img-top rounded-top-4"
+                            alt="Lab Informatika" style="height: 180px; object-fit: cover;">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-2">Lab. Terpadu Informatika</h5>
                             <p class="text-muted small mb-3">40 Unit PC Spesifikasi Tinggi, VR, IoT</p>
@@ -1027,7 +1027,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100 rounded-4">
-                        <img src="assets/images/small/img-4.jpg" class="card-img-top rounded-top-4" alt="Studio Arsitektur" style="height: 180px; object-fit: cover;">
+                        <img src="assets/images/small/img-4.jpg" class="card-img-top rounded-top-4"
+                            alt="Studio Arsitektur" style="height: 180px; object-fit: cover;">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-2">Studio Arsitektur</h5>
                             <p class="text-muted small mb-3">Ruang desain, workshop, peralatan lengkap</p>
@@ -1037,7 +1038,8 @@
                 </div>
                 <div class="col-md-4">
                     <div class="card border-0 shadow-sm h-100 rounded-4">
-                        <img src="assets/images/small/img-5.jpg" class="card-img-top rounded-top-4" alt="Lab Lingkungan" style="height: 180px; object-fit: cover;">
+                        <img src="assets/images/small/img-5.jpg" class="card-img-top rounded-top-4" alt="Lab Lingkungan"
+                            style="height: 180px; object-fit: cover;">
                         <div class="card-body p-4">
                             <h5 class="fw-bold mb-2">Lab. Ilmu Lingkungan</h5>
                             <p class="text-muted small mb-3">Alat ukur kualitas air, udara, dan tanah</p>
@@ -1063,43 +1065,52 @@
             <div class="row g-4">
                 <div class="col-lg-4">
                     <div class="card">
-                        <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Blog Post 1" style="height: 220px; object-fit: cover;">
+                        <img src="assets/images/small/img-8.jpg" class="card-img-top" alt="Blog Post 1"
+                            style="height: 220px; object-fit: cover;">
                         <div class="card-body p-4">
                             <div class="d-flex text-muted mb-3">
                                 <div class="me-3"><i class="ri-calendar-line me-1"></i> 30 Okt, 2024</div>
                                 <div><i class="ri-message-2-line me-1"></i> 12 Komentar</div>
                             </div>
                             <h4 class="mb-3">Workshop Kecerdasan Buatan untuk Pemula</h4>
-                            <p class="text-muted mb-4">Program Studi Informatika mengadakan workshop yang diikuti oleh lebih dari 100 peserta dari berbagai daerah.</p>
-                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i class="ri-arrow-right-line"></i></a>
+                            <p class="text-muted mb-4">Program Studi Informatika mengadakan workshop yang diikuti oleh
+                                lebih dari 100 peserta dari berbagai daerah.</p>
+                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i
+                                    class="ri-arrow-right-line"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card">
-                        <img src="assets/images/small/img-7.jpg" class="card-img-top" alt="Blog Post 2" style="height: 220px; object-fit: cover;">
+                        <img src="assets/images/small/img-7.jpg" class="card-img-top" alt="Blog Post 2"
+                            style="height: 220px; object-fit: cover;">
                         <div class="card-body p-4">
                             <div class="d-flex text-muted mb-3">
                                 <div class="me-3"><i class="ri-calendar-line me-1"></i> 25 Okt, 2024</div>
                                 <div><i class="ri-message-2-line me-1"></i> 8 Komentar</div>
                             </div>
                             <h4 class="mb-3">Pameran Arsitektur Mahasiswa 2024</h4>
-                            <p class="text-muted mb-4">Mahasiswa Arsitektur memamerkan karya desain terbaik mereka dengan tema hunian masa depan.</p>
-                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i class="ri-arrow-right-line"></i></a>
+                            <p class="text-muted mb-4">Mahasiswa Arsitektur memamerkan karya desain terbaik mereka
+                                dengan tema hunian masa depan.</p>
+                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i
+                                    class="ri-arrow-right-line"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card">
-                        <img src="assets/images/small/img-6.jpg" class="card-img-top" alt="Blog Post 3" style="height: 220px; object-fit: cover;">
+                        <img src="assets/images/small/img-6.jpg" class="card-img-top" alt="Blog Post 3"
+                            style="height: 220px; object-fit: cover;">
                         <div class="card-body p-4">
                             <div class="d-flex text-muted mb-3">
                                 <div class="me-3"><i class="ri-calendar-line me-1"></i> 20 Okt, 2024</div>
                                 <div><i class="ri-message-2-line me-1"></i> 15 Komentar</div>
                             </div>
                             <h4 class="mb-3">Seminar Nasional Lingkungan Hidup</h4>
-                            <p class="text-muted mb-4">Membahas isu perubahan iklim dan peran generasi muda dalam pelestarian lingkungan.</p>
-                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i class="ri-arrow-right-line"></i></a>
+                            <p class="text-muted mb-4">Membahas isu perubahan iklim dan peran generasi muda dalam
+                                pelestarian lingkungan.</p>
+                            <a href="#" class="link-primary fw-semibold"><?php echo e(__('messages.read_more')); ?> <i
+                                    class="ri-arrow-right-line"></i></a>
                         </div>
                     </div>
                 </div>
@@ -1115,7 +1126,9 @@
                     <p class="text-dark-50 fs-5 mb-0"><?php echo e(__('messages.newsletter_desc')); ?></p>
                 </div>
                 <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                    <button class="btn btn-danger btn-lg px-5 py-3 rounded-pill"><?php echo e(__('messages.subscribe_button')); ?> <i class="ri-arrow-right-line align-bottom"></i></button>
+                    <button class="btn btn-danger btn-lg px-5 py-3 rounded-pill"><?php echo e(__('messages.subscribe_button')); ?>
+
+                        <i class="ri-arrow-right-line align-bottom"></i></button>
                 </div>
             </div>
         </div>
@@ -1130,34 +1143,18 @@
                         <div class="mt-4 fs-13">
                             <p class="text-white-50"><?php echo e(__('messages.footer_desc')); ?></p>
                             <ul class="list-inline mb-0 footer-social-link">
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="avatar-xs d-block">
-                                        <div class="avatar-title rounded-circle">
-                                            <i class="ri-facebook-fill"></i>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="avatar-xs d-block">
-                                        <div class="avatar-title rounded-circle">
-                                            <i class="ri-twitter-fill"></i>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="avatar-xs d-block">
-                                        <div class="avatar-title rounded-circle">
-                                            <i class="ri-instagram-fill"></i>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="avatar-xs d-block">
-                                        <div class="avatar-title rounded-circle">
-                                            <i class="ri-youtube-fill"></i>
-                                        </div>
-                                    </a>
-                                </li>
+                                <li class="list-inline-item"><a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle"><i class="ri-facebook-fill"></i></div>
+                                    </a></li>
+                                <li class="list-inline-item"><a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle"><i class="ri-twitter-fill"></i></div>
+                                    </a></li>
+                                <li class="list-inline-item"><a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle"><i class="ri-instagram-fill"></i></div>
+                                    </a></li>
+                                <li class="list-inline-item"><a href="javascript: void(0);" class="avatar-xs d-block">
+                                        <div class="avatar-title rounded-circle"><i class="ri-youtube-fill"></i></div>
+                                    </a></li>
                             </ul>
                         </div>
                     </div>
@@ -1205,21 +1202,16 @@
             <div class="row text-center text-sm-start align-items-center mt-5">
                 <div class="col-sm-6">
                     <p class="copy-rights mb-0 text-white-50">
-                        <script>
-                            document.write(new Date().getFullYear())
-                        </script> © Sainteku - <?php echo e(__('UIN Prof. K.H. Saifuddin Zuhri')); ?>
+                        <script>document.write(new Date().getFullYear())</script> © Sainteku -
+                        <?php echo e(__('UIN Prof. K.H. Saifuddin Zuhri')); ?>
 
                     </p>
                 </div>
                 <div class="col-sm-6">
                     <div class="text-sm-end mt-3 mt-sm-0">
                         <ul class="list-inline mb-0 footer-list gap-4 fs-13">
-                            <li class="list-inline-item">
-                                <a href="#"><?php echo e(__('messages.privacy_policy')); ?></a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#"><?php echo e(__('messages.terms')); ?></a>
-                            </li>
+                            <li class="list-inline-item"><a href="#"><?php echo e(__('messages.privacy_policy')); ?></a></li>
+                            <li class="list-inline-item"><a href="#"><?php echo e(__('messages.terms')); ?></a></li>
                         </ul>
                     </div>
                 </div>
@@ -1227,41 +1219,37 @@
         </div>
     </footer>
 
-    <button onclick="topFunction()" class="btn btn-primary btn-icon rounded-circle" id="back-to-top" style="position: fixed; bottom: 30px; right: 30px; display: none;">
+    <button onclick="topFunction()" class="btn btn-primary btn-icon rounded-circle" id="back-to-top"
+        style="position: fixed; bottom: 30px; right: 30px; display: none;">
         <i class="ri-arrow-up-line"></i>
     </button>
 
-    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="assets/libs/simplebar/simplebar.min.js"></script>
-    <script src="assets/libs/node-waves/waves.min.js"></script>
-    <script src="assets/libs/feather-icons/feather.min.js"></script>
-    <script src="assets/js/pages/plugins/lord-icon-2.1.0.js"></script>
-    <script src="assets/js/plugins.js"></script>
-    <script src="assets/libs/swiper/swiper-bundle.min.js"></script>
-    <script src="assets/js/pages/job-lading.init.js"></script>
-
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 1000px; margin: 1.75rem auto;">
-            <div class="modal-content overflow-hidden" style="background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            style="max-width: 1000px; margin: 1.75rem auto;">
+            <div class="modal-content overflow-hidden"
+                style="background: transparent; border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                 <div class="row g-0">
+
                     <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center"
                         style="background: linear-gradient(145deg, #FEEB04 0%, #CBB800 100%); min-height: 550px; position: relative;">
-
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10"
                             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22><path d=%22M0 0 L100 100 M100 0 L0 100%22 stroke=%22%23000000%22 stroke-width=%221%22 opacity=%220.2%22/></svg>'); background-size: 30px 30px;">
                         </div>
-
                         <div class="text-center position-relative z-1 px-4 py-3">
-                            <img src="<?php echo e(asset('assets/images/uin.png')); ?>" alt="Logo UIN Saizu" class="img-fluid mb-3" style="max-width: 95px; height: auto;">
+                            <img src="<?php echo e(asset('assets/images/uin.png')); ?>" alt="Logo UIN Saizu" class="img-fluid mb-3"
+                                style="max-width: 95px; height: auto;">
                             <h2 class="fw-bold mb-2" style="color: #000000; font-size: 2rem;">Sainteku</h2>
                             <p class="mb-0 text-dark" style="font-size: 0.9rem;"><?php echo e(__('messages.faculty_name')); ?></p>
-                            <p class="mb-3 text-dark" style="font-size: 0.9rem;"><?php echo e(__('UIN Prof. K.H. Saifuddin Zuhri Purwokerto')); ?></p>
-
+                            <p class="mb-3 text-dark" style="font-size: 0.9rem;">
+                                <?php echo e(__('UIN Prof. K.H. Saifuddin Zuhri Purwokerto')); ?></p>
                             <div class="mt-4 pt-2">
-                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 opacity-75">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2 opacity-75">
                                     <path d="M10 11H6V7H10V11ZM18 11H14V7H18V11Z" fill="#000000" />
                                 </svg>
-                                <p class="fst-italic text-dark" style="font-size: 0.85rem; max-width: 260px; margin: 0 auto; line-height: 1.5; opacity: 0.9;">
+                                <p class="fst-italic text-dark"
+                                    style="font-size: 0.85rem; max-width: 260px; margin: 0 auto; line-height: 1.5; opacity: 0.9;">
                                     "<?php echo e(__('messages.quote')); ?>"
                                 </p>
                             </div>
@@ -1277,9 +1265,13 @@
 
                         <div class="p-4" style="max-width: 450px; margin: 0 auto;">
                             <div class="mb-3">
-                                <a href="#" class="d-inline-flex align-items-center text-sm text-gray-500 text-decoration-none" data-bs-dismiss="modal">
-                                    <svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                        <path d="M12.7083 5L7.5 10.2083L12.7083 15.4167" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                <a href="#"
+                                    class="d-inline-flex align-items-center text-sm text-gray-500 text-decoration-none"
+                                    data-bs-dismiss="modal">
+                                    <svg class="me-1" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                        viewBox="0 0 20 20" fill="none">
+                                        <path d="M12.7083 5L7.5 10.2083L12.7083 15.4167" stroke="currentColor"
+                                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                     <?php echo e(__('messages.back_to_dashboard')); ?>
 
@@ -1287,19 +1279,20 @@
                             </div>
 
                             <div class="mb-4">
-                                <h1 class="fw-semibold text-gray-800" style="font-size: 1.8rem; margin-bottom: 0.25rem;"><?php echo e(__('messages.sign_in')); ?></h1>
+                                <h1 class="fw-semibold text-gray-800"
+                                    style="font-size: 1.8rem; margin-bottom: 0.25rem;"><?php echo e(__('messages.sign_in')); ?></h1>
                                 <p class="text-sm text-gray-500"><?php echo e(__('messages.enter_credentials')); ?></p>
                             </div>
 
                             <form method="POST" action="/login" id="loginForm">
                                 <?php echo csrf_field(); ?>
-
                                 <?php if($errors->any()): ?>
-                                <div class="alert alert-danger py-2 mb-3 small" style="background: #FEF3F2; border-color: #F04438; color: #B42318;">
-                                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <p class="mb-0"><?php echo e($error); ?></p>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </div>
+                                    <div class="alert alert-danger py-2 mb-3 small"
+                                        style="background: #FEF3F2; border-color: #F04438; color: #B42318;">
+                                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <p class="mb-0"><?php echo e($error); ?></p>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </div>
                                 <?php endif; ?>
 
                                 <div class="mb-3">
@@ -1307,54 +1300,49 @@
                                         <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
                                     </label>
                                     <input type="text"
-                                        class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
-                                        id="credential"
-                                        name="credential"
-                                        placeholder="info@gmail.com"
-                                        value="<?php echo e(old('credential')); ?>"
-                                        style="height: 42px;"
-                                        required>
+                                        class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-3"
+                                        id="credential" name="credential" placeholder="info@gmail.com"
+                                        value="<?php echo e(old('credential')); ?>" style="height: 42px;" required>
                                 </div>
 
-                                <div class="mb-3" x-data="{ showPassword: false }">
+                                <div class="mb-3">
                                     <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                         <?php echo e(__('messages.password_label')); ?><span class="text-danger">*</span>
                                     </label>
                                     <div class="position-relative">
-                                        <input :type="showPassword ? 'text' : 'password'"
-                                            class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
-                                            id="password"
-                                            name="password"
+                                        <input type="password"
+                                            class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-3"
+                                            id="password" name="password"
                                             placeholder="<?php echo e(__('messages.password_placeholder')); ?>"
-                                            style="height: 42px; padding-right: 42px;"
-                                            required
-                                            @keydown.enter="showPassword = false">
-                                        <span @click="showPassword = !showPassword"
+                                            style="height: 42px; padding-right: 42px;" required>
+
+                                        <span id="togglePasswordBtn"
                                             class="position-absolute text-gray-500 cursor-pointer user-select-none"
                                             style="right: 12px; top: 50%; transform: translateY(-50%); z-index: 10;"
-                                            :title="showPassword ? 'Sembunyikan Password' : 'Tampilkan Password'">
-                                            <svg x-show="!showPassword" width="18" height="18" viewBox="0 0 20 20" fill="none">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z" fill="#98A2B3" />
+                                            title="Tampilkan Password">
+                                            <svg id="icon-eye-show" width="18" height="18" viewBox="0 0 20 20"
+                                                fill="none">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                    d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z"
+                                                    fill="#98A2B3" />
                                             </svg>
-                                            <svg x-show="showPassword" width="18" height="18" viewBox="0 0 20 20" fill="none" style="display: none;">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z" fill="#98A2B3" />
+                                            <svg id="icon-eye-hide" width="18" height="18" viewBox="0 0 20 20"
+                                                fill="none" style="display: none;">
+                                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                                    d="M4.63803 3.57709C4.34513 3.2842 3.87026 3.2842 3.57737 3.57709C3.28447 3.86999 3.28447 4.34486 3.57737 4.63775L4.85323 5.91362C3.74609 6.84199 2.89363 8.06395 2.4155 9.45936C2.3615 9.61694 2.3615 9.78801 2.41549 9.94558C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C11.255 15.3619 12.4422 15.0737 13.4994 14.5598L15.3625 16.4229C15.6554 16.7158 16.1302 16.7158 16.4231 16.4229C16.716 16.13 16.716 15.6551 16.4231 15.3622L4.63803 3.57709ZM12.3608 13.4212L10.4475 11.5079C10.3061 11.5423 10.1584 11.5606 10.0064 11.5606H9.99151C8.96527 11.5606 8.13333 10.7286 8.13333 9.70237C8.13333 9.5461 8.15262 9.39434 8.18895 9.24933L5.91885 6.97923C5.03505 7.69015 4.34057 8.62704 3.92328 9.70247C4.86803 12.1373 7.23361 13.8619 10.0002 13.8619C10.8326 13.8619 11.6287 13.7058 12.3608 13.4212ZM16.0771 9.70249C15.7843 10.4569 15.3552 11.1432 14.8199 11.7311L15.8813 12.7925C16.6329 11.9813 17.2187 11.0143 17.5849 9.94561C17.6389 9.78803 17.6389 9.61696 17.5849 9.45938C16.5055 6.30925 13.5184 4.04303 10.0002 4.04303C9.13525 4.04303 8.30244 4.17999 7.52218 4.43338L8.75139 5.66259C9.1556 5.58413 9.57311 5.54303 10.0002 5.54303C12.7667 5.54303 15.1323 7.26768 16.0771 9.70249Z"
+                                                    fill="#98A2B3" />
                                             </svg>
                                         </span>
                                     </div>
-                                    <small class="text-muted d-block mt-1 small"><?php echo e(__('messages.password_hint')); ?></small>
+                                    <small class="text-muted d-block mt-1"><?php echo e(__('messages.password_hint')); ?></small>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <div class="form-check">
-                                        <input type="checkbox"
-                                            class="form-check-input"
-                                            id="remember"
-                                            name="remember"
+                                        <input type="checkbox" class="form-check-input" id="remember" name="remember"
                                             style="width: 16px; height: 16px;">
-                                        <label class="form-check-label small text-gray-700 ms-1" for="remember">
-                                            <?php echo e(__('messages.remember_me')); ?>
-
-                                        </label>
+                                        <label class="form-check-label small text-gray-700 ms-1"
+                                            for="remember"><?php echo e(__('messages.remember_me')); ?></label>
                                     </div>
                                     <a href="#" class="small text-decoration-none" style="color: #000000;"
                                         data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
@@ -1363,8 +1351,7 @@
                                     </a>
                                 </div>
 
-                                <button type="submit"
-                                    class="btn w-100 py-2 small fw-medium border-0 btn-masuk">
+                                <button type="submit" class="btn w-100 py-2 small fw-medium btn-masuk rounded-3">
                                     <?php echo e(__('messages.login')); ?>
 
                                 </button>
@@ -1376,45 +1363,38 @@
         </div>
     </div>
 
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
-            <div class="modal-content" style="border: none; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                <div class="modal-header border-0 pb-0 pt-4 px-4">
-                    <h5 class="modal-title fw-semibold" id="forgotPasswordModalLabel"><?php echo e(__('messages.forgot_password_title')); ?></h5>
+            <div class="modal-content shadow-lg p-2">
+                <div class="modal-header border-0 pb-0 pt-3 px-4">
+                    <h5 class="modal-title fw-bold" id="forgotPasswordModalLabel">
+                        <?php echo e(__('messages.forgot_password_title')); ?></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div id="forgotPasswordAlert" class="alert" style="display: none;"></div>
-
                     <p class="text-sm text-gray-600 mb-4"><?php echo e(__('messages.forgot_password_desc')); ?></p>
 
                     <form method="POST" action="<?php echo e(route('password.email')); ?>" id="forgotPasswordForm">
                         <?php echo csrf_field(); ?>
-
                         <div class="mb-4">
                             <label class="form-label d-block small fw-medium text-gray-700 mb-1">
                                 <?php echo e(__('messages.email_label')); ?><span class="text-danger">*</span>
                             </label>
                             <input type="email"
-                                class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300"
-                                name="email"
-                                id="forgot_email"
-                                placeholder="nama@email.com"
-                                style="height: 42px;"
+                                class="form-control w-100 px-3 py-2 text-sm text-gray-800 bg-transparent border border-gray-300 rounded-3"
+                                name="email" id="forgot_email" placeholder="nama@email.com" style="height: 42px;"
                                 required>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="button"
-                                class="btn w-100 py-2 small border"
-                                style="background: #F3F4F6; color: #000;"
-                                data-bs-dismiss="modal">
+                            <button type="button" class="btn w-100 py-2 small border rounded-3"
+                                style="background: #F3F4F6; color: #000;" data-bs-dismiss="modal">
                                 <?php echo e(__('messages.cancel')); ?>
 
                             </button>
-                            <button type="submit"
-                                class="btn w-100 py-2 small fw-medium border-0"
-                                style="background-color: var(--saintek-primary); color: #000000;">
+                            <button type="submit" class="btn w-100 py-2 small fw-medium border-0 btn-primary rounded-3">
                                 <?php echo e(__('messages.send_reset_link')); ?>
 
                             </button>
@@ -1425,39 +1405,63 @@
         </div>
     </div>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ----------------------------------------------------
+            // 1. VANILLA JS PASSWORD TOGGLE (ANTI BLANK)
+            // ----------------------------------------------------
+            const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            const passwordInput = document.getElementById('password');
+            const iconEyeShow = document.getElementById('icon-eye-show');
+            const iconEyeHide = document.getElementById('icon-eye-hide');
+
+            if (togglePasswordBtn && passwordInput) {
+                togglePasswordBtn.addEventListener('click', function () {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        iconEyeShow.style.display = 'none';
+                        iconEyeHide.style.display = 'block';
+                        this.title = 'Sembunyikan Password';
+                    } else {
+                        passwordInput.type = 'password';
+                        iconEyeShow.style.display = 'block';
+                        iconEyeHide.style.display = 'none';
+                        this.title = 'Tampilkan Password';
+                    }
+                });
+            }
+
+            // ----------------------------------------------------
+            // 2. LOGIN FORM LOGIC
+            // ----------------------------------------------------
             const loginForm = document.getElementById('loginForm');
             const loginModal = document.getElementById('loginModal');
 
             if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
+                loginForm.addEventListener('submit', function (e) {
                     e.preventDefault();
-
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = '<?php echo e(__("messages.login")); ?>';
-
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<?php echo e(__("messages.processing")); ?>...';
                     const formData = new FormData(this);
 
                     fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>'
-                            }
-                        })
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>'
+                        }
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 showAlert('success', data.message);
-                                setTimeout(() => {
-                                    window.location.href = data.redirect || '/dashboard';
-                                }, 1500);
+                                setTimeout(() => { window.location.href = data.redirect || '/dashboard'; }, 1500);
                             } else {
                                 showAlert('error', data.message || '<?php echo e(__("messages.login_failed")); ?>');
                                 submitBtn.disabled = false;
@@ -1477,13 +1481,9 @@
                 const alert = document.getElementById('loginAlert');
                 const alertIcon = document.getElementById('alertIcon');
                 const alertMessage = document.getElementById('alertMessage');
-
                 if (!alert || !alertIcon || !alertMessage) return;
 
-                // Set message
                 alertMessage.textContent = message;
-
-                // Set icon and class based on type
                 if (type === 'success') {
                     alertIcon.className = 'ri-checkbox-circle-line me-2 fs-5 align-middle';
                     alert.className = 'alert alert-success alert-dismissible fade show alert-popup';
@@ -1491,76 +1491,58 @@
                     alertIcon.className = 'ri-error-warning-line me-2 fs-5 align-middle';
                     alert.className = 'alert alert-danger alert-dismissible fade show alert-popup';
                 }
-
-                // Show alert
                 alert.style.display = 'block';
-
-                // Auto hide after 5 seconds
-                setTimeout(() => {
-                    hideAlert();
-                }, 5000);
+                setTimeout(() => { hideAlert(); }, 5000);
             }
 
             function hideAlert() {
                 const alert = document.getElementById('loginAlert');
                 if (alert) {
                     alert.style.animation = 'slideUp 0.3s ease-in';
-                    setTimeout(() => {
-                        alert.style.display = 'none';
-                        alert.style.animation = '';
-                    }, 300);
+                    setTimeout(() => { alert.style.display = 'none'; alert.style.animation = ''; }, 300);
                 }
             }
-
-            // Make hideAlert global
             window.hideAlert = hideAlert;
 
             <?php if($errors->any()): ?>
-            if (typeof bootstrap !== 'undefined' && loginModal) {
-                const modal = new bootstrap.Modal(loginModal);
-                modal.show();
-                showAlert('error', '<?php echo e($errors->first()); ?>');
-            }
+                if (typeof bootstrap !== 'undefined' && loginModal) {
+                    const modal = new bootstrap.Modal(loginModal);
+                    modal.show();
+                    showAlert('error', '<?php echo e($errors->first()); ?>');
+                }
             <?php endif; ?>
-        });
-    </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // ----------------------------------------------------
+            // 3. FORGOT PASSWORD LOGIC
+            // ----------------------------------------------------
             const forgotForm = document.getElementById('forgotPasswordForm');
             const forgotAlert = document.getElementById('forgotPasswordAlert');
             const forgotModal = document.getElementById('forgotPasswordModal');
 
             if (forgotForm) {
-                forgotForm.addEventListener('submit', function(e) {
+                forgotForm.addEventListener('submit', function (e) {
                     e.preventDefault();
-
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = '<?php echo e(__("messages.send_reset_link")); ?>';
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<?php echo e(__("messages.sending")); ?>...';
 
-                    const formData = new FormData(this);
-
                     fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>'
-                            }
-                        })
+                        method: 'POST',
+                        body: new FormData(this),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '<?php echo e(csrf_token()); ?>'
+                        }
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (!forgotAlert) return;
-
                             forgotAlert.style.display = 'block';
-
                             if (data.success) {
                                 forgotAlert.className = 'alert alert-success py-2 mb-3 small';
                                 forgotAlert.innerHTML = data.message;
                                 forgotForm.reset();
-
                                 setTimeout(() => {
                                     const modal = bootstrap.Modal.getInstance(forgotModal);
                                     if (modal) modal.hide();
@@ -1570,18 +1552,14 @@
                                 forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
                                 forgotAlert.innerHTML = data.message || '<?php echo e(__("messages.email_not_found")); ?>';
                             }
-
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             if (!forgotAlert) return;
-
                             forgotAlert.style.display = 'block';
                             forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
                             forgotAlert.innerHTML = '<?php echo e(__("messages.error_occurred")); ?>';
-
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         });
@@ -1589,29 +1567,18 @@
             }
 
             <?php if(session('status')): ?>
-            if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
-                const modal = new bootstrap.Modal(forgotModal);
-                modal.show();
-                forgotAlert.style.display = 'block';
-                forgotAlert.className = 'alert alert-success py-2 mb-3 small';
-                forgotAlert.innerHTML = '<?php echo e(session("status")); ?>';
-            }
+                if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
+                    const modal = new bootstrap.Modal(forgotModal);
+                    modal.show();
+                    forgotAlert.style.display = 'block';
+                    forgotAlert.className = 'alert alert-success py-2 mb-3 small';
+                    forgotAlert.innerHTML = '<?php echo e(session("status")); ?>';
+                }
             <?php endif; ?>
 
-            <?php if($errors->has('email')): ?>
-            if (typeof bootstrap !== 'undefined' && forgotModal && forgotAlert) {
-                const modal = new bootstrap.Modal(forgotModal);
-                modal.show();
-                forgotAlert.style.display = 'block';
-                forgotAlert.className = 'alert alert-danger py-2 mb-3 small';
-                forgotAlert.innerHTML = '<?php echo e($errors->first("email")); ?>';
-            }
-            <?php endif; ?>
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // ----------------------------------------------------
+            // 4. HAMBURGER MENU LOGIC
+            // ----------------------------------------------------
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const mobileMenu = document.getElementById('mobileMenu');
             const menuOverlay = document.getElementById('mobileMenuOverlay');
@@ -1632,53 +1599,30 @@
                 body.style.overflow = '';
             }
 
-            if (hamburgerBtn) {
-                hamburgerBtn.addEventListener('click', openMenu);
-            }
+            if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMenu);
+            if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMenu);
+            if (menuOverlay) menuOverlay.addEventListener('click', closeMenu);
 
-            if (closeMenuBtn) {
-                closeMenuBtn.addEventListener('click', closeMenu);
-            }
-
-            if (menuOverlay) {
-                menuOverlay.addEventListener('click', closeMenu);
-            }
-
-            // Close menu when clicking on mobile nav links
-            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-            mobileNavLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', function (e) {
                     closeMenu();
                     const targetId = this.getAttribute('href');
                     if (targetId && targetId !== '#') {
                         e.preventDefault();
                         const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            targetElement.scrollIntoView({
-                                behavior: 'smooth'
-                            });
-                        }
+                        if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth' });
                     }
                 });
             });
 
-            // Close menu when clicking mobile login button (modal will open)
             const mobileLoginBtn = document.querySelector('.mobile-login-btn');
-            if (mobileLoginBtn) {
-                mobileLoginBtn.addEventListener('click', function() {
-                    closeMenu();
-                });
-            }
+            if (mobileLoginBtn) mobileLoginBtn.addEventListener('click', closeMenu);
 
-            // Close menu when window resize to desktop
-            window.addEventListener('resize', function() {
-                if (window.innerWidth >= 992) {
-                    closeMenu();
-                }
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 992) closeMenu();
             });
         });
     </script>
-
 </body>
 
 </html><?php /**PATH C:\laragon\www\sainteku\resources\views/landing.blade.php ENDPATH**/ ?>
