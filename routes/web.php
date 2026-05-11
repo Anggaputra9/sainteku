@@ -17,17 +17,6 @@ use App\Http\Controllers\NewsController;
 
 Route::get('/', [NewsController::class, 'index']);
 
-Route::get('/debug-scrape', function () {
-    $html = \Illuminate\Support\Facades\Http::timeout(15)
-        ->withoutVerifying()
-        ->withHeaders(['User-Agent' => 'Mozilla/5.0'])
-        ->get('https://saintek.uinsaizu.ac.id/category/berita/')
-        ->body();
-
-    // Lihat 5000 karakter pertama HTML-nya
-    echo '<pre>' . htmlspecialchars(substr($html, 5000, 7000)) . '</pre>';
-});
-
 // Login routes
 Route::get('login', function () {
     return redirect('/');
