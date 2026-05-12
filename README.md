@@ -84,6 +84,7 @@ Data default admin dibuat saat seeding.
 - **Password**: `password`
 
 > Disarankan mengganti password setelah login pertama.
+> Untuk produksi, ubah password admin secara manual atau sesuaikan nilai di seeder sebelum deployment.
 
 ## Akses Modul (Contoh URL)
 - Dashboard: `http://localhost:8000/dashboard`
