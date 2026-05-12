@@ -83,8 +83,7 @@ Data default admin dibuat saat seeding.
 - **Email**: `admin@sainteku.ac.id`
 - **Password**: `password`
 
-> Wajib mengganti password setelah login pertama.
-> Jangan gunakan password default di produksi; ubah di seeder atau ganti secara manual sebelum deployment.
+> ⚠️ **PERINGATAN KEAMANAN:** Password default sangat lemah. Wajib ganti setelah login pertama, dan untuk produksi ubah di seeder atau terapkan reset password wajib di aplikasi.
 
 ## Akses Modul (Contoh URL)
 - Dashboard: `http://localhost:8000/dashboard`
