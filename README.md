@@ -1,59 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+﻿# Sainteku
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. K.H. Saifuddin Zuhri Purwokerto. Aplikasi dibangun dengan Laravel modular untuk mengelola layanan akademik, master data kampus, repositori dokumen, prestasi, infrastruktur, berita, dan profil pengguna.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2+
+- Laravel 12
+- `widart/laravel-modules`
+- MySQL/MariaDB
+- Vite 7
+- Tailwind CSS 4
+- Alpine.js 3
+- Font Awesome 7
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Core
+- Landing page fakultas.
+- Berita kampus hasil scraping via command/job.
+- Auth, reset password, profil pengguna.
+- Dashboard role-based.
+- Sidebar/menu modular berbasis `mst_menu`.
+- Role/permission berbasis modul (`mst_role`, `mst_module`, `ref_permission`, `trx_role_permission`).
+- Notifikasi internal untuk workflow approval.
 
-## Learning Laravel
+### Master Data
+- User/admin CRUD, status aktif, unit, tipe user, assign role.
+- Role CRUD dan matriks permission per modul.
+- Unit organisasi CRUD: universitas, fakultas, program studi.
+- Infrastruktur/inventaris CRUD: kategori, stok, satuan, harga, unit pemilik, status, foto, deskripsi, preview gambar, filter/search/pagination.
+- Mata kuliah CRUD: kode otomatis `MK001`, fakultas → prodi cascade, filter/search AJAX, pagination JSON.
+- Data pendukung akademik dan referensi master.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Monev Akademik
+- Bank soal.
+- Workspace tashih soal.
+- Pengajuan ujian/soal oleh dosen.
+- Review/tashih soal.
+- Review Kaprodi.
+- Log perubahan/revisi soal.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Document Repository
+- Dashboard statistik dokumen.
+- Upload dokumen dengan tipe/unit/keterangan/file.
+- Review dokumen oleh approver.
+- Status pending/approved/rejected/revisi.
+- Download dokumen.
+- Revisi file.
+- Notifikasi approver.
 
-## Laravel Sponsors
+### Manajemen Achievement
+- Prestasi mahasiswa.
+- Prestasi dosen.
+- Portofolio.
+- Referensi kategori/tingkat prestasi.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Manajemen Infrastruktur
+- Dashboard fasilitas/aset.
+- Pengajuan peminjaman fasilitas.
+- Persetujuan/penolakan peminjaman.
+- Status pending, disetujui, ditolak, dikembalikan.
+- Pemulihan stok saat pengembalian.
 
-### Premium Partners
+### News Scraper
+- Model `ScrapedNews`.
+- Command `ScrapeNewsCommand`.
+- Job `ScrapeNewsJob`.
+- Integrasi landing/blog section.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Instalasi Dev
 
-## Contributing
+```bash
+git clone https://github.com/Anggaputra9/sainteku.git
+cd sainteku
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Konfigurasi DB di `.env`:
 
-## Code of Conduct
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sainteku
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Migrasi dan seeder:
 
-## Security Vulnerabilities
+```bash
+php artisan migrate --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Storage link:
 
-## License
+```bash
+php artisan storage:link
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jalankan aplikasi:
+
+```bash
+npm run dev
+php artisan serve
+```
+
+Akses: http://127.0.0.1:8000
+
+## Build Production
+
+```bash
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Permission server:
+
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+## Struktur Penting
+
+```text
+app/                          Core app, auth, dashboard, news, notification
+app/Console/Commands/          Command scraper
+app/Jobs/                      Queue job scraper
+Modules/MasterData/            User, role, unit, course, infrastructure
+Modules/MonevAkademik/         Bank soal, tashih, proposal, review
+Modules/DocumentRepository/    Repositori dokumen dan approval
+Modules/ManajemenAchievement/  Prestasi dan portofolio
+Modules/ManajementInfrastruktur/ Peminjaman fasilitas/aset
+resources/views/               Layout, landing, dashboard
+routes/web.php                 Route utama
+```
+
+## Route Penting
+
+### Master Data
+- `/masterdata/admin/users`
+- `/masterdata/roles`
+- `/masterdata/units`
+- `/masterdata/infrastructures`
+- `/masterdata/courses`
+- `/masterdata/courses/api/prodis`
+- `/masterdata/courses/api/data`
+
+### Monev Akademik
+- `/monevakademik/bank-soal`
+- `/monevakademik/tashih`
+- `/monevakademik/dosen/exam`
+- `/monevakademik/kaprodi/review`
+
+### Document Repository
+- `/documentrepository/dashboard`
+- `/documentrepository`
+- `/documentrepository/review`
+
+### Manajemen Infrastruktur
+- `/manajementinfrastruktur`
+- `/manajementinfrastruktur/pengajuan`
+- `/manajementinfrastruktur/persetujuan`
+
+## Akun Seeder
+
+Seeder membuat akun awal (lihat `database/seeders/DatabaseSeeder.php`):
+
+- Admin: `admin@sainteku.ac.id` / `password`
+- Dosen: `arifianilhamnurriandana@gmail.com` / `Argtgbgt`
+- Kaprodi: `anas@uinsaizu.ac.id` / `kaprodi`
+- Mahasiswa: `niamilah@uinsaizu.ac.id` / `password`
+
+## Catatan Dev
+
+- Gunakan `php artisan module:list` untuk cek module aktif.
+- Upload infrastruktur memakai disk `public`; wajib `php artisan storage:link`.
+- Mata kuliah memakai ID otomatis format `MK001` dst.
+- Infrastruktur memakai ID otomatis format `I0001` dst.
+- Permission umum: `C`, `R`, `U`, `D`, `A`, `V` sesuai data `ref_permission`.
+
+## Testing Cepat
+
+```bash
+php artisan route:list
+php artisan test
+npm run build
+```
+
+## Lisensi
+
+Internal/project kampus. Sesuaikan lisensi repo sebelum distribusi publik.

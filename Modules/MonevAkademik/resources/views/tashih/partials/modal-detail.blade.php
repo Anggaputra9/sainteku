@@ -22,10 +22,7 @@
                 </h3>
             </div>
 
-            <button @click="openDetail = false" type="button"
-                class="shrink-0 inline-flex items-center justify-center rounded-lg p-1.5 sm:p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all dark:hover:bg-red-900/30 dark:hover:text-red-400">
-                <i class="fas fa-times text-xl sm:text-2xl"></i>
-            </button>
+            <div class="shrink-0 w-8 sm:w-9"></div>
         </div>
 
         <form method="POST" id="bulkReviewForm" class="flex-1 flex flex-col overflow-hidden relative">
@@ -205,9 +202,9 @@
                             <div
                                 class="mt-8 sm:mt-10 rounded-2xl border border-indigo-100 bg-white shadow-md overflow-hidden dark:bg-[#1e293b] dark:border-indigo-900/30">
                                 <div
-                                    class="bg-indigo-50 dark:bg-indigo-900/20 px-4 sm:px-6 py-3 sm:py-4 border-b border-indigo-100 dark:border-indigo-900/50">
+                                    class="bg-blue-50 dark:bg-blue-900/20 px-4 sm:px-6 py-3 sm:py-4 border-b border-blue-100 dark:border-blue-900/50">
                                     <h4
-                                        class="text-sm sm:text-base font-bold text-indigo-800 dark:text-indigo-400 flex items-center gap-2">
+                                        class="text-sm sm:text-base font-bold text-blue-800 dark:text-blue-400 flex items-center gap-2">
                                         <i class="fa-solid fa-clipboard-check"></i> Form Keputusan Akhir Kaprodi
                                     </h4>
                                 </div>
@@ -221,7 +218,7 @@
                                             Tuliskan kesimpulan akhir untuk dosen. (Opsional jika sudah memberi catatan
                                             per-soal).</p>
                                         <textarea name="comment" rows="3"
-                                            class="w-full text-xs sm:text-sm rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 sm:px-4 sm:py-3 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white dark:focus:ring-indigo-900/50 transition-all resize-y shadow-sm"
+                                            class="w-full text-xs sm:text-sm rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 sm:px-4 sm:py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white dark:focus:ring-blue-900/50 transition-all resize-y shadow-sm"
                                             placeholder="Misal: Secara keseluruhan sudah bagus..."></textarea>
                                     </div>
 
@@ -266,12 +263,17 @@
 
             {{-- Footer Modal: Tombol Aksi --}}
             <div
-                class="shrink-0 border-t border-gray-200 bg-white px-4 sm:px-6 py-4 sm:py-5 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
+                <div class="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
 
                     <div class="w-full sm:w-auto flex justify-start">
+                        <button type="button" @click="openDetail = false"
+                            class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-gray-200 px-5 sm:px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+
                         <template x-if="selectedProposal && selectedProposal.status === 'APPROVED'">
-                            <div class="w-full sm:w-auto">
+                            <div class="w-full sm:w-auto sm:ml-3 mt-2 sm:mt-0">
                                 @if(Auth::user()->hasPermission(3, 'E'))
                                     <a :href="'{{ url('monev-akademik/tashih/print') }}/' + selectedProposal.uuid"
                                         target="_blank"
@@ -283,15 +285,15 @@
                         </template>
                     </div>
 
-                    <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+                    <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2.5 sm:gap-3 sm:justify-end">
                         <template
                             x-if="selectedProposal && userId == selectedProposal.created_by && ['SUBMITTED', 'REVISED'].includes(selectedProposal.status)">
                             <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full">
                                 @if(Auth::user()->hasPermission(3, 'D'))
                                     <button type="button"
                                         @click="openDetail = false; setTimeout(() => { openDelete = true }, 300);"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white border border-red-200 text-red-600 px-5 sm:px-6 py-2.5 text-sm font-bold hover:bg-red-50 hover:border-red-300 dark:bg-[#0f172a] dark:border-red-900/50 dark:text-red-500 dark:hover:bg-red-900/20 focus:ring-4 focus:ring-red-500/10 transition-all">
-                                        <i class="fas fa-trash-alt"></i> Batalkan
+                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-red-600 text-white px-5 sm:px-6 py-2.5 text-sm font-bold shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg focus:ring-4 focus:ring-red-500/30 transition-all">
+                                        <i class="fas fa-trash-alt"></i> Hapus
                                     </button>
                                 @endif
 
@@ -308,19 +310,19 @@
                             <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full">
                                 <button type="button"
                                     @click="submitToRevise(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                    class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-white border border-amber-300 text-amber-700 px-5 sm:px-6 py-2.5 text-sm font-bold hover:bg-amber-50 hover:border-amber-400 dark:bg-[#0f172a] dark:border-amber-700/50 dark:text-amber-500 dark:hover:bg-amber-900/20 focus:ring-4 focus:ring-amber-500/10 transition-all">
+                                    class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-amber-500 text-white px-5 sm:px-6 py-2.5 text-sm font-bold shadow-md shadow-amber-500/20 hover:bg-amber-600 hover:shadow-lg focus:ring-4 focus:ring-amber-500/30 transition-all">
                                     <i class="fas fa-rotate-left"></i> Kembalikan (Revisi)
                                 </button>
 
                                 @if(empty(Auth::user()->signature))
                                     <button type="button" @click="$dispatch('open-signature')"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-indigo-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-lg focus:ring-4 focus:ring-indigo-500/30 transition-all">
+                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
                                         <i class="fas fa-file-signature"></i> Setujui & Sahkan
                                     </button>
                                 @else
                                     <button type="button"
                                         @click="submitToApprove(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-indigo-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-lg focus:ring-4 focus:ring-indigo-500/30 transition-all">
+                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
                                         <i class="fas fa-file-signature"></i> Setujui & Sahkan
                                     </button>
                                 @endif
@@ -348,7 +350,7 @@
             <i class="fas fa-exclamation-triangle text-2xl sm:text-3xl text-red-600 dark:text-red-500"></i>
         </div>
 
-        <h3 class="mb-2 text-lg sm:text-xl font-bold text-gray-900 dark:text-white shrink-0">Batalkan Pengajuan?</h3>
+        <h3 class="mb-2 text-lg sm:text-xl font-bold text-gray-900 dark:text-white shrink-0">Hapus Pengajuan?</h3>
 
         <div class="overflow-y-auto custom-scrollbar mb-5 sm:mb-6">
             <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
@@ -364,7 +366,7 @@
 
             <div class="flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3">
                 <button type="button" @click="openDelete = false"
-                    class="inline-flex justify-center items-center rounded-xl border border-gray-300 bg-white px-5 sm:px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-all w-full sm:w-auto">
+                    class="inline-flex justify-center items-center rounded-xl bg-gray-200 px-5 sm:px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all w-full sm:w-auto">
                     Batal
                 </button>
                 <button type="submit" :disabled="!selectedProposal"
@@ -390,11 +392,11 @@
             class="relative w-full max-w-lg transform rounded-2xl bg-white shadow-2xl dark:bg-[#1e293b] dark:border dark:border-gray-700 overflow-hidden flex flex-col max-h-[90dvh]">
 
             <div
-                class="shrink-0 bg-indigo-600 px-5 sm:px-6 py-3 sm:py-4 flex justify-between items-center dark:bg-indigo-700">
+                class="shrink-0 bg-blue-600 px-5 sm:px-6 py-3 sm:py-4 flex justify-between items-center dark:bg-blue-700">
                 <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                     <i class="fas fa-signature"></i> Tanda Tangan Digital
                 </h3>
-                <button @click="openSignature = false" class="text-white hover:text-indigo-200 transition p-1">
+                <button @click="openSignature = false" class="text-white hover:text-blue-200 transition p-1">
                     <i class="fas fa-times text-lg sm:text-xl"></i>
                 </button>
             </div>
@@ -422,12 +424,12 @@
 
                 <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-2.5 sm:gap-3 shrink-0">
                     <button type="button" @click="openSignature = false"
-                        class="w-full sm:w-1/3 inline-flex justify-center items-center gap-2 rounded-xl bg-gray-100 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-gray-700 hover:bg-gray-200 transition-all dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                        class="w-full sm:w-1/3 inline-flex justify-center items-center gap-2 rounded-xl bg-gray-200 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-gray-700 hover:bg-gray-300 transition-all dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
                         Batal
                     </button>
                     <button type="button"
                         @click="submitWithSignature(selectedProposal?.uuid, '{{ url('monev-akademik/tashih') }}')"
-                        class="w-full sm:w-2/3 inline-flex justify-center items-center gap-2 rounded-xl bg-indigo-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-lg focus:ring-4 focus:ring-indigo-500/30 transition-all">
+                        class="w-full sm:w-2/3 inline-flex justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
                         <i class="fas fa-save"></i> Simpan & Sahkan
                     </button>
                 </div>

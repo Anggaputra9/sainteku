@@ -206,5 +206,18 @@ class MenuSeeder extends Seeder
                 $menu
             );
         }
+
+        DB::table('mst_menu')->updateOrInsert(
+            ['id' => 101],
+            [
+                'menu_name' => 'Manajemen Menu',
+                'menu_link' => 'menu-management.index',
+                'menu_icon' => 'fa-solid fa-bars-staggered',
+                'parent_id' => null,
+                'module_id' => null,
+                'order_no' => 99,
+                'is_active' => 1,
+            ]
+        );
     }
 }

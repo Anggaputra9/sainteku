@@ -31,11 +31,6 @@
                 </h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Daftarkan prestasi dosen ke sistem <span
                         class="font-semibold text-yellow-500 dark:text-yellow-400">Sainteku</span></p>
-            </div>
-            <button @click="openCreateDosen = false"
-                class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
-                <i class="fas fa-arrow-left"></i>
-                Kembali
             </button>
         </div>
 

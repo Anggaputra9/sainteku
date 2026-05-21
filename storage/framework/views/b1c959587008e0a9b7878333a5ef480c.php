@@ -12,19 +12,6 @@
             class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-3 sm:px-6 py-3 sm:py-4 z-20 dark:bg-gray-800 dark:border-gray-700 shadow-sm gap-2">
 
             <div class="flex items-center gap-2 sm:gap-4 flex-1 overflow-hidden">
-                <button @click="
-                            if(isEditMode) { 
-                                openCreate = false; 
-                                openDetail = true; 
-                            } else { 
-                                openCreate = false; 
-                                $dispatch('buka-modal-matkul'); 
-                            }
-                        " type="button" class="shrink-0 inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-all dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                    title="Kembali">
-                    <i class="fas fa-arrow-left text-lg sm:text-xl"></i>
-                </button>
-
                 <div class="flex-1 overflow-hidden pr-2">
                     <h3
                         class="text-sm sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 leading-tight truncate">
@@ -106,7 +93,19 @@
 
                 
                 <div
-                    class="sticky bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 sm:px-8 sm:py-4 z-20 flex justify-end dark:border-gray-700 dark:bg-gray-800/95 shrink-0">
+                    class="sticky bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 sm:px-8 sm:py-4 z-20 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end dark:border-gray-700 dark:bg-gray-800/95 shrink-0">
+                    <button @click="
+                                if(isEditMode) { 
+                                    openCreate = false; 
+                                    openDetail = true; 
+                                } else { 
+                                    openCreate = false; 
+                                    $dispatch('buka-modal-matkul'); 
+                                }
+                            " type="button"
+                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 w-full sm:w-auto">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
                     <button type="submit" id="btn-submit" disabled
                         class="inline-flex justify-center items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 sm:px-8 sm:py-2.5 text-sm font-bold text-white shadow-md hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 w-full sm:w-auto">
                         <i class="fas fa-save"></i> <span

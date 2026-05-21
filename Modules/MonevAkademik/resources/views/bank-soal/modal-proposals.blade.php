@@ -16,12 +16,6 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Menampilkan daftar paket soal yang telah
                     disetujui.</p>
             </div>
-
-            {{-- Tombol Kembali di Header --}}
-            <button @click="isModalOpen = false" type="button"
-                class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
-            </button>
         </div>
 
         {{-- MODAL BODY --}}
@@ -121,6 +115,13 @@
                     </table>
                 </div>
             </div>
+
+        <div class="shrink-0 flex justify-end border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/80">
+            <button @click="isModalOpen = false" type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+            </button>
+        </div>
 
         </div>
     </div>

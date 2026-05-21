@@ -1,6 +1,40 @@
+@php
+    $kampus = ($units ?? collect())->first(fn($u) => $u->id === $u->unit_parent);
+    $kampusId = $kampus->id ?? 'U001';
+    $kampusName = $kampus->unit_name ?? 'UIN Prof. K.H. Saifuddin Zuhri';
+
+    $fakultasList = ($units ?? collect())->filter(fn($u) => $u->unit_parent === $kampusId && $u->id !== $kampusId)->values();
+    $listFakultasArr = $fakultasList->map(fn($f) => ['id' => $f->id, 'name' => $f->unit_name])->toArray();
+
+    $fakultasIds = $fakultasList->pluck('id')->toArray();
+    $prodiList = ($units ?? collect())->filter(fn($u) => in_array($u->unit_parent, $fakultasIds))->values();
+    $listProdiArr = $prodiList->map(fn($p) => ['id' => $p->id, 'name' => $p->unit_name, 'parent' => $p->unit_parent])->toArray();
+@endphp
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('formCreateDocument', () => ({
+            tingkatUnit: '',
+            filterFakultas: '',
+            unitPemilikId: '{{ old('unit_id') }}',
+            fileName: '',
+            kampusId: '{{ $kampusId }}',
+            kampusName: '{{ $kampusName }}',
+            listFakultas: @json($listFakultasArr),
+            listProdi: @json($listProdiArr),
+            init() {
+                this.$watch('tingkatUnit', value => {
+                    this.filterFakultas = '';
+                    this.unitPemilikId = value === 'kampus' ? this.kampusId : '';
+                });
+            }
+        }))
+    })
+</script>
+
 {{-- MODAL TAMBAH DOKUMEN (Desain Premium) --}}
 <div x-show="openCreate"
-    class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
+    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
@@ -12,27 +46,24 @@
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        class="relative w-full max-w-4xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all mt-10">
+        class="flex flex-col w-full max-w-4xl max-h-[90vh] rounded-2xl bg-white shadow-2xl dark:bg-gray-800 overflow-hidden">
 
         {{-- Header Modal --}}
-        <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
             <div>
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Unggah Dokumen Baru</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Tambahkan dokumen fisik ke dalam repositori <span
                         class="font-semibold text-blue-600 dark:text-blue-400">Sainteku</span></p>
             </div>
-            <button @click="openCreate = false" type="button"
-                class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
-                <i class="fas fa-arrow-left"></i>
-                Kembali
-            </button>
         </div>
 
         {{-- Form Area --}}
         <form action="{{ route('DocumentRepository.store') }}" method="POST" enctype="multipart/form-data"
-            class="space-y-6">
+            class="flex flex-col flex-1 min-h-0" x-data="formCreateDocument">
             @csrf
+            <input type="hidden" name="unit_id" :value="unitPemilikId" required>
 
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 {{-- Judul Dokumen (Full Width) --}}
                 <div class="md:col-span-2">
@@ -62,19 +93,57 @@
                 </div>
 
                 {{-- Unit Pemilik --}}
-                <div>
+                <div class="rounded-xl bg-blue-50/50 p-4 ring-1 ring-blue-100 dark:bg-blue-900/10 dark:ring-blue-900/30">
                     <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                        Unit Pemilik <span class="text-red-500">*</span>
+                        Tingkat Unit Pemilik <span class="text-red-500">*</span>
                     </label>
-                    <select name="unit_id" required
+                    <select name="tingkat_unit" x-model="tingkatUnit" required
                         class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                        <option value="">-- Pilih Unit --</option>
-                        @foreach ($units as $unit)
-                            <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                {{ $unit->unit_name }}
-                            </option>
-                        @endforeach
+                        <option value="">-- Pilih Tingkat Unit --</option>
+                        <option value="kampus">Universitas / Institut</option>
+                        <option value="fakultas">Fakultas</option>
+                        <option value="prodi">Program Studi</option>
                     </select>
+
+                    <div class="mt-3" x-show="tingkatUnit === 'kampus'" x-cloak x-transition>
+                        <div class="rounded-lg border border-blue-200 bg-blue-100 px-4 py-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                            <span class="font-bold">Universitas Terpilih:</span> <span x-text="kampusName"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3" x-show="tingkatUnit === 'fakultas'" x-cloak x-transition>
+                        <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Pilih Fakultas</label>
+                        <select x-model="unitPemilikId" x-bind:required="tingkatUnit === 'fakultas'"
+                            class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
+                            <option value="">-- Pilih Fakultas --</option>
+                            <template x-for="fakultas in listFakultas" :key="fakultas.id">
+                                <option :value="fakultas.id" x-text="fakultas.name"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="mt-3 grid grid-cols-1 gap-3 rounded-lg bg-white p-3 ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-600" x-show="tingkatUnit === 'prodi'" x-cloak x-transition>
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Filter Fakultas</label>
+                            <select x-model="filterFakultas"
+                                class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
+                                <option value="">-- Tampilkan Semua Prodi --</option>
+                                <template x-for="fakultas in listFakultas" :key="fakultas.id">
+                                    <option :value="fakultas.id" x-text="fakultas.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Pilih Prodi</label>
+                            <select x-model="unitPemilikId" x-bind:required="tingkatUnit === 'prodi'"
+                                class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
+                                <option value="">-- Pilih Prodi --</option>
+                                <template x-for="prodi in listProdi.filter(p => filterFakultas === '' || p.parent === filterFakultas)" :key="prodi.id">
+                                    <option :value="prodi.id" x-text="prodi.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Area Tanggal (Box Khusus) --}}
@@ -87,11 +156,11 @@
                         {{-- Tanggal Berlaku --}}
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Tanggal
-                                Berlaku</label>
+                                Berlaku <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i
                                         class="fa-regular fa-calendar"></i></span>
-                                <input type="text" name="effective_date" value="{{ old('effective_date') }}"
+                                <input type="text" name="effective_date" value="{{ old('effective_date', now()->toDateString()) }}" required
                                     placeholder="Pilih Tanggal..." x-init="flatpickr($el, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd F Y', allowInput: false, static: true })"
                                     class="w-full rounded-lg border-0 py-2.5 pl-10 pr-4 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-900 dark:text-white dark:ring-gray-600 cursor-pointer">
                             </div>
@@ -146,12 +215,13 @@
                 </div>
 
             </div>
+            </div>
 
             {{-- Tombol Aksi Bawah --}}
             <div
-                class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end mt-8">
+                class="shrink-0 flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/80 sm:flex-row sm:justify-end">
                 <button type="button" @click="openCreate = false"
-                    class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-200 transition dark:focus:ring-yellow-900">
+                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                     <i class="fas fa-xmark"></i>
                     Batal
                 </button>
@@ -164,3 +234,22 @@
         </form>
     </div>
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #475569;
+    }
+</style>

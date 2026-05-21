@@ -78,31 +78,33 @@
             unitTambahan = [];
         });
     " x-show="openEdit"
-    class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
-    x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
+    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm"
+    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
 
     <div @click.away="openEdit = false"
-        class="relative my-auto w-full max-w-4xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
+        class="relative w-full max-w-4xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all overflow-hidden">
 
-        <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+        <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 z-20 dark:bg-gray-800 dark:border-gray-700">
             <div>
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Edit User</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Memperbarui data pengguna: <span
-                        class="font-semibold text-blue-600 dark:text-blue-400" x-text="userData.name"></span></p>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Edit User</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Memperbarui data pengguna: <span class="font-semibold text-blue-600 dark:text-blue-400" x-text="userData.name"></span></p>
             </div>
             <button @click="openEdit = false"
-                class="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-amber-500 transition focus:ring-4 focus:ring-amber-200 dark:focus:ring-amber-900">
-                <i class="fas fa-arrow-left"></i> Kembali
+                class="shrink-0 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all dark:hover:bg-red-900/30 dark:hover:text-red-400">
+                <i class="fas fa-times text-xl"></i>
             </button>
         </div>
 
-        <form :action="url" method="POST" class="space-y-6">
+        <form :action="url" method="POST" class="flex flex-col min-h-full">
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
 
             <input type="hidden" name="unit_id" :value="unitUtamaId">
 
-            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 <div>
                     <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Nama Lengkap <span
                             class="text-red-500">*</span></label>
@@ -311,21 +313,22 @@
 
                 <div class="flex items-end pb-2 md:col-span-2">
                     <label class="relative inline-flex cursor-pointer items-center gap-3">
-                        <input type="checkbox" name="is_active" value="1" class="peer sr-only"
-                            x-model="userData.active">
-                        <div
-                            class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-emerald-500 peer-checked:after:translate-x-full dark:bg-gray-700">
-                        </div>
+                        <input type="checkbox" name="is_active" value="1" class="peer sr-only" x-model="userData.active">
+                        <div class="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-emerald-500 peer-checked:after:translate-x-full dark:bg-gray-700"></div>
                         <span class="text-sm font-semibold text-gray-900 dark:text-white">Akun Aktif</span>
                     </label>
                 </div>
             </div>
+            </div>
 
-            <div
-                class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end">
+            <div class="shrink-0 flex flex-col sm:flex-row justify-end items-center border-t border-gray-200 bg-white px-6 py-4 z-20 dark:bg-gray-800 dark:border-gray-700 gap-3">
+                <button type="button" @click="openEdit = false"
+                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
+                    <i class="fas fa-times"></i> Batal
+                </button>
                 <button type="submit"
-                    class="rounded-lg bg-blue-600 px-8 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition">
-                    <i class="fas fa-save mr-1"></i> Simpan Perubahan
+                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-lg bg-amber-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-amber-600 transition">
+                    <i class="fas fa-save"></i> Simpan Perubahan
                 </button>
             </div>
         </form>

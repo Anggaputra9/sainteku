@@ -16,7 +16,9 @@ class InfrastructureController extends Controller
     {
         // Ambil parameter dari query string
         $search = $request->input('search', '');
-        $perPage = max(1, $request->input('per_page', 10));
+        $type = $request->input('inventory_type', '');
+        $status = $request->input('status', '');
+        $perPage = min(100, max(1, (int) $request->input('per_page', 10)));
 
         // Ambil data inventaris beserta relasinya dengan search filter
         $infrastructures = DB::table('mst_inventory')
@@ -28,9 +30,18 @@ class InfrastructureController extends Controller
         if (!empty($search)) {
             $infrastructures->where(function ($query) use ($search) {
                 $query->where('mst_inventory.item_name', 'like', '%' . $search . '%')
+                    ->orWhere('mst_inventory.id', 'like', '%' . $search . '%')
                     ->orWhere('mst_inventory.brand', 'like', '%' . $search . '%')
                     ->orWhere('mst_inventory.description', 'like', '%' . $search . '%');
             });
+        }
+
+        if ($type !== '') {
+            $infrastructures->where('mst_inventory.inventory_type', $type);
+        }
+
+        if ($status !== '' && in_array($status, ['0', '1'], true)) {
+            $infrastructures->where('mst_inventory.status', $status);
         }
 
         $infrastructures = $infrastructures

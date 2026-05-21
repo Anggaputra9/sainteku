@@ -1,71 +1,92 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="my-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Master Data</h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Kelola data inti sistem Sainteku. Data di sini akan menjadi referensi untuk semua modul lainnya.
-            </p>
-        </div>
+    <div class="mx-auto">
+        <div class="space-y-6">
 
-        <!-- Statistik Ringkas -->
-        <div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
-                        <i class="fas fa-users text-blue-600 dark:text-blue-300 text-xl"></i>
+            {{-- Header & Breadcrumb --}}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Master Data</h2>
+                    <nav>
+                        <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                            <li>Master Data /</li>
+                            <li class="text-blue-600 dark:text-blue-400">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            {{-- Alert Messages --}}
+            @if (session('success'))
+                <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
+                    <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
+                    <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
+                    <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
+                </div>
+            @endif
+
+            {{-- Statistik Ringkas --}}
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                            <i class="fas fa-users text-blue-600 dark:text-blue-300 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengguna</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalUsers) }}</p>
+                        </div>
                     </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pengguna</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalUsers) }}</p>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="rounded-full bg-green-100 p-3 dark:bg-green-900">
+                            <i class="fas fa-user-shield text-green-600 dark:text-green-300 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Role</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalRoles) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="rounded-full bg-purple-100 p-3 dark:bg-purple-900">
+                            <i class="fas fa-building text-purple-600 dark:text-purple-300 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Unit</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalUnits) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                    <div class="flex items-center">
+                        <div class="rounded-full bg-yellow-100 p-3 dark:bg-yellow-900">
+                            <i class="fas fa-book text-yellow-600 dark:text-yellow-300 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Kurikulum</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalCurricula) }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-green-100 p-3 dark:bg-green-900">
-                        <i class="fas fa-user-shield text-green-600 dark:text-green-300 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Role</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalRoles) }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-purple-100 p-3 dark:bg-purple-900">
-                        <i class="fas fa-building text-purple-600 dark:text-purple-300 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Unit</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalUnits) }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                <div class="flex items-center">
-                    <div class="rounded-full bg-yellow-100 p-3 dark:bg-yellow-900">
-                        <i class="fas fa-book text-yellow-600 dark:text-yellow-300 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Kurikulum</p>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalCurricula) }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Grid Menu Master Data -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <!-- Card: Data Pengguna -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-blue-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-blue-700">
+            {{-- Grid Menu Master Data --}}
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {{-- Card: Data Pengguna --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-blue-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-blue-600">
                 <div
                     class="absolute inset-0 bg-gradient-to-r from-blue-600/0 to-blue-600/0 opacity-0 transition-opacity group-hover:opacity-5">
                 </div>
@@ -104,9 +125,9 @@
                 </div>
             </div>
 
-            <!-- Card: Data Role -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-green-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-green-700">
+                {{-- Card: Data Role --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-green-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-green-600">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -140,9 +161,9 @@
                 </div>
             </div>
 
-            <!-- Card: Data Unit/Prodi -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-purple-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-purple-700">
+                {{-- Card: Data Unit/Prodi --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-purple-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-purple-600">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -177,9 +198,9 @@
                 </div>
             </div>
 
-            <!-- Card: Data Kurikulum -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-yellow-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-yellow-700">
+                {{-- Card: Data Kurikulum --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-yellow-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-yellow-600">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -214,8 +235,8 @@
                 </div>
             </div>
 
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-teal-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-teal-700">
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-teal-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-teal-600">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -245,9 +266,9 @@
                 </div>
             </div>
 
-            <!-- Card: Data Kategori Berkas -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg hover:ring-red-200 dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-red-700">
+                {{-- Card: Data Kategori Berkas --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-red-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-red-600">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -281,9 +302,9 @@
                 </div>
             </div>
 
-            <!-- Card: Module Info -->
-            <div
-                class="group relative overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:shadow-lg dark:bg-gray-800 dark:ring-gray-700">
+                {{-- Card: Module Info --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
@@ -307,34 +328,36 @@
             </div>
         </div>
 
-        <!-- Tips Penggunaan -->
-        <div class="mt-8 rounded-lg bg-blue-50 p-6 dark:bg-blue-900/20">
-            <h4 class="text-sm font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">💡 Tips Penggunaan
-                Master Data</h4>
-            <ul class="mt-3 space-y-2 text-sm text-blue-700 dark:text-blue-200">
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-blue-500">•</span>
-                    <span>Isi <strong>Data Unit</strong> terlebih dahulu (fakultas & prodi)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-blue-500">•</span>
-                    <span>Buat <strong>Role</strong> yang diperlukan (minimal: Admin, Dekan, Kaprodi, Dosen,
-                        Mahasiswa)</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-blue-500">•</span>
-                    <span>Masukkan data <strong>Infrastruktur</strong> jika institusi perlu melacak aset ruangan dan barang.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-blue-500">•</span>
-                    <span>Input <strong>Pengguna</strong> dan assign ke role & unit yang sesuai</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="mt-0.5 text-blue-500">•</span>
-                    <span>Data <strong>Kurikulum</strong> dan <strong>Kategori Berkas</strong> bisa diisi setelah struktur
-                        dasar selesai</span>
-                </li>
-            </ul>
+            {{-- Tips Penggunaan --}}
+            <div class="rounded-xl border border-blue-200 bg-blue-50 p-6 dark:bg-blue-900/20 dark:border-blue-800">
+                <h4 class="text-sm font-semibold uppercase tracking-wide text-blue-800 dark:text-blue-300">💡 Tips Penggunaan
+                    Master Data</h4>
+                <ul class="mt-3 space-y-2 text-sm text-blue-700 dark:text-blue-200">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Isi <strong>Data Unit</strong> terlebih dahulu (fakultas & prodi)</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Buat <strong>Role</strong> yang diperlukan (minimal: Admin, Dekan, Kaprodi, Dosen,
+                            Mahasiswa)</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Masukkan data <strong>Infrastruktur</strong> jika institusi perlu melacak aset ruangan dan barang.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Input <strong>Pengguna</strong> dan assign ke role & unit yang sesuai</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Data <strong>Kurikulum</strong> dan <strong>Kategori Berkas</strong> bisa diisi setelah struktur
+                            dasar selesai</span>
+                    </li>
+                </ul>
+            </div>
+
         </div>
     </div>
 @endsection

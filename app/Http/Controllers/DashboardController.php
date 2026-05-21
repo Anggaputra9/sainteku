@@ -100,8 +100,9 @@ class DashboardController extends Controller
             // MURNI PERSONAL (Dokumen unggahan dia sendiri)
             $personalDocQ = DB::table('trx_document')->where('created_by', $user->id);
 
-            $data['docPending'] = (clone $personalDocQ)->where('status', 2)->count(); // 2 = Menunggu Persetujuan
+            $data['docPending'] = (clone $personalDocQ)->whereIn('status', [1, 2])->count(); // 1/2 = Draft/menunggu validasi
             $data['docApproved'] = (clone $personalDocQ)->where('status', 3)->count(); // 3 = Disetujui
+            $data['docRevision'] = (clone $personalDocQ)->where('status', 4)->count(); // 4 = Perlu revisi/ditolak
 
             // TOTAL REPOSITORI (Global - Hanya yang sudah APPROVED)
             $data['totalDokumen'] = DB::table('trx_document')->where('status', 3)->count();
@@ -109,7 +110,7 @@ class DashboardController extends Controller
             // ANTREAN REVIEW (Khusus Reviewer Dokumen - Global)
             $data['docNeedAcc'] = 0;
             if ($data['isReviewerDoc']) {
-                $data['docNeedAcc'] = DB::table('trx_document')->where('status', 2)->count();
+                $data['docNeedAcc'] = DB::table('trx_document')->whereIn('status', [1, 2])->count();
             }
         }
 

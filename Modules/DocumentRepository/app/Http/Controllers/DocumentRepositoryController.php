@@ -55,12 +55,16 @@ class DocumentRepositoryController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $request->merge([
+            'effective_date' => $request->filled('effective_date') ? $request->effective_date : now()->toDateString(),
+        ]);
+
         $request->validate([
             'document_title' => 'required|string|max:255',
             'document_type_id' => 'required|string|exists:ref_document_type,id',
             'unit_id' => 'required|string|exists:mst_unit,id',
             'document_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'effective_date' => 'nullable|date',
+            'effective_date' => 'required|date',
             'expired_date' => 'nullable|date|after_or_equal:effective_date',
         ]);
 

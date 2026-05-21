@@ -1,323 +1,79 @@
-<?php $__env->startSection('content'); ?>
-    <div class="mx-auto space-y-10">
+﻿
 
-        
-        <div
-            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 p-8 shadow-lg dark:from-gray-800 dark:to-gray-900">
-            <div class="absolute -right-10 -top-10 text-white/10 pointer-events-none">
-                <i class="fa-solid fa-shapes text-9xl"></i>
-            </div>
-            <div class="relative z-10 flex items-center gap-6">
-                <div
-                    class="h-20 w-20 rounded-full border-4 border-white/20 bg-white/10 p-1 backdrop-blur-md hidden sm:block">
-                    <img src="<?php echo e(Auth::user()->avatar ? asset('storage/avatars/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random'); ?>"
-                        class="h-full w-full rounded-full object-cover">
-                </div>
+<?php $__env->startSection('content'); ?>
+<?php
+    $totalReview = ($examNeedAcc ?? 0) + ($infraNeedAcc ?? 0) + ($docNeedAcc ?? 0);
+    $avatar = Auth::user()->avatar ? asset('storage/avatars/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=2563eb&color=fff';
+?>
+
+<div class="mx-auto space-y-8">
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 p-6 sm:p-8 shadow-xl shadow-blue-900/10 dark:from-slate-950 dark:via-slate-900 dark:to-gray-950 dark:shadow-black/30">
+        <div class="absolute -right-12 -top-12 text-white/10"><i class="fa-solid fa-layer-group text-[11rem]"></i></div>
+        <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex items-center gap-5">
+                <img src="<?php echo e($avatar); ?>" class="hidden h-20 w-20 rounded-2xl object-cover ring-4 ring-white/20 sm:block" alt="Avatar">
                 <div>
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight">Selamat Datang, <?php echo e(Auth::user()->name); ?>!
-                    </h1>
-                    <p class="mt-2 text-sm text-indigo-100 font-medium max-w-xl leading-relaxed">
-                        Selamat datang di Pusat Kendali Terpadu Sainteku. Halaman ini menyajikan ringkasan informasi dan
-                        akses cepat menuju layanan akademik serta administratif sesuai dengan kewenangan Anda.
-                    </p>
+                    <p class="mb-2 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-blue-100 ring-1 ring-white/20"><i class="fa-solid fa-gauge-high"></i> Pusat Kendali Terpadu</p>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">Selamat datang, <?php echo e(Auth::user()->name); ?>!</h1>
+                    <p class="mt-2 max-w-2xl text-sm leading-relaxed text-blue-100">Ringkasan lintas modul: master data, tashih soal, infrastruktur, repositori dokumen.</p>
+                </div>
+            </div>
+            <div class="w-full sm:max-w-sm lg:w-96">
+                <div class="rounded-2xl bg-white/10 p-5 ring-1 ring-white/15 backdrop-blur">
+                    <p class="text-xs font-bold uppercase tracking-widest text-blue-100">SAINTEKU</p>
+                    <p class="mt-2 text-sm leading-relaxed text-blue-50">Sistem Administrasi Terpadu untuk mendukung layanan akademik, dokumen, infrastruktur, dan tata kelola kampus secara digital.</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        
-        
-        
-        <?php if(isset($isAdmin) && $isAdmin): ?>
-            <div class="space-y-4">
-                <div class="border-b border-gray-200 pb-3 dark:border-gray-700">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
-                            class="fas fa-database text-blue-500 mr-2"></i> Master Data System</h2>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                    
-                    <a href="<?php echo e(route('masterdata.admin.users.index')); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-blue-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-blue-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-blue-100 p-2.5 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white dark:bg-blue-900/50 dark:text-blue-400">
-                                <i class="fas fa-users text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
-                                    Pengguna</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalUsers)); ?></p>
-                            </div>
-                        </div>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('masterdata.roles.index')); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-green-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-green-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-green-100 p-2.5 text-green-600 transition-colors group-hover:bg-green-600 group-hover:text-white dark:bg-green-900/50 dark:text-green-400">
-                                <i class="fas fa-user-shield text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Role
-                                    / Akses</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalRoles)); ?></p>
-                            </div>
-                        </div>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('masterdata.units.index')); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-purple-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-purple-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-purple-100 p-2.5 text-purple-600 transition-colors group-hover:bg-purple-600 group-hover:text-white dark:bg-purple-900/50 dark:text-purple-400">
-                                <i class="fas fa-building text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Unit
-                                    / Prodi</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalUnits)); ?></p>
-                            </div>
-                        </div>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('masterdata.curricula.index') ?? '#'); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-amber-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-amber-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-amber-100 p-2.5 text-amber-600 transition-colors group-hover:bg-amber-600 group-hover:text-white dark:bg-amber-900/50 dark:text-amber-400">
-                                <i class="fas fa-calendar-alt text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
-                                    Kurikulum / TA</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalPeriods)); ?>
-
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('masterdata.courses.index')); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-yellow-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-yellow-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-yellow-100 p-2.5 text-yellow-600 transition-colors group-hover:bg-yellow-600 group-hover:text-white dark:bg-yellow-900/50 dark:text-yellow-400">
-                                <i class="fas fa-book-open text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">Mata
-                                    Kuliah</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalCourses)); ?>
-
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('masterdata.infrastructures.index')); ?>"
-                        class="group block rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-200 hover:ring-teal-500 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:ring-gray-700 dark:hover:ring-teal-500">
-                        <div class="flex items-center gap-3">
-                            <div
-                                class="rounded-full bg-teal-100 p-2.5 text-teal-600 transition-colors group-hover:bg-teal-600 group-hover:text-white dark:bg-teal-900/50 dark:text-teal-400">
-                                <i class="fas fa-boxes-stacked text-base"></i>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest dark:text-gray-400">
-                                    Infrastruktur</p>
-                                <p class="text-xl font-bold text-gray-900 dark:text-white">
-                                    <?php echo e(number_format($totalInfraMaster)); ?>
-
-                                </p>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        
-        
-        
+    <section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
         <?php if(isset($showTashih) && $showTashih): ?>
-            <div class="space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
-                            class="fas fa-file-signature text-emerald-500 mr-2"></i> Monev Akademik (Tashih Soal)</h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    
-                    <?php if(isset($isReviewerMonev) && $isReviewerMonev): ?>
-                        <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
-                            class="group block rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-widest text-rose-100"><i
-                                            class="fas fa-bell mr-1"></i> Antrean ACC</p>
-                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($examNeedAcc)); ?></p>
-                                </div>
-                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
-                                        class="fas fa-clipboard-check"></i></div>
-                            </div>
-                            <p class="mt-2 text-xs text-rose-100">Perlu review & persetujuan Anda</p>
-                        </a>
-                    <?php endif; ?>
-
-                    
-                    <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
-                        class="group block rounded-2xl border border-blue-200 bg-blue-50 p-5 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/40">
-                        <p class="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400">Pengajuan
-                            Pending</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examSubmitted)); ?></p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Menunggu antrean review</p>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('monevakademik.tashih.index')); ?>"
-                        class="group block rounded-2xl border border-emerald-200 bg-emerald-50 p-5 hover:bg-emerald-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-emerald-800 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40">
-                        <p class="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Telah
-                            Disetujui</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($examApproved)); ?></p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Siap dicetak/digunakan</p>
-                    </a>
-
-                    
-                    <a href="<?php echo e(route('monevakademik.banksoal.index')); ?>"
-                        class="group block rounded-2xl border border-purple-200 bg-purple-50 p-5 hover:bg-purple-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-purple-800 dark:bg-purple-900/20 dark:hover:bg-purple-900/40">
-                        <p class="text-xs font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">Total
-                            Bank Soal</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalBankSoal)); ?>
-
-                            <span class="text-sm font-normal text-gray-500">Butir</span>
-                        </p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Klik untuk mencari butir soal</p>
-                    </a>
-                </div>
-            </div>
+            <a href="<?php echo e(route('monevakademik.tashih.index')); ?>" class="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-blue-300 dark:bg-gray-800 dark:ring-gray-700"><div class="absolute inset-x-0 top-0 h-1.5 bg-blue-500"></div><div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Tashih Soal</p><p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format(($examSubmitted ?? 0) + ($examApproved ?? 0) + ($examRevised ?? 0))); ?></p><p class="mt-1 text-xs text-gray-500">Pengajuan saya</p></div><div class="rounded-2xl bg-blue-50 p-4 text-blue-600 transition group-hover:scale-110 dark:bg-blue-900/40 dark:text-blue-400"><i class="fa-solid fa-file-signature text-2xl"></i></div></div></a>
         <?php endif; ?>
-
-        
-        
-        
         <?php if(isset($showInfra) && $showInfra): ?>
-            <div class="space-y-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
-                            class="fas fa-building text-amber-500 mr-2"></i> Peminjaman Infrastruktur</h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    
-                    <?php if(isset($isReviewerInfra) && $isReviewerInfra): ?>
-                        <a href="<?php echo e(route('manajementinfrastruktur.persetujuan.index')); ?>"
-                            class="group block rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-widest text-amber-100"><i
-                                            class="fas fa-bell mr-1"></i> Antrean ACC Peminjaman</p>
-                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($infraNeedAcc)); ?></p>
-                                </div>
-                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
-                                        class="fas fa-calendar-check"></i></div>
-                            </div>
-                        </a>
-                    <?php endif; ?>
-
-                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
-                        class="group block rounded-2xl border border-amber-200 bg-amber-50 p-5 hover:bg-amber-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-amber-800 dark:bg-amber-900/20 dark:hover:bg-amber-900/40">
-                        <p class="text-xs font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-widest">Pengajuan
-                            Saya</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraPending)); ?></p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Menunggu ACC</p>
-                    </a>
-
-                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
-                        class="group block rounded-2xl border border-blue-200 bg-blue-50 p-5 hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-blue-800 dark:bg-blue-900/20 dark:hover:bg-blue-900/40">
-                        <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Sedang
-                            Dipinjam</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraDipinjam)); ?></p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Barang/Fasilitas sedang digunakan</p>
-                    </a>
-
-                    <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>"
-                        class="group block rounded-2xl border border-gray-200 bg-gray-50 p-5 hover:bg-gray-100 hover:shadow-md hover:-translate-y-1 transition-all dark:border-gray-700 dark:bg-gray-800/50 dark:hover:bg-gray-800">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Dikembalikan
-                        </p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($infraSelesai)); ?></p>
-                        <p class="mt-2 text-[11px] text-gray-500 dark:text-gray-400">Peminjaman selesai</p>
-                    </a>
-                </div>
-            </div>
+            <a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>" class="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-amber-300 dark:bg-gray-800 dark:ring-gray-700"><div class="absolute inset-x-0 top-0 h-1.5 bg-amber-500"></div><div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Infrastruktur</p><p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format(($infraPending ?? 0) + ($infraDipinjam ?? 0) + ($infraSelesai ?? 0))); ?></p><p class="mt-1 text-xs text-gray-500">Peminjaman saya</p></div><div class="rounded-2xl bg-amber-50 p-4 text-amber-600 transition group-hover:scale-110 dark:bg-amber-900/40 dark:text-amber-400"><i class="fa-solid fa-boxes-stacked text-2xl"></i></div></div></a>
         <?php endif; ?>
-
-        
-        
-        
         <?php if(isset($showDoc) && $showDoc): ?>
-            <div class="space-y-4 pt-2 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><i
-                            class="fas fa-folder-open text-indigo-500 mr-2"></i> Repositori Dokumen</h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    
-                    <?php if(isset($isReviewerDoc) && $isReviewerDoc): ?>
-                        <a href="<?php echo e(route('DocumentRepository.review.index')); ?>"
-                            class="group block rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs font-bold uppercase tracking-widest text-indigo-100"><i
-                                            class="fas fa-bell mr-1"></i> Antrean ACC Dokumen</p>
-                                    <p class="mt-2 text-4xl font-extrabold text-white"><?php echo e(number_format($docNeedAcc)); ?></p>
-                                </div>
-                                <div class="text-white/30 text-4xl group-hover:scale-110 transition-transform"><i
-                                        class="fas fa-file-signature"></i></div>
-                            </div>
-                        </a>
-                    <?php endif; ?>
-
-                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
-                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-indigo-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-indigo-500">
-                        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Dokumen
-                        </p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($totalDokumen)); ?></p>
-                    </a>
-
-                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
-                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-amber-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-amber-500">
-                        <p class="text-xs font-semibold text-amber-500 uppercase tracking-wider">Menunggu Review</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($docPending)); ?></p>
-                    </a>
-
-                    <a href="<?php echo e(route('DocumentRepository.index')); ?>"
-                        class="group block rounded-2xl border border-gray-200 bg-white p-5 hover:border-emerald-300 hover:shadow-md hover:-translate-y-1 transition-all dark:bg-gray-800 dark:border-gray-700 dark:hover:border-emerald-500">
-                        <p class="text-xs font-semibold text-emerald-500 uppercase tracking-wider">Telah Disetujui</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white"><?php echo e(number_format($docApproved)); ?></p>
-                    </a>
-                </div>
-            </div>
+            <a href="<?php echo e(route('DocumentRepository.index')); ?>" class="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-indigo-300 dark:bg-gray-800 dark:ring-gray-700"><div class="absolute inset-x-0 top-0 h-1.5 bg-indigo-500"></div><div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Repositori</p><p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format(($docPending ?? 0) + ($docApproved ?? 0) + ($docRevision ?? 0))); ?></p><p class="mt-1 text-xs text-gray-500">Pengajuan saya</p></div><div class="rounded-2xl bg-indigo-50 p-4 text-indigo-600 transition group-hover:scale-110 dark:bg-indigo-900/40 dark:text-indigo-400"><i class="fa-solid fa-folder-open text-2xl"></i></div></div></a>
         <?php endif; ?>
-
-        
-        <?php if(!isset($isAdmin) && !isset($showTashih) && !isset($showInfra) && !isset($showDoc)): ?>
-            <div
-                class="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800 mt-10">
-                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 mb-4">
-                    <i class="fas fa-lock text-3xl text-gray-400"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Akses Terbatas</h3>
-                <p class="mt-2 text-gray-500 dark:text-gray-400">Akun Anda belum memiliki hak akses (role) ke modul manapun.
-                    Silakan hubungi Administrator sistem.</p>
-            </div>
+        <?php if(isset($isAdmin) && $isAdmin): ?>
+            <a href="<?php echo e(route('masterdata.admin.users.index')); ?>" class="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-emerald-300 dark:bg-gray-800 dark:ring-gray-700"><div class="absolute inset-x-0 top-0 h-1.5 bg-emerald-500"></div><div class="flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">Master Data</p><p class="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($totalUsers ?? 0)); ?></p><p class="mt-1 text-xs text-gray-500">Pengguna sistem</p></div><div class="rounded-2xl bg-emerald-50 p-4 text-emerald-600 transition group-hover:scale-110 dark:bg-emerald-900/40 dark:text-emerald-400"><i class="fa-solid fa-users text-2xl"></i></div></div></a>
         <?php endif; ?>
+    </section>
 
+    <?php if($totalReview > 0): ?>
+        <section class="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
+            <div class="mb-5 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700"><div><h2 class="text-xl font-extrabold text-gray-900 dark:text-white"><i class="fa-solid fa-bell text-rose-500 mr-2"></i>Pusat Review</h2><p class="text-sm text-gray-500 dark:text-gray-400">Antrean persetujuan lintas modul.</p></div></div>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <?php if(($examNeedAcc ?? 0) > 0): ?><a href="<?php echo e(route('monevakademik.tashih.index')); ?>" class="rounded-2xl bg-rose-50 p-5 ring-1 ring-rose-100 hover:bg-rose-100 dark:bg-rose-900/20 dark:ring-rose-800/50"><p class="text-xs font-bold uppercase tracking-widest text-rose-600">Tashih perlu ACC</p><p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($examNeedAcc)); ?></p></a><?php endif; ?>
+                <?php if(($infraNeedAcc ?? 0) > 0): ?><a href="<?php echo e(route('manajementinfrastruktur.persetujuan.index')); ?>" class="rounded-2xl bg-amber-50 p-5 ring-1 ring-amber-100 hover:bg-amber-100 dark:bg-amber-900/20 dark:ring-amber-800/50"><p class="text-xs font-bold uppercase tracking-widest text-amber-600">Infra perlu ACC</p><p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($infraNeedAcc)); ?></p></a><?php endif; ?>
+                <?php if(($docNeedAcc ?? 0) > 0): ?><a href="<?php echo e(route('DocumentRepository.review.index')); ?>" class="rounded-2xl bg-indigo-50 p-5 ring-1 ring-indigo-100 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:ring-indigo-800/50"><p class="text-xs font-bold uppercase tracking-widest text-indigo-600">Dokumen perlu ACC</p><p class="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($docNeedAcc)); ?></p></a><?php endif; ?>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <?php if(isset($showTashih) && $showTashih): ?>
+        <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"><div class="mb-5 flex items-center justify-between"><h3 class="font-extrabold text-gray-900 dark:text-white"><i class="fa-solid fa-file-signature text-blue-500 mr-2"></i>Monev Akademik</h3><a href="<?php echo e(route('monevakademik.tashih.index')); ?>" class="text-sm font-bold text-blue-600">Buka <i class="fa-solid fa-arrow-right"></i></a></div><div class="grid grid-cols-3 gap-3 text-center"><div class="rounded-2xl bg-blue-50 p-4 dark:bg-blue-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($examSubmitted ?? 0)); ?></p><p class="text-xs text-gray-500">Pending</p></div><div class="rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($examApproved ?? 0)); ?></p><p class="text-xs text-gray-500">Disetujui</p></div><div class="rounded-2xl bg-purple-50 p-4 dark:bg-purple-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($totalBankSoal ?? 0)); ?></p><p class="text-xs text-gray-500">Bank Soal</p></div></div></section>
+        <?php endif; ?>
+        <?php if(isset($showInfra) && $showInfra): ?>
+        <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"><div class="mb-5 flex items-center justify-between"><h3 class="font-extrabold text-gray-900 dark:text-white"><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i>Infrastruktur</h3><a href="<?php echo e(route('manajementinfrastruktur.pengajuan.index')); ?>" class="text-sm font-bold text-blue-600">Buka <i class="fa-solid fa-arrow-right"></i></a></div><div class="grid grid-cols-3 gap-3 text-center"><div class="rounded-2xl bg-amber-50 p-4 dark:bg-amber-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($infraPending ?? 0)); ?></p><p class="text-xs text-gray-500">Pending</p></div><div class="rounded-2xl bg-blue-50 p-4 dark:bg-blue-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($infraDipinjam ?? 0)); ?></p><p class="text-xs text-gray-500">Dipinjam</p></div><div class="rounded-2xl bg-slate-50 p-4 dark:bg-slate-900/40"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($infraSelesai ?? 0)); ?></p><p class="text-xs text-gray-500">Selesai</p></div></div></section>
+        <?php endif; ?>
+        <?php if(isset($showDoc) && $showDoc): ?>
+        <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"><div class="mb-5 flex items-center justify-between"><h3 class="font-extrabold text-gray-900 dark:text-white"><i class="fa-solid fa-folder-open text-indigo-500 mr-2"></i>Repositori Dokumen</h3><a href="<?php echo e(route('DocumentRepository.index')); ?>" class="text-sm font-bold text-blue-600">Buka <i class="fa-solid fa-arrow-right"></i></a></div><div class="grid grid-cols-3 gap-3 text-center"><div class="rounded-2xl bg-amber-50 p-4 dark:bg-amber-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($docPending ?? 0)); ?></p><p class="text-xs text-gray-500">Pending</p></div><div class="rounded-2xl bg-emerald-50 p-4 dark:bg-emerald-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($docApproved ?? 0)); ?></p><p class="text-xs text-gray-500">Disetujui</p></div><div class="rounded-2xl bg-rose-50 p-4 dark:bg-rose-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($docRevision ?? 0)); ?></p><p class="text-xs text-gray-500">Perlu Revisi</p></div></div></section>
+        <?php endif; ?>
+        <?php if(isset($isAdmin) && $isAdmin): ?>
+        <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"><div class="mb-5 flex items-center justify-between"><h3 class="font-extrabold text-gray-900 dark:text-white"><i class="fa-solid fa-database text-emerald-500 mr-2"></i>Master Data</h3><a href="<?php echo e(route('masterdata.admin.users.index')); ?>" class="text-sm font-bold text-blue-600">Kelola <i class="fa-solid fa-arrow-right"></i></a></div><div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center"><div class="rounded-2xl bg-blue-50 p-4 dark:bg-blue-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($totalUsers ?? 0)); ?></p><p class="text-xs text-gray-500">User</p></div><div class="rounded-2xl bg-purple-50 p-4 dark:bg-purple-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($totalUnits ?? 0)); ?></p><p class="text-xs text-gray-500">Unit</p></div><div class="rounded-2xl bg-yellow-50 p-4 dark:bg-yellow-900/20"><p class="text-2xl font-extrabold text-gray-900 dark:text-white"><?php echo e(number_format($totalCourses ?? 0)); ?></p><p class="text-xs text-gray-500">Matkul</p></div></div></section>
+        <?php endif; ?>
     </div>
+
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6 sm:p-8 ring-1 ring-blue-100/70 dark:from-gray-800 dark:to-gray-800/80 dark:ring-gray-700"><div class="absolute -right-10 -top-10 text-blue-500/5"><i class="fa-solid fa-lightbulb text-9xl"></i></div><div class="relative flex flex-col gap-4 sm:flex-row"><div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm dark:bg-gray-700 dark:text-blue-400"><i class="fa-solid fa-circle-info text-2xl"></i></div><div><h3 class="text-lg font-extrabold text-blue-900 dark:text-blue-300">Panduan cepat</h3><div class="mt-3 grid grid-cols-1 gap-3 text-sm font-medium text-blue-900/80 dark:text-gray-300 md:grid-cols-2"><p><i class="fa-solid fa-check text-blue-500 mr-2"></i>Gunakan kartu modul untuk masuk ke fitur utama.</p><p><i class="fa-solid fa-check text-blue-500 mr-2"></i>Pusat Review muncul jika ada antrean ACC.</p><p><i class="fa-solid fa-check text-blue-500 mr-2"></i>Data personal dipisah dari antrean reviewer.</p><p><i class="fa-solid fa-check text-blue-500 mr-2"></i>Master Data hanya tampil untuk admin.</p></div></div></div></section>
+
+    <?php if(!($isAdmin ?? false) && !($showTashih ?? false) && !($showInfra ?? false) && !($showDoc ?? false)): ?>
+        <div class="rounded-3xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-800"><div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700"><i class="fas fa-lock text-3xl text-gray-400"></i></div><h3 class="text-xl font-bold text-gray-900 dark:text-white">Akses Terbatas</h3><p class="mt-2 text-gray-500 dark:text-gray-400">Akun belum memiliki hak akses modul. Hubungi Administrator.</p></div>
+    <?php endif; ?>
+</div>
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\sainteku\resources\views/pages/dashboard.blade.php ENDPATH**/ ?>

@@ -57,7 +57,7 @@ class CourseController extends Controller
             // FIX: Ganti parent_id jadi unit_parent
             // ==========================================
             ->leftJoin('mst_unit as fakultas', 'prodi.unit_parent', '=', 'fakultas.id')
-            ->select('mst_course.*', 'prodi.unit_name as prodi_name', 'fakultas.unit_name as fakultas_name');
+            ->select('mst_course.*', 'prodi.unit_name as prodi_name', 'fakultas.id as fakultas_id', 'fakultas.unit_name as fakultas_name');
 
         if ($search) {
             $query->where(function ($q) use ($search) {

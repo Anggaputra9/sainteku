@@ -4,12 +4,10 @@
     <div class="mx-auto">
         <div class="space-y-6">
 
-            {{-- Breadcrumb & Title --}}
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {{-- Header & Breadcrumb --}}
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                        Manajemen Pengguna
-                    </h2>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Manajemen Pengguna</h2>
                     <nav>
                         <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
                             <li>Master Data /</li>
@@ -30,31 +28,17 @@
                 </div>
             </div>
 
-            {{-- Success Message --}}
+            {{-- Alert Messages --}}
             @if (session('success'))
-                <div
-                    class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
-                    <div
-                        class="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                        <i class="fa-solid fa-check text-green-600 dark:text-green-400"></i>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-semibold text-green-800 dark:text-green-400">Sukses!</h5>
-                        <p class="text-sm text-green-700 dark:text-green-500">{{ session('success') }}</p>
-                    </div>
+                <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
+                    <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
+                    <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
                 </div>
             @endif
             @if (session('error'))
-                <div
-                    class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
-                    <div
-                        class="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-400"></i>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-semibold text-red-800 dark:text-red-400">Peringatan!</h5>
-                        <p class="text-sm text-red-700 dark:text-red-500">{{ session('error') }}</p>
-                    </div>
+                <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
+                    <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
                 </div>
             @endif
 
@@ -85,13 +69,13 @@
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         {{-- Tombol Filter --}}
                         <button type="submit"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
                             <i class="fa-solid fa-filter text-xs"></i> Filter
                         </button>
 
                         {{-- Tombol Muat Ulang --}}
                         <a href="{{ route('masterdata.admin.users.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-teal-700 focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-800 transition shadow-sm">
+                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
                             <i class="fa-solid fa-rotate text-xs"></i> Reset
                         </a>
                     </div>

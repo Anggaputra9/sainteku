@@ -1,6 +1,6 @@
 {{-- MODAL TAMBAH PENGAJUAN INFRASTRUKTUR (Desain Premium & Kalender Visual) --}}
 <div x-show="openCreate"
-    class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
+    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
@@ -12,25 +12,21 @@
         x-transition:leave="transition ease-in duration-200 transform"
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        class="relative w-full max-w-4xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all mt-10">
+        class="flex flex-col w-full max-w-4xl max-h-[90vh] rounded-2xl bg-white shadow-2xl dark:bg-gray-800 overflow-hidden">
 
         {{-- Header Modal --}}
-        <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+        <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/80">
             <div>
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Formulir Peminjaman Fasilitas</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Silakan lengkapi data peminjaman di bawah ini untuk <span class="font-semibold text-blue-600 dark:text-blue-400">Sainteku</span></p>
             </div>
-            <button @click="openCreate = false" type="button"
-                class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-yellow-600 transition focus:ring-4 focus:ring-yellow-200 dark:focus:ring-yellow-900">
-                <i class="fas fa-arrow-left"></i>
-                Kembali
-            </button>
         </div>
 
         {{-- Form Area --}}
-        <form action="{{ route('manajementinfrastruktur.pengajuan.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('manajementinfrastruktur.pengajuan.store') }}" method="POST" class="flex flex-col flex-1 min-h-0">
             @csrf
 
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
             <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
                 
                 {{-- Barang / Ruangan --}}
@@ -97,11 +93,12 @@
                 </div>
 
             </div>
+            </div>
 
             {{-- Tombol Aksi Bawah --}}
-            <div class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end mt-8">
+            <div class="shrink-0 flex flex-col-reverse gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/80 sm:flex-row sm:justify-end">
                 <button type="button" @click="openCreate = false"
-                    class="inline-flex items-center gap-2 rounded-lg bg-yellow-500 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-200 transition dark:focus:ring-yellow-900">
+                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
                     <i class="fas fa-xmark"></i>
                     Batal
                 </button>
@@ -114,3 +111,22 @@
         </form>
     </div>
 </div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #475569;
+    }
+</style>

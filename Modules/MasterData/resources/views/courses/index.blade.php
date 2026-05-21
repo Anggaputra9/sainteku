@@ -3,13 +3,10 @@
 @section('content')
     <div class="mx-auto" x-data="coursesApp()" x-init="initData()" x-cloak>
 
-        {{-- Header & Navigasi Breadcrumb --}}
-        <div
-            class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+        {{-- Header & Breadcrumb --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                 Master Data Mata Kuliah
-                </h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Master Data Mata Kuliah</h2>
                 <nav>
                     <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
                         <li>Master Data /</li>
@@ -20,12 +17,26 @@
 
             <div>
                 <button @click="$dispatch('open-create-modal')" type="button"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-green-700 focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 sm:w-auto">
-                <i class="fas fa-plus"></i>Tambah Mata Kuliah
+                    class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
+                    <i class="fas fa-plus"></i> Tambah Mata Kuliah
                 </button>
                 @include('masterdata::courses.modal-create')
             </div>
         </div>
+
+        {{-- Alert Messages --}}
+        @if (session('success'))
+            <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
+                <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
+                <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
+                <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
+            </div>
+        @endif
 
 
         {{-- Main Container --}}
@@ -135,6 +146,7 @@
                                                     id: course.id,
                                                     name: course.course_name,
                                                     unit_id: course.unit_id,
+                                                    fakultas_id: course.fakultas_id,
                                                     active: course.is_active == '1'
                                                 })"
                                                 class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800"
@@ -263,6 +275,7 @@
                         };
                     } catch (error) {
                         console.error("Gagal memuat mata kuliah", error);
+                        this.pagination = { total: 0, from: 0, to: 0 };
                     } finally {
                         this.isLoading = false;
                     }
