@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Menu;
 use App\Models\Role;
 
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 🔥 Mendaftarkan driver sha2 ke dalam sistem Hash Laravel
+        Hash::extend('sha2', function () {
+            return new \App\Hashing\Sha2Hasher();
+        });
+
         view()->composer('*', function ($view) {
 
             if (!Auth::check()) {
@@ -108,33 +114,33 @@ class AppServiceProvider extends ServiceProvider
                                 // Menu tanpa module_id (bebas permission)
                                 $q2->whereNull('module_id')
 
-                                // Menu Read default - kecuali yang butuh permission khusus
-                                ->orWhere(function ($q3) use ($allowedModulesRead) {
+                                    // Menu Read default - kecuali yang butuh permission khusus
+                                    ->orWhere(function ($q3) use ($allowedModulesRead) {
                                     $q3->whereIn('module_id', $allowedModulesRead)
                                         ->whereNot(function ($subQ) {
                                             $subQ->where('menu_link', 'like', '%review%')
-                                                 ->orWhere('menu_link', 'like', '%pengajuan%')
-                                                 ->orWhere('menu_link', 'like', '%persetujuan%');
+                                                ->orWhere('menu_link', 'like', '%pengajuan%')
+                                                ->orWhere('menu_link', 'like', '%persetujuan%');
                                         });
                                 })
 
-                                // Review menu - butuh Approve
-                                ->orWhere(function ($q4) use ($allowedModulesApprove) {
+                                    // Review menu - butuh Approve
+                                    ->orWhere(function ($q4) use ($allowedModulesApprove) {
                                     $q4->whereIn('module_id', $allowedModulesApprove)
                                         ->where('menu_link', 'like', '%review%');
                                 })
 
-                                // Pengajuan / peminjaman - butuh Create
-                                ->orWhere(function ($q5) use ($allowedModulesCreate) {
+                                    // Pengajuan / peminjaman - butuh Create
+                                    ->orWhere(function ($q5) use ($allowedModulesCreate) {
                                     $q5->whereIn('module_id', $allowedModulesCreate)
                                         ->where(function ($subQ) {
                                             $subQ->where('menu_link', 'like', '%pengajuan%')
-                                                 ->orWhere('menu_link', 'like', '%peminjaman%');
+                                                ->orWhere('menu_link', 'like', '%peminjaman%');
                                         });
                                 })
 
-                                // Persetujuan - butuh Approve
-                                ->orWhere(function ($q6) use ($allowedModulesApprove) {
+                                    // Persetujuan - butuh Approve
+                                    ->orWhere(function ($q6) use ($allowedModulesApprove) {
                                     $q6->whereIn('module_id', $allowedModulesApprove)
                                         ->where('menu_link', 'like', '%persetujuan%');
                                 });

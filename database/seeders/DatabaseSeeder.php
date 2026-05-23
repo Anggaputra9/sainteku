@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
         // 6. PANGGIL SEEDER RELASI (Setelah unit & role ada)
         $this->call([
             RolePermissionSeeder::class,
-            MasterDataDummySeeder::class,
+            //MasterDataDummySeeder::class,
             AssignRoleToFirstUserSeeder::class,
         ]);
 
