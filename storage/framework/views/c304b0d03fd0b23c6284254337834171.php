@@ -166,17 +166,13 @@ window.addEventListener('resize', checkMobile);">
         <?php echo $__env->make('layouts.backdrop', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         <?php echo $__env->make('layouts.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-        <div class="flex-1 transition-all duration-300 ease-in-out w-full overflow-hidden" :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
-            }">
+        <div class="flex-1 transition-all duration-300 ease-in-out w-full min-w-0">
             <!-- app header start -->
             <?php echo $__env->make('layouts.app-header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             <!-- app header end -->
-            <div class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
+            <main class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
                 <?php echo $__env->yieldContent('content'); ?>
-            </div>
+            </main>
         </div>
     </div>
 </body>

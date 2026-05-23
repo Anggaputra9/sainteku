@@ -53,15 +53,61 @@
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email <span class="text-red-500">*</span>
             </label>
-            <input id="email"
-                name="email"
-                type="email"
-                class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
-                value="{{ old('email', $user->email) }}"
-                required>
+            <div class="flex items-center gap-2">
+                <input id="email"
+                    name="email"
+                    type="email"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                    value="{{ old('email', $user->email) }}"
+                    required>
+
+                @if ($user->email_verified_at)
+                    <span class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200 whitespace-nowrap">
+                        <i class="fas fa-check-circle"></i> Terverifikasi
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200 whitespace-nowrap">
+                        <i class="fas fa-exclamation-triangle"></i> Belum diverifikasi
+                    </span>
+                @endif
+            </div>
+
             @error('email')
-            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
+
+            @unless ($user->email_verified_at)
+                <div class="mt-2 flex items-center gap-2">
+                    <form method="POST" action="{{ route('verification.send') }}">
+                        @csrf
+                        <button type="submit"
+                            class="inline-flex items-center gap-1 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-600 transition">
+                            <i class="fas fa-envelope"></i>
+                            Kirim Email Verifikasi
+                        </button>
+                    </form>
+                    <span class="text-xs text-gray-500">Tautan verifikasi akan dikirim ke email di atas.</span>
+                </div>
+
+                @if (session('status') === 'verification-link-sent')
+                    <p class="mt-2 text-sm text-emerald-600">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Tautan verifikasi sudah kami kirim ke email Anda. Silakan cek inbox / folder spam.
+                    </p>
+                @endif
+            @endunless
+
+            @if (session('status') === 'email-verified')
+                <p class="mt-2 text-sm text-emerald-600">
+                    <i class="fas fa-check-circle mr-1"></i> Email berhasil diverifikasi.
+                </p>
+            @endif
+
+            @if (session('error'))
+                <p class="mt-2 text-sm text-red-600">
+                    <i class="fas fa-times-circle mr-1"></i> {{ session('error') }}
+                </p>
+            @endif
         </div>
 
         {{-- Nomor WhatsApp --}}

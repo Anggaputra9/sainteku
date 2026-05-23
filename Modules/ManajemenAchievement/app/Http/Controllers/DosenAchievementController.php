@@ -9,6 +9,7 @@ use Modules\ManajemenAchievement\Models\DosenKategori;
 use Modules\ManajemenAchievement\Models\DosenTingkat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotifService;
 
 class DosenAchievementController extends Controller
 {
@@ -122,7 +123,21 @@ class DosenAchievementController extends Controller
             $data['file_name'] = $file->getClientOriginalName();
         }
 
-        DosenAchievement::create($data);
+        $achievement = DosenAchievement::create($data);
+
+        // Notifikasi (in-app + email) ke pemberi persetujuan prestasi (permission Approve di modul PRS)
+        try {
+            NotifService::sendToApprovers('PRS', 'A', $user->unit_id, [
+                'action'       => 'mengajukan prestasi dosen untuk diverifikasi',
+                'item_name'    => $achievement->judul,
+                'type'         => 'Prestasi Dosen',
+                'url'          => route('dosen.repository.index'),
+                'reference_id' => $achievement->id,
+                'click_action' => 'redirect',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notif pengajuan prestasi dosen gagal: ' . $e->getMessage());
+        }
 
         return redirect()->route('dosen.repository.index')
             ->with('success', 'Prestasi dosen berhasil diajukan');

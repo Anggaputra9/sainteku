@@ -26,7 +26,7 @@
 
 {{-- ================= SIDEBAR UTAMA ================= --}}
 <aside id="sidebar" x-cloak
-    class="fixed flex flex-col top-0 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 h-screen border-r border-gray-100 transition-all duration-300 ease-in-out z-[999999] shadow-[4px_0_24px_rgba(0,0,0,0.05)] w-[84px] -translate-x-full xl:translate-x-0"
+    class="fixed xl:sticky flex flex-col top-0 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 h-screen border-r border-gray-100 transition-all duration-300 ease-in-out z-[999999] shadow-[4px_0_24px_rgba(0,0,0,0.05)] w-[84px] -translate-x-full xl:translate-x-0"
     x-data="{
         open: null,
         toggle(i) {
@@ -80,7 +80,7 @@
 
                     <ul class="flex flex-col gap-1.5">
 
-                        @foreach($menus as $i => $menu)
+                        @foreach(($sidebarMenus ?? collect()) as $i => $menu)
                             @php
                                 $hasChildren = $menu->children->count() > 0;
                                 $isActive = false;
@@ -146,7 +146,7 @@
                                                     $childActive = $child->menu_link && (Route::is($child->menu_link) || Route::is($child->menu_link . '*'));
                                                 @endphp
                                                 <li>
-                                                    <a href="{{ $child->menu_link && $child->menu_link !== '#' ? route($child->menu_link) : '#' }}"
+                                                    <a href="{{ $child->menu_link && $child->menu_link !== '#' && Route::has($child->menu_link) ? route($child->menu_link) : '#' }}"
                                                         class="block px-3 py-2 text-[13px] rounded-lg transition-all duration-200 active:scale-[0.98] whitespace-nowrap truncate {{ $childActive ? 'text-indigo-600 bg-indigo-50/50 font-semibold dark:text-indigo-400 dark:bg-indigo-500/10' : 'text-gray-500 font-medium hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/40' }}">
                                                         {{ $child->menu_name }}
                                                     </a>
@@ -157,7 +157,7 @@
 
                                     {{-- ================= SIMPLE MENU ================= --}}
                                 @else
-                                    <a href="{{ $menu->menu_link && $menu->menu_link !== '#' ? route($menu->menu_link) : '#' }}"
+                                    <a href="{{ $menu->menu_link && $menu->menu_link !== '#' && Route::has($menu->menu_link) ? route($menu->menu_link) : '#' }}"
                                         class="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] outline-none overflow-hidden {{ $isActive ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200 font-medium' }}">
 
                                         <span

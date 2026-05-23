@@ -14,14 +14,38 @@ class MenuManagementController extends Controller
         abort_unless(Auth::user()?->roles()->where('role_code', 'ADM')->exists(), 403);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->guardAdmin();
-        $menus = Menu::with(['allChildren', 'parent'])->orderBy('parent_id')->orderBy('order_no')->get();
+
+        $menus = Menu::with(['allChildren', 'parent'])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->string('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('menu_name', 'like', "%{$search}%")
+                        ->orWhere('menu_link', 'like', "%{$search}%")
+                        ->orWhere('menu_icon', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('status'), fn ($query) => $query->where('is_active', $request->status === 'active'))
+            ->when($request->filled('parent'), function ($query) use ($request) {
+                $request->parent === 'root'
+                    ? $query->whereNull('parent_id')
+                    : $query->where('parent_id', $request->parent);
+            })
+            ->when($request->filled('module_id'), fn ($query) => $query->where('module_id', $request->module_id))
+            ->orderBy('parent_id')
+            ->orderBy('order_no')
+            ->paginate(10)
+            ->withQueryString();
         $parents = Menu::whereNull('parent_id')->orderBy('order_no')->get();
         $modules = DB::table('mst_module')->orderBy('id')->get();
 
-        return view('menu-management.index', compact('menus', 'parents', 'modules'))->with('title', 'Manajemen Menu');
+        if ($request->expectsJson()) {
+            return response()->json($menus);
+        }
+
+        return view('settings.menu.index', compact('menus', 'parents', 'modules'))->with('title', 'Manajemen Menu');
     }
 
     public function store(Request $request)
@@ -67,3 +91,4 @@ class MenuManagementController extends Controller
         return $data;
     }
 }
+

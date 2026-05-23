@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "composer/ca-bundle": "^1.5",
         "guzzlehttp/guzzle": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
@@ -40,7 +41,8 @@
             "Modules\\PengaduanMahasiswa\\": "Modules/PengaduanMahasiswa/app/",
             "Modules\\ManajementInfrastruktur\\": "Modules/ManajementInfrastruktur/app/",
             "Modules\\PenjaminanMutuAkademik\\": "Modules/PenjaminanMutuAkademik/app/",
-            "Modules\\Pelaporan\\": "Modules/Pelaporan/app/"
+            "Modules\\Pelaporan\\": "Modules/Pelaporan/app/",
+            "Modules\\Ujian\\": "Modules/Ujian/app/"
         }
     },
     "autoload-dev": {

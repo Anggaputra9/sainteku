@@ -1,9 +1,24 @@
 <header
-    class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 xl:border-b"
+    class="sticky top-0 z-[999980] flex w-full bg-white/95 border-gray-200 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/80 xl:border-b"
     x-data="{
-        isApplicationMenuOpen: false,
+        mobileUserMenuOpen: false,
+        mobileNotifOpen: false,
+        isDarkMode: document.documentElement.classList.contains('dark'),
+        init() {
+            this.isDarkMode = document.documentElement.classList.contains('dark');
+            new MutationObserver(() => {
+                this.isDarkMode = document.documentElement.classList.contains('dark');
+            }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        },
+        toggleMobileTheme() {
+            $store.theme.toggle();
+            this.isDarkMode = document.documentElement.classList.contains('dark');
+            this.$nextTick(() => this.isDarkMode = document.documentElement.classList.contains('dark'));
+        },
         toggleApplicationMenu() {
-            this.isApplicationMenuOpen = !this.isApplicationMenuOpen;
+            this.mobileUserMenuOpen = !this.mobileUserMenuOpen;
+            this.mobileNotifOpen = false;
+            this.isDarkMode = document.documentElement.classList.contains('dark');
         }
     }">
     <div class="flex flex-col items-center justify-between grow xl:flex-row xl:px-6">
@@ -50,19 +65,75 @@
 
             <!-- Application Menu Toggle (mobile only) -->
             <button @click="toggleApplicationMenu()"
-                class="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 xl:hidden">
-                <!-- Dots Icon -->
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                        d="M5.99902 10.4951C6.82745 10.4951 7.49902 11.1667 7.49902 11.9951V12.0051C7.49902 12.8335 6.82745 13.5051 5.99902 13.5051C5.1706 13.5051 4.49902 12.8335 4.49902 12.0051V11.9951C4.49902 11.1667 5.1706 10.4951 5.99902 10.4951ZM17.999 10.4951C18.8275 10.4951 19.499 11.1667 19.499 11.9951V12.0051C19.499 12.8335 18.8275 13.5051 17.999 13.5051C17.1706 13.5051 16.499 12.8335 16.499 12.0051V11.9951C16.499 11.1667 17.1706 10.4951 17.999 10.4951ZM13.499 11.9951C13.499 11.1667 12.8275 10.4951 11.999 10.4951C11.1706 10.4951 10.499 11.1667 10.499 11.9951V12.0051C10.499 12.8335 11.1706 13.5051 11.999 13.5051C12.8275 13.5051 13.499 12.8335 13.499 12.0051V11.9951Z"
-                        fill="currentColor" />
-                </svg>
+                class="relative flex items-center justify-center w-11 h-11 rounded-full overflow-hidden border-2 border-indigo-500/20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold shadow-sm xl:hidden">
+                <?php if(Auth::check() && Auth::user()->avatar && file_exists(public_path('storage/avatars/' . Auth::user()->avatar))): ?>
+                    <img src="<?php echo e(asset('storage/avatars/' . Auth::user()->avatar)); ?>" class="h-full w-full object-cover" alt="Profile">
+                <?php else: ?>
+                    <?php echo e(strtoupper(substr(Auth::user()->name ?? 'U', 0, 1))); ?>
+
+                <?php endif; ?>
+                <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
             </button>
+
+            <?php
+                $mobileNotifications = Auth::check() ? Auth::user()->unreadNotifications()->take(5)->get() : collect();
+                $mobileUnreadCount = Auth::check() ? Auth::user()->unreadNotifications()->count() : 0;
+            ?>
+            <div x-show="mobileUserMenuOpen" @click.outside="mobileUserMenuOpen = false; mobileNotifOpen = false" x-transition x-cloak
+                class="absolute right-3 top-[62px] z-[999990] w-72 origin-top-right rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/80 xl:hidden">
+                <div class="px-4 py-3 mb-1 border-b border-gray-100 dark:border-gray-700">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white"><?php echo e(auth()->user()->name ?? 'Guest User'); ?></p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5"><?php echo e(auth()->user()->email ?? 'No Email'); ?></p>
+                </div>
+
+                <button type="button" @click="toggleMobileTheme()"
+                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                    <span class="flex items-center gap-3">
+                        <i x-show="!isDarkMode" x-cloak class="fas fa-sun w-4 text-amber-500"></i>
+                        <i x-show="isDarkMode" x-cloak class="fas fa-moon w-4 text-indigo-300"></i>
+                        <span x-text="isDarkMode ? 'Dark Mode' : 'Light Mode'"></span>
+                    </span>
+                    <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-indigo-500/20 dark:text-indigo-200">
+                        Aktif
+                    </span>
+                </button>
+
+                <button type="button" @click="mobileNotifOpen = !mobileNotifOpen"
+                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                    <span class="flex items-center gap-3"><i class="fas fa-bell w-4"></i> Notifikasi</span>
+                    <?php if($mobileUnreadCount > 0): ?>
+                        <span class="px-2 py-0.5 text-[10px] font-bold text-white bg-orange-500 rounded-full"><?php echo e($mobileUnreadCount); ?></span>
+                    <?php endif; ?>
+                </button>
+
+                <div x-show="mobileNotifOpen" x-transition class="mt-1 max-h-72 overflow-y-auto rounded-xl bg-gray-50 p-1 dark:bg-gray-900/40">
+                    <?php $__empty_1 = true; $__currentLoopData = $mobileNotifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                        <a href="<?php echo e($notification->data['target_url'] ?? '#'); ?>" class="block rounded-lg p-3 text-sm hover:bg-white dark:hover:bg-gray-800">
+                            <span class="font-medium text-gray-800 dark:text-white"><?php echo e($notification->data['userName'] ?? 'Sistem'); ?></span>
+                            <span class="text-gray-500 dark:text-gray-400"><?php echo e($notification->data['action'] ?? ''); ?></span>
+                            <div class="mt-1 text-xs text-gray-400"><?php echo e($notification->created_at->diffForHumans()); ?></div>
+                        </a>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                        <div class="py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                    <?php endif; ?>
+                </div>
+
+                <a href="<?php echo e(route('profile.edit')); ?>" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                    <i class="fas fa-user w-4"></i> Profile
+                </a>
+
+                <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
+                <form method="POST" action="<?php echo e(route('logout')); ?>">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <i class="fas fa-sign-out-alt w-4"></i> Logout
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Application Menu (mobile) and Right Side Actions (desktop) -->
-        <div :class="isApplicationMenuOpen ? 'flex' : 'hidden'"
-            class="items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
+        <div class="hidden items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
             <div class="flex items-center gap-2 2xsm:gap-3">
                 <!-- Theme Toggle Button -->
                 <button

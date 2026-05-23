@@ -148,17 +148,13 @@ window.addEventListener('resize', checkMobile);">
         @include('layouts.backdrop')
         @include('layouts.sidebar')
 
-        <div class="flex-1 transition-all duration-300 ease-in-out w-full overflow-hidden" :class="{
-                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
-                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
-                'ml-0': $store.sidebar.isMobileOpen
-            }">
+        <div class="flex-1 transition-all duration-300 ease-in-out w-full min-w-0">
             <!-- app header start -->
             @include('layouts.app-header')
             <!-- app header end -->
-            <div class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
+            <main class="w-full p-4 mx-auto md:p-6" style="max-width: var(--breakpoint-2xl)">
                 @yield('content')
-            </div>
+            </main>
         </div>
     </div>
 </body>

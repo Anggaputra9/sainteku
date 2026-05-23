@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotifService;
 
 class ManajementInfrastrukturController extends Controller
 {
+    // Modul Infrastruktur saat ini diidentifikasi via ID di trx_role_permission (id 6).
+    // Module_code resmi belum di-seed konsisten, jadi kita pakai sendToApproversByModuleId().
     private $moduleId = 6;
 
     // =========================================================================
@@ -117,6 +120,23 @@ class ManajementInfrastrukturController extends Controller
             'created_at'   => now(),
         ]);
 
+        // Ambil nama barang untuk notif
+        $itemName = DB::table('mst_inventory')->where('id', $request->inventory_id)->value('item_name') ?? 'Barang';
+
+        // Notifikasi ke approver (permission A pada modul Infrastruktur, sesuai unit pengaju)
+        try {
+            NotifService::sendToApproversByModuleId($this->moduleId, 'A', Auth::user()->unit_id, [
+                'action'       => 'mengajukan peminjaman ' . $itemName,
+                'item_name'    => $loanCode . ' (' . $itemName . ')',
+                'type'         => 'Peminjaman Infrastruktur',
+                'url'          => route('manajementinfrastruktur.persetujuan.index'),
+                'reference_id' => $loanCode,
+                'click_action' => 'redirect',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notif pengajuan peminjaman gagal: ' . $e->getMessage());
+        }
+
         return redirect()->route('manajementinfrastruktur.pengajuan.index')
             ->with('success', 'Pengajuan berhasil dikirim! Silakan tunggu persetujuan Admin.');
     }
@@ -195,6 +215,29 @@ class ManajementInfrastrukturController extends Controller
             ]);
 
             DB::commit();
+
+            // Notifikasi balik ke pengaju (in-app + email)
+            try {
+                $itemName = DB::table('mst_inventory')->where('id', $loan->inventory_id)->value('item_name') ?? 'Barang';
+                $statusLabel = match ((int) $request->status) {
+                    1 => 'menyetujui peminjaman',
+                    2 => 'menolak peminjaman',
+                    3 => 'menandai peminjaman selesai (barang dikembalikan)',
+                    default => 'memperbarui status peminjaman',
+                };
+                NotifService::sendToUser($loan->user_id, [
+                    'action'       => $statusLabel,
+                    'item_name'    => $loan->loan_code . ' (' . $itemName . ')',
+                    'type'         => 'Peminjaman Infrastruktur',
+                    'url'          => route('manajementinfrastruktur.pengajuan.index'),
+                    'reference_id' => $loan->loan_code,
+                    'click_action' => 'redirect',
+                    'status'       => $request->status == 2 ? 'offline' : 'online',
+                ]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notif balik pengaju peminjaman gagal: ' . $e->getMessage());
+            }
+
             return back()->with('success', 'Status peminjaman berhasil diperbarui!');
 
         } catch (\Exception $e) {

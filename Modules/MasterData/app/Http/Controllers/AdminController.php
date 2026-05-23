@@ -19,7 +19,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         // Pake Eager Loading biar nggak kena N+1 Query (Udah bener ini)
-        $query = User::with(['roles', 'unitUtama'])->orderBy('name');
+        $query = User::with(['roles', 'unitUtama', 'unitTambahan'])->orderBy('name');
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -28,11 +28,30 @@ class AdminController extends Controller
             });
         }
 
+        if ($request->filled('status')) {
+            $status = $request->status;
+            if (in_array($status, ['1', '0'], true)) {
+                $query->where('is_active', $status);
+            }
+        }
+
+        if ($request->filled('role_id')) {
+            $roleId = (int) $request->role_id;
+            $query->whereHas('roles', function ($q) use ($roleId) {
+                $q->where('mst_role.id', $roleId);
+            });
+        }
+
+        if ($request->filled('unit_id')) {
+            $query->where('unit_id', $request->unit_id);
+        }
+
         // --- TAMBAHAN: Logic Custom Pagination ---
         // Ambil request per_page, kalau kosong defaultnya 10
         $perPage = $request->input('per_page', 10);
         // Validasi biar user gak iseng masukin angka 1 juta di URL yang bikin server jebol
-        $perPage = in_array($perPage, [10, 25, 50, 100]) ? $perPage : 10;
+        $allowedPerPage = [10, 25, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+        $perPage = in_array((int) $perPage, $allowedPerPage, true) ? (int) $perPage : 10;
 
         $users = $query->paginate($perPage)->withQueryString();
 

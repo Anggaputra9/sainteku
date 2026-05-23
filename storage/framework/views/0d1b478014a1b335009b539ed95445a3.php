@@ -40,7 +40,7 @@
         x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-95"
-        class="absolute -right-[240px] mt-[17px] flex h-auto max-h-[480px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0 z-50"
+        class="fixed left-4 right-4 top-[76px] z-[999990] flex h-auto max-h-[calc(100vh-96px)] w-auto max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-[17px] sm:max-h-[480px] sm:w-[361px] sm:max-w-none"
         style="display: none;">
         <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 dark:border-gray-800">
             <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notification</h5>

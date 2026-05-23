@@ -26,17 +26,20 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    // Verifikasi Email
-    Route::get('verify-email', EmailVerificationPromptController::class)
-        ->name('verification.notice');
-
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
-
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
+    // Verifikasi Email — DIMATIKAN.
+    // Workflow verifikasi email aplikasi ini sudah dipindah ke
+    // App\Http\Controllers\Auth\EmailVerificationController (token-based)
+    // dan didaftarkan di routes/web.php. Route bawaan Breeze di bawah
+    // sengaja dikomen biar tidak bentrok nama route.
+    //
+    // Route::get('verify-email', EmailVerificationPromptController::class)
+    //     ->name('verification.notice');
+    // Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    //     ->middleware(['signed', 'throttle:6,1'])
+    //     ->name('verification.verify');
+    // Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+    //     ->middleware('throttle:6,1')
+    //     ->name('verification.send');
 
     // Confirm Password
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])

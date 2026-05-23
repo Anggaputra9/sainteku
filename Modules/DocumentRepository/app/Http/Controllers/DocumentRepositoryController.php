@@ -211,6 +211,25 @@ class DocumentRepositoryController extends Controller
             }
 
             DB::commit();
+
+            // Notifikasi balik ke pengunggah dokumen (in-app + email)
+            try {
+                $notifData = [
+                    'action'       => $request->action === 'approve'
+                        ? 'menyetujui dokumen yang Anda unggah'
+                        : 'menolak dokumen yang Anda unggah',
+                    'item_name'    => $document->document_title,
+                    'type'         => 'Repositori Dokumen',
+                    'url'          => route('DocumentRepository.index'),
+                    'reference_id' => $document->id,
+                    'click_action' => 'redirect',
+                    'status'       => $request->action === 'approve' ? 'online' : 'offline',
+                ];
+                NotifService::sendToUser($document->created_by, $notifData);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Notif review dokumen gagal: ' . $e->getMessage());
+            }
+
             $pesan = $request->action === 'approve' ? 'Dokumen disetujui!' : 'Dokumen ditolak.';
             return back()->with('success', $pesan);
         } catch (\Exception $e) {

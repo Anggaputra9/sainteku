@@ -1,128 +1,142 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mx-auto">
-        <div class="space-y-6">
+    <div class="space-y-6" x-data="{
+                alert: { type: '', message: '' },
+                flash(type, message) {
+                    this.alert = { type, message };
+                    setTimeout(() => { this.alert.message = ''; }, 4000);
+                }
+            }" 
+            x-init="
+                @if(session('success')) flash('success', '{{ session('success') }}'); @endif
+                @if(session('error')) flash('error', '{{ session('error') }}'); @endif
+            " 
+            x-cloak>
 
-            {{-- Header & Breadcrumb --}}
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+            {{-- ================= HEADER ================= --}}
+            <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Manajemen Pengguna</h2>
+                    <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
+                        <i class="fa-solid fa-users text-indigo-500"></i> Manajemen Pengguna
+                    </h2>
                     <nav>
-                        <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                        <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
                             <li>Master Data /</li>
-                            <li class="text-blue-600 dark:text-blue-400">Users</li>
+                            <li class="text-indigo-600 dark:text-indigo-400">Users</li>
                         </ol>
                     </nav>
                 </div>
+                {{-- Tombol Tambah pakai window.dispatchEvent --}}
+                <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
+                    <i class="fa-solid fa-plus"></i> Tambah User
+                </button>
+            </div>
 
-                {{-- Tombol Tambah (Success: Hijau, fa-plus) --}}
-                <div x-data="{ openCreate: false }">
-                    <button @click="openCreate = true"
-                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
-                        <i class="fas fa-plus"></i>
-                        Tambah User
+            {{-- ================= ALERTS ================= --}}
+            <template x-if="alert.message">
+                <div class="flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                     :class="alert.type === 'error' ? 'border-red-500 bg-red-50 text-red-700' : 'border-green-500 bg-green-50 text-green-700'">
+                    <i class="fa-solid" :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                    <span class="text-sm font-bold" x-text="alert.message"></span>
+                </div>
+            </template>
+
+            <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-500"></i> Filter Data
+                    </h3>
+                </div>
+                <div class="p-4">
+            <form method="GET" action="{{ route('masterdata.admin.users.index') }}" class="grid grid-cols-1 md:grid-cols-6 gap-3">
+                <div class="md:col-span-2">
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Pencarian</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email..."
+                        class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Status</label>
+                    <select name="status" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="">Semua Status</option>
+                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Aktif</option>
+                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Role</label>
+                    <select name="role_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="">Semua Role</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ (string)request('role_id') === (string)$role->id ? 'selected' : '' }}>{{ $role->role_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Unit</label>
+                    <select name="unit_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="">Semua Unit</option>
+                        @foreach($units as $unit)
+                            <option value="{{ $unit->id }}" {{ request('unit_id') === $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Per Page</label>
+                    <select name="per_page" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        @foreach([10,25,50,75,100,150,200,250,300,350,400,450,500] as $size)
+                            <option value="{{ $size }}" {{ (int)$perPage === $size ? 'selected' : '' }}>{{ $size }} / halaman</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="md:col-span-6 flex gap-2 pt-1">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                        <i class="fa-solid fa-magnifying-glass"></i> Terapkan
                     </button>
-
-                    @include('masterdata::admin.modal-create')
+                    <a href="{{ route('masterdata.admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </a>
+                </div>
+            </form>
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
-            @if (session('success'))
-                <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
-                    <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
-                    <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
-                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
-                    <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
-                </div>
-            @endif
-
-            {{-- Filter & Search --}}
-            <div class="rounded-lg">
-                <form method="GET" class="flex flex-wrap items-center justify-between gap-3">
-
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        {{-- Input Cari (Yang lama punya lu) --}}
-                        <div class="relative w-full sm:max-w-xs">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari nama atau email..."
-                                class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
-                        </div>
-                        {{-- TAMBAHAN: Dropdown Jumlah Data --}}
-                        <select name="per_page" onchange="this.form.submit()"
-                            class="rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-3 pr-8 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white transition cursor-pointer shadow-sm">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 Baris</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 Baris</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 Baris</option>
-                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 Baris</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        {{-- Tombol Filter --}}
-                        <button type="submit"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-filter text-xs"></i> Filter
-                        </button>
-
-                        {{-- Tombol Muat Ulang --}}
-                        <a href="{{ route('masterdata.admin.users.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-rotate text-xs"></i> Reset
-                        </a>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Table Card --}}
-            <div
-                class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            {{-- ================= TABEL ================= --}}
+            <div class="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-700 dark:bg-gray-800">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
-                        <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                        <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-4 font-semibold">ID</th>
                                 <th class="px-6 py-4 font-semibold">Info User</th>
                                 <th class="px-6 py-4 font-semibold">Role</th>
                                 <th class="px-6 py-4 font-semibold">Unit Utama</th>
                                 <th class="px-6 py-4 font-semibold">Status</th>
-                                <th class="px-6 py-4 text-center font-semibold">Aksi</th>
+                                <th class="px-6 py-4 font-semibold text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse($users as $user)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                                <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span class="font-medium text-gray-900 dark:text-white">{{ $user->id }}</span>
                                     </td>
                                     <td class="px-6 py-4">
-
                                         <div class="flex items-center gap-3">
-                                            <div
-                                                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-600 dark:bg-blue-900/40 dark:text-blue-400">
+                                            <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900/40 dark:text-blue-400">
                                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                                             </div>
                                             <div>
-                                                <div class="font-medium text-gray-900 dark:text-white">{{ $user->name }}
-                                                </div>
-                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}
-                                                </div>
+                                                <div class="font-medium text-gray-900 dark:text-white">{{ $user->name }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="flex flex-wrap gap-1">
                                             @forelse($user->roles as $role)
-                                                <span
-                                                    class="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
+                                                <span class="inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
                                                     {{ $role->role_name }}
                                                 </span>
                                             @empty
@@ -130,12 +144,9 @@
                                             @endforelse
                                         </div>
                                     </td>
-                                    {{-- Mengatur lebar td sekitar 20% dari total tabel dan memberi batas max-width --}}
                                     <td class="px-6 py-4 w-[20%] max-w-[150px]">
                                         @if ($user->unit_id)
-                                            {{-- max-w-full memastikan badge tidak akan melebihi ukuran td --}}
-                                            <span
-                                                title="{{ $user->unitUtama->unit_name ?? 'Unit tidak ditemukan' }} (ID: {{ $user->unit_id }})"
+                                            <span title="{{ $user->unitUtama->unit_name ?? 'Unit tidak ditemukan' }} (ID: {{ $user->unit_id }})"
                                                 class="inline-block max-w-full truncate rounded-md bg-indigo-50 px-2.5 py-1 align-middle text-xs font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-700/10 transition hover:bg-indigo-100 cursor-help dark:bg-indigo-900/30 dark:text-indigo-400">
                                                 {{ $user->unitUtama->unit_name ?? 'Unit tidak ditemukan' }}
                                             </span>
@@ -145,80 +156,73 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($user->is_active)
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
-                                                Aktif
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                                <span class="w-1.5 h-1.5 bg-green-600 rounded-full dark:bg-green-400"></span> Aktif
                                             </span>
                                         @else
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-red-600 dark:bg-red-400"></span>
-                                                Nonaktif
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+                                                <span class="w-1.5 h-1.5 bg-red-600 rounded-full dark:bg-red-400"></span> Nonaktif
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            {{-- Tombol Ubah (Warning: Oranye, fa-pencil) --}}
-                                            @php
-                                                $editPayload = [
-                                                    'url' => route('masterdata.admin.users.update', $user->id),
-                                                    'userData' => [
-                                                        'name' => $user->name,
-                                                        'email' => $user->email,
-                                                        'identity' => $user->identity_id,
-                                                        'type' => $user->user_type,
-                                                        'unit' => $user->unit_id,
-                                                        'active' => $user->is_active == '1',
-                                                        'roles' => $user->roles->pluck('id'),
-                                                        'unitTambahan' => $user->unitTambahan->pluck('id')
-                                                    ]
-                                                ];
-                                            @endphp
+                                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                                        @php
+                                            $tingkatUtama = 'kampus';
+                                            if ($user->unitUtama) {
+                                                if ($user->unitUtama->unit_type_id == 2)
+                                                    $tingkatUtama = 'fakultas';
+                                                elseif ($user->unitUtama->unit_type_id == 3)
+                                                    $tingkatUtama = 'prodi';
+                                            }
+                                            $editPayload = [
+                                                'url' => route('masterdata.admin.users.update', $user->id),
+                                                'userData' => [
+                                                    'name' => $user->name,
+                                                    'email' => $user->email,
+                                                    'identity' => $user->identity_id,
+                                                    'type' => $user->user_type,
+                                                    'unit' => $user->unit_id,
+                                                    'tingkatUtama' => $tingkatUtama,
+                                                    'active' => $user->is_active == '1',
+                                                    'roles' => $user->roles->pluck('id')->toArray(),
+                                                    'unitTambahan' => $user->unitTambahan->pluck('id')->toArray()
+                                                ],
+                                                'deleteUrl' => route('masterdata.admin.users.destroy', $user->id),
+                                                'userName' => $user->name
+                                            ];
+                                        @endphp
+                                        {{-- Tombol Detail dan Edit pakai window.dispatchEvent --}}
+                                        <div class="flex gap-2 justify-center">
                                             <button data-payload="{{ json_encode($editPayload) }}"
-                                                @click="$dispatch('open-edit-modal', JSON.parse($el.dataset.payload))"
-                                                class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800 transition shadow-sm"
-                                                title="Ubah Data">
-                                                <i class="fa-solid fa-pencil"></i> Ubah
-                                            </button>
-
-                                            {{-- Tombol Hapus (Danger: Merah, fa-trash) --}}
-                                            <button @click="$dispatch('open-delete-modal', { 
-                                                                                            url: '{{ route('masterdata.admin.users.destroy', $user->id) }}',
-                                                                                            name: '{{ $user->name }}'
-                                                                                            })"
-                                                class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900 transition shadow-sm"
-                                                title="Hapus Data">
-                                                <i class="fa-solid fa-trash"></i> Hapus
+                                                @click="window.dispatchEvent(new CustomEvent('open-detail-modal', { bubbles: true, detail: JSON.parse($el.dataset.payload) }))"
+                                                class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
+                                                <i class="fa-solid fa-eye text-indigo-500"></i> Detail
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-16 text-center">
-                                        <div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
-                                            <i class="fa-solid fa-folder-open text-4xl mb-2 opacity-50"></i>
-                                            <p class="text-sm font-medium">Data user tidak ditemukan</p>
-                                        </div>
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                        <i class="mb-3 text-3xl opacity-50 fa-solid fa-users"></i><br>
+                                        Belum ada user.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-
-                {{-- Pagination Custom --}}
-                @if ($users->hasPages())
-                    <div class="border-t border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
-                        {{ $users->links() }}
-                    </div>
-                @endif
             </div>
-        </div>
-    </div>
 
-    @include('masterdata::admin.modal-edit')
-    @include('masterdata::admin.delete-modal')
+            @if($users->hasPages())
+                <div class="px-2">{{ $users->links() }}</div>
+            @endif
+
+            {{-- ================= INCLUDE FILE MODAL ================= --}}
+            @include('masterdata::admin.modal-create')
+            @include('masterdata::admin.modal-edit')
+            @include('masterdata::admin.modal-detail')
+            @include('masterdata::admin.delete-modal')
+
+        </div>
 @endsection

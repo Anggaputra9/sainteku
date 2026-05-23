@@ -9,9 +9,13 @@ use Modules\ManajemenAchievement\Models\AchievementType;
 use Modules\ManajemenAchievement\Models\AchievementLevel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotifService;
 
 class AchievementController extends Controller
 {
+    // ID modul Manajemen Prestasi sesuai ModuleSeeder (PRS = 5)
+    private $moduleId = 5;
+
     /**
      * Cek akses: hanya mahasiswa atau admin super
      */
@@ -101,7 +105,22 @@ class AchievementController extends Controller
             $data['file_name'] = $file->getClientOriginalName();
         }
 
-        Achievement::create($data);
+        $achievement = Achievement::create($data);
+
+        // Notifikasi (in-app + email) ke pemberi persetujuan prestasi (permission Approve di modul PRS)
+        // di unit yang sama dengan mahasiswa pengaju.
+        try {
+            NotifService::sendToApprovers('PRS', 'A', $user->unit_id, [
+                'action'       => 'mengajukan prestasi mahasiswa untuk diverifikasi',
+                'item_name'    => $achievement->title,
+                'type'         => 'Prestasi Mahasiswa',
+                'url'          => route('student.achievements.index'),
+                'reference_id' => $achievement->id,
+                'click_action' => 'redirect',
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notif pengajuan prestasi mahasiswa gagal: ' . $e->getMessage());
+        }
 
         return redirect()->route('student.achievements.index')
             ->with('success', 'Prestasi berhasil diajukan');

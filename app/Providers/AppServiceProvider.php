@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function ($view) {
 
             if (!Auth::check()) {
-                $view->with('menus', collect());
+                $view->with('sidebarMenus', collect());
                 return;
             }
 
@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
 
             // 🔥 ADMIN → tampil semua
             if ($isSuperAdmin) {
-                $menus = Menu::whereNull('parent_id')
+                $sidebarMenus = Menu::whereNull('parent_id')
                     ->where('is_active', 1)
                     ->with([
                         'children' => function ($q) {
@@ -48,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
                     ->orderBy('order_no')
                     ->get();
 
-                $view->with('menus', $menus);
+                $view->with('sidebarMenus', $sidebarMenus);
                 return;
             }
 
@@ -83,38 +83,48 @@ class AppServiceProvider extends ServiceProvider
                 ->unique()
                 ->toArray();
 
-            $menus = Menu::whereNull('parent_id')
+            // ============ Filter sidebar untuk non-admin ============
+            //
+            // Aturan visibility parent menu:
+            //  - Parent yang TIDAK punya child (mis. Dashboard, root link
+            //    langsung) → tampil bila module_id null atau ada di
+            //    allowedModulesRead. Tetap respek module_id-nya.
+            //  - Parent yang PUNYA child → tampil selama minimal 1 child
+            //    yang accessible. Kita TIDAK lagi men-filter parent
+            //    berdasarkan module_id-nya sendiri, supaya kasus seperti
+            //    "Monev Akademik" (module_id=3) tetap muncul untuk user
+            //    yang cuma punya akses ke child seperti Ujian (module_id
+            //    null) walau tidak punya permission Monev Akademik.
+            //
+            // Item yang khusus admin (Master Data, Manajemen Menu,
+            // Pengaturan Aplikasi) tetap di-exclude di awal.
+            $sidebarMenus = Menu::whereNull('parent_id')
                 ->where('is_active', 1)
-                ->where('id', '!=', 1) // ⬅️ HILANGKAN MASTER DATA
-                ->where(function ($q) use ($allowedModulesRead) {
-                    $q->whereNull('module_id')
-                        ->orWhereIn('module_id', $allowedModulesRead);
-                })
+                ->whereNotIn('id', [1, 101, 200])
                 ->with([
                     'children' => function ($q) use ($allowedModulesRead, $allowedModulesCreate, $allowedModulesApprove) {
                         $q->where('is_active', 1)
                             ->where(function ($q2) use ($allowedModulesRead, $allowedModulesCreate, $allowedModulesApprove) {
-                                // Menu tanpa module_id (tidak butuh permission khusus)
-                                $q2->orWhereNull('module_id')
+                                // Menu tanpa module_id (bebas permission)
+                                $q2->whereNull('module_id')
 
-                                // Menu dengan permission R (Read) - default untuk menu biasa
+                                // Menu Read default - kecuali yang butuh permission khusus
                                 ->orWhere(function ($q3) use ($allowedModulesRead) {
                                     $q3->whereIn('module_id', $allowedModulesRead)
                                         ->whereNot(function ($subQ) {
-                                            // Kecualikan menu yang butuh permission khusus
                                             $subQ->where('menu_link', 'like', '%review%')
                                                  ->orWhere('menu_link', 'like', '%pengajuan%')
                                                  ->orWhere('menu_link', 'like', '%persetujuan%');
                                         });
                                 })
 
-                                // Menu review dengan permission A (Approve)
+                                // Review menu - butuh Approve
                                 ->orWhere(function ($q4) use ($allowedModulesApprove) {
                                     $q4->whereIn('module_id', $allowedModulesApprove)
                                         ->where('menu_link', 'like', '%review%');
                                 })
 
-                                // Menu pengajuan/peminjaman dengan permission C (Create)
+                                // Pengajuan / peminjaman - butuh Create
                                 ->orWhere(function ($q5) use ($allowedModulesCreate) {
                                     $q5->whereIn('module_id', $allowedModulesCreate)
                                         ->where(function ($subQ) {
@@ -123,7 +133,7 @@ class AppServiceProvider extends ServiceProvider
                                         });
                                 })
 
-                                // Menu persetujuan dengan permission A (Approve)
+                                // Persetujuan - butuh Approve
                                 ->orWhere(function ($q6) use ($allowedModulesApprove) {
                                     $q6->whereIn('module_id', $allowedModulesApprove)
                                         ->where('menu_link', 'like', '%persetujuan%');
@@ -133,9 +143,21 @@ class AppServiceProvider extends ServiceProvider
                     }
                 ])
                 ->orderBy('order_no')
-                ->get();
+                ->get()
+                // Parent harus tetap kelihatan kalau punya child accessible.
+                // Untuk parent yang memang berdiri sendiri (no children),
+                // kembali ke aturan module_id-nya: null atau termasuk
+                // allowedModulesRead.
+                ->filter(function ($menu) use ($allowedModulesRead) {
+                    if ($menu->children->isNotEmpty()) {
+                        return true;
+                    }
+                    return is_null($menu->module_id)
+                        || in_array($menu->module_id, $allowedModulesRead, true);
+                })
+                ->values();
 
-            $view->with('menus', $menus);
+            $view->with('sidebarMenus', $sidebarMenus);
         });
     }
 }

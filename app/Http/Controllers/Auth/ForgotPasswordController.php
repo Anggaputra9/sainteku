@@ -3,70 +3,71 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\MailService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
-use App\Mail\ResetPasswordMail;
 
 class ForgotPasswordController extends Controller
 {
     /**
-     * Kirim link reset password ke email
+     * Tampilkan form lupa password.
+     */
+    public function showLinkRequestForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Kirim link reset password ke email user
+     * dengan menggunakan EmailSetting aktif (default) yang dikelola admin.
      */
     public function sendResetLinkEmail(Request $request)
     {
-        // Validasi email
         $request->validate(['email' => 'required|email']);
 
-        // Cek email di mst_user
         $user = DB::table('mst_user')->where('email', $request->email)->first();
 
         if (!$user) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email tidak ditemukan dalam sistem.'
-                ]);
-            }
-            return back()->withErrors(['email' => 'Email tidak ditemukan dalam sistem.']);
+            return $this->respond($request, false, 'Email tidak ditemukan dalam sistem.');
         }
 
-        // Generate token
+        // Generate token & simpan
         $token = Str::random(60);
-
-        // Hapus token lama
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-
-        // Simpan token baru
         DB::table('password_reset_tokens')->insert([
-            'email' => $request->email,
-            'token' => $token,
-            'created_at' => Carbon::now()
+            'email'      => $request->email,
+            'token'      => $token,
+            'created_at' => Carbon::now(),
         ]);
 
+        // Kirim email pakai konfigurasi email aktif di database (EmailSetting default)
         try {
-            // Kirim email
-            Mail::to($request->email)->send(new ResetPasswordMail($token, $request->email));
+            $result = MailService::sendPasswordReset($request->email, $token);
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau spam.'
-                ]);
+            if (!$result['success']) {
+                Log::warning('Reset password mail gagal: ' . $result['message']);
+                return $this->respond($request, false, 'Gagal mengirim email reset password. ' . $result['message']);
             }
 
-            return back()->with('status', 'Link reset password telah dikirim ke email Anda.');
-        } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengirim email. Error: ' . $e->getMessage()
-                ]);
-            }
-
-            return back()->withErrors(['email' => 'Gagal mengirim email.']);
+            return $this->respond($request, true, 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
+        } catch (\Throwable $e) {
+            Log::error('Reset password mail exception: ' . $e->getMessage());
+            return $this->respond($request, false, 'Gagal mengirim email. Error: ' . $e->getMessage());
         }
+    }
+
+    private function respond(Request $request, bool $success, string $message)
+    {
+        if ($request->ajax() || $request->expectsJson()) {
+            return response()->json(['success' => $success, 'message' => $message], $success ? 200 : 422);
+        }
+
+        if ($success) {
+            return back()->with('status', $message);
+        }
+        return back()->withErrors(['email' => $message]);
     }
 }

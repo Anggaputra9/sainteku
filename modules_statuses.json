@@ -7,5 +7,6 @@
     "PengaduanMahasiswa": true,
     "ManajementInfrastruktur": true,
     "PenjaminanMutuAkademik": true,
-    "Pelaporan": true
+    "Pelaporan": true,
+    "Ujian": true
 }

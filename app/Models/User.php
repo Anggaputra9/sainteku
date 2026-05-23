@@ -20,6 +20,7 @@ class User extends Authenticatable
         'id',
         'name',
         'email',
+        'email_verified_at',
         'password',
         'identity_id',
         'user_type',
@@ -43,6 +44,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
     }
 

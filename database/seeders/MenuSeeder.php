@@ -88,6 +88,10 @@ class MenuSeeder extends Seeder
             // UPDATE: Mengarahkan menu ke rute yang tepat
             ['id' => 21, 'menu_name' => 'Tashih Soal', 'menu_link' => 'monevakademik.tashih.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 1, 'is_active' => 1],
             ['id' => 22, 'menu_name' => 'Bank Soal', 'menu_link' => 'monevakademik.banksoal.index', 'parent_id' => 20, 'module_id' => 2, 'order_no' => 2, 'is_active' => 1],
+            // Ujian sengaja module_id = null supaya akses tidak terikat
+            // permission Tashih/Bank Soal. RBAC untuk action di dalam Ujian
+            // (kelola room vs join room) sudah di-handle controller.
+            ['id' => 23, 'menu_name' => 'Ujian', 'menu_link' => 'ujian.index', 'parent_id' => 20, 'module_id' => null, 'order_no' => 3, 'is_active' => 1],
             // END UPDATE
             // ['id' => 23, 'menu_name' => 'Monev Perkuliahan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 3, 'is_active' => 1],
             // ['id' => 24, 'menu_name' => 'Survey Kepuasan', 'menu_link' => '#', 'parent_id' => 20, 'module_id' => 3, 'order_no' => 4, 'is_active' => 1],
@@ -207,15 +211,50 @@ class MenuSeeder extends Seeder
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | 10. PENGATURAN APLIKASI (Administrator only)
+        |--------------------------------------------------------------------------
+        | Parent menu untuk konfigurasi aplikasi: email/mailer, integrasi, dll.
+        | Sub-pengaturan ke depan (mis. AI) tinggal tambahkan child baru
+        | dengan parent_id = 200.
+        */
+        DB::table('mst_menu')->updateOrInsert(
+            ['id' => 200],
+            [
+                'menu_name' => 'Pengaturan Aplikasi',
+                'menu_link' => null,
+                'menu_icon' => 'fa-solid fa-gears',
+                'parent_id' => null,
+                'module_id' => null,
+                'order_no' => 100,
+                'is_active' => 1,
+            ]
+        );
+
+        DB::table('mst_menu')->updateOrInsert(
+            ['id' => 201],
+            [
+                'menu_name' => 'Pengaturan Email',
+                'menu_link' => 'settings.email.index',
+                'menu_icon' => 'fa-solid fa-envelope-open-text',
+                'parent_id' => 200,
+                'module_id' => null,
+                'order_no' => 1,
+                'is_active' => 1,
+            ]
+        );
+
+        // Manajemen Menu: dipasang sebagai sub dari Pengaturan Aplikasi
         DB::table('mst_menu')->updateOrInsert(
             ['id' => 101],
             [
                 'menu_name' => 'Manajemen Menu',
-                'menu_link' => 'menu-management.index',
+                'menu_link' => 'settings.menu.index',
                 'menu_icon' => 'fa-solid fa-bars-staggered',
-                'parent_id' => null,
+                'parent_id' => 200,
                 'module_id' => null,
-                'order_no' => 99,
+                'order_no' => 2,
                 'is_active' => 1,
             ]
         );

@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/ujian",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Ujian\\": "app/",
+            "Modules\\Ujian\\Database\\Factories\\": "database/factories/",
+            "Modules\\Ujian\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Ujian\\Tests\\": "tests/"
+        }
+    }
+}
