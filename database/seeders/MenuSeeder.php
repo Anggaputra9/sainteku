@@ -245,6 +245,20 @@ class MenuSeeder extends Seeder
             ]
         );
 
+        // Pengaturan AI
+        DB::table('mst_menu')->updateOrInsert(
+            ['id' => 202],
+            [
+                'menu_name' => 'Pengaturan AI',
+                'menu_link' => 'settings.ai.index',
+                'menu_icon' => 'fa-solid fa-brain',
+                'parent_id' => 200,
+                'module_id' => null,
+                'order_no' => 2,
+                'is_active' => 1,
+            ]
+        );
+
         // Manajemen Menu: dipasang sebagai sub dari Pengaturan Aplikasi
         DB::table('mst_menu')->updateOrInsert(
             ['id' => 101],
@@ -254,7 +268,7 @@ class MenuSeeder extends Seeder
                 'menu_icon' => 'fa-solid fa-bars-staggered',
                 'parent_id' => 200,
                 'module_id' => null,
-                'order_no' => 2,
+                'order_no' => 3,
                 'is_active' => 1,
             ]
         );

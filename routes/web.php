@@ -6,6 +6,7 @@ use App\Http\Controllers\MenuManagementController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Admin\EmailSettingController;
+use App\Http\Controllers\Settings\AiSettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 
@@ -93,6 +94,19 @@ Route::middleware(['auth'])->group(function () {
             ->name('email.set-default');
         Route::post('email/{emailSetting}/test', [EmailSettingController::class, 'test'])
             ->name('email.test');
+
+        // Pengaturan AI (multi-provider AI)
+        Route::resource('ai', AiSettingController::class)
+            ->except(['show', 'create', 'edit'])
+            ->parameters(['ai' => 'aiSetting'])
+            ->names('ai');
+
+        Route::post('ai/{aiSetting}/set-default', [AiSettingController::class, 'setDefault'])
+            ->name('ai.set-default');
+        Route::post('ai/{aiSetting}/test', [AiSettingController::class, 'test'])
+            ->name('ai.test');
+        Route::post('ai/{aiSetting}/reset-usage', [AiSettingController::class, 'resetUsage'])
+            ->name('ai.reset-usage');
 
         // Manajemen Menu Aplikasi
         Route::resource('menu', MenuManagementController::class)
