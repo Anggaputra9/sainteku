@@ -4,7 +4,8 @@
     <div class="space-y-6" x-data="emailSettingsApp()" x-init="init()" x-cloak>
 
         {{-- ================= HEADER ================= --}}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-envelope-open-text text-indigo-500"></i> Pengaturan Email
@@ -23,7 +24,8 @@
         </div>
 
         {{-- ================= INFO PROVIDER ================= --}}
-        <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-200">
+        <div
+            class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-900/40 dark:bg-blue-900/20 dark:text-blue-200">
             <p class="font-semibold flex items-center gap-2">
                 <i class="fa-solid fa-circle-info"></i> Daftar provider yang didukung & limit gratis (referensi):
             </p>
@@ -41,8 +43,10 @@
         <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
                 <div class="md:col-span-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Pencarian</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama, email pengirim, provider..."
+                    <label
+                        class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Pencarian</label>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Nama, email pengirim, provider..."
                         class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                 </div>
                 <div>
@@ -60,32 +64,37 @@
                     <select name="status"
                         class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                         <option value="">Semua</option>
-                        <option value="active" @selected(request('status')==='active')>Aktif</option>
-                        <option value="inactive" @selected(request('status')==='inactive')>Nonaktif</option>
+                        <option value="active" @selected(request('status') === 'active')>Aktif</option>
+                        <option value="inactive" @selected(request('status') === 'inactive')>Nonaktif</option>
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <button class="flex-1 inline-flex justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Filter</button>
-                    <a href="{{ route('settings.email.index') }}" class="flex-1 inline-flex justify-center rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Reset</a>
+                    <button
+                        class="flex-1 inline-flex justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Filter</button>
+                    <a href="{{ route('settings.email.index') }}"
+                        class="flex-1 inline-flex justify-center rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Reset</a>
                 </div>
             </form>
         </div>
 
         {{-- ================= ALERTS ================= --}}
         @if (session('success'))
-            <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
+            <div
+                class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
                 <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
                 <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
             </div>
         @endif
         @if (session('error'))
-            <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+            <div
+                class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
                 <i class="fa-solid fa-circle-xmark text-red-500 text-xl mr-3"></i>
                 <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
             </div>
         @endif
         @if ($errors->any())
-            <div class="flex items-start w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+            <div
+                class="flex items-start w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
                 <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3 mt-0.5"></i>
                 <div class="text-sm font-bold text-red-700 dark:text-red-400">
                     @foreach ($errors->all() as $error)<div>{{ $error }}</div>@endforeach
@@ -93,11 +102,9 @@
             </div>
         @endif
 
-        {{-- ================= TABLE =================
-            Mengikuti gaya MonevAkademik/Tashih: kolom utama + status + 1 tombol Detail.
-            Aksi (Edit, Tes Email, Set Default, Hapus) dipindah ke modal detail.
-        --}}
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {{-- ================= TABLE ================= --}}
+        <div
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
                     <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
@@ -111,11 +118,11 @@
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($settings as $row)
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                                {{-- Konfigurasi: nama besar + alamat pengirim sebagai baris kedua --}}
                                 <td class="px-6 py-4">
                                     <div class="font-bold text-gray-900 dark:text-white text-base flex items-center gap-2">
                                         @if($row->is_default)
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800 border border-amber-200">
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800 border border-amber-200">
                                                 <i class="fa-solid fa-star"></i> Default
                                             </span>
                                         @endif
@@ -126,7 +133,6 @@
                                     </div>
                                 </td>
 
-                                {{-- Provider & Mode --}}
                                 <td class="px-6 py-4 text-center">
                                     <span class="font-bold text-gray-700 dark:text-gray-300">
                                         {{ $providers[$row->provider]['label'] ?? $row->provider }}
@@ -143,15 +149,14 @@
                                     </div>
                                 </td>
 
-                                {{-- Status --}}
                                 <td class="px-6 py-4 text-center">
                                     @php $statusClass = $row->is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-200'; @endphp
-                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border {{ $statusClass }}">
+                                    <span
+                                        class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border {{ $statusClass }}">
                                         {{ $row->is_active ? 'AKTIF' : 'NONAKTIF' }}
                                     </span>
                                 </td>
 
-                                {{-- Aksi: 1 tombol Detail (gaya tashih) --}}
                                 <td class="px-6 py-4 text-center">
                                     <button type="button" @click='openDetailModal(@json($row))'
                                         class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
@@ -183,12 +188,14 @@
             x-transition x-cloak>
             <div @click.away="openCreate=false; openEdit=false"
                 class="relative w-full max-w-3xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
-                <div class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                <div
+                    class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
                     <h3 class="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                         <i class="fa-solid fa-envelope-open-text text-indigo-500"></i>
                         <span x-text="openEdit ? 'Edit Konfigurasi Email' : 'Tambah Konfigurasi Email'"></span>
                     </h3>
-                    <button type="button" @click="openCreate=false; openEdit=false" class="text-gray-400 hover:text-gray-600">
+                    <button type="button" @click="openCreate=false; openEdit=false"
+                        class="text-gray-400 hover:text-gray-600">
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                 </div>
@@ -202,7 +209,8 @@
                         {{-- Provider & Nama --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Nama Konfigurasi *</label>
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Nama Konfigurasi
+                                    *</label>
                                 <input name="name" x-model="form.name" required maxlength="100"
                                     placeholder="Contoh: Brevo Utama"
                                     class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
@@ -213,37 +221,34 @@
                                     class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
                                     <option value="">-- Pilih Provider --</option>
                                     @foreach($providers as $key => $info)
-                                        <option value="{{ $key }}">{{ $info['label'] }} @if($info['free_limit']) (~{{ $info['free_limit'] }}/hari free) @endif</option>
+                                        <option value="{{ $key }}">{{ $info['label'] }} @if($info['free_limit'])
+                                        (~{{ $info['free_limit'] }}/hari free) @endif</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
                         {{-- Mode Auth Selector (segmented control) --}}
-                        <div x-show="form.provider"
-                            x-cloak
+                        <div x-show="form.provider" x-cloak
                             class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#1e293b]">
                             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase">Mode Autentikasi *</label>
+                                <label class="block text-[11px] font-bold text-gray-500 uppercase">Mode Autentikasi
+                                    *</label>
                                 <span class="text-[10px] text-gray-400">Pilih cara konek ke provider</span>
                             </div>
                             <input type="hidden" name="auth_mode" :value="form.auth_mode">
-                            {{-- Segmented control kompak: lebar mengikuti konten,
-                                 tinggi 36px, tidak full width supaya tidak mendominasi modal --}}
                             <div class="inline-flex p-1 rounded-lg bg-gray-100 dark:bg-gray-800 gap-1">
-                                <button type="button" @click="setAuthMode('smtp')"
-                                    :disabled="!supportsMode('smtp')"
+                                <button type="button" @click="setAuthMode('smtp')" :disabled="!supportsMode('smtp')"
                                     :class="form.auth_mode === 'smtp'
-                                        ? 'bg-white text-sky-700 shadow-sm dark:bg-sky-500/20 dark:text-sky-300'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed'"
+                                            ? 'bg-white text-sky-700 shadow-sm dark:bg-sky-500/20 dark:text-sky-300'
+                                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed'"
                                     class="h-9 inline-flex items-center justify-center gap-2 rounded-md px-4 text-xs font-bold uppercase tracking-wide transition-all">
                                     <i class="fa-solid fa-server text-[11px]"></i> SMTP
                                 </button>
-                                <button type="button" @click="setAuthMode('api')"
-                                    :disabled="!supportsMode('api')"
+                                <button type="button" @click="setAuthMode('api')" :disabled="!supportsMode('api')"
                                     :class="form.auth_mode === 'api'
-                                        ? 'bg-white text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300'
-                                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed'"
+                                            ? 'bg-white text-emerald-700 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-300'
+                                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed'"
                                     class="h-9 inline-flex items-center justify-center gap-2 rounded-md px-4 text-xs font-bold uppercase tracking-wide transition-all">
                                     <i class="fa-solid fa-key text-[11px]"></i> API Key
                                 </button>
@@ -268,13 +273,13 @@
                         </div>
 
                         {{-- ================= SMTP FIELDS (mode SMTP) ================= --}}
-                        <div x-show="form.provider && form.auth_mode === 'smtp'"
-                            x-cloak
+                        <div x-show="form.provider && form.auth_mode === 'smtp'" x-cloak
                             class="rounded-xl border border-sky-200 bg-sky-50/40 p-4 dark:border-sky-900/40 dark:bg-sky-900/10">
                             <h4 class="text-sm font-bold text-sky-700 dark:text-sky-300 mb-1 flex items-center gap-2">
                                 <i class="fa-solid fa-server"></i> Konfigurasi SMTP
                             </h4>
-                            <p class="text-[11px] text-gray-500 mb-3" x-text="`Preset diisi otomatis dari dokumentasi resmi ${currentProviderLabel}.`"></p>
+                            <p class="text-[11px] text-gray-500 mb-3"
+                                x-text="`Preset diisi otomatis dari dokumentasi resmi ${currentProviderLabel}.`"></p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Host *</label>
@@ -287,7 +292,8 @@
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Encryption</label>
+                                    <label
+                                        class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Encryption</label>
                                     <select name="encryption" x-model="form.encryption"
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
                                         <option value="tls">TLS</option>
@@ -301,28 +307,32 @@
                                         :readonly="!!currentSmtp?.username_fixed"
                                         :class="currentSmtp?.username_fixed ? 'bg-gray-100 dark:bg-gray-800' : 'bg-white dark:bg-[#1e293b]'"
                                         class="w-full rounded-xl border-gray-300 px-4 py-2.5 text-sm dark:border-gray-600 dark:text-white">
-                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentSmtp?.username_hint" x-text="currentSmtp?.username_hint"></p>
+                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentSmtp?.username_hint"
+                                        x-text="currentSmtp?.username_hint"></p>
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Password / SMTP Key
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Password / SMTP
+                                        Key
                                         <span x-show="!openEdit" class="text-red-500">*</span>
                                     </label>
                                     <input type="password" name="password" x-model="form.password"
                                         :placeholder="openEdit ? '•••• (kosongkan jika tidak diubah)' : (currentSmtp?.password_hint || '')"
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentSmtp?.password_hint" x-text="currentSmtp?.password_hint"></p>
+                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentSmtp?.password_hint"
+                                        x-text="currentSmtp?.password_hint"></p>
                                 </div>
                             </div>
                         </div>
 
                         {{-- ================= API FIELDS (mode API) ================= --}}
-                        <div x-show="form.provider && form.auth_mode === 'api'"
-                            x-cloak
+                        <div x-show="form.provider && form.auth_mode === 'api'" x-cloak
                             class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
-                            <h4 class="text-sm font-bold text-emerald-700 dark:text-emerald-300 mb-1 flex items-center gap-2">
+                            <h4
+                                class="text-sm font-bold text-emerald-700 dark:text-emerald-300 mb-1 flex items-center gap-2">
                                 <i class="fa-solid fa-key"></i> Konfigurasi API Key
                             </h4>
-                            <p class="text-[11px] text-gray-500 mb-3" x-text="`Endpoint: ${currentApi?.endpoint || '-'}`"></p>
+                            <p class="text-[11px] text-gray-500 mb-3" x-text="`Endpoint: ${currentApi?.endpoint || '-'}`">
+                            </p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="md:col-span-2">
                                     <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">API Key
@@ -331,10 +341,12 @@
                                     <input type="password" name="api_key" x-model="form.api_key"
                                         :placeholder="openEdit ? '•••• (kosongkan jika tidak diubah)' : (currentApi?.key_hint || 'API Key')"
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentApi?.key_hint" x-text="currentApi?.key_hint"></p>
+                                    <p class="mt-1 text-[10px] text-gray-500" x-show="currentApi?.key_hint"
+                                        x-text="currentApi?.key_hint"></p>
                                 </div>
                                 <div x-show="currentApi?.need_domain" class="md:col-span-2">
-                                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Mailgun Domain *</label>
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Mailgun Domain
+                                        *</label>
                                     <input name="api_domain" x-model="form.api_domain" placeholder="mg.domain.com"
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
                                 </div>
@@ -342,15 +354,10 @@
                         </div>
 
                         {{-- ===== PENGATURAN PEMAKAIAN ===== --}}
-                        {{--
-                            Sebelumnya pakai <table>, masalahnya: lebar kolom auto + label
-                            x-text yang panjangnya beda-beda ('Aktif' vs 'Nonaktif',
-                            'Ya, default' vs 'Tidak') bikin shifting tiap toggle.
-                            Sekarang pakai grid 2 kolom dengan kolom label fixed (40%)
-                            dan kolom kontrol fixed agar layout stabil.
-                        --}}
-                        <div class="rounded-xl border border-gray-200 bg-white overflow-hidden dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700">
+                        <div
+                            class="rounded-xl border border-gray-200 bg-white overflow-hidden dark:border-gray-700 dark:bg-[#1e293b]">
+                            <div
+                                class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700">
                                 <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                                     <i class="fa-solid fa-sliders text-indigo-500"></i> Pengaturan Pemakaian
                                 </h4>
@@ -358,10 +365,12 @@
 
                             <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                                 {{-- Limit Harian --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
+                                <li
+                                    class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
                                     <div class="min-w-0">
                                         <div class="font-semibold text-gray-700 dark:text-gray-300">Limit Harian</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Maks email per hari (0 = tanpa batas)</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">Maks email per hari (0 = tanpa batas)
+                                        </div>
                                     </div>
                                     <div class="md:justify-self-end w-full md:w-[220px]">
                                         <input type="number" min="0" name="daily_limit" x-model="form.daily_limit"
@@ -371,58 +380,66 @@
                                 </li>
 
                                 {{-- Prioritas --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
+                                <li
+                                    class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
                                     <div class="min-w-0">
                                         <div class="font-semibold text-gray-700 dark:text-gray-300">Prioritas</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Angka kecil = dipakai duluan untuk fallback</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">Angka kecil = dipakai duluan untuk
+                                            fallback</div>
                                     </div>
                                     <div class="md:justify-self-end w-full md:w-[220px]">
-                                        <input type="number" min="0" name="priority" x-model="form.priority"
-                                            placeholder="0"
+                                        <input type="number" min="0" name="priority" x-model="form.priority" placeholder="0"
                                             class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                                     </div>
                                 </li>
 
                                 {{-- Status Aktif --}}
-                                {{-- Toggle Status Aktif & Jadikan Default disusun identik:
-                                     - Wrapper toggle pakai grid-cols-[auto_72px] dengan label
-                                       di kolom kanan rata kanan, jadi posisi switch pas sejajar
-                                       di kedua row. Lebar 72px cukup buat 'Nonaktif'/'Default'. --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
+                                <li
+                                    class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
                                     <div class="min-w-0">
                                         <div class="font-semibold text-gray-700 dark:text-gray-300">Status Aktif</div>
                                         <div class="text-xs text-gray-500 mt-0.5">Konfigurasi bisa dipakai sistem</div>
                                     </div>
-                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
+                                    <label
+                                        class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
                                         <span class="relative inline-flex shrink-0">
-                                            <input type="checkbox" name="is_active" value="1" x-model="form.is_active" class="sr-only peer">
-                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
+                                            <input type="checkbox" name="is_active" value="1" x-model="form.is_active"
+                                                class="sr-only peer">
+                                            <span
+                                                class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
                                         </span>
                                         <span class="text-sm font-semibold text-right tabular-nums"
-                                              :class="form.is_active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
-                                              x-text="form.is_active ? 'Aktif' : 'Nonaktif'"></span>
+                                            :class="form.is_active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
+                                            x-text="form.is_active ? 'Aktif' : 'Nonaktif'"></span>
                                     </label>
                                 </li>
 
                                 {{-- Jadikan Default --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
+                                <li
+                                    class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_220px] gap-3 md:gap-6 items-center">
                                     <div class="min-w-0">
-                                        <div class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 flex-wrap">
+                                        <div
+                                            class="font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 flex-wrap">
                                             <span>Jadikan Default</span>
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase text-amber-800 border border-amber-200">
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase text-amber-800 border border-amber-200">
                                                 <i class="fa-solid fa-star"></i> Utama
                                             </span>
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Konfigurasi yang dipakai sistem secara default</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">Konfigurasi yang dipakai sistem secara
+                                            default</div>
                                     </div>
-                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
+                                    <label
+                                        class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
                                         <span class="relative inline-flex shrink-0">
-                                            <input type="checkbox" name="is_default" value="1" x-model="form.is_default" class="sr-only peer">
-                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></span>
+                                            <input type="checkbox" name="is_default" value="1" x-model="form.is_default"
+                                                class="sr-only peer">
+                                            <span
+                                                class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></span>
                                         </span>
                                         <span class="text-sm font-semibold text-right tabular-nums"
-                                              :class="form.is_default ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500'"
-                                              x-text="form.is_default ? 'Default' : 'Tidak'"></span>
+                                            :class="form.is_default ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500'"
+                                            x-text="form.is_default ? 'Default' : 'Tidak'"></span>
                                     </label>
                                 </li>
                             </ul>
@@ -436,10 +453,12 @@
                         </div>
                     </div>
 
-                    <div class="shrink-0 border-t border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700 flex justify-end gap-3">
+                    <div
+                        class="shrink-0 border-t border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700 flex justify-end gap-3">
                         <button type="button" @click="openCreate=false; openEdit=false"
                             class="rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Batal</button>
-                        <button class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
+                        <button
+                            class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">
                             <i class="fa-solid fa-floppy-disk"></i> Simpan
                         </button>
                     </div>
@@ -448,27 +467,30 @@
         </div>
 
         {{-- ================= MODAL DETAIL ================= --}}
-        {{-- Mirip pola tashih: detail data + tombol-tombol aksi (Edit, Tes, Set Default, Hapus). --}}
         <div x-show="openDetail"
             class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
             x-transition x-cloak>
             <div @click.away="openDetail = false"
                 class="relative w-full max-w-2xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
-                <div class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                <div
+                    class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
                     <div>
                         <h3 class="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                             <i class="fa-solid fa-envelope-open-text text-indigo-500"></i>
                             <span x-text="detail.name"></span>
                             <template x-if="detail.is_default">
-                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800 border border-amber-200">
+                                <span
+                                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-800 border border-amber-200">
                                     <i class="fa-solid fa-star"></i> Default
                                 </span>
                             </template>
                         </h3>
                         <p class="text-xs text-gray-500 mt-1">Detail konfigurasi email & aksi pengelolaan.</p>
                     </div>
-                    <button type="button" @click="openDetail = false" class="text-gray-400 hover:text-gray-600">
-                        <i class="fa-solid fa-xmark text-xl"></i>
+                    {{-- TOMBOL TES EMAIL PINDAH KE SINI MENGGANTIKAN XMARK --}}
+                    <button type="button" @click="openDetail = false; openTestFromDetail()"
+                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/50 transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane"></i> Tes Email
                     </button>
                 </div>
 
@@ -479,10 +501,13 @@
                             <div class="mt-1 font-bold text-gray-900 dark:text-white" x-text="detailProviderLabel"></div>
                         </div>
                         <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Mode Autentikasi</div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Mode Autentikasi
+                            </div>
                             <div class="mt-1 font-bold text-gray-900 dark:text-white">
-                                <template x-if="detail.auth_mode === 'api'"><span><i class="fa-solid fa-key text-emerald-500"></i> API Key</span></template>
-                                <template x-if="detail.auth_mode !== 'api'"><span><i class="fa-solid fa-server text-sky-500"></i> SMTP</span></template>
+                                <template x-if="detail.auth_mode === 'api'"><span><i
+                                            class="fa-solid fa-key text-emerald-500"></i> API Key</span></template>
+                                <template x-if="detail.auth_mode !== 'api'"><span><i
+                                            class="fa-solid fa-server text-sky-500"></i> SMTP</span></template>
                             </div>
                         </div>
                         <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
@@ -493,28 +518,33 @@
                             </div>
                         </div>
                         <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Pemakaian Harian</div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Pemakaian Harian
+                            </div>
                             <div class="mt-1 text-sm font-bold text-gray-900 dark:text-white">
                                 <span x-show="detail.daily_limit > 0">
                                     <span x-text="`${detail.daily_sent || 0} / ${detail.daily_limit}`"></span>
                                 </span>
-                                <span x-show="!detail.daily_limit" class="italic text-gray-400 font-normal">Tanpa batas</span>
+                                <span x-show="!detail.daily_limit" class="italic text-gray-400 font-normal">Tanpa
+                                    batas</span>
                             </div>
                         </div>
                         <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</div>
                             <div class="mt-1">
                                 <template x-if="detail.is_active">
-                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border bg-green-100 text-green-800 border-green-200">Aktif</span>
+                                    <span
+                                        class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border bg-green-100 text-green-800 border-green-200">Aktif</span>
                                 </template>
                                 <template x-if="!detail.is_active">
-                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border bg-gray-100 text-gray-700 border-gray-200">Nonaktif</span>
+                                    <span
+                                        class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border bg-gray-100 text-gray-700 border-gray-200">Nonaktif</span>
                                 </template>
                             </div>
                         </div>
                         <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Prioritas</div>
-                            <div class="mt-1 font-bold text-gray-900 dark:text-white tabular-nums" x-text="detail.priority ?? 0"></div>
+                            <div class="mt-1 font-bold text-gray-900 dark:text-white tabular-nums"
+                                x-text="detail.priority ?? 0"></div>
                         </div>
                     </div>
 
@@ -523,29 +553,37 @@
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">Detail Koneksi</h4>
                         <template x-if="detail.auth_mode === 'api'">
                             <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                <div><span class="font-semibold">API Key:</span> <span class="font-mono" x-text="detail.masked_api_key || '—'"></span></div>
-                                <div x-show="detail.api_domain"><span class="font-semibold">Domain:</span> <span class="font-mono" x-text="detail.api_domain"></span></div>
+                                <div><span class="font-semibold">API Key:</span> <span class="font-mono"
+                                        x-text="detail.masked_api_key || '—'"></span></div>
+                                <div x-show="detail.api_domain"><span class="font-semibold">Domain:</span> <span
+                                        class="font-mono" x-text="detail.api_domain"></span></div>
                             </div>
                         </template>
                         <template x-if="detail.auth_mode !== 'api'">
                             <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                <div><span class="font-semibold">Host:</span> <span class="font-mono" x-text="(detail.host || '—') + (detail.port ? ':' + detail.port : '')"></span></div>
-                                <div><span class="font-semibold">Encryption:</span> <span class="font-mono uppercase" x-text="detail.encryption || '—'"></span></div>
-                                <div><span class="font-semibold">Username:</span> <span class="font-mono" x-text="detail.username || '—'"></span></div>
+                                <div><span class="font-semibold">Host:</span> <span class="font-mono"
+                                        x-text="(detail.host || '—') + (detail.port ? ':' + detail.port : '')"></span></div>
+                                <div><span class="font-semibold">Encryption:</span> <span class="font-mono uppercase"
+                                        x-text="detail.encryption || '—'"></span></div>
+                                <div><span class="font-semibold">Username:</span> <span class="font-mono"
+                                        x-text="detail.username || '—'"></span></div>
                             </div>
                         </template>
                     </div>
 
-                    <div x-show="detail.notes" class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div x-show="detail.notes"
+                        class="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-[#1e293b]">
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">Catatan</h4>
                         <p class="text-sm text-gray-600 dark:text-gray-400" x-text="detail.notes"></p>
                     </div>
                 </div>
 
-                {{-- Footer aksi: ikuti gaya tashih (tombol kiri = destructive, kanan = primary) --}}
-                <div class="shrink-0 border-t border-gray-200 bg-white px-4 sm:px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                {{-- Footer aksi --}}
+                <div
+                    class="shrink-0 border-t border-gray-200 bg-white px-4 sm:px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
                     <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <form :action="`{{ url('settings/email') }}/${detail.id}`" method="POST" onsubmit="return confirm('Hapus konfigurasi ini?')" class="sm:order-1">
+                        <form :action="`{{ url('settings/email') }}/${detail.id}`" method="POST"
+                            onsubmit="return confirm('Hapus konfigurasi ini?')" class="sm:order-1">
                             @csrf @method('DELETE')
                             <button type="submit"
                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700 border border-red-200 hover:bg-red-100">
@@ -553,19 +591,23 @@
                             </button>
                         </form>
                         <div class="flex flex-wrap items-center justify-end gap-2 sm:order-2">
-                            <form :action="`{{ url('settings/email') }}/${detail.id}/set-default`" method="POST" x-show="!detail.is_default">
+                            <form :action="`{{ url('settings/email') }}/${detail.id}/set-default`" method="POST"
+                                x-show="!detail.is_default">
                                 @csrf
                                 <button type="submit"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-amber-50 px-4 py-2 text-sm font-bold text-amber-700 border border-amber-200 hover:bg-amber-100">
+                                    class="inline-flex items-center gap-2 rounded-lg bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-700 border border-amber-200 hover:bg-amber-100 transition shadow-sm">
                                     <i class="fa-solid fa-star"></i> Jadikan Default
                                 </button>
                             </form>
-                            <button type="button" @click="openDetail = false; openTestFromDetail()"
-                                class="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
-                                <i class="fa-solid fa-paper-plane"></i> Tes Email
+
+                            {{-- TOMBOL TUTUP BARU --}}
+                            <button type="button" @click="openDetail = false"
+                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-200 focus:ring-4 focus:ring-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+                                <i class="fa-solid fa-times"></i> Tutup
                             </button>
+
                             <button type="button" @click="openDetail = false; openEditFromDetail()"
-                                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-indigo-700">
+                                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-indigo-700 transition">
                                 <i class="fa-solid fa-pen"></i> Edit
                             </button>
                         </div>
@@ -596,7 +638,8 @@
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" @click="openTest=false"
                             class="rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Batal</button>
-                        <button class="rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+                        <button
+                            class="rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
                             <i class="fa-solid fa-paper-plane"></i> Kirim Tes
                         </button>
                     </div>
@@ -605,25 +648,27 @@
         </div>
     </div>
 
-    {{-- ============== STYLE: scrollbar custom (selaras dengan MonevAkademik) ============== --}}
+    {{-- ============== STYLE: scrollbar custom ============== --}}
     <style>
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
             border-radius: 10px;
         }
+
         .dark .custom-scrollbar::-webkit-scrollbar-thumb {
             background-color: #475569;
         }
     </style>
 
     <script>
-        // Preset provider dari backend (host/port/encryption resmi tiap vendor)
         const EMAIL_PROVIDERS = @json($providers);
 
         function emailSettingsApp() {
@@ -636,20 +681,17 @@
                 formAction: '',
                 testTarget: {},
                 testAction: '',
-                /** Row yang ditampilkan di modal detail (gaya tashih) */
                 detail: {},
 
                 init() {
                     this.resetForm();
                 },
 
-                /** Label provider untuk modal detail */
                 get detailProviderLabel() {
                     if (!this.detail || !this.detail.provider) return '—';
                     return EMAIL_PROVIDERS[this.detail.provider]?.label || this.detail.provider;
                 },
 
-                /** Provider terpilih (objek lengkap) */
                 get currentProvider() {
                     return EMAIL_PROVIDERS[this.form.provider] || null;
                 },
@@ -658,12 +700,10 @@
                     return this.currentProvider?.label || 'provider';
                 },
 
-                /** Konfig SMTP preset untuk provider terpilih */
                 get currentSmtp() {
                     return this.currentProvider?.smtp || null;
                 },
 
-                /** Konfig API preset untuk provider terpilih */
                 get currentApi() {
                     return this.currentProvider?.api || null;
                 },
@@ -676,43 +716,36 @@
                     return 'Pakai HTTP API resmi provider. Lebih cepat dan tidak butuh port SMTP terbuka.';
                 },
 
-                /** Cek apakah mode tertentu didukung provider terpilih */
                 supportsMode(mode) {
                     return (this.currentProvider?.auth_modes || ['smtp']).includes(mode);
                 },
 
-                /** Set mode auth + bersihkan field yang nggak relevan */
                 setAuthMode(mode) {
                     if (!this.supportsMode(mode)) return;
                     this.form.auth_mode = mode;
                     this.applyPreset();
                 },
 
-                /** Saat provider berubah: pilih default mode + isi preset */
                 onProviderChange() {
                     const p = this.currentProvider;
                     if (!p) {
                         this.form.auth_mode = 'smtp';
                         return;
                     }
-                    // Pilih mode default provider, atau mode pertama yang didukung
                     if (!p.auth_modes.includes(this.form.auth_mode)) {
                         this.form.auth_mode = p.default_mode || p.auth_modes[0];
                     }
                     this.applyPreset();
                 },
 
-                /** Auto-fill host/port/encryption + username fixed dari preset */
                 applyPreset() {
                     const p = this.currentProvider;
                     if (!p) return;
 
                     if (this.form.auth_mode === 'smtp' && p.smtp) {
-                        // Hanya isi kalau field masih kosong (jangan timpa input user)
-                        if (!this.form.host)       this.form.host = p.smtp.host || '';
-                        if (!this.form.port)       this.form.port = p.smtp.port || '';
+                        if (!this.form.host) this.form.host = p.smtp.host || '';
+                        if (!this.form.port) this.form.port = p.smtp.port || '';
                         if (!this.form.encryption) this.form.encryption = p.smtp.encryption || 'tls';
-                        // Username yang fixed (mis. SendGrid 'apikey') selalu di-set
                         if (p.smtp.username_fixed) this.form.username = p.smtp.username_fixed;
                     }
                 },
@@ -759,19 +792,16 @@
                     this.openTest = true;
                 },
 
-                /** Buka modal detail dari tabel (gaya tashih: Detail dulu, baru aksi) */
                 openDetailModal(row) {
                     this.detail = row || {};
                     this.openDetail = true;
                 },
 
-                /** Lanjut Edit dari modal detail */
                 openEditFromDetail() {
                     if (!this.detail || !this.detail.id) return;
                     this.openEditModal(this.detail);
                 },
 
-                /** Lanjut Tes Email dari modal detail */
                 openTestFromDetail() {
                     if (!this.detail || !this.detail.id) return;
                     this.openTestModal(this.detail);
