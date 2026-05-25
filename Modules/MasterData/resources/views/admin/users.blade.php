@@ -27,7 +27,6 @@
                         </ol>
                     </nav>
                 </div>
-                {{-- Tombol Tambah pakai window.dispatchEvent --}}
                 <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
                     class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
                     <i class="fa-solid fa-plus"></i> Tambah User
@@ -43,63 +42,53 @@
                 </div>
             </template>
 
-            <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-indigo-500"></i> Filter Data
-                    </h3>
-                </div>
-                <div class="p-4">
-            <form method="GET" action="{{ route('masterdata.admin.users.index') }}" class="grid grid-cols-1 md:grid-cols-6 gap-3">
-                <div class="md:col-span-2">
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Pencarian</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email..."
-                        class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Status</label>
-                    <select name="status" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                        <option value="">Semua Status</option>
-                        <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Aktif</option>
-                        <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Nonaktif</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Role</label>
-                    <select name="role_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                        <option value="">Semua Role</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}" {{ (string)request('role_id') === (string)$role->id ? 'selected' : '' }}>{{ $role->role_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Unit</label>
-                    <select name="unit_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                        <option value="">Semua Unit</option>
-                        @foreach($units as $unit)
-                            <option value="{{ $unit->id }}" {{ request('unit_id') === $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Per Page</label>
-                    <select name="per_page" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                        @foreach([10,25,50,75,100,150,200,250,300,350,400,450,500] as $size)
-                            <option value="{{ $size }}" {{ (int)$perPage === $size ? 'selected' : '' }}>{{ $size }} / halaman</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="md:col-span-6 flex gap-2 pt-1">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-                        <i class="fa-solid fa-magnifying-glass"></i> Terapkan
-                    </button>
-                    <a href="{{ route('masterdata.admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        <i class="fa-solid fa-rotate-left"></i> Reset
-                    </a>
-                </div>
-            </form>
-                </div>
+            {{-- ================= FILTERS ================= --}}
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <form method="GET" action="{{ route('masterdata.admin.users.index') }}" class="grid grid-cols-1 md:grid-cols-4 xl:grid-cols-8 gap-3 items-end">
+                    <div class="md:col-span-2 xl:col-span-2">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Pencarian</label>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / email..."
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Status</label>
+                        <select name="status" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            <option value="1" {{ request('status') === '1' ? 'selected' : '' }}>Aktif</option>
+                            <option value="0" {{ request('status') === '0' ? 'selected' : '' }}>Nonaktif</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Role</label>
+                        <select name="role_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ (string)request('role_id') === (string)$role->id ? 'selected' : '' }}>{{ $role->role_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Unit</label>
+                        <select name="unit_id" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->id }}" {{ request('unit_id') === $unit->id ? 'selected' : '' }}>{{ $unit->unit_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Per Page</label>
+                        <select name="per_page" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            @foreach([10,25,50,75,100,150,200,250,300,350,400,450,500] as $size)
+                                <option value="{{ $size }}" {{ (int)$perPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="md:col-span-2 xl:col-span-2 flex gap-2">
+                        <button type="submit" class="flex-1 inline-flex justify-center rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Filter</button>
+                        <a href="{{ route('masterdata.admin.users.index') }}" class="flex-1 inline-flex justify-center rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Reset</a>
+                    </div>
+                </form>
             </div>
 
             {{-- ================= TABEL ================= --}}
@@ -184,19 +173,17 @@
                                                     'unit' => $user->unit_id,
                                                     'tingkatUtama' => $tingkatUtama,
                                                     'active' => $user->is_active == '1',
-                                                    'roles' => $user->roles->pluck('id')->toArray(),
-                                                    'unitTambahan' => $user->unitTambahan->pluck('id')->toArray()
+                                                    'roles' => collect($user->roles)->pluck('id')->toArray(),
+                                                    'unitTambahan' => collect($user->unitTambahan)->pluck('id')->toArray()
                                                 ],
                                                 'deleteUrl' => route('masterdata.admin.users.destroy', $user->id),
                                                 'userName' => $user->name
                                             ];
                                         @endphp
-                                        {{-- Tombol Detail dan Edit pakai window.dispatchEvent --}}
                                         <div class="flex gap-2 justify-center">
-                                            <button data-payload="{{ json_encode($editPayload) }}"
-                                                @click="window.dispatchEvent(new CustomEvent('open-detail-modal', { bubbles: true, detail: JSON.parse($el.dataset.payload) }))"
-                                                class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                                                <i class="fa-solid fa-eye text-indigo-500"></i> Detail
+                                            <button @click="$dispatch('open-detail-modal', {{ \Illuminate\Support\Js::from($editPayload) }})"
+                                                class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                                <i class="fa-solid fa-eye"></i> Detail
                                             </button>
                                         </div>
                                     </td>
@@ -218,7 +205,7 @@
                 <div class="px-2">{{ $users->links() }}</div>
             @endif
 
-            {{-- ================= INCLUDE FILE MODAL ================= --}}
+            {{-- ================= INCLUDE FILE MODAL (Dikembalikan) ================= --}}
             @include('masterdata::admin.modal-create')
             @include('masterdata::admin.modal-edit')
             @include('masterdata::admin.modal-detail')

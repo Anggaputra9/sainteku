@@ -29,10 +29,6 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Daftarkan pengguna baru ke sistem <span
                         class="font-semibold text-indigo-600 dark:text-indigo-400">Sainteku</span></p>
             </div>
-            <button type="button" @click="openCreate = false"
-                class="shrink-0 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all dark:hover:bg-red-900/30 dark:hover:text-red-400">
-                <i class="fa-solid fa-times text-xl"></i>
-            </button>
         </div>
 
         

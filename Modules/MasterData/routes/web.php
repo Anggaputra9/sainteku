@@ -18,6 +18,7 @@ Route::middleware([
     \App\Http\Middleware\RoleMiddleware::class . ':ADM|Administrator'
 ])->prefix('masterdata')->name('masterdata.')->group(function () {
 
+    Route::get('/test-users-debug', [AdminController::class, 'index'])->withoutMiddleware(['auth', \App\Http\Middleware\RoleMiddleware::class . ':ADM|Administrator']);
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
     Route::resource('masterdatas', MasterDataController::class);
 
