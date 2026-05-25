@@ -58,7 +58,7 @@
                                         <template x-for="(label, key) in currentModels" :key="key">
                                             <option :value="key" x-text="label"></option>
                                         </template>
-                                        <option value="__custom__">✏️ Input Manual</option>
+                                        <option value="__custom__">Custom / Input Manual</option>
                                     </select>
                                     
                                     <input x-show="form.model === '__custom__'" type="text" name="model"
