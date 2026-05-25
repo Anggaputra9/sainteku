@@ -104,7 +104,7 @@ class AiService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $setting->api_key,
             'Content-Type' => 'application/json',
-        ])->timeout(60)->post($setting->api_endpoint . '/chat/completions', [
+        ])->withoutVerifying()->timeout(60)->post($setting->api_endpoint . '/chat/completions', [
             'model' => $setting->model,
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
@@ -147,7 +147,7 @@ class AiService
             'x-api-key' => $setting->api_key,
             'anthropic-version' => '2023-06-01',
             'Content-Type' => 'application/json',
-        ])->timeout(60)->post($setting->api_endpoint . '/messages', [
+        ])->withoutVerifying()->timeout(60)->post($setting->api_endpoint . '/messages', [
             'model' => $setting->model,
             'messages' => [
                 ['role' => 'user', 'content' => $prompt],
@@ -185,7 +185,7 @@ class AiService
      */
     private function sendToGoogle(string $prompt, AiSetting $setting, array $options): array
     {
-        $response = Http::timeout(60)->post(
+        $response = Http::withoutVerifying()->timeout(60)->post(
             $setting->api_endpoint . '/models/' . $setting->model . ':generateContent?key=' . $setting->api_key,
             [
                 'contents' => [
@@ -237,7 +237,7 @@ class AiService
      */
     private function sendToOllama(string $prompt, AiSetting $setting, array $options): array
     {
-        $response = Http::timeout(120)->post($setting->api_endpoint . '/api/generate', [
+        $response = Http::withoutVerifying()->timeout(120)->post($setting->api_endpoint . '/api/generate', [
             'model' => $setting->model,
             'prompt' => $prompt,
             'stream' => false,

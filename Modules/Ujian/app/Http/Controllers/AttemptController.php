@@ -3,10 +3,12 @@
 namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\AiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Ujian\Jobs\GradeAttemptJob;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 use Modules\Ujian\Models\ExamAttemptEvent;
@@ -452,6 +454,7 @@ class AttemptController extends Controller
 
     /**
      * Finalize attempt: set status, submitted_at, log event.
+     * Dispatch auto-grading job if enabled.
      */
     private function finalize(ExamAttempt $attempt, string $finalStatus): void
     {
@@ -467,6 +470,224 @@ class AttemptController extends Controller
                 'payload'     => ['final_status' => $finalStatus],
                 'occurred_at' => now(),
             ]);
+
+            // Dispatch auto-grading job if enabled
+            $room = $attempt->room;
+            if ($room && $room->auto_grading_enabled) {
+                GradeAttemptJob::dispatch($attempt)
+                    ->onQueue('grading')
+                    ->delay(now()->addSeconds(2)); // Small delay to ensure transaction committed
+            }
         });
+    }
+
+    /* =========================================================
+     | AI Grading Methods
+     |==========================================================*/
+
+    /**
+     * Koreksi satu jawaban dengan AI.
+     */
+    public function gradeWithAi(Request $request, ExamAttemptAnswer $answer)
+    {
+        $this->authorizeGrading($answer->attempt);
+
+        $answer->load('question');
+
+        if (!$answer->question) {
+            return response()->json(['message' => 'Soal tidak ditemukan.'], 404);
+        }
+
+        $aiService = app(AiService::class);
+        $prompt = $this->buildGradingPrompt($answer->question->question_text, $answer->answer_text);
+
+        try {
+            $result = $aiService->sendPrompt($prompt, null, ['max_tokens' => 500]);
+
+            if (!$result['success']) {
+                return response()->json(['message' => 'AI grading gagal: ' . $result['error']], 500);
+            }
+
+            $parsed = $this->parseAiResponse($result['response']);
+
+            $answer->update([
+                'score' => $parsed['score'],
+                'grader_note' => null,
+                'grading_method' => 'ai',
+                'ai_feedback' => $parsed['feedback'],
+                'graded_by' => Auth::id(),
+                'graded_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Jawaban berhasil dikoreksi dengan AI. Score: ' . $parsed['score'],
+                'score' => $parsed['score'],
+                'feedback' => $parsed['feedback'],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'AI grading error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Koreksi semua jawaban dengan AI.
+     */
+    public function gradeAllWithAi(ExamAttempt $attempt)
+    {
+        $this->authorizeGrading($attempt);
+
+        $attempt->load(['room.proposal.examQuestions', 'answers.question']);
+
+        $gradedCount = 0;
+        $errors = [];
+        $aiService = app(AiService::class);
+
+        DB::transaction(function () use ($attempt, $aiService, &$gradedCount, &$errors) {
+            $questions = $attempt->room->proposal->examQuestions;
+            $existingAnswers = $attempt->answers->keyBy('question_id');
+
+            foreach ($questions as $examQuestion) {
+                $questionId = $examQuestion->question_id;
+
+                if ($existingAnswers->has($questionId)) {
+                    $answer = $existingAnswers->get($questionId);
+                } else {
+                    $answer = ExamAttemptAnswer::create([
+                        'attempt_id' => $attempt->id,
+                        'question_id' => $questionId,
+                        'answer_text' => null,
+                        'is_answered' => false,
+                    ]);
+                    $answer->load('question');
+                }
+
+                if (!$answer->is_answered) {
+                    $answer->update([
+                        'score' => 0,
+                        'grading_method' => 'manual',
+                        'grader_note' => 'Tidak dijawab - nilai otomatis 0',
+                        'graded_by' => Auth::id(),
+                        'graded_at' => now(),
+                    ]);
+                    $gradedCount++;
+                    continue;
+                }
+
+                if (!$answer->question) {
+                    $errors[] = "Soal #{$questionId}: Question not found";
+                    continue;
+                }
+
+                $prompt = $this->buildGradingPrompt($answer->question->question_text, $answer->answer_text);
+
+                try {
+                    $result = $aiService->sendPrompt($prompt, null, ['max_tokens' => 500]);
+
+                    if ($result['success']) {
+                        $parsed = $this->parseAiResponse($result['response']);
+
+                        $answer->update([
+                            'score' => $parsed['score'],
+                            'grader_note' => null,
+                            'grading_method' => 'ai',
+                            'ai_feedback' => $parsed['feedback'],
+                            'graded_by' => Auth::id(),
+                            'graded_at' => now(),
+                        ]);
+
+                        $gradedCount++;
+                    } else {
+                        $errors[] = "Soal #{$questionId}: " . $result['error'];
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Soal #{$questionId}: " . $e->getMessage();
+                }
+            }
+        });
+
+        $message = "Berhasil mengoreksi {$gradedCount} jawaban.";
+        if (count($errors) > 0) {
+            $message .= " Gagal: " . count($errors) . " jawaban.";
+        }
+
+        return response()->json([
+            'message' => $message,
+            'graded_count' => $gradedCount,
+            'errors' => $errors,
+        ]);
+    }
+
+    /**
+     * Build grading prompt untuk AI.
+     */
+    private function buildGradingPrompt(string $questionText, ?string $answerText): string
+    {
+        $answer = $answerText ?: '(Tidak dijawab)';
+
+        return <<<PROMPT
+Anda adalah asisten pengoreksi ujian essay. Tugas Anda adalah menilai jawaban mahasiswa berdasarkan soal yang diberikan.
+
+SOAL:
+{$questionText}
+
+JAWABAN MAHASISWA:
+{$answer}
+
+Berikan penilaian dalam format berikut:
+SCORE: [0-100]
+FEEDBACK: [Penjelasan singkat tentang penilaian, maksimal 3 kalimat]
+
+Kriteria penilaian:
+- Relevansi dengan pertanyaan (40%)
+- Kedalaman pemahaman (30%)
+- Struktur dan kejelasan (20%)
+- Kelengkapan jawaban (10%)
+
+Jika jawaban kosong atau tidak relevan sama sekali, berikan score 0.
+PROMPT;
+    }
+
+    /**
+     * Parse response dari AI untuk ekstrak score dan feedback.
+     */
+    private function parseAiResponse(string $response): array
+    {
+        $score = 0;
+        $feedback = '';
+
+        if (preg_match('/SCORE:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
+            $score = min(100, max(0, (float) $matches[1]));
+        }
+
+        if (preg_match('/FEEDBACK:\s*(.+?)(?=\n\n|\z)/is', $response, $matches)) {
+            $feedback = trim($matches[1]);
+        } else {
+            $parts = preg_split('/SCORE:\s*\d+(?:\.\d+)?/i', $response, 2);
+            if (isset($parts[1])) {
+                $feedback = trim($parts[1]);
+            }
+        }
+
+        if (empty($feedback)) {
+            $feedback = trim($response);
+        }
+
+        return [
+            'score' => $score,
+            'feedback' => $feedback,
+        ];
+    }
+
+    /**
+     * Authorize grading access.
+     */
+    private function authorizeGrading(ExamAttempt $attempt): void
+    {
+        $user = Auth::user();
+        $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
+        $isRoomCreator = $attempt->room && $attempt->room->created_by === $user->id;
+
+        abort_unless($isAdmin || $isRoomCreator, 403, 'Anda tidak berhak mengoreksi ujian ini.');
     }
 }

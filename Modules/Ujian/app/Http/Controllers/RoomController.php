@@ -3,8 +3,10 @@
 namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\AiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Modules\MonevAkademik\App\Models\ExamProposal;
 use Modules\Ujian\Models\ExamAttempt;
@@ -446,23 +448,45 @@ class RoomController extends Controller
 
         $data = $request->validate([
             'scores' => 'required|array',
-            'scores.*.question_id' => 'required|integer|exists:mst_questions,id',
+            'scores.*.answer_id' => 'nullable|integer',
             'scores.*.score' => 'required|numeric|min:0|max:100',
             'scores.*.grader_note' => 'nullable|string|max:500',
         ]);
 
         DB::transaction(function () use ($attempt, $data) {
             // Update score untuk setiap jawaban
-            foreach ($data['scores'] as $scoreData) {
-                ExamAttemptAnswer::where('attempt_id', $attempt->id)
-                    ->where('question_id', $scoreData['question_id'])
-                    ->update([
+            foreach ($data['scores'] as $questionId => $scoreData) {
+                $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
+                    ->where('question_id', $questionId)
+                    ->first();
+
+                if ($answer) {
+                    $answer->update([
                         'score' => $scoreData['score'],
                         'grader_note' => $scoreData['grader_note'] ?? null,
+                        'grading_method' => 'manual',
+                        'ai_feedback' => null,
+                        'graded_by' => Auth::id(),
+                        'graded_at' => now(),
                     ]);
+                } else {
+                    // Buat jawaban baru jika belum ada
+                    ExamAttemptAnswer::create([
+                        'attempt_id' => $attempt->id,
+                        'question_id' => $questionId,
+                        'answer_text' => null,
+                        'is_answered' => false,
+                        'score' => $scoreData['score'],
+                        'grader_note' => $scoreData['grader_note'] ?? null,
+                        'grading_method' => 'manual',
+                        'graded_by' => Auth::id(),
+                        'graded_at' => now(),
+                    ]);
+                }
             }
 
             // Hitung total score berdasarkan bobot soal
+            $room = $attempt->room;
             $room->load('proposal.examQuestions');
             $totalScore = 0;
             $totalWeight = 0;
@@ -545,6 +569,261 @@ class RoomController extends Controller
     }
 
     /* =========================================================
+     | Batch AI Grading
+     |==========================================================*/
+
+    /**
+     * Mulai batch grading untuk semua attempt yang sudah selesai.
+     * Proses berjalan sinkron dengan progress disimpan di cache.
+     */
+    public function gradeAllAttempts(Request $request, ExamRoom $room)
+    {
+        $this->guardLecturer();
+        $this->ensureCanManage($room);
+
+        $forceRegrade = $request->boolean('force_regrade', false);
+
+        // Ambil semua attempt yang sudah selesai
+        $attempts = ExamAttempt::with(['user:id,name,identity_id', 'answers'])
+            ->where('room_id', $room->id)
+            ->whereIn('status', ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'])
+            ->when(!$forceRegrade, fn($q) => $q->whereNull('score'))
+            ->orderBy('submitted_at')
+            ->get();
+
+        if ($attempts->isEmpty()) {
+            return response()->json([
+                'message' => 'Tidak ada peserta yang perlu dikoreksi.',
+            ], 422);
+        }
+
+        $room->load('proposal.examQuestions.question');
+        $totalAttempts = $attempts->count();
+        $totalQuestions = $room->proposal->examQuestions->count();
+        $cacheKey = "room_{$room->uuid}_grading_progress";
+        $cancelKey = "room_{$room->uuid}_grading_cancel";
+
+        // Reset cancel flag
+        Cache::forget($cancelKey);
+
+        // Inisialisasi progress
+        Cache::put($cacheKey, [
+            'status' => 'processing',
+            'current_attempt' => 0,
+            'total_attempts' => $totalAttempts,
+            'current_student' => '',
+            'current_question' => 0,
+            'total_questions' => $totalQuestions,
+            'failed' => [],
+            'message' => 'Memulai koreksi...',
+        ], now()->addHours(2));
+
+        $aiService = app(AiService::class);
+        $failedAttempts = [];
+        $processedCount = 0;
+
+        foreach ($attempts as $index => $attempt) {
+            // Cek cancel flag
+            if (Cache::get($cancelKey)) {
+                Cache::put($cacheKey, [
+                    'status' => 'cancelled',
+                    'current_attempt' => $processedCount,
+                    'total_attempts' => $totalAttempts,
+                    'current_student' => '',
+                    'current_question' => 0,
+                    'total_questions' => $totalQuestions,
+                    'failed' => $failedAttempts,
+                    'message' => 'Proses dibatalkan oleh pengguna.',
+                ], now()->addMinutes(10));
+
+                return response()->json([
+                    'message' => 'Proses koreksi dibatalkan.',
+                    'processed' => $processedCount,
+                    'failed' => count($failedAttempts),
+                ]);
+            }
+
+            $studentName = $attempt->user?->name ?? 'Unknown';
+            $processedCount++;
+
+            try {
+                DB::beginTransaction();
+
+                foreach ($room->proposal->examQuestions as $qIndex => $examQuestion) {
+                    // Update progress
+                    Cache::put($cacheKey, [
+                        'status' => 'processing',
+                        'current_attempt' => $processedCount,
+                        'total_attempts' => $totalAttempts,
+                        'current_student' => $studentName,
+                        'current_question' => $qIndex + 1,
+                        'total_questions' => $totalQuestions,
+                        'failed' => $failedAttempts,
+                        'message' => "Mengoreksi {$studentName} - Soal " . ($qIndex + 1) . " dari {$totalQuestions} (Peserta {$processedCount} dari {$totalAttempts})",
+                    ], now()->addHours(2));
+
+                    $answer = $attempt->answers->firstWhere('question_id', $examQuestion->question_id);
+
+                    // Jika tidak ada jawaban atau kosong, beri nilai 0
+                    if (!$answer || trim($answer->answer_text ?? '') === '') {
+                        if (!$answer) {
+                            $answer = ExamAttemptAnswer::create([
+                                'attempt_id' => $attempt->id,
+                                'question_id' => $examQuestion->question_id,
+                                'answer_text' => null,
+                                'is_answered' => false,
+                            ]);
+                        }
+
+                        $answer->update([
+                            'score' => 0,
+                            'grading_method' => 'ai',
+                            'ai_feedback' => 'Tidak dijawab - nilai otomatis 0',
+                            'graded_by' => Auth::id(),
+                            'graded_at' => now(),
+                        ]);
+                        continue;
+                    }
+
+                    // Koreksi dengan AI
+                    $prompt = $this->buildGradingPrompt($examQuestion->question, $answer->answer_text);
+                    $aiResponse = $aiService->sendMessage($prompt);
+                    [$score, $feedback] = $this->parseAiResponse($aiResponse);
+
+                    $answer->update([
+                        'score' => $score,
+                        'grading_method' => 'ai',
+                        'ai_feedback' => $feedback,
+                        'graded_by' => Auth::id(),
+                        'graded_at' => now(),
+                    ]);
+                }
+
+                // Hitung total score
+                $totalScore = 0;
+                $totalWeight = 0;
+
+                foreach ($room->proposal->examQuestions as $examQuestion) {
+                    $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
+                        ->where('question_id', $examQuestion->question_id)
+                        ->first();
+
+                    if ($answer && $answer->score !== null) {
+                        $weight = $examQuestion->weight ?? 0;
+                        $totalScore += ($answer->score * $weight / 100);
+                        $totalWeight += $weight;
+                    }
+                }
+
+                $finalScore = $totalWeight > 0 ? $totalScore : 0;
+                $attempt->update([
+                    'score' => $finalScore,
+                    'grader_note' => 'Dikoreksi otomatis dengan AI pada ' . now()->translatedFormat('d M Y H:i'),
+                ]);
+
+                DB::commit();
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $failedAttempts[] = [
+                    'uuid' => $attempt->uuid,
+                    'student' => $studentName,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        // Selesai
+        Cache::put($cacheKey, [
+            'status' => 'completed',
+            'current_attempt' => $totalAttempts,
+            'total_attempts' => $totalAttempts,
+            'current_student' => '',
+            'current_question' => 0,
+            'total_questions' => $totalQuestions,
+            'failed' => $failedAttempts,
+            'message' => 'Koreksi selesai!',
+        ], now()->addMinutes(10));
+
+        return response()->json([
+            'message' => 'Koreksi selesai.',
+            'processed' => $processedCount,
+            'failed' => count($failedAttempts),
+            'failed_details' => $failedAttempts,
+        ]);
+    }
+
+    /**
+     * Get progress koreksi batch (untuk polling).
+     */
+    public function gradingProgress(ExamRoom $room)
+    {
+        $this->guardLecturer();
+        $this->ensureCanManage($room);
+
+        $cacheKey = "room_{$room->uuid}_grading_progress";
+        $progress = Cache::get($cacheKey);
+
+        if (!$progress) {
+            return response()->json([
+                'status' => 'idle',
+                'message' => 'Tidak ada proses koreksi yang sedang berjalan.',
+            ]);
+        }
+
+        return response()->json($progress);
+    }
+
+    /**
+     * Cancel proses koreksi batch.
+     */
+    public function cancelGrading(ExamRoom $room)
+    {
+        $this->guardLecturer();
+        $this->ensureCanManage($room);
+
+        $cancelKey = "room_{$room->uuid}_grading_cancel";
+        Cache::put($cancelKey, true, now()->addMinutes(5));
+
+        return response()->json([
+            'message' => 'Permintaan pembatalan dikirim. Proses akan berhenti setelah soal saat ini selesai.',
+        ]);
+    }
+
+    private function buildGradingPrompt($question, $answer): string
+    {
+        return "Kamu adalah asisten dosen yang bertugas mengoreksi jawaban ujian mahasiswa.\n\n"
+            . "SOAL:\n{$question->question_text}\n\n"
+            . "JAWABAN MAHASISWA:\n{$answer}\n\n"
+            . "Tugasmu:\n"
+            . "1. Baca dan pahami soal serta jawaban mahasiswa\n"
+            . "2. Berikan nilai 0-100 berdasarkan:\n"
+            . "   - Ketepatan jawaban (50%)\n"
+            . "   - Kelengkapan penjelasan (30%)\n"
+            . "   - Struktur dan kejelasan (20%)\n"
+            . "3. Berikan feedback singkat (1-2 kalimat) yang konstruktif\n\n"
+            . "Format respons:\n"
+            . "NILAI: [angka 0-100]\n"
+            . "FEEDBACK: [feedback singkat]";
+    }
+
+    private function parseAiResponse(string $response): array
+    {
+        $score = 0;
+        $feedback = 'Tidak ada feedback dari AI.';
+
+        if (preg_match('/NILAI:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
+            $score = min(100, max(0, (float) $matches[1]));
+        }
+
+        if (preg_match('/FEEDBACK:\s*(.+?)(?=\n\n|\n[A-Z]+:|$)/s', $response, $matches)) {
+            $feedback = trim($matches[1]);
+        }
+
+        return [$score, $feedback];
+    }
+
+    /* =========================================================
      | Helpers
      |==========================================================*/
     private function ensureCanManage(ExamRoom $room): void
@@ -573,6 +852,7 @@ class RoomController extends Controller
             'tab_switch_limit'    => 'nullable|integer|min:0|max:50',
             'shuffle_questions'   => 'nullable|boolean',
             'show_remaining_time' => 'nullable|boolean',
+            'auto_grading_enabled' => 'nullable|boolean',
         ];
 
         $data = $request->validate($rules);
@@ -583,6 +863,7 @@ class RoomController extends Controller
 
         $data['shuffle_questions']   = $request->boolean('shuffle_questions');
         $data['show_remaining_time'] = $request->boolean('show_remaining_time', true);
+        $data['auto_grading_enabled'] = $request->boolean('auto_grading_enabled', false);
         $data['tab_switch_limit']    = $data['tab_switch_policy'] === 'limited'
             ? ($data['tab_switch_limit'] ?? 0)
             : 0;

@@ -259,6 +259,23 @@
                                               x-text="form.show_remaining_time ? 'Aktif' : 'Nonaktif'"></span>
                                     </label>
                                 </li>
+
+                                {{-- Auto Grading dengan AI --}}
+                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_200px] gap-3 md:gap-6 items-center">
+                                    <div class="min-w-0">
+                                        <div class="font-semibold text-gray-700 dark:text-gray-300">Koreksi Otomatis dengan AI</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">AI akan mengoreksi jawaban secara otomatis setelah mahasiswa submit</div>
+                                    </div>
+                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
+                                        <span class="relative inline-flex shrink-0">
+                                            <input type="checkbox" x-model="form.auto_grading_enabled" class="sr-only peer">
+                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
+                                        </span>
+                                        <span class="text-sm font-semibold text-right tabular-nums"
+                                              :class="form.auto_grading_enabled ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
+                                              x-text="form.auto_grading_enabled ? 'Aktif' : 'Nonaktif'"></span>
+                                    </label>
+                                </li>
                             </ul>
                         </div>
 
@@ -424,6 +441,22 @@
                             <i class="fa-solid fa-trash"></i> Hapus
                         </button>
                         <div class="flex flex-wrap items-center justify-end gap-2">
+                            <template x-if="!detail.room?.auto_grading_enabled && hasUngradedAttempts()">
+                                <button type="button" @click="startBatchGrading(false)"
+                                    class="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-bold text-purple-700 border border-purple-200 hover:bg-purple-100">
+                                    <i class="fa-solid fa-robot"></i> Koreksi Semua Peserta dengan AI
+                                </button>
+                            </template>
+                            <template x-if="!detail.room?.auto_grading_enabled && hasAllGraded()">
+                                <button type="button" @click="startBatchGrading(true)"
+                                    class="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-bold text-purple-700 border border-purple-200 hover:bg-purple-100">
+                                    <i class="fa-solid fa-rotate"></i> Koreksi Ulang Semua dengan AI
+                                </button>
+                            </template>
+                            <a :href="`{{ url('ujian/rooms') }}/${detail.room?.uuid}/export-pdf`"
+                                class="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-bold text-green-700 border border-green-200 hover:bg-green-100">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
                             <template x-if="detail.room?.status === 'DRAFT'">
                                 <button type="button" @click="changeStatus('publish')"
                                     class="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
@@ -527,6 +560,64 @@
                 </div>
             </div>
         </div>
+
+        {{-- ================= MODAL PROGRESS BATCH GRADING ================= --}}
+        <div x-show="batchGrading.open"
+            class="fixed inset-0 z-[999993] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/50"
+            x-transition x-cloak>
+            <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
+                <div class="border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                    <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-purple-500"></i> Koreksi Otomatis dengan AI
+                    </h3>
+                </div>
+                <div class="p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-300">Progress</span>
+                            <span class="font-bold text-gray-900 dark:text-white" x-text="batchGrading.progressText"></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden">
+                            <div class="bg-purple-600 h-3 rounded-full transition-all duration-300"
+                                :style="`width: ${batchGrading.progressPercent}%`"></div>
+                        </div>
+                    </div>
+                    <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 dark:bg-blue-900/20 dark:border-blue-900/40">
+                        <p class="text-sm text-blue-800 dark:text-blue-200" x-text="batchGrading.message"></p>
+                    </div>
+                    <template x-if="batchGrading.status === 'processing'">
+                        <div class="flex justify-end">
+                            <button type="button" @click="cancelBatchGrading()"
+                                class="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700 border border-red-200 hover:bg-red-100">
+                                <i class="fa-solid fa-stop"></i> Batalkan
+                            </button>
+                        </div>
+                    </template>
+                    <template x-if="batchGrading.status === 'completed' || batchGrading.status === 'cancelled'">
+                        <div class="space-y-3">
+                            <template x-if="batchGrading.failed.length > 0">
+                                <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-900/40">
+                                    <p class="text-xs font-bold text-amber-800 dark:text-amber-200 mb-2">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> Gagal dikoreksi: <span x-text="batchGrading.failed.length"></span> peserta
+                                    </p>
+                                    <ul class="text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                                        <template x-for="fail in batchGrading.failed" :key="fail.uuid">
+                                            <li x-text="`• ${fail.student}: ${fail.error}`"></li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                            <div class="flex justify-end">
+                                <button type="button" @click="closeBatchGrading()"
+                                    class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-bold text-white hover:bg-indigo-700">
+                                    Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- QR Code library: pakai CDN qrcodejs (no dependency) --}}
@@ -567,6 +658,7 @@
                     tab_switch_limit: 0,
                     shuffle_questions: false,
                     show_remaining_time: true,
+                    auto_grading_enabled: false,
                 },
                 detail: { room: null, attempts: [] },
                 editingUuid: null,
@@ -578,6 +670,15 @@
                     action: '',
                     data: null,
                     submitting: false,
+                },
+                batchGrading: {
+                    open: false,
+                    status: 'idle', // idle, processing, completed, cancelled
+                    message: '',
+                    progressPercent: 0,
+                    progressText: '0/0',
+                    failed: [],
+                    pollingInterval: null,
                 },
 
                 csrf: document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
@@ -600,6 +701,7 @@
                         tab_switch_limit: 0,
                         shuffle_questions: false,
                         show_remaining_time: true,
+                        auto_grading_enabled: false,
                     };
                 },
 
@@ -938,6 +1040,153 @@
                     } finally {
                         this.reopenSubmitting = false;
                     }
+                },
+
+                /* ============ BATCH GRADING ============ */
+                hasUngradedAttempts() {
+                    if (!this.detail.attempts) return false;
+                    return this.detail.attempts.some(a =>
+                        ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status) &&
+                        (a.score === null || a.score === undefined)
+                    );
+                },
+
+                hasAllGraded() {
+                    if (!this.detail.attempts) return false;
+                    const finished = this.detail.attempts.filter(a =>
+                        ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status)
+                    );
+                    if (finished.length === 0) return false;
+                    return finished.every(a => a.score !== null && a.score !== undefined);
+                },
+
+                async startBatchGrading(forceRegrade = false) {
+                    const message = forceRegrade
+                        ? 'Koreksi ulang semua peserta dengan AI?\n\nNilai yang sudah ada akan ditimpa.'
+                        : 'Koreksi semua peserta yang belum dinilai dengan AI?\n\nProses ini mungkin memakan waktu beberapa menit.';
+
+                    if (!confirm(message)) return;
+
+                    this.batchGrading = {
+                        open: true,
+                        status: 'processing',
+                        message: 'Memulai koreksi...',
+                        progressPercent: 0,
+                        progressText: '0/0',
+                        failed: [],
+                        pollingInterval: null,
+                    };
+
+                    try {
+                        // Start batch grading
+                        const startRes = fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/grade-all-attempts`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrf,
+                            },
+                            body: JSON.stringify({ force_regrade: forceRegrade }),
+                        });
+
+                        // Start polling immediately
+                        this.startPollingProgress();
+
+                        // Wait for completion
+                        const res = await startRes;
+                        const data = await res.json().catch(() => ({}));
+
+                        if (!res.ok) {
+                            throw new Error(data?.message || 'Gagal memulai koreksi.');
+                        }
+
+                        // Final status will be updated by polling
+                    } catch (e) {
+                        console.error('Error starting batch grading:', e);
+                        this.batchGrading.status = 'completed';
+                        this.batchGrading.message = 'Error: ' + e.message;
+                        this.stopPollingProgress();
+                    }
+                },
+
+                startPollingProgress() {
+                    this.batchGrading.pollingInterval = setInterval(() => {
+                        this.pollProgress();
+                    }, 2000);
+                },
+
+                stopPollingProgress() {
+                    if (this.batchGrading.pollingInterval) {
+                        clearInterval(this.batchGrading.pollingInterval);
+                        this.batchGrading.pollingInterval = null;
+                    }
+                },
+
+                async pollProgress() {
+                    try {
+                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/grading-progress`, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrf,
+                            },
+                        });
+
+                        const data = await res.json().catch(() => ({}));
+
+                        if (!res.ok) return;
+
+                        if (data.status === 'idle') {
+                            // No active grading
+                            return;
+                        }
+
+                        this.batchGrading.status = data.status;
+                        this.batchGrading.message = data.message || '';
+                        this.batchGrading.failed = data.failed || [];
+
+                        if (data.total_attempts > 0) {
+                            this.batchGrading.progressPercent = Math.round((data.current_attempt / data.total_attempts) * 100);
+                            this.batchGrading.progressText = `${data.current_attempt}/${data.total_attempts}`;
+                        }
+
+                        if (data.status === 'completed' || data.status === 'cancelled') {
+                            this.stopPollingProgress();
+                            this.reloadDetail();
+                        }
+                    } catch (e) {
+                        console.error('Error polling progress:', e);
+                    }
+                },
+
+                async cancelBatchGrading() {
+                    if (!confirm('Batalkan proses koreksi?\n\nProses akan berhenti setelah soal saat ini selesai.')) return;
+
+                    try {
+                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/cancel-grading`, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': this.csrf,
+                            },
+                        });
+
+                        const data = await res.json().catch(() => ({}));
+
+                        if (!res.ok) {
+                            throw new Error(data?.message || 'Gagal membatalkan.');
+                        }
+
+                        this.batchGrading.message = 'Membatalkan proses...';
+                    } catch (e) {
+                        console.error('Error cancelling:', e);
+                        alert('Gagal membatalkan: ' + e.message);
+                    }
+                },
+
+                closeBatchGrading() {
+                    this.stopPollingProgress();
+                    this.batchGrading.open = false;
+                    this.reloadDetail();
                 },
             }));
         });

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Ujian\Http\Controllers\AttemptController;
+use Modules\Ujian\Http\Controllers\ExportController;
 use Modules\Ujian\Http\Controllers\RoomController;
 use Modules\Ujian\Http\Controllers\UjianController;
 
@@ -41,6 +42,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{room:uuid}/attempts/{attempt:uuid}/reset-violation', [RoomController::class, 'resetViolation'])->name('attempts.reset-violation');
         Route::post('{room:uuid}/attempts/{attempt:uuid}/grade', [RoomController::class, 'gradeAttempt'])->name('attempts.grade');
 
+        // Batch AI Grading
+        Route::post('{room:uuid}/grade-all-attempts', [RoomController::class, 'gradeAllAttempts'])->name('grade-all-attempts');
+        Route::get('{room:uuid}/grading-progress',    [RoomController::class, 'gradingProgress'])->name('grading-progress');
+        Route::post('{room:uuid}/cancel-grading',     [RoomController::class, 'cancelGrading'])->name('cancel-grading');
+
+        // Export PDF
+        Route::get('{room:uuid}/export-pdf',  [ExportController::class, 'exportRoomResults'])->name('export-pdf');
+
         // Polling AJAX untuk live monitoring di modal Detail
         Route::get('{room:uuid}/live-monitor', [RoomController::class, 'liveMonitor'])->name('live-monitor');
     });
@@ -67,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
         // mahasiswa tertentu, atau mahasiswa yang sudah selesai untuk
         // melihat ringkasan hasilnya — semua via uuid (tidak bisa ditebak).
         Route::get('result/{attempt:uuid}',  [AttemptController::class, 'result'])->name('result');
+
+        // AI Grading routes
+        Route::post('answer/{answer}/ai',           [AttemptController::class, 'gradeWithAi'])->name('grade-ai');
+        Route::post('{attempt:uuid}/grade-all-ai',  [AttemptController::class, 'gradeAllWithAi'])->name('grade-all-ai');
     });
 
 });

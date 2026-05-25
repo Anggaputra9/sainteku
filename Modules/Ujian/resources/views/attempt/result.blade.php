@@ -86,14 +86,26 @@
                     <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                         <i class="fa-solid fa-list-check text-indigo-500"></i> Jawaban
                     </h4>
-                    @if($isLecturer && $attempt->isFinished())
-                        <button type="button" @click="toggleGradingMode()"
-                            class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold transition"
-                            :class="gradingMode ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-indigo-600 text-white hover:bg-indigo-700'">
-                            <i class="fa-solid" :class="gradingMode ? 'fa-eye' : 'fa-pen'"></i>
-                            <span x-text="gradingMode ? 'Mode Lihat' : 'Mode Koreksi'"></span>
-                        </button>
-                    @endif
+                    <div class="flex gap-2">
+                        @if($isLecturer && $attempt->isFinished())
+                            <button type="button" @click="gradeAllWithAi()" :disabled="submitting"
+                                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
+                                <i class="fa-solid fa-robot"></i> Koreksi Semua dengan AI
+                            </button>
+                            <button type="button" @click="toggleGradingMode()"
+                                class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold transition"
+                                :class="gradingMode ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'">
+                                <i class="fa-solid" :class="gradingMode ? 'fa-eye' : 'fa-pen'"></i>
+                                <span x-text="gradingMode ? 'Mode Lihat' : 'Mode Koreksi'"></span>
+                            </button>
+                        @endif
+                        @if($attempt->isFinished() && $attempt->answers->whereNotNull('score')->count() === $totalQuestions)
+                            <button type="button" @click="printResult()"
+                                class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700">
+                                <i class="fa-solid fa-print"></i> Print Hasil
+                            </button>
+                        @endif
+                    </div>
                 </div>
                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
                     @foreach($room->proposal->examQuestions->sortBy('order_no') as $eq)
@@ -132,6 +144,13 @@
                                             class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white"
                                             placeholder="0">
                                     </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Koreksi AI</label>
+                                        <button type="button" @click="gradeWithAi({{ $eq->question_id }}, {{ $ans ? $ans->id : 'null' }})" :disabled="submitting"
+                                            class="w-full rounded-lg bg-indigo-600 px-3 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
+                                            <i class="fa-solid fa-robot"></i> Koreksi dengan AI
+                                        </button>
+                                    </div>
                                     <div class="md:col-span-2">
                                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Catatan Koreksi (Opsional)</label>
                                         <textarea rows="2"
@@ -141,10 +160,18 @@
                                     </div>
                                 </div>
 
-                                @if($ans && $ans->grader_note)
+                                @if($ans && ($ans->grader_note || $ans->ai_feedback))
                                     <div x-show="!gradingMode" class="mt-3 rounded-lg bg-blue-50 border border-blue-200 p-3 dark:bg-blue-900/20 dark:border-blue-900/40">
-                                        <div class="text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300 mb-1">Catatan Dosen</div>
-                                        <div class="text-xs text-blue-800 dark:text-blue-200">{{ $ans->grader_note }}</div>
+                                        <div class="text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300 mb-1">
+                                            @if($ans->grading_method === 'ai')
+                                                <i class="fa-solid fa-robot"></i> Feedback AI
+                                            @else
+                                                Catatan Dosen
+                                            @endif
+                                        </div>
+                                        <div class="text-xs text-blue-800 dark:text-blue-200">
+                                            {{ $ans->grading_method === 'ai' ? $ans->ai_feedback : $ans->grader_note }}
+                                        </div>
                                     </div>
                                 @endif
                             @endif
@@ -195,6 +222,7 @@ function gradingApp() {
                     $ans = $attempt->answers->firstWhere('question_id', $eq->question_id);
                 @endphp
                 this.scores[{{ $eq->question_id }}] = {
+                    answer_id: {{ $ans ? $ans->id : 'null' }},
                     score: {{ $ans && $ans->score !== null ? $ans->score : 'null' }},
                     grader_note: '{{ $ans && $ans->grader_note ? addslashes($ans->grader_note) : '' }}'
                 };
@@ -203,6 +231,77 @@ function gradingApp() {
 
         toggleGradingMode() {
             this.gradingMode = !this.gradingMode;
+        },
+
+        async gradeWithAi(questionId, answerId) {
+            if (this.submitting) return;
+
+            if (!answerId) {
+                alert('Jawaban tidak ditemukan.');
+                return;
+            }
+
+            if (!confirm('Koreksi jawaban ini dengan AI?')) return;
+
+            this.submitting = true;
+
+            try {
+                const response = await fetch(`{{ url('/ujian/attempt/answer') }}/${answerId}/ai`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || 'Berhasil dikoreksi dengan AI.');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Gagal mengoreksi dengan AI.');
+                }
+            } catch (error) {
+                console.error('Error grading with AI:', error);
+                alert('Terjadi kesalahan saat mengoreksi dengan AI.');
+            } finally {
+                this.submitting = false;
+            }
+        },
+
+        async gradeAllWithAi() {
+            if (this.submitting) return;
+
+            if (!confirm('Koreksi semua jawaban dengan AI? Proses ini akan menimpa nilai yang sudah ada.')) return;
+
+            this.submitting = true;
+
+            try {
+                const response = await fetch('{{ route('ujian.attempt.grade-all-ai', $attempt->uuid) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(data.message || 'Berhasil mengoreksi semua jawaban.');
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Gagal mengoreksi dengan AI.');
+                }
+            } catch (error) {
+                console.error('Error grading all with AI:', error);
+                alert('Terjadi kesalahan saat mengoreksi dengan AI.');
+            } finally {
+                this.submitting = false;
+            }
         },
 
         async submitGrading() {
@@ -249,8 +348,32 @@ function gradingApp() {
             } finally {
                 this.submitting = false;
             }
+        },
+
+        printResult() {
+            window.print();
         }
     };
 }
 </script>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .max-w-4xl, .max-w-4xl * {
+        visibility: visible;
+    }
+    .max-w-4xl {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    button, .no-print {
+        display: none !important;
+    }
+}
+</style>
 @endpush

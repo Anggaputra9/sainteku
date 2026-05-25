@@ -24,6 +24,7 @@ class ExamRoom extends Model
         'tab_switch_limit',
         'shuffle_questions',
         'show_remaining_time',
+        'auto_grading_enabled',
         'status',
         'is_active',
     ];
@@ -33,6 +34,7 @@ class ExamRoom extends Model
         'end_at'              => 'datetime',
         'shuffle_questions'   => 'boolean',
         'show_remaining_time' => 'boolean',
+        'auto_grading_enabled' => 'boolean',
         'is_active'           => 'boolean',
         'duration_minutes'    => 'integer',
         'tab_switch_limit'    => 'integer',
