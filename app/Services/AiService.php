@@ -62,6 +62,7 @@ class AiService
                 'google' => $this->sendToGoogle($prompt, $setting, $options),
                 'groq' => $this->sendToGroq($prompt, $setting, $options),
                 'ollama' => $this->sendToOllama($prompt, $setting, $options),
+                'custom' => $this->sendToCustom($prompt, $setting, $options),
                 default => [
                     'success' => false,
                     'response' => '',
@@ -266,5 +267,15 @@ class AiService
             'tokens' => 0, // Ollama doesn't return token count
             'cost' => 0, // Local, no cost
         ];
+    }
+
+    /**
+     * Send prompt to Custom API (OpenAI-compatible).
+     * Most custom providers use OpenAI-compatible format.
+     */
+    private function sendToCustom(string $prompt, AiSetting $setting, array $options): array
+    {
+        // Try OpenAI-compatible format first (most common)
+        return $this->sendToOpenAI($prompt, $setting, $options);
     }
 }
