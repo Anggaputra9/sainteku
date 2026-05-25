@@ -110,14 +110,26 @@ class AiSettingController extends Controller
         $this->guardAdmin();
         $request->validate(['prompt' => 'nullable|string|max:500']);
 
-        $prompt = $request->input('prompt', 'Hello, please respond with "AI connection successful"');
+        $prompt = $request->input('prompt', 'Respond with: Connection successful');
 
         try {
-            // TODO: Implementasi test connection ke AI provider
-            // Untuk sekarang return success dummy
-            return back()->with('success', 'Test koneksi AI berhasil. Provider: ' . $aiSetting->provider);
+            $aiService = app(\App\Services\AiService::class);
+            $result = $aiService->sendPrompt($prompt, $aiSetting, ['max_tokens' => 50]);
+
+            if ($result['success']) {
+                $message = "Test koneksi berhasil! Provider: {$aiSetting->provider}, Model: {$aiSetting->model}";
+                if ($result['tokens'] > 0) {
+                    $message .= " | Tokens: {$result['tokens']}";
+                }
+                if ($result['cost'] > 0) {
+                    $message .= " | Cost: $" . number_format($result['cost'], 4);
+                }
+                return back()->with('success', $message);
+            } else {
+                return back()->with('error', 'Test koneksi gagal: ' . $result['error']);
+            }
         } catch (\Exception $e) {
-            return back()->with('error', 'Test koneksi AI gagal: ' . $e->getMessage());
+            return back()->with('error', 'Test koneksi gagal: ' . $e->getMessage());
         }
     }
 

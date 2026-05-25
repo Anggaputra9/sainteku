@@ -110,7 +110,14 @@
 
         {{-- Footer Actions --}}
         <div class="shrink-0 flex items-center justify-between gap-3 border-t border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
+                <form :action="`{{ route('settings.ai.index') }}/${detail.id}/test`" method="POST" class="inline">
+                    @csrf
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-sm font-bold text-white hover:bg-green-600">
+                        <i class="fa-solid fa-plug"></i> Test Connection
+                    </button>
+                </form>
                 <form :action="`{{ route('settings.ai.index') }}/${detail.id}/set-default`" method="POST" class="inline">
                     @csrf
                     <button type="submit" x-show="!detail.is_default"
@@ -126,7 +133,7 @@
                     </button>
                 </form>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-wrap">
                 <button type="button" @click="openEditModal(detail)"
                     class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700">
                     <i class="fa-solid fa-pen"></i> Edit

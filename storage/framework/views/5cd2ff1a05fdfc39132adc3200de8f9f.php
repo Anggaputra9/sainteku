@@ -67,10 +67,19 @@
                         </td>
 
                         <td class="px-6 py-4 text-center">
-                            <button type="button" @click='openDetailModal(<?php echo json_encode($row, 15, 512) ?>)'
-                                class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                                <i class="fa-solid fa-eye text-blue-500"></i> Detail
-                            </button>
+                            <div class="flex items-center justify-center gap-2">
+                                <button type="button" @click='openDetailModal(<?php echo json_encode($row, 15, 512) ?>)'
+                                    class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
+                                    <i class="fa-solid fa-eye text-blue-500"></i> Detail
+                                </button>
+                                <form action="<?php echo e(route('settings.ai.test', $row->id)); ?>" method="POST" class="inline">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit"
+                                        class="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 border border-green-200 hover:bg-green-100 transition shadow-sm dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                                        <i class="fa-solid fa-plug"></i> Test
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
