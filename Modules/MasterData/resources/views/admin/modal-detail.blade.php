@@ -431,7 +431,7 @@
                     </button>
                     <button type="submit" x-show="editMode" x-transition
                         class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 shadow-md transition">
-                        <i class="fa-solid fa-save"></i> Simpan Perubahan
+                        <i class="fa-solid fa-save"></i> Simpan
                     </button>
                 </div>
             </div>

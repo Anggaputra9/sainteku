@@ -207,7 +207,6 @@
 
             {{-- ================= INCLUDE FILE MODAL (Dikembalikan) ================= --}}
             @include('masterdata::admin.modal-create')
-            @include('masterdata::admin.modal-edit')
             @include('masterdata::admin.modal-detail')
             @include('masterdata::admin.delete-modal')
 
