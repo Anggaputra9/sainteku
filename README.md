@@ -5,13 +5,17 @@ Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. 
 ## Stack
 
 - PHP 8.2+
-- Laravel 12
-- `widart/laravel-modules`
+- Laravel 12.51.0
+- `widart/laravel-modules` 12.0
 - MySQL/MariaDB
 - Vite 7
 - Tailwind CSS 4
-- Alpine.js 3
-- Font Awesome 7
+- Alpine.js 3.15.8
+- Font Awesome 7.2.0
+- Axios 1.13.6
+- Prism.js 1.30.0
+- Signature Pad 5.1.3
+- DomPDF 3.1 (PDF generation)
 
 ## Fitur Utama
 
@@ -62,6 +66,32 @@ Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. 
 - Status pending, disetujui, ditolak, dikembalikan.
 - Pemulihan stok saat pengembalian.
 
+### Manajemen Event
+- Pengelolaan event kampus.
+- Pendaftaran dan tracking peserta event.
+- Jadwal dan lokasi event.
+
+### Pengaduan Mahasiswa
+- Sistem pengaduan/complaint mahasiswa.
+- Tracking status pengaduan.
+- Notifikasi dan follow-up pengaduan.
+
+### Penjaminan Mutu Akademik
+- Monitoring dan evaluasi mutu akademik.
+- Audit internal akademik.
+- Laporan penjaminan mutu.
+
+### Pelaporan
+- Dashboard laporan terpadu.
+- Export laporan ke berbagai format.
+- Statistik dan analitik data.
+
+### Ujian
+- Manajemen ujian online.
+- Bank soal dan pengaturan ujian.
+- Penilaian dan hasil ujian.
+- Integrasi dengan sistem akademik.
+
 ### News Scraper
 - Model `ScrapedNews`.
 - Command `ScrapeNewsCommand`.
@@ -109,6 +139,12 @@ npm run dev
 php artisan serve
 ```
 
+Atau gunakan composer script untuk development (dengan queue, logs, dan vite):
+
+```bash
+composer dev
+```
+
 Akses: http://127.0.0.1:8000
 
 ## Build Production
@@ -131,16 +167,21 @@ chmod -R 775 storage bootstrap/cache
 ## Struktur Penting
 
 ```text
-app/                          Core app, auth, dashboard, news, notification
-app/Console/Commands/          Command scraper
-app/Jobs/                      Queue job scraper
-Modules/MasterData/            User, role, unit, course, infrastructure
-Modules/MonevAkademik/         Bank soal, tashih, proposal, review
-Modules/DocumentRepository/    Repositori dokumen dan approval
-Modules/ManajemenAchievement/  Prestasi dan portofolio
-Modules/ManajementInfrastruktur/ Peminjaman fasilitas/aset
-resources/views/               Layout, landing, dashboard
-routes/web.php                 Route utama
+app/                                Core app, auth, dashboard, news, notification
+app/Console/Commands/               Command scraper
+app/Jobs/                           Queue job scraper
+Modules/MasterData/                 User, role, unit, course, infrastructure
+Modules/MonevAkademik/              Bank soal, tashih, proposal, review
+Modules/DocumentRepository/         Repositori dokumen dan approval
+Modules/ManajemenAchievement/       Prestasi dan portofolio
+Modules/ManajementInfrastruktur/    Peminjaman fasilitas/aset
+Modules/ManajementEvent/            Manajemen event kampus
+Modules/PengaduanMahasiswa/         Sistem pengaduan mahasiswa
+Modules/PenjaminanMutuAkademik/     Penjaminan mutu akademik
+Modules/Pelaporan/                  Dashboard dan laporan terpadu
+Modules/Ujian/                      Sistem ujian online
+resources/views/                    Layout, landing, dashboard
+routes/web.php                      Route utama
 ```
 
 ## Route Penting
@@ -170,6 +211,31 @@ routes/web.php                 Route utama
 - `/manajementinfrastruktur/pengajuan`
 - `/manajementinfrastruktur/persetujuan`
 
+### Manajemen Event
+- `/manajementevent`
+- `/manajementevent/events`
+- `/manajementevent/participants`
+
+### Pengaduan Mahasiswa
+- `/pengaduanmahasiswa`
+- `/pengaduanmahasiswa/complaints`
+- `/pengaduanmahasiswa/tracking`
+
+### Penjaminan Mutu Akademik
+- `/penjaminanmutuakademik`
+- `/penjaminanmutuakademik/audit`
+- `/penjaminanmutuakademik/reports`
+
+### Pelaporan
+- `/pelaporan`
+- `/pelaporan/dashboard`
+- `/pelaporan/export`
+
+### Ujian
+- `/ujian`
+- `/ujian/exams`
+- `/ujian/results`
+
 ## Akun Seeder
 
 Seeder membuat akun awal (lihat `database/seeders/DatabaseSeeder.php`):
@@ -186,15 +252,68 @@ Seeder membuat akun awal (lihat `database/seeders/DatabaseSeeder.php`):
 - Mata kuliah memakai ID otomatis format `MK001` dst.
 - Infrastruktur memakai ID otomatis format `I0001` dst.
 - Permission umum: `C`, `R`, `U`, `D`, `A`, `V` sesuai data `ref_permission`.
+- Gunakan `composer dev` untuk menjalankan server, queue, logs, dan vite secara bersamaan.
+- Queue listener diperlukan untuk job scraping news dan notifikasi.
+- Gunakan `php artisan pail` untuk monitoring logs real-time.
 
 ## Testing Cepat
 
 ```bash
+# Cek semua route
 php artisan route:list
+
+# Jalankan test suite
 php artisan test
+
+# Build production assets
 npm run build
+
+# Cek module aktif
+php artisan module:list
+
+# Setup lengkap (install, migrate, build)
+composer setup
 ```
 
 ## Lisensi
 
 Internal/project kampus. Sesuaikan lisensi repo sebelum distribusi publik.
+
+## Kontributor
+
+Project ini dikembangkan oleh tim Fakultas Sains dan Teknologi UIN Prof. K.H. Saifuddin Zuhri Purwokerto.
+
+### Tim Developer
+
+- **Arifian Ilham Nur Riandana**
+  - Email: arifianilhamnurriandana@gmail.com
+  - GitHub: [@arifianilhamnrr](https://github.com/arifianilhamnrr)
+
+- **Angga Putra Pratama**
+  - GitHub: [@Anggaputra9](https://github.com/Anggaputra9)
+
+- **Niamilah Nabil Syahputra**
+  - Email: syahputranabil521@gmail.com
+  - GitHub: [@genzabis](https://github.com/genzabis)
+
+## Changelog
+
+### 2026-05
+- Update UI masterdata users
+- Update UI email settings
+- Update UI modal delete master data users
+- Penambahan fitur settings app dan ujian
+- Improve landing page dengan Tailwind CSS
+- Penambahan scraping news section
+
+### Modul Tersedia
+- ✅ Master Data
+- ✅ Monev Akademik
+- ✅ Document Repository
+- ✅ Manajemen Achievement
+- ✅ Manajemen Infrastruktur
+- ✅ Manajemen Event
+- ✅ Pengaduan Mahasiswa
+- ✅ Penjaminan Mutu Akademik
+- ✅ Pelaporan
+- ✅ Ujian
