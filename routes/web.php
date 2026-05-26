@@ -29,10 +29,6 @@ Route::get('login', function () {
 Route::post('login', [LoginController::class, 'login'])->name('login.post');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-// Forgot Password Routes
-Route::get('password/forgot', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
-
 // Reset Password Routes
 Route::get('reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
