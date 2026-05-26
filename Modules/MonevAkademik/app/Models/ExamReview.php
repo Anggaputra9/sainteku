@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Models;
+namespace Modules\MonevAkademik\app\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

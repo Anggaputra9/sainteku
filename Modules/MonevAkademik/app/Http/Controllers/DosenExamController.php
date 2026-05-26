@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Http\Controllers;
+namespace Modules\MonevAkademik\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Modules\MonevAkademik\App\Models\ExamProposal;
-use Modules\MonevAkademik\App\Models\Question;
-use Modules\MonevAkademik\App\Models\ExamQuestion;
+use Modules\MonevAkademik\app\Models\ExamProposal;
+use Modules\MonevAkademik\app\Models\Question;
+use Modules\MonevAkademik\app\Models\ExamQuestion;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

@@ -1,15 +1,15 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Http\Controllers;
+namespace Modules\MonevAkademik\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Modules\MonevAkademik\App\Models\ExamProposal;
-use Modules\MonevAkademik\App\Models\ExamReview;
+use Modules\MonevAkademik\app\Models\ExamProposal;
+use Modules\MonevAkademik\app\Models\ExamReview;
 use App\Models\User;
-use Modules\MonevAkademik\App\Models\ExamQuestionLog;
+use Modules\MonevAkademik\app\Models\ExamQuestionLog;
 use App\Services\NotifService;
 
 class ExamReviewController extends Controller

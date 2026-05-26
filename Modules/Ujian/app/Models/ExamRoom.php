@@ -4,7 +4,7 @@ namespace Modules\Ujian\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Modules\MonevAkademik\App\Models\ExamProposal;
+use Modules\MonevAkademik\app\Models\ExamProposal;
 
 class ExamRoom extends Model
 {

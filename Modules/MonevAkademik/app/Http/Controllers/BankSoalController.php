@@ -1,11 +1,11 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Http\Controllers;
+namespace Modules\MonevAkademik\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Modules\MonevAkademik\App\Models\Question;
+use Modules\MonevAkademik\app\Models\Question;
 
 class BankSoalController extends Controller
 {
