@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\MonevAkademik\App\Http\Controllers\ExamProposalController;
-use Modules\MonevAkademik\App\Http\Controllers\ExamReviewController;
-use Modules\MonevAkademik\App\Http\Controllers\BankSoalController;
+use Modules\MonevAkademik\app\Http\Controllers\ExamProposalController;
+use Modules\MonevAkademik\app\Http\Controllers\ExamReviewController;
+use Modules\MonevAkademik\app\Http\Controllers\BankSoalController;
 
 // KUNCI: Tambahkan 'role' di sini (atau \App\Http\Middleware\RoleMiddleware::class jika belum di-alias)
 Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('monevakademik.')->group(function () {

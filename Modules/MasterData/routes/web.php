@@ -6,7 +6,7 @@ use Modules\MasterData\Http\Controllers\RoleController;
 use Modules\MasterData\Http\Controllers\AdminController;
 use Modules\MasterData\Http\Controllers\CurriculaController;
 use Modules\MasterData\Http\Controllers\CategoriesController;
-use Modules\MasterData\App\Http\Controllers\InfrastructureController;
+use Modules\MasterData\app\Http\Controllers\InfrastructureController;
 use Modules\MasterData\app\Http\Controllers\CourseController;
 
 // =========================================================================

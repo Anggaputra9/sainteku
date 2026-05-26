@@ -3,7 +3,7 @@
 namespace Modules\Ujian\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Modules\MonevAkademik\App\Models\Question;
+use Modules\MonevAkademik\app\Models\Question;
 
 class ExamAttemptAnswer extends Model
 {

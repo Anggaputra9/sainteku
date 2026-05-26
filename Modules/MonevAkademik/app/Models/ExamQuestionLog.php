@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Models; // <-- Pastikan Alamatnya Modul!
+namespace Modules\MonevAkademik\app\Models; // <-- Pastikan Alamatnya Modul!
 
 use Illuminate\Database\Eloquent\Model;
 

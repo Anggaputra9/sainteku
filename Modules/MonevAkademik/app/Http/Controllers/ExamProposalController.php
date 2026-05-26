@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\MonevAkademik\App\Http\Controllers;
+namespace Modules\MonevAkademik\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ use Modules\MonevAkademik\app\Models\Question;
 use App\Models\MstCourse;
 use App\Models\MstCpmk;
 use App\Models\Period;
-use Modules\MonevAkademik\App\Models\ExamQuestionLog;
+use Modules\MonevAkademik\app\Models\ExamQuestionLog;
 use Illuminate\Support\Facades\Storage;
 use App\Services\NotifService;
 

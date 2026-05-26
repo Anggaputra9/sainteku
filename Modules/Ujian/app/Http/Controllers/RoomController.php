@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Modules\MonevAkademik\App\Models\ExamProposal;
+use Modules\MonevAkademik\app\Models\ExamProposal;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 use Modules\Ujian\Models\ExamAttemptEvent;
