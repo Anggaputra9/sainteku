@@ -92,6 +92,17 @@
                                             break;
                                         }
                                     }
+
+                                    // Special case: Activate Monev Akademik when accessing ujian/rooms
+                                    if (!$isActive && request()->is('ujian/rooms*')) {
+                                        // Check if this is Monev Akademik menu by checking children
+                                        foreach ($menu->children as $child) {
+                                            if ($child->menu_link && str_contains($child->menu_link, 'monevakademik')) {
+                                                $isActive = true;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 } else {
                                     if ($menu->menu_link && (Route::is($menu->menu_link) || Route::is($menu->menu_link . '*'))) {
                                         $isActive = true;
@@ -144,6 +155,15 @@
                                             @foreach($menu->children as $child)
                                                 @php
                                                     $childActive = $child->menu_link && (Route::is($child->menu_link) || Route::is($child->menu_link . '*'));
+
+                                                    // Special case: Activate "Ujian" child menu when accessing ujian/rooms
+                                                    if (!$childActive && request()->is('ujian/rooms*')) {
+                                                        // Check if this child menu is "Ujian" by checking if it contains 'ujian' in route name or menu name
+                                                        if (($child->menu_link && str_contains($child->menu_link, 'ujian')) ||
+                                                            str_contains(strtolower($child->menu_name), 'ujian')) {
+                                                            $childActive = true;
+                                                        }
+                                                    }
                                                 @endphp
                                                 <li>
                                                     <a href="{{ $child->menu_link && $child->menu_link !== '#' && Route::has($child->menu_link) ? route($child->menu_link) : '#' }}"
