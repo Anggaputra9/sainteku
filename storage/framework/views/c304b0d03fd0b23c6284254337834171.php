@@ -54,6 +54,15 @@
             });
 
             Alpine.store('sidebar', {
+                init() {
+                    // Load saved sidebar state from localStorage (desktop only)
+                    if (window.innerWidth >= 1280) {
+                        const savedState = localStorage.getItem('sidebarExpanded');
+                        this.isExpanded = savedState === 'true';
+                    } else {
+                        this.isExpanded = false;
+                    }
+                },
                 // Initialize based on screen size
                 isExpanded: false,
                 isMobileOpen: false,
@@ -61,6 +70,10 @@
 
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
+                    // Save state to localStorage (desktop only)
+                    if (window.innerWidth >= 1280) {
+                        localStorage.setItem('sidebarExpanded', this.isExpanded);
+                    }
                     // When toggling desktop sidebar, ensure mobile menu is closed
                     this.isMobileOpen = false;
                 },
@@ -101,14 +114,23 @@
 
 </head>
 
-<body x-data="{ 'loaded': true }" x-init="$store.sidebar.isExpanded = false;
+<body x-data="{ 'loaded': true }" x-init="// Load saved sidebar state on page load
+if (window.innerWidth >= 1280) {
+    const savedState = localStorage.getItem('sidebarExpanded');
+    $store.sidebar.isExpanded = savedState === 'true';
+} else {
+    $store.sidebar.isExpanded = false;
+}
+
 const checkMobile = () => {
     if (window.innerWidth < 1280) {
         $store.sidebar.setMobileOpen(false);
         $store.sidebar.isExpanded = false;
     } else {
         $store.sidebar.isMobileOpen = false;
-        $store.sidebar.isExpanded = false; 
+        // Load saved state when resizing to desktop
+        const savedState = localStorage.getItem('sidebarExpanded');
+        $store.sidebar.isExpanded = savedState === 'true';
     }
 };
 window.addEventListener('resize', checkMobile);">

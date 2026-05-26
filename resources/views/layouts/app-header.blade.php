@@ -1,6 +1,4 @@
-<header
-    class="sticky top-0 z-[999980] flex w-full bg-white/95 border-gray-200 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/80 xl:border-b"
-    x-data="{
+<header class="sticky top-0 z-[999980] flex w-full border-gray-200 shadow-sm dark:border-gray-800 xl:border-b" x-data="{
         mobileUserMenuOpen: false,
         mobileNotifOpen: false,
         isDarkMode: document.documentElement.classList.contains('dark'),
@@ -21,11 +19,17 @@
             this.isDarkMode = document.documentElement.classList.contains('dark');
         }
     }">
-    <div class="flex flex-col items-center justify-between grow xl:flex-row xl:px-6">
+
+    {{-- 1. Lapisan Background Blur (z-0 & pointer-events-none biar nggak nutupin klik/elemen) --}}
+    <div
+        class="pointer-events-none absolute inset-0 z-0 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:bg-gray-900/80 dark:supports-[backdrop-filter]:bg-gray-900/60">
+    </div>
+
+    {{-- 2. Konten Utama (relative z-10 biar posisinya maksa di atas background blur) --}}
+    <div class="relative z-10 flex flex-col items-center justify-between grow xl:flex-row xl:px-6">
         <div
             class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 xl:justify-normal xl:border-b-0 xl:px-0 lg:py-4">
 
-            <!-- Desktop Sidebar Toggle Button (visible on xl and up) -->
             <button
                 class="hidden xl:flex items-center justify-center w-10 h-10 text-gray-500 border border-gray-200 rounded-lg dark:border-gray-800 dark:text-gray-400 lg:h-11 lg:w-11"
                 :class="{ 'bg-gray-100 dark:bg-white/[0.03]': !$store.sidebar.isExpanded }"
@@ -36,15 +40,14 @@
                         d="M0.583252 1C0.583252 0.585788 0.919038 0.25 1.33325 0.25H14.6666C15.0808 0.25 15.4166 0.585786 15.4166 1C15.4166 1.41421 15.0808 1.75 14.6666 1.75L1.33325 1.75C0.919038 1.75 0.583252 1.41422 0.583252 1ZM0.583252 11C0.583252 10.5858 0.919038 10.25 1.33325 10.25L14.6666 10.25C15.0808 10.25 15.4166 10.5858 15.4166 11C15.4166 11.4142 15.0808 11.75 14.6666 11.75L1.33325 11.75C0.919038 11.75 0.583252 11.4142 0.583252 11ZM1.33325 5.25C0.919038 5.25 0.583252 5.58579 0.583252 6C0.583252 6.41421 0.919038 6.75 1.33325 6.75L7.99992 6.75C8.41413 6.75 8.74992 6.41421 8.74992 6C8.74992 5.58579 8.41413 5.25 7.99992 5.25L1.33325 5.25Z"
                         fill="currentColor"></path>
                 </svg>
-                <svg x-show="$store.sidebar.isMobileOpen" class="fill-current" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg x-show="$store.sidebar.isMobileOpen" class="fill-current" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
                         d="M6.21967 7.28131C5.92678 6.98841 5.92678 6.51354 6.21967 6.22065C6.51256 5.92775 6.98744 5.92775 7.28033 6.22065L11.999 10.9393L16.7176 6.22078C17.0105 5.92789 17.4854 5.92788 17.7782 6.22078C18.0711 6.51367 18.0711 6.98855 17.7782 7.28144L13.0597 12L17.7782 16.7186C18.0711 17.0115 18.0711 17.4863 17.7782 17.7792C17.4854 18.0721 17.0105 18.0721 16.7176 17.7792L11.999 13.0607L7.28033 17.7794C6.98744 18.0722 6.51256 18.0722 6.21967 17.7794C5.92678 17.4865 5.92678 17.0116 6.21967 16.7187L10.9384 12L6.21967 7.28131Z"
                         fill="" />
                 </svg>
             </button>
 
-            <!-- Mobile Menu Toggle Button (visible below xl) -->
             <button
                 class="flex xl:hidden items-center justify-center w-10 h-10 text-gray-500 rounded-lg dark:text-gray-400 lg:h-11 lg:w-11"
                 :class="{ 'bg-gray-100 dark:bg-white/[0.03]': $store.sidebar.isMobileOpen }"
@@ -55,60 +58,69 @@
                         d="M0.583252 1C0.583252 0.585788 0.919038 0.25 1.33325 0.25H14.6666C15.0808 0.25 15.4166 0.585786 15.4166 1C15.4166 1.41421 15.0808 1.75 14.6666 1.75L1.33325 1.75C0.919038 1.75 0.583252 1.41422 0.583252 1ZM0.583252 11C0.583252 10.5858 0.919038 10.25 1.33325 10.25L14.6666 10.25C15.0808 10.25 15.4166 10.5858 15.4166 11C15.4166 11.4142 15.0808 11.75 14.6666 11.75L1.33325 11.75C0.919038 11.75 0.583252 11.4142 0.583252 11ZM1.33325 5.25C0.919038 5.25 0.583252 5.58579 0.583252 6C0.583252 6.41421 0.919038 6.75 1.33325 6.75L7.99992 6.75C8.41413 6.75 8.74992 6.41421 8.74992 6C8.74992 5.58579 8.41413 5.25 7.99992 5.25L1.33325 5.25Z"
                         fill="currentColor"></path>
                 </svg>
-                <svg x-show="$store.sidebar.isMobileOpen" class="fill-current" width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg x-show="$store.sidebar.isMobileOpen" class="fill-current" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd"
                         d="M6.21967 7.28131C5.92678 6.98841 5.92678 6.51354 6.21967 6.22065C6.51256 5.92775 6.98744 5.92775 7.28033 6.22065L11.999 10.9393L16.7176 6.22078C17.0105 5.92789 17.4854 5.92788 17.7782 6.22078C18.0711 6.51367 18.0711 6.98855 17.7782 7.28144L13.0597 12L17.7782 16.7186C18.0711 17.0115 18.0711 17.4863 17.7782 17.7792C17.4854 18.0721 17.0105 18.0721 16.7176 17.7792L11.999 13.0607L7.28033 17.7794C6.98744 18.0722 6.51256 18.0722 6.21967 17.7794C5.92678 17.4865 5.92678 17.0116 6.21967 16.7187L10.9384 12L6.21967 7.28131Z"
                         fill="" />
                 </svg>
             </button>
 
-            <!-- Application Menu Toggle (mobile only) -->
             <button @click="toggleApplicationMenu()"
                 class="relative flex items-center justify-center w-11 h-11 rounded-full overflow-hidden border-2 border-indigo-500/20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-sm font-bold shadow-sm xl:hidden">
                 @if(Auth::check() && Auth::user()->avatar && file_exists(public_path('storage/avatars/' . Auth::user()->avatar)))
-                    <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}" class="h-full w-full object-cover" alt="Profile">
+                    <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}" class="h-full w-full object-cover"
+                        alt="Profile">
                 @else
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 @endif
-                <span class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
+                <span
+                    class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
             </button>
 
             @php
                 $mobileNotifications = Auth::check() ? Auth::user()->unreadNotifications()->take(5)->get() : collect();
                 $mobileUnreadCount = Auth::check() ? Auth::user()->unreadNotifications()->count() : 0;
             @endphp
-            <div x-show="mobileUserMenuOpen" @click.outside="mobileUserMenuOpen = false; mobileNotifOpen = false" x-transition x-cloak
-                class="absolute right-3 top-[62px] z-[999990] w-72 origin-top-right rounded-2xl border border-gray-200 bg-white/95 p-2 shadow-xl backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-gray-800 dark:bg-gray-900/95 dark:supports-[backdrop-filter]:bg-gray-900/80 xl:hidden">
-                <div class="px-4 py-3 mb-1 border-b border-gray-100 dark:border-gray-700">
-                    <p class="text-sm font-bold text-gray-900 dark:text-white">{{ auth()->user()->name ?? 'Guest User' }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{{ auth()->user()->email ?? 'No Email' }}</p>
+            <div x-show="mobileUserMenuOpen" @click.outside="mobileUserMenuOpen = false; mobileNotifOpen = false"
+                x-transition x-cloak
+                class="absolute right-3 top-[62px] z-[999990] w-72 origin-top-right rounded-2xl border border-gray-200/50 bg-white/70 p-2 shadow-xl backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:border-gray-800/50 dark:bg-gray-900/70 dark:supports-[backdrop-filter]:bg-gray-900/60 xl:hidden">
+                <div class="px-4 py-3 mb-1 border-b border-gray-100/50 dark:border-gray-700/50">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white">
+                        {{ auth()->user()->name ?? 'Guest User' }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                        {{ auth()->user()->email ?? 'No Email' }}</p>
                 </div>
 
                 <button type="button" @click="toggleMobileTheme()"
-                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50/80 dark:text-gray-300 dark:hover:bg-gray-700/40">
                     <span class="flex items-center gap-3">
                         <i x-show="!isDarkMode" x-cloak class="fas fa-sun w-4 text-amber-500"></i>
                         <i x-show="isDarkMode" x-cloak class="fas fa-moon w-4 text-indigo-300"></i>
                         <span x-text="isDarkMode ? 'Dark Mode' : 'Light Mode'"></span>
                     </span>
-                    <span class="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-indigo-500/20 dark:text-indigo-200">
+                    <span
+                        class="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 dark:bg-indigo-500/20 dark:text-indigo-200">
                         Aktif
                     </span>
                 </button>
 
                 <button type="button" @click="mobileNotifOpen = !mobileNotifOpen"
-                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                    class="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50/80 dark:text-gray-300 dark:hover:bg-gray-700/40">
                     <span class="flex items-center gap-3"><i class="fas fa-bell w-4"></i> Notifikasi</span>
                     @if($mobileUnreadCount > 0)
-                        <span class="px-2 py-0.5 text-[10px] font-bold text-white bg-orange-500 rounded-full">{{ $mobileUnreadCount }}</span>
+                        <span
+                            class="px-2 py-0.5 text-[10px] font-bold text-white bg-orange-500 rounded-full">{{ $mobileUnreadCount }}</span>
                     @endif
                 </button>
 
-                <div x-show="mobileNotifOpen" x-transition class="mt-1 max-h-72 overflow-y-auto rounded-xl bg-gray-50 p-1 dark:bg-gray-900/40">
+                <div x-show="mobileNotifOpen" x-transition
+                    class="mt-1 max-h-72 overflow-y-auto rounded-xl bg-gray-50/50 p-1 dark:bg-gray-900/40">
                     @forelse($mobileNotifications as $notification)
-                        <a href="{{ $notification->data['target_url'] ?? '#' }}" class="block rounded-lg p-3 text-sm hover:bg-white dark:hover:bg-gray-800">
-                            <span class="font-medium text-gray-800 dark:text-white">{{ $notification->data['userName'] ?? 'Sistem' }}</span>
+                        <a href="{{ $notification->data['target_url'] ?? '#' }}"
+                            class="block rounded-lg p-3 text-sm hover:bg-white dark:hover:bg-gray-800">
+                            <span
+                                class="font-medium text-gray-800 dark:text-white">{{ $notification->data['userName'] ?? 'Sistem' }}</span>
                             <span class="text-gray-500 dark:text-gray-400">{{ $notification->data['action'] ?? '' }}</span>
                             <div class="mt-1 text-xs text-gray-400">{{ $notification->created_at->diffForHumans() }}</div>
                         </a>
@@ -117,24 +129,25 @@
                     @endforelse
                 </div>
 
-                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50">
+                <a href="{{ route('profile.edit') }}"
+                    class="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50/80 dark:text-gray-300 dark:hover:bg-gray-700/40">
                     <i class="fas fa-user w-4"></i> Profile
                 </a>
 
-                <div class="my-1 border-t border-gray-100 dark:border-gray-700"></div>
+                <div class="my-1 border-t border-gray-100/50 dark:border-gray-700/50"></div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">
+                    <button type="submit"
+                        class="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50/80 dark:hover:bg-red-900/20">
                         <i class="fas fa-sign-out-alt w-4"></i> Logout
                     </button>
                 </form>
             </div>
         </div>
 
-        <!-- Application Menu (mobile) and Right Side Actions (desktop) -->
-        <div class="hidden items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
+        <div
+            class="hidden items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
             <div class="flex items-center gap-2 2xsm:gap-3">
-                <!-- Theme Toggle Button -->
                 <button
                     class="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
                     @click="$store.theme.toggle()">
@@ -152,11 +165,9 @@
                     </svg>
                 </button>
 
-                <!-- Notification Dropdown -->
                 <x-header.notification-dropdown />
             </div>
 
-            <!-- User Dropdown -->
             <x-header.user-dropdown />
         </div>
     </div>

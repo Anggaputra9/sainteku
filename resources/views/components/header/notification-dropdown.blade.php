@@ -40,9 +40,9 @@
         x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100"
         x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-95"
-        class="fixed left-4 right-4 top-[76px] z-[999990] flex h-auto max-h-[calc(100vh-96px)] w-auto max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-[17px] sm:max-h-[480px] sm:w-[361px] sm:max-w-none"
+        class="fixed left-4 right-4 top-[76px] z-[999990] flex h-auto max-h-[calc(100vh-96px)] w-auto max-w-[calc(100vw-2rem)] flex-col rounded-2xl border border-gray-200 bg-white/70 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900/70 dark:supports-[backdrop-filter]:bg-gray-900/60 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-[17px] sm:max-h-[480px] sm:w-[361px] sm:max-w-none"
         style="display: none;">
-        <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-100/50 dark:border-gray-800/50">
             <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notification</h5>
 
             <div class="flex items-center gap-3">
@@ -66,22 +66,22 @@
                 <li>
                     {{-- 2. Logic Pindah Halaman / Buka Modal via AlpineJS --}}
                     <button type="button" @click="
-                            closeDropdown(); 
-                            if('{{ $notification->data['click_action'] ?? '' }}' === 'open_tashih_modal' && '{{ $notification->data['reference_id'] ?? '' }}') {
-                                if(window.location.pathname.includes('/tashih')) {
-                                    document.querySelector('[x-data=tashihApp]').__x.$data.viewDetail('{{ $notification->data['reference_id'] }}', 'review');
+                                closeDropdown(); 
+                                if('{{ $notification->data['click_action'] ?? '' }}' === 'open_tashih_modal' && '{{ $notification->data['reference_id'] ?? '' }}') {
+                                    if(window.location.pathname.includes('/tashih')) {
+                                        document.querySelector('[x-data=tashihApp]').__x.$data.viewDetail('{{ $notification->data['reference_id'] }}', 'review');
+                                    } else {
+                                        window.location.href = '{{ $notification->data['target_url'] ?? '#' }}?open_modal={{ $notification->data['reference_id'] }}';
+                                    }
                                 } else {
-                                    window.location.href = '{{ $notification->data['target_url'] ?? '#' }}?open_modal={{ $notification->data['reference_id'] }}';
+                                    window.location.href = '{{ $notification->data['target_url'] ?? '#' }}';
                                 }
-                            } else {
-                                window.location.href = '{{ $notification->data['target_url'] ?? '#' }}';
-                            }
-                        "
-                        class="w-full text-left flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 transition">
+                            "
+                        class="w-full text-left flex gap-3 rounded-lg border-b border-gray-100/50 p-3 px-4.5 py-3 hover:bg-gray-100/50 dark:border-gray-800/50 dark:hover:bg-white/5 transition">
 
                         {{-- 3. Avatar Text (Bukan Image) --}}
                         <span
-                            class="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-full z-1 bg-blue-50 text-blue-600 font-bold border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800 dark:text-blue-400">
+                            class="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-full z-1 bg-blue-50/80 text-blue-600 font-bold border border-blue-200/50 dark:bg-blue-900/30 dark:border-blue-800/50 dark:text-blue-400">
                             {{ $notification->data['userInitial'] ?? 'S' }}
 
                             {{-- Status Titik (Pake class bawaan lu bg-success-500/bg-error-500) --}}
@@ -111,7 +111,8 @@
                 </li>
             @empty
                 <li class="py-8 text-center text-gray-500 text-sm flex flex-col items-center">
-                    <div class="h-10 w-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center mb-2">
+                    <div
+                        class="h-10 w-10 rounded-full bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-center mb-2">
                         <i class="fas fa-bell-slash text-lg text-gray-400"></i>
                     </div>
                     <span>Belum ada notifikasi baru</span>
@@ -120,7 +121,7 @@
         </ul>
 
         <a href="#"
-            class="mt-3 shrink-0 flex justify-center rounded-lg border border-gray-300 bg-white p-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            class="mt-3 shrink-0 flex justify-center rounded-lg border border-gray-300/50 bg-white/50 p-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50/80 hover:text-gray-800 dark:border-gray-700/50 dark:bg-gray-800/50 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-gray-200"
             @click.prevent="handleViewAllClick()">
             Lihat Semua Notifikasi
         </a>
