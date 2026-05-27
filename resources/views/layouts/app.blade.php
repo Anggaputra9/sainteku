@@ -111,30 +111,35 @@
                 document.documentElement.classList.remove('dark');
             }
         })();
+
+        // Function to initialize sidebar state
+        function initSidebarState() {
+            // Load saved sidebar state on page load
+            if (window.innerWidth >= 1280) {
+                const savedState = localStorage.getItem('sidebarExpanded');
+                Alpine.store('sidebar').isExpanded = savedState === 'true';
+            } else {
+                Alpine.store('sidebar').isExpanded = false;
+            }
+
+            const checkMobile = () => {
+                if (window.innerWidth < 1280) {
+                    Alpine.store('sidebar').setMobileOpen(false);
+                    Alpine.store('sidebar').isExpanded = false;
+                } else {
+                    Alpine.store('sidebar').isMobileOpen = false;
+                    // Load saved state when resizing to desktop
+                    const savedState = localStorage.getItem('sidebarExpanded');
+                    Alpine.store('sidebar').isExpanded = savedState === 'true';
+                }
+            };
+            window.addEventListener('resize', checkMobile);
+        }
     </script>
 
 </head>
 
-<body x-data="{ 'loaded': true }" x-init="// Load saved sidebar state on page load
-if (window.innerWidth >= 1280) {
-    const savedState = localStorage.getItem('sidebarExpanded');
-    $store.sidebar.isExpanded = savedState === 'true';
-} else {
-    $store.sidebar.isExpanded = false;
-}
-
-const checkMobile = () => {
-    if (window.innerWidth < 1280) {
-        $store.sidebar.setMobileOpen(false);
-        $store.sidebar.isExpanded = false;
-    } else {
-        $store.sidebar.isMobileOpen = false;
-        // Load saved state when resizing to desktop
-        const savedState = localStorage.getItem('sidebarExpanded');
-        $store.sidebar.isExpanded = savedState === 'true';
-    }
-};
-window.addEventListener('resize', checkMobile);">
+<body x-data="{ 'loaded': true }" x-init="initSidebarState()">
 
     {{-- preloader --}}
     {{-- ================= SAFE WRAPPER PRELOADER BAWAAN ================= --}}
