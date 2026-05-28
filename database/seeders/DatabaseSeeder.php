@@ -174,6 +174,27 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // --- USER 4: ANGGA PUTRA PRATAMA (Mahasiswa) ---
+        DB::table('mst_user')->updateOrInsert(
+            ['id' => 'U0005'],
+            [
+                'name' => 'Angga Putra Pratama',
+                'email' => 'anggapratama@uinsaizu.ac.id',
+                'password' => Hash::make('password'),
+                'identity_id' => '234110601087',                
+                'user_type' => 'MHS',                
+                'unit_id' => 'U003',
+                'is_active' => '1',
+                'created_at' => now(),
+            ]
+        );
+        if ($roleMhsId) {
+            DB::table('trx_user_role')->updateOrInsert(
+                ['user_id' => 'U0005', 'role_id' => $roleMhsId],
+                ['user_id' => 'U0005', 'role_id' => $roleMhsId]
+            );
+        }
+        
         // ==================================================
         // 8. MASTER DATA PRESTASI MAHASISWA (TAMBAHAN)
         // ==================================================

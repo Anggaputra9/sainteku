@@ -14,6 +14,7 @@ class Document extends Model
     protected $fillable = [
         'document_id', 'document_title', 'document_type_id', 
         'unit_id', 'version', 'file_path', 'status', 
+        'sifat_dokumen', 'is_ppid',
         'effective_date', 'expired_date', 'created_by', 'created_at'
     ];
 

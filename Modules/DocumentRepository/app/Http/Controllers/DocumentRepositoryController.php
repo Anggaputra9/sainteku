@@ -32,14 +32,20 @@ class DocumentRepositoryController extends Controller
             'versions' => function ($q) {
                 $q->orderBy('version', 'desc');
             }
-        ]);
+        ])
+        // Filter berdasarkan sifat dokumen (seperti GitHub repository)
+        ->where(function($q) {
+            $q->where('sifat_dokumen', 'Publik')  // Semua orang bisa lihat dokumen Publik
+              ->orWhere('created_by', auth()->id());  // Atau dokumen Private milik sendiri
+        });
 
+        // Filter status hanya menampilkan dokumen milik sendiri
         if ($filterStatus === 'pending') {
-            $query->whereIn('status', [1, 2]);
+            $query->whereIn('status', [1, 2])->where('created_by', auth()->id());
         } elseif ($filterStatus === 'approved') {
-            $query->where('status', 3);
+            $query->where('status', 3)->where('created_by', auth()->id());
         } elseif ($filterStatus === 'rejected') {
-            $query->where('status', 4);
+            $query->where('status', 4)->where('created_by', auth()->id());
         }
 
         $documents = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->query());
@@ -66,6 +72,8 @@ class DocumentRepositoryController extends Controller
             'document_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
             'effective_date' => 'required|date',
             'expired_date' => 'nullable|date|after_or_equal:effective_date',
+            'sifat_dokumen' => 'required|in:Publik,Private',
+            'is_ppid' => 'nullable|boolean',
         ]);
 
         DB::beginTransaction();
@@ -87,6 +95,8 @@ class DocumentRepositoryController extends Controller
                 'version' => 1,
                 'file_path' => $filePath,
                 'status' => 1,
+                'sifat_dokumen' => $request->sifat_dokumen,
+                'is_ppid' => $request->has('is_ppid') ? true : false,
                 'effective_date' => $request->effective_date,
                 'expired_date' => $request->expired_date,
                 'created_by' => auth()->id(),
@@ -133,6 +143,12 @@ class DocumentRepositoryController extends Controller
         }
 
         $document = Document::findOrFail($id);
+        
+        // Cek akses: Private hanya bisa didownload oleh pembuat, Publik bisa semua orang
+        if ($document->sifat_dokumen === 'Private' && $document->created_by !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses ke dokumen Private ini. Hanya pembuat dokumen yang dapat mengaksesnya.');
+        }
+        
         if (Storage::disk('public')->exists($document->file_path)) {
             return Storage::disk('public')->response($document->file_path);
         }
@@ -269,6 +285,79 @@ class DocumentRepositoryController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal revisi: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (!Auth::user()->hasPermission($this->moduleId, 'U')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'document_title' => 'required|string|max:255',
+            'document_type_id' => 'required|string|exists:ref_document_type,id',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'effective_date' => 'required|date',
+            'expired_date' => 'nullable|date|after_or_equal:effective_date',
+            'sifat_dokumen' => 'required|in:Publik,Private',
+            'is_ppid' => 'nullable|boolean',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $document = Document::findOrFail($id);
+            
+            $document->update([
+                'document_title' => $request->document_title,
+                'document_type_id' => $request->document_type_id,
+                'unit_id' => $request->unit_id,
+                'effective_date' => $request->effective_date,
+                'expired_date' => $request->expired_date,
+                'sifat_dokumen' => $request->sifat_dokumen,
+                'is_ppid' => $request->has('is_ppid') ? true : false,
+            ]);
+
+            DB::commit();
+            return redirect()->route('DocumentRepository.index')->with('success', 'Dokumen berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui dokumen: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function destroy($id)
+    {
+        if (!Auth::user()->hasPermission($this->moduleId, 'D')) {
+            abort(403, 'Unauthorized');
+        }
+
+        DB::beginTransaction();
+        try {
+            $document = Document::findOrFail($id);
+            
+            // Hapus file fisik dari storage
+            if (Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+
+            // Hapus semua versi dokumen terkait
+            $versions = DocumentVersion::where('document_id', $document->id)->get();
+            foreach ($versions as $version) {
+                if (Storage::disk('public')->exists($version->file_path)) {
+                    Storage::disk('public')->delete($version->file_path);
+                }
+                $version->delete();
+            }
+
+            // Hapus dokumen dari database
+            $document->delete();
+
+            DB::commit();
+            return redirect()->route('DocumentRepository.index')->with('success', 'Dokumen berhasil dihapus!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
         }
     }
 }

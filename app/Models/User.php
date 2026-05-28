@@ -83,13 +83,13 @@ class User extends Authenticatable
 
     public function unitUtama()
     {
-        return $this->belongsTo(\App\Models\MstUnit::class, 'unit_id', 'id');
+        return $this->belongsTo(\Modules\MasterData\app\Models\Unit::class, 'unit_id', 'id');
     }
 
     public function unitTambahan()
     {
         return $this->belongsToMany(
-            \App\Models\MstUnit::class,
+            \Modules\MasterData\app\Models\Unit::class,
             'mst_user_unit',           
             'user_id',                 
             'unit_id'                  

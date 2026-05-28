@@ -18,6 +18,10 @@ Route::prefix('documentrepository')->middleware(['web', 'auth'])->group(function
     Route::get('/', [DocumentRepositoryController::class, 'index'])->name('DocumentRepository.index');
     Route::post('/store', [DocumentRepositoryController::class, 'store'])->name('DocumentRepository.store');
     Route::get('/download/{id}', [DocumentRepositoryController::class, 'download'])->name('DocumentRepository.download');
+    
+    // 2a. Route Edit & Hapus Dokumen
+    Route::put('/{id}/update', [DocumentRepositoryController::class, 'update'])->name('DocumentRepository.update');
+    Route::delete('/{id}/destroy', [DocumentRepositoryController::class, 'destroy'])->name('DocumentRepository.destroy');
 
     // 3. Route Tabel Reviewer (Persetujuan)
     Route::get('/review', [DocumentRepositoryController::class, 'reviewIndex'])->name('DocumentRepository.review.index');
