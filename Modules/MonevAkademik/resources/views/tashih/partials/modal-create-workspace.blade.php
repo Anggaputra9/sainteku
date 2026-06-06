@@ -122,9 +122,54 @@
     </div>
 </template>
 
+{{-- MODAL PREVIEW GAMBAR SOAL --}}
+<template x-teleport="#modal-root">
+    <div id="question-image-preview-modal"
+        class="app-modal-overlay fixed inset-0 hidden items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/50 p-3 sm:p-6"
+        style="z-index: 10000002 !important;"
+        onclick="if (event.target === this) closeQuestionImagePreview()">
+
+        <div class="relative w-full max-w-3xl flex flex-col max-h-[90dvh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
+
+            <div class="shrink-0 border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 dark:bg-indigo-900/30 dark:border-indigo-800/50">
+                        <i class="fa-solid fa-image text-sm text-indigo-600 dark:text-indigo-400 sm:text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Preview Ilustrasi</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pratinjau gambar butir soal</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 bg-slate-50 dark:bg-[#0f172a]">
+                <div class="rounded-xl border border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-700 dark:bg-[#1e293b]">
+                    <img id="question-image-preview-img" src="#" alt="Preview ilustrasi soal"
+                        class="mx-auto max-h-[55vh] w-full object-contain rounded-lg">
+                </div>
+            </div>
+
+            <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 dark:bg-[#1e293b]/95 dark:border-gray-700">
+                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
+                    <button type="button" onclick="closeQuestionImagePreview()"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                    <button type="button" onclick="removeImageFromPreviewModal()"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
 <script>
     let autoAddTimer = null;
     let autoRemoveTimer = null;
+    let activePreviewImageId = null;
     const cpmkDataList = @json($cpmkList);
 
     function initCreateModal(cId, existingData = null) {
@@ -207,7 +252,7 @@
 
                             <div>
                                 <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Ilustrasi <span class="normal-case font-medium text-gray-300">(opsional)</span></label>
-                                <div class="relative flex items-center justify-center min-h-[112px] w-full rounded-xl border border-dashed border-gray-300 bg-slate-50 p-3 text-center cursor-pointer transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-indigo-700 ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
+                                <div class="relative flex items-center justify-center min-h-[88px] w-full rounded-xl border border-dashed border-gray-300 bg-slate-50 p-3 text-center cursor-pointer transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-indigo-700 ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
                                     <input type="file" name="questions[${uniqueId}][image]" accept="image/*"
                                         onchange="handleImagePreview(this, '${uniqueId}')"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
@@ -216,15 +261,16 @@
                                         <span class="text-xs text-gray-400">Klik untuk upload gambar</span>
                                     </div>
                                 </div>
-                                <div id="preview-container-${uniqueId}" class="relative rounded-xl border border-gray-200 bg-slate-50 p-2 ${data.image_path ? '' : 'hidden'} dark:border-gray-600 dark:bg-[#0f172a]">
-                                    <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}"
-                                        class="w-full h-28 object-contain rounded-lg">
-                                    <button type="button" onclick="removeImage('${uniqueId}')"
-                                        class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] hover:bg-red-500 transition"
-                                        title="Hapus Gambar">
-                                        <i class="fas fa-times"></i>
+                                <div id="image-actions-${uniqueId}" class="${data.image_path ? 'flex' : 'hidden'} items-center gap-2 rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 dark:border-gray-600 dark:bg-[#0f172a]">
+                                    <span class="min-w-0 flex-1 truncate text-xs font-medium text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-check-circle text-emerald-500 mr-1"></i>Gambar terlampir
+                                    </span>
+                                    <button type="button" onclick="openQuestionImagePreview('${uniqueId}')"
+                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 transition">
+                                        <i class="fas fa-eye"></i> Preview
                                     </button>
                                 </div>
+                                <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}" alt="" class="hidden" aria-hidden="true">
                             </div>
                         </div>
                     </div>
@@ -250,16 +296,19 @@
     }
 
     function handleImagePreview(input, id) {
-        const container = document.getElementById(`preview-container-${id}`);
         const preview = document.getElementById(`img-preview-${id}`);
         const wrapper = document.getElementById(`upload-wrapper-${id}`);
+        const actions = document.getElementById(`image-actions-${id}`);
 
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function (e) {
                 preview.src = e.target.result;
-                container.classList.remove('hidden');
                 wrapper.classList.add('hidden');
+                if (actions) {
+                    actions.classList.remove('hidden');
+                    actions.classList.add('flex');
+                }
                 validateFormStates();
                 saveDraft();
             };
@@ -267,13 +316,47 @@
         }
     }
 
+    function openQuestionImagePreview(id) {
+        const preview = document.getElementById(`img-preview-${id}`);
+        const modal = document.getElementById('question-image-preview-modal');
+        const modalImg = document.getElementById('question-image-preview-img');
+        if (!preview || !modal || !modalImg || !preview.src || preview.src === '#') return;
+
+        activePreviewImageId = id;
+        modalImg.src = preview.src;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeQuestionImagePreview() {
+        const modal = document.getElementById('question-image-preview-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        activePreviewImageId = null;
+    }
+
+    function removeImageFromPreviewModal() {
+        if (activePreviewImageId) {
+            removeImage(activePreviewImageId);
+        }
+        closeQuestionImagePreview();
+    }
+
     function removeImage(id) {
         const input = document.querySelector(`#q-card-${id} input[type="file"]`);
-        const container = document.getElementById(`preview-container-${id}`);
+        const preview = document.getElementById(`img-preview-${id}`);
+        const actions = document.getElementById(`image-actions-${id}`);
         const wrapper = document.getElementById(`upload-wrapper-${id}`);
         if (input) input.value = '';
-        if (container) container.classList.add('hidden');
+        if (preview) preview.src = '#';
+        if (actions) {
+            actions.classList.add('hidden');
+            actions.classList.remove('flex');
+        }
         if (wrapper) wrapper.classList.remove('hidden');
+        if (activePreviewImageId === id) closeQuestionImagePreview();
         validateFormStates();
         saveDraft();
     }
@@ -385,8 +468,8 @@
                 let text = card.querySelector('.q-text').value.trim();
                 let weight = card.querySelector('.q-weight').value;
                 let cpmksCount = card.querySelectorAll('.q-cpmk-checkbox:checked').length;
-                let previewContainer = card.querySelector('[id^="preview-container-"]');
-                let hasImage = previewContainer && !previewContainer.classList.contains('hidden');
+                let imageActions = card.querySelector('[id^="image-actions-"]');
+                let hasImage = imageActions && !imageActions.classList.contains('hidden');
                 if (!text && !weight && cpmksCount === 0 && !hasImage) {
                     card.remove();
                     isDeleted = true;
