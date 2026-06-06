@@ -65,30 +65,173 @@ class ExamProposalController extends Controller
         // -------------------------------------------------------------
         $cpmkList = MstCpmk::where('is_active', '1')->get();
 
-        $myProposals = ExamProposal::with(['course', 'creator', 'examQuestions.question', 'reviews.reviewer', 'logs.user'])
-            ->where('created_by', $user->id)
-            ->latest()
-            ->get();
-
         $isReviewer = $user->roles()->whereIn('role_name', [
             'Kaprodi',
             'Reviewer Internal',
-            'Reviewer External'
+            'Reviewer External',
         ])->exists();
 
-        $reviewQueue = collect();
-
+        $reviewQueueCount = 0;
         if ($isReviewer) {
-            $reviewQueue = ExamProposal::with(['course', 'creator', 'examQuestions.question', 'reviews.reviewer', 'logs.user'])
-                ->where('status', 'SUBMITTED')
-                ->whereHas('course', function ($query) use ($user) {
-                    $query->where('unit_id', $user->unit_id);
-                })
-                ->latest()
-                ->get();
+            $reviewQueueCount = ExamProposal::where('status', 'SUBMITTED')
+                ->whereHas('course', fn ($query) => $query->where('unit_id', $user->unit_id))
+                ->count();
         }
 
-        return view('monevakademik::tashih.index', compact('periods', 'myCourses', 'myProposals', 'isReviewer', 'reviewQueue', 'cpmkList'))->with('title', 'Tashih Soal & Pengajuan Review');
+        return view('monevakademik::tashih.index', compact(
+            'periods',
+            'myCourses',
+            'isReviewer',
+            'reviewQueueCount',
+            'cpmkList',
+        ))->with('title', 'Tashih Soal & Pengajuan Review');
+    }
+
+    public function getMyProposalsData(Request $request)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
+        $query = ExamProposal::with(['course', 'creator', 'period'])
+            ->where('created_by', Auth::id());
+
+        $documents = $this->buildProposalsQuery($request, $query)
+            ->paginate($perPage)
+            ->through(fn (ExamProposal $prop): array => $this->formatProposalForList($prop));
+
+        return response()->json($documents)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+
+    public function getReviewQueueData(Request $request)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $user = Auth::user();
+        $isReviewer = $user->roles()->whereIn('role_name', [
+            'Kaprodi',
+            'Reviewer Internal',
+            'Reviewer External',
+        ])->exists();
+
+        if (! $isReviewer) {
+            abort(403, 'Unauthorized');
+        }
+
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
+        $query = ExamProposal::with(['course', 'creator', 'period'])
+            ->where('status', 'SUBMITTED')
+            ->whereHas('course', fn ($q) => $q->where('unit_id', $user->unit_id));
+
+        $documents = $this->buildProposalsQuery($request, $query)
+            ->paginate($perPage)
+            ->through(fn (ExamProposal $prop): array => $this->formatProposalForList($prop));
+
+        return response()->json($documents)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+
+    public function getProposalDetail(string $uuid)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $proposal = ExamProposal::with([
+            'course',
+            'creator',
+            'period',
+            'examQuestions.question',
+            'reviews.reviewer',
+            'logs.user',
+        ])->where('uuid', $uuid)->firstOrFail();
+
+        $user = Auth::user();
+        $isReviewer = $user->roles()->whereIn('role_name', [
+            'Kaprodi',
+            'Reviewer Internal',
+            'Reviewer External',
+        ])->exists();
+
+        $canAccess = $proposal->created_by === $user->id
+            || ($isReviewer && $proposal->status === 'SUBMITTED'
+                && $proposal->course && $proposal->course->unit_id === $user->unit_id);
+
+        if (! $canAccess) {
+            abort(403, 'Unauthorized');
+        }
+
+        return response()->json($proposal);
+    }
+
+    private function buildProposalsQuery(Request $request, $query)
+    {
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('exam_type', 'like', '%' . $search . '%')
+                    ->orWhereHas('course', fn ($c) => $c->where('course_name', 'like', '%' . $search . '%'))
+                    ->orWhereHas('creator', fn ($u) => $u->where('name', 'like', '%' . $search . '%'))
+                    ->orWhereHas('period', fn ($p) => $p->where('name', 'like', '%' . $search . '%'));
+            });
+        }
+
+        $status = (string) $request->query('status', '');
+        if ($status !== '' && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $examType = (string) $request->query('exam_type', '');
+        if ($examType !== '') {
+            $query->where('exam_type', $examType);
+        }
+
+        $sort = (string) $request->query('sort', 'newest');
+        match ($sort) {
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'exam_asc' => $query->orderBy('exam_type'),
+            'exam_desc' => $query->orderByDesc('exam_type'),
+            'course_asc' => $query->orderBy(
+                MstCourse::select('course_name')->whereColumn('mst_course.id', 'trx_exam_proposals.course_id')
+            ),
+            'course_desc' => $query->orderByDesc(
+                MstCourse::select('course_name')->whereColumn('mst_course.id', 'trx_exam_proposals.course_id')
+            ),
+            default => $query->latest(),
+        };
+
+        return $query;
+    }
+
+    private function formatProposalForList(ExamProposal $prop): array
+    {
+        $courseName = $prop->course->course_name ?? 'Mata Kuliah';
+
+        return [
+            'id' => $prop->id,
+            'uuid' => $prop->uuid,
+            'course_name' => $courseName,
+            'exam_type' => $prop->exam_type,
+            'period_name' => $prop->period->name ?? '-',
+            'status' => $prop->status,
+            'creator_name' => $prop->creator->name ?? 'Dosen',
+            'initial' => mb_strtoupper(mb_substr($courseName, 0, 1)),
+            'created_at' => $prop->created_at?->format('d M Y') ?? '-',
+        ];
     }
 
     public function create($course_id)
@@ -346,7 +489,7 @@ class ExamProposalController extends Controller
                 }
             }
 
-            \Modules\MonevAkademik\App\Models\ExamReview::where('proposal_id', $proposal->id)->delete();
+            \Modules\MonevAkademik\app\Models\ExamReview::where('proposal_id', $proposal->id)->delete();
             ExamQuestion::where('proposal_id', $proposal->id)->delete();
             $proposal->delete();
 
@@ -387,7 +530,7 @@ class ExamProposalController extends Controller
             }
         }
 
-        $approval = \Modules\MonevAkademik\App\Models\ExamReview::where('proposal_id', $proposal->id)
+        $approval = \Modules\MonevAkademik\app\Models\ExamReview::where('proposal_id', $proposal->id)
             ->latest()
             ->first();
 

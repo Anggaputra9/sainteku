@@ -14,17 +14,7 @@ class BankSoalController extends Controller
     // =========================================================================
     public function index()
     {
-        $courses = DB::table('mst_course')
-            ->leftJoin('mst_unit', 'mst_course.unit_id', '=', 'mst_unit.id')
-            ->select('mst_course.*', 'mst_unit.unit_name')
-            ->get();
-
-        $units = DB::table('mst_unit')
-            ->select('id', 'unit_name')
-            ->orderBy('unit_name', 'asc')
-            ->get();
-
-        return view('monevakademik::bank-soal.index', compact('courses', 'units'))->with('title', 'Bank Soal');
+        return view('monevakademik::bank-soal.index')->with('title', 'Bank Soal');
     }
 
     // =========================================================================
@@ -79,8 +69,11 @@ class BankSoalController extends Controller
             $query->whereIn('mst_course.unit_id', $prodiIds);
         }
 
-        // Ambil param per_page, defaultnya 12
-        $perPage = $request->input('per_page', 12);
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->input('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
         $courses = $query->orderBy('mst_course.course_name', 'asc')->paginate($perPage);
 
         return response()->json($courses);
@@ -136,7 +129,7 @@ class BankSoalController extends Controller
     public function getApprovedProposals(Request $request, $course_id)
     {
         try {
-            $query = \Modules\MonevAkademik\App\Models\ExamProposal::with(['creator', 'period'])
+            $query = \Modules\MonevAkademik\app\Models\ExamProposal::with(['creator', 'period'])
                 ->where('course_id', $course_id)
                 ->where('status', 'APPROVED');
 

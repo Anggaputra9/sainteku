@@ -14,6 +14,9 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
     |--------------------------------------------------------------------------
     */
     // Halaman Utama (Masuk ke tabel mst_menu)
+    Route::get('/tashih/api/data', [ExamProposalController::class, 'getMyProposalsData'])->name('tashih.api.data');
+    Route::get('/tashih/api/review-data', [ExamProposalController::class, 'getReviewQueueData'])->name('tashih.api.review.data');
+    Route::get('/tashih/api/detail/{uuid}', [ExamProposalController::class, 'getProposalDetail'])->name('tashih.api.detail');
     Route::get('/tashih', [ExamProposalController::class, 'index'])->name('tashih.index');
 
     // Alur Create & Store

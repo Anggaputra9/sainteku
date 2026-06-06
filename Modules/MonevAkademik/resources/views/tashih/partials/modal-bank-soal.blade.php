@@ -1,5 +1,6 @@
-<div x-show="openBankSoal"
-    class="fixed inset-0 z-[9999999] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
+<template x-teleport="#modal-root">
+    <div x-show="openBankSoal"
+    class="app-modal-overlay fixed inset-0 z-[9999999] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak style="display: none;">
@@ -123,7 +124,7 @@
                     {{-- Pencarian Lokal Soal --}}
                     <div class="relative mb-6">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" x-model="searchQuery" placeholder="Cari isi pertanyaan..."
+                        <input type="text" x-model="searchQueryBank" placeholder="Cari isi pertanyaan..."
                             class="w-full rounded-xl border-[1.5px] border-gray-300 bg-gray-50 pl-11 pr-4 py-3 font-medium outline-none focus:border-indigo-500 focus:bg-white transition dark:bg-gray-900 dark:border-gray-600 dark:text-white">
                     </div>
 
@@ -163,3 +164,4 @@
         </div>
     </div>
 </div>
+</template>
