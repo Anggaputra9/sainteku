@@ -1,11 +1,12 @@
 <template x-teleport="#modal-root">
     <div x-show="openBankSoal"
         class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
+        style="z-index: 10000001 !important;"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-        <div @click.away="openBankSoal = false; bankFilterFabOpen = false"
+        <div @click.away="closeBankSoalModal()"
             class="relative w-full max-w-5xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
 
             {{-- HEADER --}}
@@ -39,9 +40,20 @@
                         <div class="flex flex-nowrap items-center gap-3">
                             <div class="relative min-w-0 flex-1">
                                 <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                                <input type="text" x-model="searchCourseQuery" @input.debounce.400ms="fetchCourses()"
+                                <input type="text" x-model="searchCourseQuery" @input.debounce.400ms="fetchCourses(1)"
                                     placeholder="Cari nama mata kuliah..."
                                     class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            </div>
+                            <div class="flex shrink-0 items-center gap-2">
+                                <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
+                                <select x-model="bankPerPageFilter" @change="fetchCourses(1)" title="Jumlah data per halaman"
+                                    class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                                    <option value="6">6</option>
+                                    <option value="9">9</option>
+                                    <option value="12">12</option>
+                                    <option value="18">18</option>
+                                    <option value="24">24</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -59,8 +71,8 @@
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                             <i class="fa-solid fa-graduation-cap text-indigo-500"></i> Daftar Mata Kuliah
                         </h4>
-                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400" x-show="coursesList.length > 0">
-                            <span x-text="coursesList.length"></span> matkul
+                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400" x-show="bankPagination.total > 0">
+                            <span x-text="bankPagination.total"></span> matkul
                         </span>
                     </div>
 
@@ -96,6 +108,25 @@
                                     </p>
                                 </button>
                             </template>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mt-5 pt-4 border-t border-gray-100 dark:border-gray-700"
+                            x-show="bankPagination.total > 0">
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                                Menampilkan <span class="font-bold text-gray-900 dark:text-white" x-text="bankPagination.from"></span>
+                                – <span class="font-bold text-gray-900 dark:text-white" x-text="bankPagination.to"></span>
+                                dari <span class="font-bold text-gray-900 dark:text-white" x-text="bankPagination.total"></span> matkul
+                            </span>
+                            <div class="flex gap-2" x-show="bankPagination.prev_page_url || bankPagination.next_page_url">
+                                <button type="button" @click="changeBankPage(bankPagination.current_page - 1)" :disabled="!bankPagination.prev_page_url"
+                                    class="inline-flex items-center gap-1 rounded-xl bg-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </button>
+                                <button type="button" @click="changeBankPage(bankPagination.current_page + 1)" :disabled="!bankPagination.next_page_url"
+                                    class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -150,75 +181,13 @@
 
             {{-- FOOTER --}}
             <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
-                <div class="flex flex-row flex-nowrap items-center justify-end gap-2 sm:gap-4">
-                    <button type="button" @click="openBankSoal = false; bankFilterFabOpen = false"
+                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
+                    <button type="button" @click="closeBankSoalModal()"
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
-                        <i class="fas fa-times"></i> Tutup
+                        <i class="fas fa-arrow-left"></i> Kembali ke Pengajuan
                     </button>
                 </div>
             </div>
-        </div>
-
-        {{-- FAB FILTER (mode matkul) --}}
-        <div x-show="openBankSoal && bankViewMode === 'courses'" x-cloak
-            class="pointer-events-auto fixed z-[10000001] flex flex-col items-end gap-3"
-            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
-            @click.stop
-            @click.away="bankFilterFabOpen = false">
-            <div x-show="bankFilterFabOpen" x-cloak
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
-                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
-
-                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
-                    </h3>
-                    <button type="button" x-show="activeBankFilterCount > 0" @click="resetBankFilters()"
-                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
-                        Reset
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Fakultas</label>
-                        <select x-model="filterFakultas" @change="fetchProdis(); fetchCourses()"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua Fakultas</option>
-                            <template x-for="fak in facultiesList" :key="fak.id">
-                                <option :value="fak.id" x-text="fak.unit_name"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Program Studi</label>
-                        <select x-model="filterProdi" @change="fetchCourses()" :disabled="!filterFakultas"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-60 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua Prodi</option>
-                            <template x-for="prd in prodisList" :key="prd.id">
-                                <option :value="prd.id" x-text="prd.unit_name"></option>
-                            </template>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" @click="bankFilterFabOpen = !bankFilterFabOpen"
-                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
-                :title="activeBankFilterCount > 0 && !bankFilterFabOpen ? activeBankFilterCount + ' filter aktif' : (bankFilterFabOpen ? 'Tutup filter' : 'Buka filter')">
-                <span class="relative inline-block leading-none">
-                    <i class="fa-solid text-lg transition-transform duration-200"
-                        :class="bankFilterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
-                    <span x-show="activeBankFilterCount > 0 && !bankFilterFabOpen" x-cloak
-                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
-                        aria-hidden="true"></span>
-                </span>
-            </button>
         </div>
     </div>
 </template>

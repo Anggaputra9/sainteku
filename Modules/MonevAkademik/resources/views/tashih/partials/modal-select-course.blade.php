@@ -6,60 +6,18 @@
             courseName: '',
             courses: @json($myCourses),
             search: '',
-            filterFakultas: '',
-            filterProdi: '',
-            sortFilter: 'name_asc',
-            filterFabOpen: false,
             currentPage: 1,
             perPage: '9',
 
             init() {
                 this.$watch('search', () => this.currentPage = 1);
                 this.$watch('perPage', () => this.currentPage = 1);
-                this.$watch('filterFakultas', () => {
-                    this.filterProdi = '';
-                    this.currentPage = 1;
-                });
-                this.$watch('filterProdi', () => this.currentPage = 1);
-                this.$watch('sortFilter', () => this.currentPage = 1);
-            },
-
-            get activeFilterCount() {
-                let count = 0;
-                if (this.sortFilter !== 'name_asc') count++;
-                if (this.filterFakultas !== '') count++;
-                if (this.filterProdi !== '') count++;
-                return count;
-            },
-
-            get availableFakultas() {
-                let faks = this.courses.map(c => ({ id: c.fakultas_id, name: c.fakultas_name }))
-                    .filter(f => f.id != null);
-                return Array.from(new Map(faks.map(item => [item.id, item])).values());
-            },
-
-            get availableProdi() {
-                let prodis = this.courses.filter(c => this.filterFakultas === '' || c.fakultas_id === this.filterFakultas)
-                    .map(c => ({ id: c.prodi_id, name: c.prodi_name }));
-                return Array.from(new Map(prodis.map(item => [item.id, item])).values());
             },
 
             get filteredCourses() {
-                let list = this.courses.filter(c => {
-                    let matchSearch = c.course_name.toLowerCase().includes(this.search.toLowerCase());
-                    let matchFak = this.filterFakultas === '' || c.fakultas_id === this.filterFakultas;
-                    let matchProdi = this.filterProdi === '' || c.prodi_id === this.filterProdi;
-                    return matchSearch && matchFak && matchProdi;
-                });
-
-                list.sort((a, b) => {
-                    let nameA = (a.course_name || '').toLowerCase();
-                    let nameB = (b.course_name || '').toLowerCase();
-                    if (this.sortFilter === 'name_desc') return nameB.localeCompare(nameA);
-                    return nameA.localeCompare(nameB);
-                });
-
-                return list;
+                return this.courses
+                    .filter(c => c.course_name.toLowerCase().includes(this.search.toLowerCase()))
+                    .sort((a, b) => (a.course_name || '').localeCompare(b.course_name || ''));
             },
 
             get perPageNumber() {
@@ -84,16 +42,8 @@
                 return Math.min(this.currentPage * this.perPageNumber, this.filteredCourses.length);
             },
 
-            resetFilters() {
-                this.sortFilter = 'name_asc';
-                this.filterFakultas = '';
-                this.filterProdi = '';
-                this.currentPage = 1;
-            },
-
             closeModal() {
                 this.openSelectCourse = false;
-                this.filterFabOpen = false;
                 this.$dispatch('tutup-modal-matkul');
             },
 
@@ -101,10 +51,6 @@
                 this.courseId = '';
                 this.courseName = '';
                 this.search = '';
-                this.sortFilter = 'name_asc';
-                this.filterFakultas = '';
-                this.filterProdi = '';
-                this.filterFabOpen = false;
                 this.currentPage = 1;
                 this.perPage = '9';
             },
@@ -258,76 +204,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        {{-- FAB FILTER (di atas layer modal) --}}
-        <div x-show="openSelectCourse" x-cloak
-            class="pointer-events-auto fixed z-[10000001] flex flex-col items-end gap-3"
-            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
-            @click.stop
-            @click.away="filterFabOpen = false">
-            <div x-show="filterFabOpen" x-cloak
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
-                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
-
-                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
-                    </h3>
-                    <button type="button" x-show="activeFilterCount > 0" @click="resetFilters()"
-                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
-                        Reset
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
-                        <select x-model="sortFilter"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="name_asc">Mata Kuliah A-Z</option>
-                            <option value="name_desc">Mata Kuliah Z-A</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Fakultas</label>
-                        <select x-model="filterFakultas"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua Fakultas</option>
-                            <template x-for="fak in availableFakultas" :key="fak.id">
-                                <option :value="fak.id" x-text="fak.name"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Program Studi</label>
-                        <select x-model="filterProdi" :disabled="!filterFakultas"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-60 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua Prodi</option>
-                            <template x-for="prodi in availableProdi" :key="prodi.id">
-                                <option :value="prodi.id" x-text="prodi.name"></option>
-                            </template>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" @click="filterFabOpen = !filterFabOpen"
-                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
-                :title="activeFilterCount > 0 && !filterFabOpen ? activeFilterCount + ' filter aktif' : (filterFabOpen ? 'Tutup filter' : 'Buka filter')">
-                <span class="relative inline-block leading-none">
-                    <i class="fa-solid text-lg transition-transform duration-200"
-                        :class="filterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
-                    <span x-show="activeFilterCount > 0 && !filterFabOpen"
-                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
-                        aria-hidden="true"></span>
-                </span>
-            </button>
         </div>
     </div>
 </template>

@@ -338,9 +338,10 @@
                 coursesList: [],
                 filterFakultas: '',
                 filterProdi: '',
-                bankFilterFabOpen: false,
                 selectedBankCourseName: '',
                 searchCourseQuery: '',
+                bankPerPageFilter: '9',
+                bankPagination: {},
 
                 selectedProposal: null,
                 detailSource: 'saya',
@@ -355,12 +356,7 @@
                     return count;
                 },
 
-                get activeBankFilterCount() {
-                    let count = 0;
-                    if (this.filterFakultas !== '') count++;
-                    if (this.filterProdi !== '') count++;
-                    return count;
-                },
+
 
                 initData() {
                     @if(session('success'))
@@ -458,58 +454,52 @@
                 openBankSoalModal() {
                     this.openBankSoal = true;
                     this.bankViewMode = 'courses';
-                    this.bankFilterFabOpen = false;
-                    this.filterFakultas = '';
-                    this.filterProdi = '';
-                    this.prodisList = [];
                     this.searchCourseQuery = '';
                     this.searchQueryBank = '';
-                    this.fetchFaculties();
-                    this.fetchCourses();
+                    this.bankPerPageFilter = '9';
+                    this.fetchCourses(1);
                 },
 
-                resetBankFilters() {
-                    this.filterFakultas = '';
-                    this.filterProdi = '';
-                    this.prodisList = [];
-                    this.fetchCourses();
+                closeBankSoalModal() {
+                    this.openBankSoal = false;
+                    this.bankViewMode = 'courses';
+                    this.openCreate = true;
                 },
 
-                fetchFaculties() {
-                    fetch("{{ url('monev-akademik/tashih/api/units') }}")
-                        .then(res => res.json())
-                        .then(data => { this.facultiesList = data; })
-                        .catch(err => console.error('Gagal load fakultas', err));
-                },
-
-                fetchProdis() {
-                    this.filterProdi = '';
-                    this.prodisList = [];
-                    if (!this.filterFakultas) return;
-                    fetch(`{{ url('monev-akademik/tashih/api/units') }}?faculty_id=${this.filterFakultas}`)
-                        .then(res => res.json())
-                        .then(data => { this.prodisList = data; })
-                        .catch(err => console.error('Gagal load prodi', err));
-                },
-
-                fetchCourses() {
+                fetchCourses(page = 1) {
                     this.isLoading = true;
                     this.coursesList = [];
-                    let url = `{{ url('monev-akademik/tashih/api/approved-courses') }}?`;
-                    if (this.filterFakultas) url += `faculty_id=${this.filterFakultas}&`;
-                    if (this.filterProdi) url += `prodi_id=${this.filterProdi}&`;
-                    if (this.searchCourseQuery) url += `search=${encodeURIComponent(this.searchCourseQuery)}`;
+
+                    const url = new URL(`{{ url('monev-akademik/tashih/api/approved-courses') }}`);
+                    url.searchParams.append('page', page);
+                    url.searchParams.append('per_page', this.bankPerPageFilter);
+                    if (this.searchCourseQuery.trim()) {
+                        url.searchParams.append('search', this.searchCourseQuery.trim());
+                    }
 
                     fetch(url)
                         .then(res => res.json())
                         .then(data => {
-                            this.coursesList = data.data !== undefined ? data.data : data;
+                            this.coursesList = data.data || [];
+                            this.bankPagination = {
+                                current_page: data.current_page || 1,
+                                from: data.from || 0,
+                                to: data.to || 0,
+                                total: data.total || 0,
+                                prev_page_url: data.prev_page_url,
+                                next_page_url: data.next_page_url,
+                            };
                             this.isLoading = false;
                         })
                         .catch(err => {
                             console.error('Gagal load matkul', err);
                             this.isLoading = false;
                         });
+                },
+
+                changeBankPage(page) {
+                    if (page < 1) return;
+                    this.fetchCourses(page);
                 },
 
                 openCourseQuestions(course) {
@@ -552,7 +542,7 @@
                             image_path: q.image_path || '',
                         });
                     }
-                    this.openBankSoal = false;
+                    this.closeBankSoalModal();
                     this.searchQueryBank = '';
                     setTimeout(() => {
                         const mb = document.getElementById('modal-body-scroll');
