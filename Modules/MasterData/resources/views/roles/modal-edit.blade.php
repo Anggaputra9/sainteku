@@ -1,4 +1,5 @@
-<div x-data="{
+<template x-teleport="#modal-root">
+    <div x-data="{
     openEdit: false,
     url: '',
     roleData: { code: '', name: '', active: true }
@@ -9,7 +10,7 @@
         roleData = $event.detail;
     "
     x-show="openEdit"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm"
+    class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/60 p-3 sm:p-4 overflow-y-auto backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
     <div @click.away="openEdit = false"
@@ -74,3 +75,4 @@
         </form>
     </div>
 </div>
+</template>

@@ -24,7 +24,8 @@ Route::middleware([
 
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
 
-    // Role management read-only listing for now
+    // Role management
+    Route::get('/roles/api/data', [RoleController::class, 'getRolesData'])->name('roles.api.data');
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
     Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');

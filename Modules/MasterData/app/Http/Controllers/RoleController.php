@@ -10,36 +10,97 @@ use Illuminate\Support\Facades\DB;
 class RoleController extends Controller
 {
 
-    public function index(Request $request)
+    public function index()
     {
-        // Ambil parameter dari query string
-        $search = $request->input('search', '');
-        $perPage = max(1, $request->input('per_page', 10));
-
-        // Query data roles dengan search filter
-        $rolesQuery = Role::query();
-
-        // Terapkan filter search (cari di role_code dan role_name)
-        if (!empty($search)) {
-            $rolesQuery->where(function ($query) use ($search) {
-                $query->where('role_code', 'like', '%' . $search . '%')
-                    ->orWhere('role_name', 'like', '%' . $search . '%');
-            });
-        }
-
-        $roles = $rolesQuery->orderBy('id')->paginate($perPage);
-
-        // Ambil data referensi untuk matriks
         $modules = DB::table('mst_module')->orderBy('id')->get();
         $permissions = DB::table('ref_permission')->orderBy('id')->get();
 
-        // Ambil semua izin yang sudah ada, kelompokkan berdasarkan role_id
+        return view('masterdata::roles.index', compact('modules', 'permissions'))
+            ->with('title', 'Daftar Role & Hak Akses');
+    }
+
+    public function getRolesData(Request $request)
+    {
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
         $rolePermissions = DB::table('trx_role_permission')
             ->where('allowed', 1)
             ->get()
             ->groupBy('role_id');
 
-        return view('masterdata::roles.index', compact('roles', 'modules', 'permissions', 'rolePermissions'))->with('title', 'Daftar Role & Hak Akses');
+        $userCounts = DB::table('trx_user_role')
+            ->select('role_id', DB::raw('count(*) as cnt'))
+            ->groupBy('role_id')
+            ->pluck('cnt', 'role_id');
+
+        $roles = $this->buildRolesQuery($request)
+            ->paginate($perPage)
+            ->through(fn (Role $role): array => $this->formatRoleForApi($role, $rolePermissions, $userCounts));
+
+        return response()->json($roles)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    private function buildRolesQuery(Request $request)
+    {
+        $query = Role::query();
+
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('role_code', 'like', '%' . $search . '%')
+                    ->orWhere('role_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $status = $request->query('status');
+        if (in_array($status, ['1', '0'], true)) {
+            $query->where('is_active', $status);
+        }
+
+        $sort = (string) $request->query('sort', 'newest');
+        match ($sort) {
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'name_asc' => $query->orderBy('role_name'),
+            'name_desc' => $query->orderByDesc('role_name'),
+            'code_asc' => $query->orderBy('role_code'),
+            'code_desc' => $query->orderByDesc('role_code'),
+            default => $query->orderByDesc('created_at')->orderByDesc('id'),
+        };
+
+        return $query;
+    }
+
+    private function formatRoleForApi(Role $role, $rolePermissions, $userCounts): array
+    {
+        $perms = $rolePermissions->get($role->id, collect());
+        $assigned = $perms
+            ->map(fn ($p) => $p->modul_id . '-' . $p->permission_id)
+            ->values()
+            ->all();
+
+        $userCount = (int) ($userCounts[$role->id] ?? 0);
+
+        return [
+            'id' => $role->id,
+            'role_code' => $role->role_code,
+            'role_name' => $role->role_name,
+            'is_active' => $role->is_active,
+            'initial' => mb_strtoupper(mb_substr($role->role_code, 0, 1)),
+            'permission_count' => count($assigned),
+            'user_count' => $userCount,
+            'assigned_permissions' => $assigned,
+            'update_url' => route('masterdata.roles.update', $role->id),
+            'delete_url' => route('masterdata.roles.destroy', $role->id),
+            'permissions_url' => route('masterdata.roles.permissions.update', $role->id),
+            'can_delete' => $userCount === 0,
+        ];
     }
 
     public function store(Request $request)
@@ -123,9 +184,16 @@ class RoleController extends Controller
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
-        $namaRole = $role->role_name; // Simpan nama dulu untuk dimunculkan di pesan sukses
+        $userCount = DB::table('trx_user_role')->where('role_id', $id)->count();
 
-        // Hapus data dari tabel mst_role
+        if ($userCount > 0) {
+            return redirect()->route('masterdata.roles.index')
+                ->with('error', 'Role tidak dapat dihapus karena masih digunakan oleh ' . $userCount . ' user.');
+        }
+
+        $namaRole = $role->role_name;
+
+        DB::table('trx_role_permission')->where('role_id', $id)->delete();
         $role->delete();
 
         return redirect()->route('masterdata.roles.index')
