@@ -98,7 +98,6 @@
                                         <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 mt-0.5 font-bold text-indigo-600 bg-indigo-100 rounded-full dark:bg-indigo-900/40 dark:text-indigo-400"
                                             x-text="doc.initial"></div>
                                         <div>
-                                            <div class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400" x-text="doc.document_id"></div>
                                             <div class="font-medium text-gray-900 dark:text-white" x-text="doc.document_title"></div>
                                             <div class="text-xs text-gray-500 mt-0.5">
                                                 <i class="fa-regular fa-user mr-1"></i>
