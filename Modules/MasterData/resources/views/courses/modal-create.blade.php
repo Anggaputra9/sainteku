@@ -1,246 +1,172 @@
-{{-- MODAL TAMBAH MATA KULIAH --}}
-<div x-data="{ openCreate: false }" @open-create-modal.window="openCreate = true" x-show="openCreate"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm"
-    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
-    @keydown.escape.window="openCreate = false"
-    x-init="if (Object.keys(@js($errors->messages())).length > 0) openCreate = true">
+<template x-teleport="#modal-root">
+    <div x-data="openCourseCreateModal()" @open-create-modal.window="openCreate = true" x-show="openCreate"
+        class="app-modal-overlay fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6 overflow-y-auto"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak
+        x-init="if (Object.keys(@js($errors->messages())).length > 0) openCreate = true">
 
-    <div @click.away="openCreate = false"
-        class="relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all overflow-hidden">
+        <div @click.away="openCreate = false"
+            class="relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
 
-        {{-- Header Modal --}}
-        <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 z-20 dark:bg-gray-800 dark:border-gray-700">
-            <div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Tambah Mata Kuliah</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Tambahkan mata kuliah baru ke program studi</p>
-            </div>
-            <button @click="openCreate = false" type="button"
-                class="shrink-0 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all dark:hover:bg-red-900/30 dark:hover:text-red-400">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-
-        {{-- Error Alert Banner --}}
-        @if ($errors->any())
-            <div class="mb-5 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg dark:bg-red-900/20 dark:border-red-400">
-                <div class="flex items-start gap-3">
-                    <i class="fa-solid fa-circle-exclamation text-red-600 dark:text-red-400 mt-0.5"></i>
-                    <div>
-                        <p class="text-sm font-bold text-red-700 dark:text-red-400 mb-2">Validasi Gagal!</p>
-                        <ul class="text-xs text-red-600 dark:text-red-300 space-y-1 list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+            <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
+                <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
+                    <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
+                        <i class="fa-solid fa-book-open text-sm text-blue-600 dark:text-blue-400 sm:text-base"></i>
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl">Tambah Mata Kuliah</h3>
+                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Tambahkan mata kuliah baru ke program studi</p>
                     </div>
                 </div>
+                <div class="shrink-0 w-8 sm:w-9"></div>
             </div>
-        @endif
 
-        {{-- Form Area --}}
-        <form action="{{ route('masterdata.courses.store') }}" method="POST" class="flex flex-col min-h-full">
-            @csrf
-
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2">
-                
-                {{-- Kode MK (Auto) --}}
-                <div class="md:col-span-2">
-                    <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                        Kode Mata Kuliah
-                    </label>
-                    <input type="text" disabled placeholder="Dibuat otomatis oleh sistem"
-                        class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 bg-gray-100 dark:bg-gray-900 dark:text-white dark:ring-gray-600 cursor-not-allowed opacity-60">
-                </div>
-
-                {{-- Nama Mata Kuliah (Full Width) --}}
-                <div class="md:col-span-2">
-                    <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                        Nama Mata Kuliah <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="course_name" required placeholder="Contoh: Pemrograman Web" 
-                        value="{{ old('course_name') }}"
-                        class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 @error('course_name') ring-red-500 @else ring-gray-300 @enderror focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white">
-                    @error('course_name')
-                        <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                {{-- Area Organisasi (Box Khusus) --}}
-                <div class="rounded-xl bg-gray-50 p-5 dark:bg-gray-900/50 md:col-span-2">
-                    <h4 class="mb-4 text-xs font-bold uppercase tracking-widest text-gray-400 italic">Organisasi Pengampu</h4>
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-                        {{-- Fakultas --}}
+            @if ($errors->any())
+                <div class="mx-4 mt-4 rounded-xl border-l-4 border-red-500 bg-red-50 p-4 dark:bg-red-900/20 dark:border-red-400 sm:mx-6">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-red-600 dark:text-red-400 mt-0.5"></i>
                         <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                                Fakultas <span class="text-red-500">*</span>
-                            </label>
-                            <select id="select_fakultas" required
-                                class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                                <option value="">-- Pilih Fakultas --</option>
-                                @foreach($faculties as $fak)
-                                    <option value="{{ $fak->id }}" @selected(old('fakultas_id') == $fak->id)>{{ $fak->unit_name }}</option>
+                            <p class="text-sm font-bold text-red-700 dark:text-red-400 mb-2">Validasi Gagal!</p>
+                            <ul class="text-xs text-red-600 dark:text-red-300 space-y-1 list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
                                 @endforeach
-                            </select>
+                            </ul>
                         </div>
+                    </div>
+                </div>
+            @endif
 
-                        {{-- Prodi Pengampu --}}
-                        <div>
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                                Program Studi (Pengampu) <span class="text-red-500">*</span>
-                            </label>
-                            <select id="select_prodi" name="unit_id" required
-                                class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 @error('unit_id') ring-red-500 @else ring-gray-300 @enderror focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white">
-                                <option value="">-- Pilih Prodi --</option>
-                            </select>
-                            @error('unit_id')
-                                <p class="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">{{ $message }}</p>
-                            @enderror
+            <form action="{{ route('masterdata.courses.store') }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+                @csrf
+                <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                        <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open text-indigo-500"></i> Informasi Mata Kuliah
+                            </h4>
                         </div>
+                        <div class="p-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Kode Mata Kuliah</label>
+                                <input type="text" disabled placeholder="Dibuat otomatis oleh sistem"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-100 px-4 py-2.5 text-sm text-gray-500 cursor-not-allowed outline-none dark:bg-[#0f172a]/50 dark:text-gray-400 dark:border-gray-600">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    Nama Mata Kuliah <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="course_name" required maxlength="100" placeholder="Contoh: Pemrograman Web"
+                                    value="{{ old('course_name') }}"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600 @error('course_name') border-red-500 @enderror">
+                                @error('course_name')
+                                    <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                        <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                                <i class="fa-solid fa-sitemap text-indigo-500"></i> Organisasi Pengampu
+                            </h4>
+                        </div>
+                        <div class="p-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                                <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    Fakultas <span class="text-red-500">*</span>
+                                </label>
+                                <select x-model="createFakultas" @change="loadCreateProdis()" required
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                    <option value="">-- Pilih Fakultas --</option>
+                                    @foreach($faculties as $fak)
+                                        <option value="{{ $fak->id }}" @selected(old('fakultas_id') == $fak->id)>{{ $fak->unit_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    Program Studi <span class="text-red-500">*</span>
+                                </label>
+                                <select name="unit_id" x-model="createProdi" required :disabled="!createFakultas"
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-60 dark:bg-[#0f172a] dark:text-white dark:border-gray-600 @error('unit_id') border-red-500 @enderror">
+                                    <option value="">-- Pilih Prodi --</option>
+                                    <template x-for="prodi in createProdis" :key="prodi.id">
+                                        <option :value="prodi.id" x-text="prodi.unit_name"></option>
+                                    </template>
+                                </select>
+                                @error('unit_id')
+                                    <p class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    Status <span class="text-red-500">*</span>
+                                </label>
+                                <select name="is_active" required
+                                    class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                    <option value="1" @selected(old('is_active') == '1' || !$errors->any())>Aktif</option>
+                                    <option value="0" @selected(old('is_active') == '0')>Nonaktif</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Status --}}
-                <div class="md:col-span-2">
-                    <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                        Status <span class="text-red-500">*</span>
-                    </label>
-                    <select name="is_active" required
-                        class="w-full rounded-lg border-0 px-4 py-2.5 text-gray-900 ring-1 ring-gray-300 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white dark:ring-gray-600">
-                        <option value="1" @selected(old('is_active') == '1' || !$errors->any())>Aktif</option>
-                        <option value="0" @selected(old('is_active') == '0')>Nonaktif</option>
-                    </select>
+                <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
+                    <div class="flex flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
+                        <button type="button" @click="openCreate = false"
+                            class="inline-flex items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-save"></i> Simpan Mata Kuliah
+                        </button>
+                    </div>
                 </div>
-
-            </div>
-            </div>
-
-            {{-- Action Buttons --}}
-            <div class="shrink-0 flex flex-col sm:flex-row justify-end items-center border-t border-gray-200 bg-white px-6 py-4 z-20 dark:bg-gray-800 dark:border-gray-700 gap-3">
-                <button type="button" @click="openCreate = false"
-                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                    <i class="fas fa-times"></i> Batal
-                </button>
-                <button type="submit"
-                    class="w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-lg bg-green-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-green-700 transition">
-                    <i class="fas fa-save"></i> Simpan Mata Kuliah
-                </button>
-            </div>
-
-        </form>
+            </form>
+        </div>
     </div>
-</div>
+</template>
 
-{{-- SCRIPT: Handle Fakultas -> Prodi Cascade --}}
 <script>
-// Function to fetch and populate prodi
-async function fetchAndPopulateProdi(fakultasId, selectProdi, preselectedProdiId = null) {
-    if (!fakultasId) {
-        selectProdi.innerHTML = '<option value="">-- Pilih Prodi --</option>';
-        selectProdi.disabled = true;
-        return;
+    function openCourseCreateModal() {
+        return {
+            openCreate: false,
+            createFakultas: @js(old('fakultas_id', '')),
+            createProdi: @js(old('unit_id', '')),
+            createProdis: [],
+
+            init() {
+                if (this.createFakultas) {
+                    this.loadCreateProdis(true);
+                }
+            },
+
+            async loadCreateProdis(keepProdi = false) {
+                if (!keepProdi) {
+                    this.createProdi = '';
+                }
+                this.createProdis = [];
+
+                if (!this.createFakultas) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.createFakultas}`, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    if (response.ok) {
+                        this.createProdis = await response.json();
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat prodi', error);
+                }
+            },
+        };
     }
-
-    try {
-        const url = `{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${fakultasId}`;
-        console.log('📡 Fetching prodi from:', url);
-        
-        const response = await fetch(url, {
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP Error ${response.status}`);
-        }
-
-        const prodis = await response.json();
-        console.log('✅ Prodis received:', prodis);
-        
-        if (!Array.isArray(prodis)) {
-            throw new Error('Invalid response format');
-        }
-
-        // Reset prodi select
-        selectProdi.innerHTML = '<option value="">-- Pilih Prodi --</option>';
-        selectProdi.disabled = false;
-
-        // Populate prodi options
-        if (prodis.length === 0) {
-            selectProdi.innerHTML = '<option value="">-- Tidak ada Prodi --</option>';
-            selectProdi.disabled = true;
-            return;
-        }
-
-        prodis.forEach(prodi => {
-            const option = document.createElement('option');
-            option.value = prodi.id;
-            option.textContent = prodi.unit_name;
-            selectProdi.appendChild(option);
-
-            // Pre-select jika ada old value
-            if (preselectedProdiId && prodi.id == preselectedProdiId) {
-                option.selected = true;
-            }
-        });
-
-        console.log('✅ Prodi options populated successfully');
-
-    } catch (error) {
-        console.error('❌ Error fetching prodi:', error);
-        selectProdi.innerHTML = '<option value="">❌ Error loading prodi</option>';
-        selectProdi.disabled = true;
-    }
-}
-
-// Main initialization function
-function initializeProdiFilter() {
-    const selectFakultas = document.getElementById('select_fakultas');
-    const selectProdi = document.getElementById('select_prodi');
-
-    if (!selectFakultas || !selectProdi) {
-        console.warn('⚠️ Prodi filter elements not found, will retry...');
-        setTimeout(initializeProdiFilter, 500);
-        return;
-    }
-
-    console.log('🔧 Initializing prodi filter...');
-
-    // Handle change event
-    selectFakultas.addEventListener('change', async function() {
-        console.log('📝 Fakultas changed to:', this.value);
-        await fetchAndPopulateProdi(this.value, selectProdi);
-    });
-
-    // Auto-populate on load if there's old fakultas value
-    const currentFakultasId = selectFakultas.value;
-    const preselectedProdiId = '{{ old("unit_id") }}' || null;
-
-    if (currentFakultasId) {
-        console.log('🔄 Auto-fetching prodi for existing fakultas:', currentFakultasId);
-        console.log('📌 Pre-selected prodi ID:', preselectedProdiId);
-        fetchAndPopulateProdi(currentFakultasId, selectProdi, preselectedProdiId || null);
-    }
-}
-
-// Multiple event triggers untuk ensure initialization
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeProdiFilter);
-} else {
-    initializeProdiFilter();
-}
-
-// Also initialize on Alpine init for late-loaded modals
-document.addEventListener('alpine:init', () => {
-    setTimeout(initializeProdiFilter, 100);
-});
-
-// Final fallback
-setTimeout(initializeProdiFilter, 1000);
 </script>
