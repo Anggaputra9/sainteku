@@ -503,15 +503,17 @@ class ExamProposalController extends Controller
 
     public function print($uuid)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'E')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'E')) {
             abort(403, 'Anda tidak memiliki izin untuk mencetak dokumen ini.');
         }
+
+        ini_set('memory_limit', '256M');
 
         $proposal = ExamProposal::with([
             'course',
             'creator',
             'period',
-            'examQuestions.question'
+            'examQuestions.question',
         ])
             ->where('uuid', $uuid)
             ->firstOrFail();
@@ -522,7 +524,7 @@ class ExamProposalController extends Controller
 
         $unitName = '-';
         if ($proposal->course && $proposal->course->unit_id) {
-            $unit = \Illuminate\Support\Facades\DB::table('mst_unit')
+            $unit = DB::table('mst_unit')
                 ->where('id', $proposal->course->unit_id)
                 ->first();
             if ($unit) {
@@ -536,22 +538,212 @@ class ExamProposalController extends Controller
 
         $kaprodi = $approval ? \App\Models\User::find($approval->reviewer_id) : null;
 
-        $logoPath = public_path('assets/images/uin.png');
-        $logoBase64 = '';
-        if (file_exists($logoPath)) {
-            $logoData = file_get_contents($logoPath);
-            $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
+        $logoBase64 = $this->optimizeImageForPdf($this->resolvePrintLogoPath(), 90, 90) ?? '';
+        $creatorSignature = $this->resolveSignatureDataUri($proposal->creator->signature ?? null, 200, 80);
+        $kaprodiSignature = $this->resolveSignatureDataUri($kaprodi->signature ?? null, 200, 80);
+
+        $questionImages = [];
+        foreach ($proposal->examQuestions as $examQuestion) {
+            $imagePath = $examQuestion->question->image_path ?? null;
+            if (! $imagePath) {
+                continue;
+            }
+
+            $physicalPath = storage_path('app/public/' . ltrim($imagePath, '/'));
+            $optimized = $this->optimizeImageForPdf($physicalPath, 600, 250);
+            if ($optimized) {
+                $questionImages[$examQuestion->question->id] = $optimized;
+            }
         }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::setOptions([
-            'isRemoteEnabled' => true,
-            'isHtml5ParserEnabled' => true
+            'isRemoteEnabled' => false,
+            'isHtml5ParserEnabled' => true,
+            'dpi' => 96,
         ])
-            ->loadView('monevakademik::tashih.print', compact('proposal', 'kaprodi', 'logoBase64', 'unitName'))
+            ->loadView('monevakademik::tashih.print', compact(
+                'proposal',
+                'kaprodi',
+                'logoBase64',
+                'unitName',
+                'questionImages',
+                'creatorSignature',
+                'kaprodiSignature',
+            ))
             ->setPaper('a4', 'portrait');
 
         $safeCourseName = str_replace(['/', '\\', ' '], '_', $proposal->course->course_name ?? 'Mata_Kuliah');
 
         return $pdf->stream('Soal_Ujian_' . $safeCourseName . '.pdf');
+    }
+
+    private function resolveSignatureDataUri(?string $signature, int $maxWidth = 200, int $maxHeight = 80): ?string
+    {
+        if (! $signature) {
+            return null;
+        }
+
+        if (str_starts_with($signature, 'data:image')) {
+            return $this->optimizeDataUriImage($signature, $maxWidth, $maxHeight);
+        }
+
+        if (str_starts_with($signature, '/storage/') || str_starts_with($signature, 'storage/')) {
+            $relative = ltrim(str_replace('/storage/', '', $signature), '/');
+
+            return $this->optimizeImageForPdf(storage_path('app/public/' . $relative), $maxWidth, $maxHeight);
+        }
+
+        if (is_file($signature)) {
+            return $this->optimizeImageForPdf($signature, $maxWidth, $maxHeight);
+        }
+
+        return null;
+    }
+
+    private function optimizeDataUriImage(string $dataUri, int $maxWidth, int $maxHeight): ?string
+    {
+        if (! preg_match('/^data:image\/(\w+);base64,(.+)$/', $dataUri, $matches)) {
+            return null;
+        }
+
+        $binary = base64_decode($matches[2], true);
+        if ($binary === false) {
+            return null;
+        }
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'sig_');
+        if ($tempPath === false) {
+            return null;
+        }
+
+        file_put_contents($tempPath, $binary);
+        $optimized = $this->optimizeImageForPdf($tempPath, $maxWidth, $maxHeight);
+        @unlink($tempPath);
+
+        return $optimized;
+    }
+
+    private function resolvePrintLogoPath(): string
+    {
+        $optimizedLogo = public_path('assets/images/uin-print.jpg');
+        if (is_file($optimizedLogo)) {
+            return $optimizedLogo;
+        }
+
+        $sourceLogo = public_path('assets/images/uin.png');
+        if (is_file($sourceLogo)) {
+            $this->resizeImageWithMagick($sourceLogo, $optimizedLogo, 90, 90);
+        }
+
+        return is_file($optimizedLogo) ? $optimizedLogo : $sourceLogo;
+    }
+
+    private function optimizeImageForPdf(?string $absolutePath, int $maxWidth = 600, int $maxHeight = 250): ?string
+    {
+        if (! $absolutePath || ! is_file($absolutePath)) {
+            return null;
+        }
+
+        if (function_exists('imagecreatefromjpeg') && function_exists('imagejpeg')) {
+            return $this->optimizeImageWithGd($absolutePath, $maxWidth, $maxHeight);
+        }
+
+        return $this->optimizeImageWithMagickDataUri($absolutePath, $maxWidth, $maxHeight);
+    }
+
+    private function optimizeImageWithGd(string $absolutePath, int $maxWidth, int $maxHeight): ?string
+    {
+        $imageInfo = @getimagesize($absolutePath);
+        if ($imageInfo === false) {
+            return null;
+        }
+
+        [$width, $height, $type] = $imageInfo;
+        $ratio = min($maxWidth / max($width, 1), $maxHeight / max($height, 1), 1);
+        $newWidth = max(1, (int) round($width * $ratio));
+        $newHeight = max(1, (int) round($height * $ratio));
+
+        $src = match ($type) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($absolutePath),
+            IMAGETYPE_PNG => @imagecreatefrompng($absolutePath),
+            IMAGETYPE_WEBP => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($absolutePath) : false,
+            IMAGETYPE_GIF => @imagecreatefromgif($absolutePath),
+            default => false,
+        };
+
+        if ($src === false) {
+            return null;
+        }
+
+        $dst = imagecreatetruecolor($newWidth, $newHeight);
+        if ($dst === false) {
+            imagedestroy($src);
+
+            return null;
+        }
+
+        $white = imagecolorallocate($dst, 255, 255, 255);
+        imagefill($dst, 0, 0, $white);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        ob_start();
+        imagejpeg($dst, null, 80);
+        $jpegData = ob_get_clean();
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        if ($jpegData === false || $jpegData === '') {
+            return null;
+        }
+
+        return 'data:image/jpeg;base64,' . base64_encode($jpegData);
+    }
+
+    private function optimizeImageWithMagickDataUri(string $absolutePath, int $maxWidth, int $maxHeight): ?string
+    {
+        $tempOut = tempnam(sys_get_temp_dir(), 'pdfimg_');
+        if ($tempOut === false) {
+            return null;
+        }
+
+        $tempJpg = $tempOut . '.jpg';
+        @unlink($tempOut);
+
+        if (! $this->resizeImageWithMagick($absolutePath, $tempJpg, $maxWidth, $maxHeight)) {
+            @unlink($tempJpg);
+
+            return null;
+        }
+
+        $jpegData = file_get_contents($tempJpg);
+        @unlink($tempJpg);
+
+        if ($jpegData === false || $jpegData === '') {
+            return null;
+        }
+
+        return 'data:image/jpeg;base64,' . base64_encode($jpegData);
+    }
+
+    private function resizeImageWithMagick(string $source, string $destination, int $maxWidth, int $maxHeight): bool
+    {
+        $convert = '/usr/bin/convert';
+        if (! is_executable($convert) || ! is_file($source)) {
+            return false;
+        }
+
+        $command = sprintf(
+            '%s %s -auto-orient -resize %dx%d> -strip -quality 80 %s 2>/dev/null',
+            escapeshellarg($convert),
+            escapeshellarg($source),
+            $maxWidth,
+            $maxHeight,
+            escapeshellarg($destination),
+        );
+
+        exec($command, $output, $exitCode);
+
+        return $exitCode === 0 && is_file($destination);
     }
 }

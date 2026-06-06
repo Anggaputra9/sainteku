@@ -178,30 +178,15 @@
                         <td>
                             {!! nl2br(e(optional($eq->question)->question_text)) !!}
 
-                            {{-- LOGIC BASE64 GAMBAR ANTI-GAGAL --}}
-                            @if(optional($eq->question)->image_path)
-                                @php
-                                    $cleanImgPath = ltrim($eq->question->image_path, '/');
-                                    // Tembak langsung ke direktori fisik storage bawaan Laravel
-                                    $physicalPath = storage_path('app/public/' . $cleanImgPath);
-                                    $imgBase64 = '';
-
-                                    // Kalau filenya beneran ada di harddisk server, convert ke Base64
-                                    if (file_exists($physicalPath)) {
-                                        $ext = pathinfo($physicalPath, PATHINFO_EXTENSION);
-                                        $data = file_get_contents($physicalPath);
-                                        $imgBase64 = 'data:image/' . $ext . ';base64,' . base64_encode($data);
-                                    }
-                                @endphp
-
-                                @if($imgBase64 != '')
-                                    <br>
-                                    <img src="{{ $imgBase64 }}" class="img-soal">
-                                @else
-                                    <br>
-                                    <small style="color:red; font-style:italic;">[Gambar tidak ditemukan di storage:
-                                        {{ $cleanImgPath }}]</small>
-                                @endif
+                            @php
+                                $imgBase64 = $questionImages[$eq->question->id ?? 0] ?? null;
+                            @endphp
+                            @if($imgBase64)
+                                <br>
+                                <img src="{{ $imgBase64 }}" class="img-soal">
+                            @elseif(optional($eq->question)->image_path)
+                                <br>
+                                <small style="color:red; font-style:italic;">[Gambar tidak dapat dimuat]</small>
                             @endif
                         </td>
                     </tr>
@@ -214,8 +199,8 @@
         <tr>
             <td>
                 Dosen Pengampu,<br><br>
-                @if(optional($proposal->creator)->signature)
-                    <img src="{{ $proposal->creator->signature }}" class="ttd-img" alt="TTD Dosen">
+                @if(!empty($creatorSignature))
+                    <img src="{{ $creatorSignature }}" class="ttd-img" alt="TTD Dosen">
                 @else
                     <br><br><br>
                 @endif
@@ -225,8 +210,8 @@
             <td>
                 Purwokerto, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
                 Mengetahui, Ketua Program Studi<br><br>
-                @if(isset($kaprodi) && $kaprodi->signature)
-                    <img src="{{ $kaprodi->signature }}" class="ttd-img" alt="TTD Kaprodi">
+                @if(!empty($kaprodiSignature))
+                    <img src="{{ $kaprodiSignature }}" class="ttd-img" alt="TTD Kaprodi">
                 @else
                     <br><br><br>
                 @endif
