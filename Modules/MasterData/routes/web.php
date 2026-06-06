@@ -22,6 +22,7 @@ Route::middleware([
     Route::get('/', [MasterDataController::class, 'index'])->name('index');
     Route::resource('masterdatas', MasterDataController::class);
 
+    Route::get('units/api/data', [\Modules\MasterData\Http\Controllers\UnitController::class, 'getUnitsData'])->name('units.api.data');
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
 
     // Role management

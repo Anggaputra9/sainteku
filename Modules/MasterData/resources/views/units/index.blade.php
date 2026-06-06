@@ -1,213 +1,354 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mx-auto">
-        <div class="space-y-6">
+    <div class="space-y-6" x-data="unitsApp()" x-init="initData()" x-cloak>
 
-            {{-- Header & Breadcrumb --}}
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Daftar Unit / Prodi</h2>
-                    <nav>
-                        <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                            <li>Master Data /</li>
-                            <li class="text-blue-600 dark:text-blue-400">Unit</li>
-                        </ol>
-                    </nav>
+        {{-- HEADER --}}
+        <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
+            <div>
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fa-solid fa-building text-indigo-500"></i> Manajemen Unit
+                </h2>
+                <nav>
+                    <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <li>Master Data /</li>
+                        <li class="text-indigo-600 dark:text-indigo-400">Unit</li>
+                    </ol>
+                </nav>
+            </div>
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
+                <i class="fa-solid fa-plus"></i> Tambah
+            </button>
+        </div>
+
+        {{-- ALERTS --}}
+        <template x-if="alert.message">
+            <div class="flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                :class="alert.type === 'error' ? 'border-red-500 bg-red-50 text-red-700' : 'border-green-500 bg-green-50 text-green-700'">
+                <i class="fa-solid" :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                <span class="text-sm font-bold" x-text="alert.message"></span>
+            </div>
+        </template>
+
+        {{-- TOOLBAR --}}
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex flex-nowrap items-center gap-3">
+                <div class="relative min-w-0 flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchUnits()"
+                        placeholder="Cari nama, kode, atau induk unit..."
+                        class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                 </div>
-
-                {{-- Tombol Tambah (Green, fa-plus) --}}
-                <div x-data="{ openCreate: false }">
-                    <button @click="$dispatch('open-create-modal')"
-                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
-                        <i class="fas fa-plus"></i>
-                        Tambah Unit
-                    </button>
-
-                    @include('masterdata::units.modal-create')
+                <div class="flex shrink-0 items-center gap-2">
+                    <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
+                    <select x-model="perPageFilter" @change="fetchUnits(1)" title="Jumlah data per halaman"
+                        class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                        <option value="250">250</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            {{-- Alert Messages --}}
-            @if (session('success'))
-                <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
-                    <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
-                    <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
+        {{-- TABLE --}}
+        <div class="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                    <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Info Unit</th>
+                            <th class="px-6 py-4 font-semibold">Tipe</th>
+                            <th class="px-6 py-4 font-semibold">Induk</th>
+                            <th class="px-6 py-4 font-semibold">Status</th>
+                            <th class="px-6 py-4 font-semibold text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr x-show="isLoading">
+                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-indigo-600"></i>
+                                <p class="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Memuat data...</p>
+                            </td>
+                        </tr>
+
+                        <tr x-show="unitsList.length === 0 && !isLoading">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <i class="mb-3 text-3xl opacity-50 fa-solid fa-building"></i><br>
+                                Unit tidak ditemukan.
+                            </td>
+                        </tr>
+
+                        <template x-for="unit in unitsList" :key="unit.id">
+                            <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-indigo-600 bg-indigo-100 rounded-full dark:bg-indigo-900/40 dark:text-indigo-400"
+                                            x-text="unit.initial"></div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="unit.unit_name"></div>
+                                            <div class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="unit.id"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800"
+                                        x-text="unit.type_name"></span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <template x-if="unit.unit_parent">
+                                        <div>
+                                            <span class="text-xs font-mono font-semibold text-indigo-600 dark:text-indigo-400" x-text="unit.unit_parent"></span>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400" x-text="unit.parent_name"></div>
+                                        </div>
+                                    </template>
+                                    <span x-show="!unit.unit_parent" class="text-xs italic text-emerald-600 dark:text-emerald-400">
+                                        Pusat / Universitas
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span x-show="unit.is_active == '1'"
+                                        class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                        <span class="w-1.5 h-1.5 bg-green-600 rounded-full dark:bg-green-400"></span> Aktif
+                                    </span>
+                                    <span x-show="unit.is_active != '1'"
+                                        class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+                                        <span class="w-1.5 h-1.5 bg-red-600 rounded-full dark:bg-red-400"></span> Nonaktif
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <button type="button" @click="openDetail(unit)"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                        <i class="fa-solid fa-eye"></i> Detail
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Pagination --}}
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2"
+            x-show="pagination.total > 0 && !isLoading">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Menampilkan <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.from"></span>
+                – <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.to"></span>
+                dari <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.total"></span> data
+            </span>
+            <div class="flex gap-2">
+                <button type="button" @click="changePage(pagination.current_page - 1)" :disabled="!pagination.prev_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                    <i class="fa-solid fa-chevron-left"></i> Prev
+                </button>
+                <button type="button" @click="changePage(pagination.current_page + 1)" :disabled="!pagination.next_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        @include('masterdata::units.modal-create')
+        @include('masterdata::units.modal-detail')
+        @include('masterdata::units.delete-modal')
+
+        {{-- FAB Filter --}}
+        <template x-teleport="body">
+        <div class="fixed z-[9990] flex flex-col items-end gap-3"
+            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
+            @click.away="filterFabOpen = false">
+            <div x-show="filterFabOpen" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
+                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
+
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
+                    </h3>
+                    <button type="button" x-show="activeFilterCount > 0" @click="resetFilters()"
+                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
+                        Reset
+                    </button>
                 </div>
-            @endif
-            @if (session('error'))
-                <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
-                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
-                    <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
-                </div>
-            @endif
 
-            {{-- Filter & Search --}}
-            <div class="rounded-lg">
-                <form method="GET" class="flex flex-wrap items-center justify-between gap-3">
-
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        {{-- Input Cari --}}
-                        <div class="relative w-full sm:max-w-xs">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari nama unit..."
-                                class="w-full rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-9 pr-3 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition">
-                        </div>
-                        {{-- Dropdown Jumlah Data --}}
-                        <select name="per_page" onchange="this.form.submit()"
-                            class="rounded-md border border-gray-300 bg-gray-50 py-1.5 pl-3 pr-8 text-sm text-gray-900 focus:border-teal-500 focus:ring-teal-500 outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white transition cursor-pointer shadow-sm">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 Baris</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 Baris</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 Baris</option>
-                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 Baris</option>
+                <div class="space-y-4">
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
+                        <select x-model="sortFilter" @change="fetchUnits(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="name_asc">Nama A-Z</option>
+                            <option value="name_desc">Nama Z-A</option>
+                            <option value="code_asc">Kode A-Z</option>
+                            <option value="code_desc">Kode Z-A</option>
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
                         </select>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        {{-- Tombol Filter --}}
-                        <button type="submit"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-filter text-xs"></i> Filter
-                        </button>
-
-                        {{-- Tombol Muat Ulang --}}
-                        <a href="{{ route('masterdata.units.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-rotate text-xs"></i> Reset
-                        </a>
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Tipe Unit</label>
+                        <select x-model="typeFilter" @change="fetchUnits(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua tipe</option>
+                            @foreach ($unitTypes as $type)
+                                <option value="{{ $type->id }}">{{ $type->description ?? 'Tipe ' . $type->id }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </form>
-            </div>
 
-            {{-- Table Card --}}
-            <div
-                class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto">
-                <thead class="bg-gray-50/50 text-left text-sm dark:bg-gray-700/30">
-                    <tr class="border-b border-gray-100 dark:border-gray-700/50">
-                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">ID</th>
-                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Nama Unit
-                        </th>
-                        <th class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider">Tipe</th>
-                        <th
-                            class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-center">
-                            Status</th>
-                        <th
-                            class="px-4 py-4 font-semibold text-gray-900 dark:text-white uppercase tracking-wider text-center">
-                            Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/50">
-                    @forelse($units as $unit)
-                        <tr class="bg-transparent hover:bg-gray-50 dark:hover:bg-gray-700/20 transition">
-                            <td class="px-4 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">#{{ $unit->id }}
-                            </td>
-
-                            <td class="px-4 py-4">
-                                <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ $unit->unit_name }}
-                                </div>
-
-                                @if ($unit->unit_parent)
-                                    @php
-                                        // Mencari nama induk dari koleksi $parentUnits berdasarkan ID-nya
-                                        $parent = $parentUnits->firstWhere('id', $unit->unit_parent);
-                                        $parentName = $parent ? $parent->unit_name : $unit->unit_parent;
-                                    @endphp
-                                    <div
-                                        class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                                        <i class="fa-solid fa-turn-up fa-rotate-90 text-gray-400"></i>
-                                        Induk: <span
-                                            class="font-bold text-blue-600 dark:text-blue-200">{{ $parentName }}</span>
-                                    </div>
-                                @else
-                                    <div
-                                        class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                                        <i class="fa-solid fa-sitemap"></i>
-                                        Induk Universitas (Pusat)
-                                    </div>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-4 text-sm">
-                                @php
-                                    // Menggunakan $type->description sesuai dengan nama kolom di database
-                                    $type = $unitTypes->firstWhere('id', $unit->unit_type_id);
-                                    $typeName = $type
-                                        ? $type->description ?? 'Level ' . $unit->unit_type_id
-                                        : 'Level ' . $unit->unit_type_id;
-                                @endphp
-                                <span
-                                    class="inline-flex rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-900/30 dark:text-purple-300">
-                                    {{ $typeName }}
-                                </span>
-                            </td>
-
-                            <td class="px-4 py-4 text-center">
-                                @if ($unit->is_active)
-                                    <span
-                                        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Aktif
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> Non-aktif
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="px-4 py-4 text-sm">
-                                <div class="flex items-center justify-center gap-2">
-                                    <button type="button"
-                                        @click="$dispatch('open-edit-modal', { 
-                                            url: '{{ route('masterdata.units.update', $unit->id) }}',
-                                            id: '{{ $unit->id }}',
-                                            name: '{{ $unit->unit_name }}',
-                                            type: '{{ $unit->unit_type_id }}',
-                                            parent: '{{ $unit->unit_parent }}',
-                                            active: {{ $unit->is_active == '1' ? 'true' : 'false' }}
-                                        })"
-                                        class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800"
-                                        title="Ubah Unit">
-                                        <i class="fa-solid fa-pencil"></i> Ubah
-                                    </button>
-
-                                    <button type="button"
-                                        @click="$dispatch('open-delete-modal', { 
-                                            url: '{{ route('masterdata.units.destroy', $unit->id) }}',
-                                            name: '{{ $unit->unit_name }}'
-                                        })"
-                                        class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
-                                        title="Hapus Unit">
-                                        <i class="fa-solid fa-trash"></i> Hapus
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
-                                <i class="fas fa-building text-3xl mb-2 opacity-20"></i>
-                                <p>Belum ada data unit yang terdaftar.</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-                <div class="mt-6">
-                    {{ $units->appends(request()->query())->links() }}
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                        <select x-model="statusFilter" @change="fetchUnits(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            <option value="1">Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </select>
+                    </div>
                 </div>
             </div>
+
+            <button type="button" @click="filterFabOpen = !filterFabOpen"
+                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
+                :title="activeFilterCount > 0 && !filterFabOpen
+                    ? activeFilterCount + ' filter aktif'
+                    : (filterFabOpen ? 'Tutup filter' : 'Buka filter')">
+                <span class="relative inline-block leading-none">
+                    <i class="fa-solid text-lg transition-transform duration-200"
+                        :class="filterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
+                    <span x-show="activeFilterCount > 0 && !filterFabOpen" x-cloak
+                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
+                        aria-hidden="true"></span>
+                </span>
+            </button>
         </div>
+        </template>
+
     </div>
 
-    {{-- Pemanggilan file modal (Sama seperti di Roles) --}}
-    @include('masterdata::units.modal-edit')
-    @include('masterdata::units.delete-modal')
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('unitsApp', () => ({
+                searchQuery: '',
+                perPageFilter: '50',
+                sortFilter: 'name_asc',
+                typeFilter: '',
+                statusFilter: '',
+                filterFabOpen: false,
+                unitsList: [],
+                isLoading: false,
+                pagination: {},
+                alert: { type: '', message: '' },
+
+                get activeFilterCount() {
+                    let count = 0;
+                    if (this.sortFilter !== 'name_asc') count++;
+                    if (this.typeFilter !== '') count++;
+                    if (this.statusFilter !== '') count++;
+                    return count;
+                },
+
+                initData() {
+                    @if(session('success'))
+                        this.flash('success', @js(session('success')));
+                    @endif
+                    @if(session('error'))
+                        this.flash('error', @js(session('error')));
+                    @endif
+                    this.fetchUnits();
+                },
+
+                flash(type, message) {
+                    this.alert = { type, message };
+                    setTimeout(() => { this.alert.message = ''; }, 4000);
+                },
+
+                async fetchUnits(page = 1) {
+                    this.isLoading = true;
+                    this.unitsList = [];
+
+                    const params = new URLSearchParams({
+                        page: page,
+                        per_page: this.perPageFilter,
+                        search: this.searchQuery,
+                        sort: this.sortFilter,
+                        type: this.typeFilter,
+                        status: this.statusFilter,
+                    });
+
+                    try {
+                        const response = await fetch(`{{ route('masterdata.units.api.data') }}?${params.toString()}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        const result = await response.json();
+                        this.unitsList = result.data || [];
+                        this.pagination = {
+                            current_page: result.current_page,
+                            from: result.from || 0,
+                            to: result.to || 0,
+                            total: result.total || 0,
+                            prev_page_url: result.prev_page_url,
+                            next_page_url: result.next_page_url,
+                        };
+                    } catch (error) {
+                        console.error('Gagal memuat unit', error);
+                        this.pagination = { total: 0, from: 0, to: 0 };
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                changePage(page) {
+                    this.fetchUnits(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                resetFilters() {
+                    this.sortFilter = 'name_asc';
+                    this.typeFilter = '';
+                    this.statusFilter = '';
+                    this.fetchUnits(1);
+                },
+
+                openDetail(unit) {
+                    window.dispatchEvent(new CustomEvent('open-detail-modal', {
+                        bubbles: true,
+                        detail: {
+                            url: unit.update_url,
+                            deleteUrl: unit.delete_url,
+                            unitName: unit.unit_name,
+                            canDelete: unit.can_delete,
+                            unitData: {
+                                id: unit.id,
+                                name: unit.unit_name,
+                                type: String(unit.unit_type_id),
+                                parent: unit.unit_parent || '',
+                                active: unit.is_active == '1',
+                                type_name: unit.type_name,
+                                parent_name: unit.parent_name,
+                                child_count: unit.child_count,
+                                user_count: unit.user_count,
+                            },
+                        },
+                    }));
+                },
+            }));
+        });
+    </script>
 @endsection

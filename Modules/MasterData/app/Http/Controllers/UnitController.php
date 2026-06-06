@@ -6,59 +6,152 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Modules\MasterData\Entities\Unit;
 use Illuminate\Support\Facades\DB;
+use Modules\MasterData\Support\UnitCodeGenerator;
 
 class UnitController extends Controller
 {
-    // 1. Menampilkan Halaman Utama (Index) beserta Modalnya
-    public function index(Request $request)
+    public function index()
     {
-        // Ambil parameter dari query string
-        $search = $request->input('search', '');
-        $perPage = max(1, $request->input('per_page', 10));
-
-        // Query data units dengan search filter
-        $unitsQuery = Unit::query();
-
-        // Terapkan filter search (cari di unit_name)
-        if (!empty($search)) {
-            $unitsQuery->where('unit_name', 'like', '%' . $search . '%');
-        }
-
-        $units = $unitsQuery->orderBy('id')->paginate($perPage);
-
-        // Mengambil data untuk Dropdown di Modal Create & Edit
         $parentUnits = Unit::where('is_active', '1')->orderBy('unit_name')->get();
-        $unitTypes = DB::table('ref_unit_type')->orderBy('id')->get(); // Mengambil dari tabel referensi tipe unit
+        $unitTypes = DB::table('ref_unit_type')->orderBy('id')->get();
 
-        // Kirimkan ke view
-        return view('masterdata::units.index', compact('units', 'parentUnits', 'unitTypes'))->with('title', 'Daftar Unit');
+        return view('masterdata::units.index', compact('parentUnits', 'unitTypes'))
+            ->with('title', 'Daftar Unit');
     }
 
-    // 2. Memproses Data dari Modal Tambah (Create)
+    public function getUnitsData(Request $request)
+    {
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
+        $unitTypes = DB::table('ref_unit_type')->pluck('description', 'id');
+        $parentNames = Unit::pluck('unit_name', 'id');
+
+        $childCounts = Unit::query()
+            ->select('unit_parent', DB::raw('count(*) as cnt'))
+            ->whereNotNull('unit_parent')
+            ->where('unit_parent', '!=', '')
+            ->groupBy('unit_parent')
+            ->pluck('cnt', 'unit_parent');
+
+        $userCounts = DB::table('mst_user')
+            ->select('unit_id', DB::raw('count(*) as cnt'))
+            ->groupBy('unit_id')
+            ->pluck('cnt', 'unit_id');
+
+        $pivotUserCounts = DB::table('mst_user_unit')
+            ->select('unit_id', DB::raw('count(*) as cnt'))
+            ->groupBy('unit_id')
+            ->pluck('cnt', 'unit_id');
+
+        $units = $this->buildUnitsQuery($request)
+            ->paginate($perPage)
+            ->through(fn (Unit $unit): array => $this->formatUnitForApi(
+                $unit,
+                $unitTypes,
+                $parentNames,
+                $childCounts,
+                $userCounts,
+                $pivotUserCounts,
+            ));
+
+        return response()->json($units)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    private function buildUnitsQuery(Request $request)
+    {
+        $query = Unit::query();
+
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('unit_name', 'like', '%' . $search . '%')
+                    ->orWhere('id', 'like', '%' . $search . '%')
+                    ->orWhere('unit_parent', 'like', '%' . $search . '%');
+            });
+        }
+
+        $status = $request->query('status');
+        if (in_array($status, ['1', '0'], true)) {
+            $query->where('is_active', $status);
+        }
+
+        $typeId = $request->query('type');
+        if ($typeId !== null && $typeId !== '' && is_numeric($typeId)) {
+            $query->where('unit_type_id', (int) $typeId);
+        }
+
+        $sort = (string) $request->query('sort', 'name_asc');
+        match ($sort) {
+            'newest' => $query->orderByDesc('created_at')->orderByDesc('id'),
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'name_desc' => $query->orderByDesc('unit_name'),
+            'code_asc' => $query->orderBy('id'),
+            'code_desc' => $query->orderByDesc('id'),
+            default => $query->orderBy('unit_name'),
+        };
+
+        return $query;
+    }
+
+    private function formatUnitForApi(
+        Unit $unit,
+        $unitTypes,
+        $parentNames,
+        $childCounts,
+        $userCounts,
+        $pivotUserCounts,
+    ): array {
+        $childCount = (int) ($childCounts[$unit->id] ?? 0);
+        $userCount = (int) ($userCounts[$unit->id] ?? 0) + (int) ($pivotUserCounts[$unit->id] ?? 0);
+
+        return [
+            'id' => $unit->id,
+            'unit_name' => $unit->unit_name,
+            'unit_parent' => $unit->unit_parent,
+            'parent_name' => $unit->unit_parent
+                ? ($parentNames[$unit->unit_parent] ?? $unit->unit_parent)
+                : null,
+            'unit_type_id' => $unit->unit_type_id,
+            'type_name' => $unitTypes[$unit->unit_type_id] ?? ('Tipe ' . $unit->unit_type_id),
+            'is_active' => $unit->is_active,
+            'initial' => mb_strtoupper(mb_substr($unit->id, 0, 1)),
+            'child_count' => $childCount,
+            'user_count' => $userCount,
+            'update_url' => route('masterdata.units.update', $unit->id),
+            'delete_url' => route('masterdata.units.destroy', $unit->id),
+            'can_delete' => $childCount === 0 && $userCount === 0,
+        ];
+    }
+
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
-            // Pastikan ID wajib diisi, maksimal 4 karakter, dan belum ada di tabel mst_unit
             'unit_name' => 'required|string|max:100',
             'unit_parent' => 'nullable|string|max:4',
             'unit_type_id' => 'nullable|integer',
-            // Checkbox tidak usah divalidasi karena kita tangani pakai $request->has() di bawah
         ]);
 
-        $lastUnit = Unit::where('id', 'like', 'U%')->orderBy('id', 'desc')->first();
-        if (!$lastUnit) {
-            $newId = 'U001';
-        } else {
-            $lastId = $lastUnit->id;
-            $lastNumber = (int) substr($lastId, 1);
-            $nextNumber = $lastNumber + 1;
-            $newId = 'U' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $unitTypeId = (int) ($request->unit_type_id ?? 0);
+
+        if ($unitTypeId < 1) {
+            return redirect()->route('masterdata.units.index')
+                ->with('error', 'Tipe unit wajib dipilih.');
         }
 
-        // Simpan data
+        $newId = app(UnitCodeGenerator::class)->generateUnique(
+            $request->unit_name,
+            $unitTypeId
+        );
+
         Unit::create([
-            'id' => $newId, // <--- GANTI JADI INI! Gunakan variabel $newId yang sudah di-generate
+            'id' => $newId,
             'unit_name' => $request->unit_name,
             'unit_parent' => $request->unit_parent,
             'unit_type_id' => $request->unit_type_id,
@@ -70,7 +163,6 @@ class UnitController extends Controller
             ->with('success', 'Unit ' . $request->unit_name . ' berhasil ditambahkan!');
     }
 
-    // 3. Memproses Data dari Modal Ubah (Edit)
     public function update(Request $request, $id)
     {
         $unit = Unit::findOrFail($id);
@@ -85,33 +177,38 @@ class UnitController extends Controller
             'unit_name' => $request->unit_name,
             'unit_parent' => $request->unit_parent,
             'unit_type_id' => $request->unit_type_id,
-            'is_active' => $request->has('is_active') ? '1' : '0', // Penanganan checkbox yang aman
+            'is_active' => $request->has('is_active') ? '1' : '0',
         ]);
 
         return redirect()->route('masterdata.units.index')
             ->with('success', 'Data unit ' . $unit->unit_name . ' berhasil diperbarui!');
     }
 
-    // 4. Memproses Data dari Modal Hapus (Delete)
     public function destroy($id)
     {
+        $unit = Unit::findOrFail($id);
+
+        $childCount = Unit::where('unit_parent', $id)->count();
+        $userCount = DB::table('mst_user')->where('unit_id', $id)->count()
+            + DB::table('mst_user_unit')->where('unit_id', $id)->count();
+
+        if ($childCount > 0 || $userCount > 0) {
+            return redirect()->route('masterdata.units.index')
+                ->with('error', 'Unit tidak dapat dihapus karena masih memiliki unit turunan atau pengguna terkait.');
+        }
+
         try {
-            $unit = Unit::findOrFail($id);
-            $namaUnit = $unit->unit_name; 
-            
+            $namaUnit = $unit->unit_name;
             $unit->delete();
 
             return redirect()->route('masterdata.units.index')
                 ->with('success', 'Unit ' . $namaUnit . ' berhasil dihapus secara permanen!');
-                
         } catch (\Illuminate\Database\QueryException $e) {
-            // Menangkap error 1451 (Foreign Key Constraint Violation)
-            if ($e->getCode() == "23000") {
+            if ($e->getCode() == '23000') {
                 return redirect()->route('masterdata.units.index')
-                    ->with('error', 'Gagal menghapus! Unit ini tidak bisa dihapus karena masih menaungi pengguna (User) atau entitas lain.');
+                    ->with('error', 'Gagal menghapus! Unit ini masih digunakan oleh entitas lain.');
             }
-            
-            // Jika error lain, tetap lemparkan
+
             throw $e;
         }
     }
