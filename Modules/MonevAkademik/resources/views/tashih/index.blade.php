@@ -452,6 +452,7 @@
                 },
 
                 openBankSoalModal() {
+                    this.openCreate = true;
                     this.openBankSoal = true;
                     this.bankViewMode = 'courses';
                     this.searchCourseQuery = '';
