@@ -340,7 +340,7 @@
                 filterProdi: '',
                 selectedBankCourseName: '',
                 searchCourseQuery: '',
-                bankPerPageFilter: '9',
+                bankPerPageFilter: '6',
                 bankPagination: {},
 
                 selectedProposal: null,
@@ -456,7 +456,7 @@
                     this.bankViewMode = 'courses';
                     this.searchCourseQuery = '';
                     this.searchQueryBank = '';
-                    this.bankPerPageFilter = '9';
+                    this.bankPerPageFilter = '6';
                     this.fetchCourses(1);
                 },
 

@@ -77,7 +77,7 @@
                         <div x-show="coursesList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             <template x-for="course in coursesList" :key="course.id">
                                 <button type="button" @click="openCourseQuestions(course)"
-                                    class="text-left rounded-xl border-2 border-gray-200 bg-white p-4 transition-all relative flex flex-col h-full outline-none hover:border-indigo-300 hover:shadow-sm focus:ring-4 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-[#0f172a] dark:hover:border-indigo-700">
+                                    class="text-left rounded-xl border border-gray-200 bg-white p-4 transition-shadow relative flex flex-col h-full outline-none hover:shadow-md dark:border-gray-700 dark:bg-[#0f172a]">
 
                                     <div class="flex items-start gap-3 mb-3">
                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-400"
@@ -176,8 +176,7 @@
                 <div class="flex flex-row flex-nowrap items-center justify-start gap-2 sm:gap-4">
                     <button type="button" @click="bankSoalGoBack()"
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
-                        <i class="fas fa-arrow-left"></i>
-                        <span x-text="bankViewMode === 'questions' ? 'Kembali ke Daftar Mata Kuliah' : 'Kembali ke Pengajuan'"></span>
+                        <i class="fas fa-arrow-left"></i> Kembali
                     </button>
                 </div>
             </div>

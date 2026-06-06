@@ -7,7 +7,7 @@
             courses: @json($myCourses),
             search: '',
             currentPage: 1,
-            perPage: '9',
+            perPage: '6',
 
             init() {
                 this.$watch('search', () => this.currentPage = 1);
@@ -21,7 +21,7 @@
             },
 
             get perPageNumber() {
-                return parseInt(this.perPage, 10) || 9;
+                return parseInt(this.perPage, 10) || 6;
             },
 
             get paginatedCourses() {
@@ -52,7 +52,7 @@
                 this.courseName = '';
                 this.search = '';
                 this.currentPage = 1;
-                this.perPage = '9';
+                this.perPage = '6';
             },
 
             selectCourse(course) {
@@ -137,10 +137,10 @@
                         <div x-show="filteredCourses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             <template x-for="course in paginatedCourses" :key="course.id">
                                 <button type="button" @click="selectCourse(course)"
-                                    class="text-left rounded-xl border-2 p-4 transition-all relative flex flex-col h-full outline-none focus:ring-4 focus:ring-indigo-500/20"
+                                    class="text-left rounded-xl border p-4 transition-shadow relative flex flex-col h-full outline-none"
                                     :class="courseId === course.id
-                                        ? 'border-indigo-500 bg-indigo-50 shadow-md ring-1 ring-indigo-500/20 dark:bg-indigo-900/30 dark:border-indigo-500'
-                                        : 'border-gray-200 bg-white hover:border-indigo-300 hover:shadow-sm dark:border-gray-700 dark:bg-[#0f172a] dark:hover:border-indigo-700'">
+                                        ? 'border-indigo-300 bg-indigo-50/80 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-700'
+                                        : 'border-gray-200 bg-white hover:shadow-md dark:border-gray-700 dark:bg-[#0f172a]'">
 
                                     <div class="flex items-start gap-3 mb-3">
                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-400"
