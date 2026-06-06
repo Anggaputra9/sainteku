@@ -69,10 +69,10 @@ class BankSoalController extends Controller
             $query->whereIn('mst_course.unit_id', $prodiIds);
         }
 
-        $allowedPerPage = [10, 25, 50, 100, 150, 250];
-        $perPage = (int) $request->input('per_page', 50);
+        $allowedPerPage = [6, 9, 10, 12, 18, 24, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->input('per_page', 9);
         if (! in_array($perPage, $allowedPerPage, true)) {
-            $perPage = 50;
+            $perPage = 9;
         }
         $courses = $query->orderBy('mst_course.course_name', 'asc')->paginate($perPage);
 

@@ -6,7 +6,7 @@
         x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-        <div @click.away="closeBankSoalModal()"
+        <div @click.away="bankSoalGoBack()"
             class="relative w-full max-w-5xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
 
             {{-- HEADER --}}
@@ -25,14 +25,6 @@
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a]">
-
-                {{-- NAV: Kembali ke daftar matkul --}}
-                <template x-if="bankViewMode === 'questions'">
-                    <button type="button" @click="bankViewMode = 'courses'"
-                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-600 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition dark:border-gray-700 dark:bg-[#1e293b] dark:text-gray-300 dark:hover:text-indigo-400">
-                        <i class="fas fa-arrow-left"></i> Kembali ke Daftar Mata Kuliah
-                    </button>
-                </template>
 
                 {{-- TOOLBAR (mode matkul) --}}
                 <template x-if="bankViewMode === 'courses'">
@@ -181,10 +173,11 @@
 
             {{-- FOOTER --}}
             <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
-                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
-                    <button type="button" @click="closeBankSoalModal()"
+                <div class="flex flex-row flex-nowrap items-center justify-start gap-2 sm:gap-4">
+                    <button type="button" @click="bankSoalGoBack()"
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
-                        <i class="fas fa-arrow-left"></i> Kembali ke Pengajuan
+                        <i class="fas fa-arrow-left"></i>
+                        <span x-text="bankViewMode === 'questions' ? 'Kembali ke Daftar Mata Kuliah' : 'Kembali ke Pengajuan'"></span>
                     </button>
                 </div>
             </div>

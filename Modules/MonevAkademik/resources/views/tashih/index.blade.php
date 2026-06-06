@@ -466,6 +466,15 @@
                     this.openCreate = true;
                 },
 
+                bankSoalGoBack() {
+                    if (this.bankViewMode === 'questions') {
+                        this.bankViewMode = 'courses';
+                        this.searchQueryBank = '';
+                        return;
+                    }
+                    this.closeBankSoalModal();
+                },
+
                 fetchCourses(page = 1) {
                     this.isLoading = true;
                     this.coursesList = [];
