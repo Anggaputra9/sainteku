@@ -58,12 +58,8 @@
             selectCourse(course) {
                 this.courseId = course.id;
                 this.courseName = course.course_name;
-            },
-
-            continueToWorkspace() {
-                if (!this.courseId) return;
                 this.closeModal();
-                this.$dispatch('lanjut-bikin-soal', { id: this.courseId, name: this.courseName });
+                this.$dispatch('lanjut-bikin-soal', { id: course.id, name: course.course_name });
             },
         }));
     });
@@ -88,7 +84,7 @@
                     </div>
                     <div class="min-w-0 leading-tight">
                         <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl">Pilih Mata Kuliah</h3>
-                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Langkah 1 — pilih mata kuliah untuk pengajuan soal ujian</p>
+                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Klik mata kuliah untuk langsung membuat pengajuan</p>
                     </div>
                 </div>
                 <div class="shrink-0 w-8 sm:w-9"></div>
@@ -137,22 +133,15 @@
                         <div x-show="filteredCourses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             <template x-for="course in paginatedCourses" :key="course.id">
                                 <button type="button" @click="selectCourse(course)"
-                                    class="text-left rounded-xl border p-4 transition-shadow relative flex flex-col h-full outline-none"
-                                    :class="courseId === course.id
-                                        ? 'border-indigo-300 bg-indigo-50/80 shadow-sm dark:bg-indigo-900/20 dark:border-indigo-700'
-                                        : 'border-gray-200 bg-white hover:shadow-md dark:border-gray-700 dark:bg-[#0f172a]'">
+                                    class="text-left rounded-xl border border-gray-200 bg-white p-4 transition-shadow relative flex flex-col h-full outline-none hover:shadow-md dark:border-gray-700 dark:bg-[#0f172a]">
 
                                     <div class="flex items-start gap-3 mb-3">
                                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900/40 dark:text-indigo-400"
                                             x-text="(course.course_name || 'M').charAt(0).toUpperCase()"></div>
                                         <div class="min-w-0 flex-1">
                                             <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-snug line-clamp-2"
-                                                :class="courseId === course.id ? 'text-indigo-700 dark:text-indigo-300' : ''"
                                                 x-text="course.course_name"></h4>
                                         </div>
-                                        <span x-show="courseId === course.id" class="shrink-0 text-indigo-500">
-                                            <i class="fas fa-check-circle"></i>
-                                        </span>
                                     </div>
 
                                     <div class="text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
@@ -193,14 +182,10 @@
 
             {{-- FOOTER --}}
             <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
-                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
+                <div class="flex flex-row flex-nowrap items-center justify-start gap-2 sm:gap-4">
                     <button type="button" @click="closeModal()"
                         class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                         <i class="fas fa-times"></i> Batal
-                    </button>
-                    <button type="button" :disabled="!courseId" @click="continueToWorkspace()"
-                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed sm:px-8 sm:py-2.5 sm:text-sm transition-all">
-                        Lanjutkan <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
