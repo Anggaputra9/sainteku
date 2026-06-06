@@ -3,55 +3,178 @@
 namespace Modules\DocumentRepository\app\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotifService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use Modules\DocumentRepository\app\Models\Document;
-use Modules\DocumentRepository\app\Models\DocumentVersion;
 use Modules\DocumentRepository\app\Models\DocumentType;
+use Modules\DocumentRepository\app\Models\DocumentVersion;
 use Modules\MasterData\app\Models\Unit;
-use App\Services\NotifService;
-
 
 class DocumentRepositoryController extends Controller
 {
-    private $moduleId = 1;
+    private int $moduleId = 1;
+
     public function index(Request $request)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'R')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
             abort(403, 'Unauthorized');
         }
 
-        $filterStatus = $request->query('status', 'all');
+        $documentTypes = DocumentType::orderBy('description')->get();
+        $units = Unit::where('is_active', '1')->orderBy('unit_name')->get();
+
+        return view('documentrepository::index', compact('documentTypes', 'units'))
+            ->with('title', 'Repositori Dokumen');
+    }
+
+    public function getDocumentsData(Request $request)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
+        $documents = $this->buildDocumentsQuery($request)
+            ->paginate($perPage)
+            ->through(fn (Document $doc): array => $this->formatDocumentForApi($doc));
+
+        return response()->json($documents)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    public function reviewIndex(Request $request)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'A')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $documentTypes = DocumentType::orderBy('description')->get();
+
+        return view('documentrepository::review.index', compact('documentTypes'))
+            ->with('title', 'Review Dokumen');
+    }
+
+    public function getReviewDocumentsData(Request $request)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'A')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
+        }
+
+        $documents = $this->buildDocumentsQuery($request)
+            ->paginate($perPage)
+            ->through(fn (Document $doc): array => $this->formatDocumentForApi($doc, true));
+
+        return response()->json($documents)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    private function buildDocumentsQuery(Request $request)
+    {
         $query = Document::with([
             'type',
             'unit',
             'creator',
             'workflowStatus',
-            'versions' => function ($q) {
-                $q->orderBy('version', 'desc');
-            }
+            'versions' => fn ($q) => $q->orderByDesc('version'),
         ]);
 
-        if ($filterStatus === 'pending') {
-            $query->whereIn('status', [1, 2]);
-        } elseif ($filterStatus === 'approved') {
-            $query->where('status', 3);
-        } elseif ($filterStatus === 'rejected') {
-            $query->where('status', 4);
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('document_title', 'like', '%' . $search . '%')
+                    ->orWhere('document_id', 'like', '%' . $search . '%')
+                    ->orWhereHas('creator', fn ($c) => $c->where('name', 'like', '%' . $search . '%'))
+                    ->orWhereHas('unit', fn ($u) => $u->where('unit_name', 'like', '%' . $search . '%'))
+                    ->orWhereHas('type', fn ($t) => $t->where('description', 'like', '%' . $search . '%'));
+            });
         }
 
-        $documents = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->query());
-        $documentTypes = DocumentType::all();
-        $units = Unit::where('is_active', '1')->get();
+        $status = (string) $request->query('status', '');
+        match ($status) {
+            'pending' => $query->whereIn('status', [1, 2]),
+            'approved' => $query->where('status', 3),
+            'rejected' => $query->where('status', 4),
+            default => null,
+        };
 
-        return view('documentrepository::index', compact('documents', 'documentTypes', 'units', 'filterStatus'))->with('title', 'Repositori Dokumen');
+        $typeId = $request->query('document_type_id');
+        if ($typeId !== null && $typeId !== '') {
+            $query->where('document_type_id', $typeId);
+        }
+
+        $sort = (string) $request->query('sort', 'newest');
+        match ($sort) {
+            'oldest' => $query->orderBy('created_at')->orderBy('id'),
+            'title_asc' => $query->orderBy('document_title'),
+            'title_desc' => $query->orderByDesc('document_title'),
+            'code_asc' => $query->orderBy('document_id'),
+            'code_desc' => $query->orderByDesc('document_id'),
+            default => $query->orderByDesc('created_at')->orderByDesc('id'),
+        };
+
+        return $query;
+    }
+
+    private function formatDocumentForApi(Document $doc, bool $reviewContext = false): array
+    {
+        $revisionNote = null;
+        if ((int) $doc->status === 4 && $doc->versions->isNotEmpty()) {
+            $revisionNote = $doc->versions->first()->change_note;
+        }
+
+        $canDownload = Auth::user()->hasPermission($this->moduleId, 'R');
+        $canRevise = Auth::user()->hasPermission($this->moduleId, 'U') && (int) $doc->status === 4;
+        $canReview = $reviewContext
+            && Auth::user()->hasPermission($this->moduleId, 'A')
+            && (int) $doc->status !== 3;
+
+        return [
+            'id' => $doc->id,
+            'document_id' => $doc->document_id,
+            'document_title' => $doc->document_title,
+            'document_type_id' => $doc->document_type_id,
+            'type_name' => $doc->type->description ?? '-',
+            'unit_id' => $doc->unit_id,
+            'unit_name' => $doc->unit->unit_name ?? '-',
+            'status' => $doc->status,
+            'status_label' => $doc->workflowStatus->description ?? 'Menunggu...',
+            'version' => $doc->version,
+            'creator_name' => $doc->creator->name ?? 'Sistem',
+            'effective_date' => $doc->effective_date,
+            'expired_date' => $doc->expired_date,
+            'revision_note' => $revisionNote,
+            'initial' => mb_strtoupper(mb_substr($doc->document_title, 0, 1)),
+            'download_url' => route('DocumentRepository.download', $doc->id),
+            'revise_url' => route('DocumentRepository.revise', $doc->id),
+            'review_url' => route('DocumentRepository.review', $doc->id),
+            'can_download' => $canDownload && ($reviewContext || (int) $doc->status === 3),
+            'can_revise' => $canRevise,
+            'can_review' => $canReview,
+            'is_locked' => in_array((int) $doc->status, [1, 2], true),
+        ];
     }
 
     public function store(Request $request)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'C')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'C')) {
             abort(403, 'Unauthorized');
         }
 
@@ -103,32 +226,31 @@ class DocumentRepositoryController extends Controller
             ]);
 
             DB::commit();
-            
-            // 1. Definisikan isi pesan notifikasinya
-            $dataNotif = [
+
+            NotifService::sendToApprovers('DOC_REP', 'V', Auth::user()->unit_id, [
                 'action' => 'telah mengunggah dokumen baru untuk divalidasi',
                 'item_name' => $document->document_title,
                 'type' => 'Repositori Dokumen',
                 'url' => route('DocumentRepository.index'),
-                'reference_id' => $document->id, // Lempar ID dokumennya biar gampang dicari
-                'click_action' => 'redirect' // Ganti jadi 'open_modal_dokumen' kalau lu pake modal juga
-            ];
+                'reference_id' => $document->id,
+                'click_action' => 'redirect',
+            ]);
 
-            // 2. Tembak notif ke orang yang punya hak 'V' (Validasi) di modul DOC_REP
-            NotifService::sendToApprovers('DOC_REP', 'V', Auth::user()->unit_id, $dataNotif);
-            return redirect()->route('DocumentRepository.index')->with('success', 'Dokumen diunggah dengan kode ' . $documentId);
+            return redirect()->route('DocumentRepository.index')
+                ->with('success', 'Dokumen diunggah dengan kode ' . $documentId);
         } catch (\Exception $e) {
             DB::rollBack();
             if (isset($filePath) && Storage::disk('public')->exists($filePath)) {
                 Storage::disk('public')->delete($filePath);
             }
+
             return back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage())->withInput();
         }
     }
 
     public function download($id)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'R')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
             abort(403, 'Unauthorized');
         }
 
@@ -136,15 +258,13 @@ class DocumentRepositoryController extends Controller
         if (Storage::disk('public')->exists($document->file_path)) {
             return Storage::disk('public')->response($document->file_path);
         }
+
         return back()->with('error', 'File fisik tidak ditemukan!');
     }
 
-    /**
-     * DASHBOARD STATISTIK (Baru)
-     */
     public function dashboard()
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'R')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
             abort(403, 'Unauthorized');
         }
 
@@ -154,41 +274,22 @@ class DocumentRepositoryController extends Controller
         $totalRevisi = Document::where('status', 4)->count();
 
         $dokumenTerbaru = Document::with(['type', 'unit', 'creator', 'workflowStatus'])
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
-        $filterStatus = ''; // Menghindari error di layout
-        return view('documentrepository::dashboard.index', compact('totalDokumen', 'totalPending', 'totalDisetujui', 'totalRevisi', 'dokumenTerbaru', 'filterStatus'));
-    }
-
-    /**
-     * HALAMAN REVIEW (Baru)
-     */
-    public function reviewIndex(Request $request)
-    {
-        if (!Auth::user()->hasPermission($this->moduleId, 'A')) {
-            abort(403, 'Unauthorized');
-        }
-
-        $filterStatus = $request->query('status', 'all');
-        $query = Document::with(['type', 'unit', 'creator', 'workflowStatus']);
-
-        if ($filterStatus === 'pending') {
-            $query->whereIn('status', [1, 2]);
-        } elseif ($filterStatus === 'approved') {
-            $query->where('status', 3);
-        } elseif ($filterStatus === 'rejected') {
-            $query->where('status', 4);
-        }
-
-        $documents = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->query());
-        return view('documentrepository::review.index', compact('documents', 'filterStatus'))->with('title', 'Review Dokumen');
+        return view('documentrepository::dashboard.index', compact(
+            'totalDokumen',
+            'totalPending',
+            'totalDisetujui',
+            'totalRevisi',
+            'dokumenTerbaru',
+        ))->with('title', 'Dashboard Dokumen');
     }
 
     public function review(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'A')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'A')) {
             abort(403, 'Unauthorized');
         }
 
@@ -203,48 +304,58 @@ class DocumentRepositoryController extends Controller
             $newStatus = $request->action === 'approve' ? 3 : 4;
             $document->update(['status' => $newStatus]);
 
-            $latestVersion = DocumentVersion::where('document_id', $document->id)->orderBy('version', 'desc')->first();
+            $latestVersion = DocumentVersion::where('document_id', $document->id)
+                ->orderByDesc('version')
+                ->first();
+
             if ($latestVersion) {
                 $statusText = $request->action === 'approve' ? 'Disetujui' : 'Ditolak';
-                $note = $request->change_note ? "($statusText) - " . $request->change_note : "Dokumen $statusText oleh Reviewer.";
-                $latestVersion->update(['approved_by' => auth()->id(), 'approved_date' => now(), 'change_note' => $note]);
+                $note = $request->change_note
+                    ? "($statusText) - " . $request->change_note
+                    : "Dokumen $statusText oleh Reviewer.";
+                $latestVersion->update([
+                    'approved_by' => auth()->id(),
+                    'approved_date' => now(),
+                    'change_note' => $note,
+                ]);
             }
 
             DB::commit();
 
-            // Notifikasi balik ke pengunggah dokumen (in-app + email)
             try {
-                $notifData = [
-                    'action'       => $request->action === 'approve'
+                NotifService::sendToUser($document->created_by, [
+                    'action' => $request->action === 'approve'
                         ? 'menyetujui dokumen yang Anda unggah'
                         : 'menolak dokumen yang Anda unggah',
-                    'item_name'    => $document->document_title,
-                    'type'         => 'Repositori Dokumen',
-                    'url'          => route('DocumentRepository.index'),
+                    'item_name' => $document->document_title,
+                    'type' => 'Repositori Dokumen',
+                    'url' => route('DocumentRepository.index'),
                     'reference_id' => $document->id,
                     'click_action' => 'redirect',
-                    'status'       => $request->action === 'approve' ? 'online' : 'offline',
-                ];
-                NotifService::sendToUser($document->created_by, $notifData);
+                    'status' => $request->action === 'approve' ? 'online' : 'offline',
+                ]);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Notif review dokumen gagal: ' . $e->getMessage());
             }
 
             $pesan = $request->action === 'approve' ? 'Dokumen disetujui!' : 'Dokumen ditolak.';
-            return back()->with('success', $pesan);
+
+            return redirect()->route('DocumentRepository.review.index')->with('success', $pesan);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
     public function revise(Request $request, $id)
     {
-        if (!Auth::user()->hasPermission($this->moduleId, 'U')) {
+        if (! Auth::user()->hasPermission($this->moduleId, 'U')) {
             abort(403, 'Unauthorized');
         }
 
         $request->validate(['document_file' => 'required|file|mimes:pdf,doc,docx|max:10240']);
+
         DB::beginTransaction();
         try {
             $document = Document::findOrFail($id);
@@ -265,9 +376,12 @@ class DocumentRepositoryController extends Controller
             ]);
 
             DB::commit();
-            return back()->with('success', 'Dokumen direvisi menjadi versi ' . $newVersion);
+
+            return redirect()->route('DocumentRepository.index')
+                ->with('success', 'Dokumen direvisi menjadi versi ' . $newVersion);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return back()->with('error', 'Gagal revisi: ' . $e->getMessage());
         }
     }

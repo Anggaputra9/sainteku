@@ -3,303 +3,346 @@
 @section('content')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    {{-- 2. Tambahkan CSS ini untuk memaksa kalender selalu berada di lapisan terdepan --}}
     <style>
-        .flatpickr-calendar {
-            z-index: 9999999 !important;
-            /* Nilainya harus lebih besar dari z-[999999] milik modal */
-        }
+        .flatpickr-calendar { z-index: 9999999 !important; }
     </style>
 
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-        <div class="space-y-6">
+    <div class="space-y-6" x-data="documentsApp()" x-init="initData()" x-cloak>
 
-            {{-- Header & Tombol Tambah --}}
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-                        Repository Dokumen
-                    </h2>
-                    <nav>
-                        <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                            <li>Manajemen Dokumen /</li>
-                            <li class="text-blue-600 dark:text-blue-400">Daftar Dokumen</li>
-                        </ol>
-                    </nav>
+        {{-- HEADER --}}
+        <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
+            <div>
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fa-solid fa-folder-open text-indigo-500"></i> Repositori Dokumen
+                </h2>
+                <nav>
+                    <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <li>Manajemen Dokumen /</li>
+                        <li class="text-indigo-600 dark:text-indigo-400">Daftar Dokumen</li>
+                    </ol>
+                </nav>
+            </div>
+            @if(Auth::user()->hasPermission(1, 'C'))
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
+                <i class="fa-solid fa-upload"></i> Unggah Dokumen
+            </button>
+            @endif
+        </div>
+
+        {{-- ALERTS --}}
+        <template x-if="alert.message">
+            <div class="flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                :class="alert.type === 'error' ? 'border-red-500 bg-red-50 text-red-700' : 'border-green-500 bg-green-50 text-green-700'">
+                <i class="fa-solid" :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                <span class="text-sm font-bold" x-text="alert.message"></span>
+            </div>
+        </template>
+
+        {{-- TOOLBAR --}}
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex flex-nowrap items-center gap-3">
+                <div class="relative min-w-0 flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchDocuments()"
+                        placeholder="Cari kode, judul, tipe, unit, atau pengunggah..."
+                        class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                 </div>
-
-                {{-- KUNCI PERUBAHAN: Dibungkus dengan x-data Alpine.js untuk Modal --}}
-                <div x-data="{ openCreate: false, fileName: '' }">
-                    @if(Auth::user()->hasPermission(1, 'C'))
-                    <button @click="openCreate = true"
-                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
-                        <i class="fas fa-upload"></i>
-                        Unggah Dokumen Baru
-                    </button>
-                    @endif
-
-                    {{-- Memanggil komponen file modal yang dibuat di Tahap 2 --}}
-                    @include('documentrepository::modal-create')
+                <div class="flex shrink-0 items-center gap-2">
+                    <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
+                    <select x-model="perPageFilter" @change="fetchDocuments(1)" title="Jumlah data per halaman"
+                        class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                        <option value="250">250</option>
+                    </select>
                 </div>
             </div>
+        </div>
 
-            {{-- Pesan Sukses --}}
-            @if (session('success'))
-                <div
-                    class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
-                    <div
-                        class="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                        <i class="fa-solid fa-check text-green-600 dark:text-green-400"></i>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-semibold text-green-800 dark:text-green-400">Sukses!</h5>
-                        <p class="text-sm text-green-700 dark:text-green-500">{{ session('success') }}</p>
-                    </div>
-                </div>
-            @endif
+        {{-- TABLE --}}
+        <div class="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                    <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Info Dokumen</th>
+                            <th class="px-6 py-4 font-semibold">Tipe & Unit</th>
+                            <th class="px-6 py-4 font-semibold text-center">Status</th>
+                            <th class="px-6 py-4 font-semibold text-center">Versi</th>
+                            <th class="px-6 py-4 font-semibold text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr x-show="isLoading">
+                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-indigo-600"></i>
+                                <p class="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Memuat data...</p>
+                            </td>
+                        </tr>
 
-            {{-- Pesan Error --}}
-            @if (session('error') || $errors->any())
-                <div
-                    class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
-                    <div
-                        class="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 dark:text-red-400"></i>
-                    </div>
-                    <div>
-                        <h5 class="text-sm font-semibold text-red-800 dark:text-red-400">Peringatan!</h5>
-                        <p class="text-sm text-red-700 dark:text-red-500">
-                            {{ session('error') ?? 'Gagal menyimpan. Pastikan semua data yang diinput sudah benar dan file tidak melebihi 10MB.' }}
-                        </p>
-                    </div>
-                </div>
-            @endif
+                        <tr x-show="documentsList.length === 0 && !isLoading">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <i class="mb-3 text-3xl opacity-50 fa-solid fa-folder-open"></i><br>
+                                Dokumen tidak ditemukan.
+                            </td>
+                        </tr>
 
-            {{-- TOMBOL FILTER STATUS --}}
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-                <a href="{{ route('DocumentRepository.index') }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'all' ? 'bg-gray-800 text-white shadow-md dark:bg-gray-200 dark:text-gray-900' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 dark:hover:bg-gray-700' }}">
-                    Semua Dokumen
-                </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'pending']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'pending' ? 'bg-amber-500 text-white shadow-md' : 'bg-white text-amber-600 border border-amber-200 hover:bg-amber-50 dark:bg-gray-800 dark:border-amber-900/50 dark:hover:bg-amber-900/30' }}">
-                    <i class="fa-solid fa-clock mr-1"></i> Menunggu Review
-                </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'approved']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'approved' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-green-600 border border-green-200 hover:bg-green-50 dark:bg-gray-800 dark:border-green-900/50 dark:hover:bg-green-900/30' }}">
-                    <i class="fa-solid fa-check-circle mr-1"></i> Disetujui
-                </a>
-                <a href="{{ route('DocumentRepository.index', ['status' => 'rejected']) }}"
-                    class="px-4 py-2 text-sm font-semibold rounded-full transition {{ $filterStatus == 'rejected' ? 'bg-red-500 text-white shadow-md' : 'bg-white text-red-600 border border-red-200 hover:bg-red-50 dark:bg-gray-800 dark:border-red-900/50 dark:hover:bg-red-900/30' }}">
-                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Perlu Revisi
-                </a>
-            </div>
-
-            {{-- Tabel Data --}}
-            <div x-data="{ openRevise: false, reviseUrl: '', reviseTitle: '', reviseFileName: '' }">
-                <div
-                    class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
-                            <thead
-                                class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-6 py-4 font-semibold w-2/5">Kode & Judul Dokumen</th>
-                                    <th class="px-6 py-4 font-semibold">Tipe & Unit</th>
-                                    <th class="px-6 py-4 font-semibold text-center">Status</th>
-                                    <th class="px-6 py-4 font-semibold text-center">Versi</th>
-                                    <th class="px-6 py-4 text-center font-semibold">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse($documents as $doc)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition items-start">
-                                        <td class="px-6 py-4 align-top">
-                                            <div class="font-bold text-gray-900 dark:text-white text-base">
-                                                {{ $doc->document_id }}</div>
-                                            <div class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
-                                                {{ $doc->document_title }}</div>
-                                            <div class="text-xs text-gray-500 mt-1.5"><i
-                                                    class="fa-regular fa-user mr-1"></i>
-                                                {{ $doc->creator->name ?? 'Sistem' }}</div>
-
-                                            {{-- DESAIN BARU: Kotak Catatan Revisi yang lebih elegan --}}
-                                            @if ($doc->status == 4 && $doc->versions->isNotEmpty())
-                                                <div
-                                                    class="mt-4 w-full rounded-lg border border-red-200 bg-red-50/80 p-3.5 dark:border-red-500/30 dark:bg-red-500/10 shadow-sm">
-                                                    <div class="flex items-start gap-3">
-                                                        <i
-                                                            class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 text-base"></i>
-                                                        <div class="flex-col">
-                                                            <span
-                                                                class="block text-[11px] font-bold text-red-700 dark:text-red-400 uppercase tracking-widest mb-1 opacity-80">Catatan
-                                                                Revisi:</span>
-                                                            <p
-                                                                class="text-sm font-medium text-red-800 dark:text-red-200 leading-relaxed">
-                                                                {{ $doc->versions->first()->change_note }}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 align-top">
-                                            <div class="font-semibold text-indigo-600 dark:text-indigo-400">
-                                                {{ $doc->type->description ?? '-' }}</div>
-                                            <div class="text-xs text-gray-500 mt-1">{{ $doc->unit->unit_name ?? '-' }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-center align-top">
-                                            @php
-                                                $statusColor = 'bg-gray-100 text-gray-800';
-                                                if ($doc->status == 3) {
-                                                    $statusColor =
-                                                        'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50';
-                                                } elseif ($doc->status == 4) {
-                                                    $statusColor =
-                                                        'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50';
-                                                } elseif ($doc->status == 2 || $doc->status == 1) {
-                                                    $statusColor =
-                                                        'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50';
-                                                }
-                                            @endphp
-                                            <span
-                                                class="inline-flex rounded-md px-2.5 py-1 text-xs font-bold border {{ $statusColor }}">
-                                                {{ $doc->workflowStatus->description ?? 'Menunggu...' }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-center align-top">
-                                            <span
-                                                class="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50">
-                                                v{{ $doc->version }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-center align-top">
-                                            @if ($doc->status == 4)
-                                                {{-- Kondisi 1: Status Ditolak/Revisi -> Muncul tombol orange --}}
-                                                @if(Auth::user()->hasPermission(1, 'U'))
-                                                <button
-                                                    @click="openRevise = true; reviseUrl = '{{ route('DocumentRepository.revise', $doc->id) }}'; reviseTitle = '{{ addslashes($doc->document_title) }}'"
-                                                    class="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-4 py-2 text-xs font-bold text-white hover:bg-orange-600 transition shadow-sm focus:ring-4 focus:ring-orange-200 dark:focus:ring-orange-900">
-                                                    <i class="fa-solid fa-clock-rotate-left"></i> Revisi File
-                                                </button>
-                                                @endif
-                                            @elseif ($doc->status == 3)
-                                                {{-- Kondisi 2: Status Disetujui -> Muncul tombol Lihat (Ikon Mata) --}}
-                                                @if(Auth::user()->hasPermission(1, 'R'))
-                                                <a href="{{ route('DocumentRepository.download', $doc->id) }}"
-                                                    target="_blank"
-                                                    class="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm border border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                                                    <i class="fa-solid fa-eye text-blue-500"></i> Lihat File
-                                                </a>
-                                                @endif
-                                            @else
-                                                {{-- Kondisi 3: Status Draft / Menunggu Review -> Tombol dikunci (Ikon Gembok) --}}
-                                                <button disabled
-                                                    class="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-4 py-2 text-xs font-bold text-gray-400 cursor-not-allowed border border-gray-200 dark:bg-gray-800/50 dark:text-gray-500 dark:border-gray-700">
-                                                    <i class="fa-solid fa-lock"></i> Terkunci
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-16 text-center">
-                                            <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
-                                                <div
-                                                    class="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                                    <i class="fa-solid fa-folder-open text-3xl"></i>
-                                                </div>
-                                                <p class="text-sm font-medium">Belum ada dokumen di kategori ini.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    {{-- MODAL REVISI DOKUMEN (KODE YANG HILANG) --}}
-                    <div x-show="openRevise"
-                        class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
-                        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
-                        style="display: none;">
-
-                        <div @click.away="openRevise = false" x-show="openRevise"
-                            x-transition:enter="transition ease-out duration-300 transform"
-                            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                            x-transition:leave="transition ease-in duration-200 transform"
-                            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                            class="relative w-full max-w-lg transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all mt-10">
-
-                            {{-- Header Modal --}}
-                            <div class="mb-6 border-b border-gray-100 pb-4 dark:border-gray-700">
-                                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                    <i class="fa-solid fa-file-pen text-orange-500"></i> Unggah Revisi
-                                </h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Mengunggah file baru untuk
-                                    dokumen:
-                                    <br>
-                                    <strong x-text="reviseTitle" class="text-gray-700 dark:text-gray-300"></strong>
-                                </p>
-                            </div>
-
-                            {{-- Form Area --}}
-                            <form :action="reviseUrl" method="POST" enctype="multipart/form-data">
-                                @csrf
-                                <div class="space-y-6">
-                                    {{-- Area File Upload --}}
-                                    <div>
-                                        <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
-                                            File Pengganti <span class="text-red-500">*</span>
-                                        </label>
-                                        <div
-                                            class="mt-1 flex justify-center rounded-xl border border-dashed border-gray-900/25 px-6 py-8 dark:border-gray-600 hover:bg-gray-50 transition dark:hover:bg-gray-800/50">
-                                            <div class="text-center">
-                                                <i class="fa-solid fa-file-arrow-up text-4xl text-gray-300 dark:text-gray-600 mb-3"
-                                                    :class="{ 'text-orange-500': reviseFileName }"></i>
-                                                <div
-                                                    class="mt-2 flex text-sm leading-6 text-gray-600 dark:text-gray-400 justify-center">
-                                                    <label for="revise-upload"
-                                                        class="relative cursor-pointer rounded-md bg-white font-semibold text-orange-500 focus-within:outline-none hover:text-orange-400 dark:bg-transparent dark:text-orange-400 dark:hover:text-orange-300">
-                                                        <span x-show="!reviseFileName">Pilih File Revisi</span>
-                                                        <span x-show="reviseFileName">Ganti File</span>
-                                                        <input id="revise-upload" name="document_file" type="file"
-                                                            class="sr-only" accept=".pdf,.doc,.docx" required
-                                                            @change="reviseFileName = $event.target.files.length > 0 ? $event.target.files[0].name : ''">
-                                                    </label>
-                                                </div>
-                                                <p x-show="!reviseFileName" class="text-xs leading-5 text-gray-500 mt-1">
-                                                    PDF, DOC, DOCX maksimal 10MB</p>
-                                                <p x-show="reviseFileName" x-cloak
-                                                    class="text-sm font-bold text-green-600 dark:text-green-400 mt-2 flex items-center justify-center gap-1">
-                                                    <i class="fa-solid fa-check-circle"></i> <span
-                                                        x-text="reviseFileName"></span>
-                                                </p>
+                        <template x-for="doc in documentsList" :key="doc.id">
+                            <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 mt-0.5 font-bold text-indigo-600 bg-indigo-100 rounded-full dark:bg-indigo-900/40 dark:text-indigo-400"
+                                            x-text="doc.initial"></div>
+                                        <div>
+                                            <div class="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400" x-text="doc.document_id"></div>
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="doc.document_title"></div>
+                                            <div class="text-xs text-gray-500 mt-0.5">
+                                                <i class="fa-regular fa-user mr-1"></i>
+                                                <span x-text="doc.creator_name"></span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-indigo-600 dark:text-indigo-400" x-text="doc.type_name"></div>
+                                    <div class="text-xs text-gray-500 mt-0.5" x-text="doc.unit_name"></div>
+                                </td>
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <span class="inline-flex rounded-md px-2.5 py-1 text-xs font-bold border"
+                                        :class="{
+                                            'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50': doc.status == 3,
+                                            'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/50': doc.status == 4,
+                                            'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50': doc.status == 1 || doc.status == 2,
+                                            'bg-gray-100 text-gray-800 border-gray-200': doc.status != 1 && doc.status != 2 && doc.status != 3 && doc.status != 4
+                                        }"
+                                        x-text="doc.status_label"></span>
+                                </td>
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <span class="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800/50">
+                                        v<span x-text="doc.version"></span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <button type="button" @click="openDetail(doc)"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                        <i class="fa-solid fa-eye"></i> Detail
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                                {{-- Tombol Aksi --}}
-                                <div
-                                    class="flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 dark:border-gray-700 sm:flex-row sm:justify-end mt-8">
-                                    <button type="button" @click="openRevise = false"
-                                        class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-                                        Batal
-                                    </button>
-                                    <button type="submit"
-                                        class="inline-flex justify-center items-center gap-2 rounded-lg bg-orange-500 px-8 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-orange-600 transition">
-                                        <i class="fa-solid fa-upload"></i> Kirim Revisi
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+        {{-- Pagination --}}
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2"
+            x-show="pagination.total > 0 && !isLoading">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Menampilkan <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.from"></span>
+                – <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.to"></span>
+                dari <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.total"></span> data
+            </span>
+            <div class="flex gap-2">
+                <button type="button" @click="changePage(pagination.current_page - 1)" :disabled="!pagination.prev_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                    <i class="fa-solid fa-chevron-left"></i> Prev
+                </button>
+                <button type="button" @click="changePage(pagination.current_page + 1)" :disabled="!pagination.next_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        @include('documentrepository::modal-create')
+        @include('documentrepository::modal-detail')
+        @include('documentrepository::modal-revise')
+
+        {{-- FAB Filter --}}
+        <template x-teleport="body">
+        <div class="fixed z-[9990] flex flex-col items-end gap-3"
+            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
+            @click.away="filterFabOpen = false">
+            <div x-show="filterFabOpen" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
+                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
+
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
+                    </h3>
+                    <button type="button" x-show="activeFilterCount > 0" @click="resetFilters()"
+                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
+                        Reset
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
+                        <select x-model="sortFilter" @change="fetchDocuments(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="title_asc">Judul A-Z</option>
+                            <option value="title_desc">Judul Z-A</option>
+                            <option value="code_asc">Kode A-Z</option>
+                            <option value="code_desc">Kode Z-A</option>
+                        </select>
                     </div>
 
-                </div> {{-- Ini penutup div x-data dari tabel --}}
-            </div> {{-- Ini penutup div space-y-6 --}}
-        </div> {{-- Ini penutup mx-auto max-w-screen-2xl --}}
-    @endsection
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                        <select x-model="statusFilter" @change="fetchDocuments(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            <option value="pending">Menunggu Review</option>
+                            <option value="approved">Disetujui</option>
+                            <option value="rejected">Perlu Revisi</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Tipe Dokumen</label>
+                        <select x-model="typeFilter" @change="fetchDocuments(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua Tipe</option>
+                            @foreach ($documentTypes as $type)
+                                <option value="{{ $type->id }}">{{ $type->description }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" @click="filterFabOpen = !filterFabOpen"
+                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
+                :title="activeFilterCount > 0 && !filterFabOpen
+                    ? activeFilterCount + ' filter aktif'
+                    : (filterFabOpen ? 'Tutup filter' : 'Buka filter')">
+                <span class="relative inline-block leading-none">
+                    <i class="fa-solid text-lg transition-transform duration-200"
+                        :class="filterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
+                    <span x-show="activeFilterCount > 0 && !filterFabOpen" x-cloak
+                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
+                        aria-hidden="true"></span>
+                </span>
+            </button>
+        </div>
+        </template>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('documentsApp', () => ({
+                searchQuery: '',
+                perPageFilter: '50',
+                sortFilter: 'newest',
+                statusFilter: '',
+                typeFilter: '',
+                filterFabOpen: false,
+                documentsList: [],
+                isLoading: false,
+                pagination: {},
+                alert: { type: '', message: '' },
+
+                get activeFilterCount() {
+                    let count = 0;
+                    if (this.sortFilter !== 'newest') count++;
+                    if (this.statusFilter !== '') count++;
+                    if (this.typeFilter !== '') count++;
+                    return count;
+                },
+
+                initData() {
+                    @if(session('success'))
+                        this.flash('success', @js(session('success')));
+                    @endif
+                    @if(session('error'))
+                        this.flash('error', @js(session('error')));
+                    @endif
+                    @if($errors->any())
+                        this.flash('error', @js($errors->first() ?? 'Gagal menyimpan data.'));
+                    @endif
+                    this.fetchDocuments();
+                },
+
+                flash(type, message) {
+                    this.alert = { type, message };
+                    setTimeout(() => { this.alert.message = ''; }, 4000);
+                },
+
+                async fetchDocuments(page = 1) {
+                    this.isLoading = true;
+                    this.documentsList = [];
+
+                    const params = new URLSearchParams({
+                        page: page,
+                        per_page: this.perPageFilter,
+                        search: this.searchQuery,
+                        sort: this.sortFilter,
+                        status: this.statusFilter,
+                        document_type_id: this.typeFilter,
+                    });
+
+                    try {
+                        const response = await fetch(`{{ route('DocumentRepository.api.data') }}?${params.toString()}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        const result = await response.json();
+                        this.documentsList = result.data || [];
+                        this.pagination = {
+                            current_page: result.current_page,
+                            from: result.from || 0,
+                            to: result.to || 0,
+                            total: result.total || 0,
+                            prev_page_url: result.prev_page_url,
+                            next_page_url: result.next_page_url,
+                        };
+                    } catch (error) {
+                        console.error('Gagal memuat dokumen', error);
+                        this.pagination = { total: 0, from: 0, to: 0 };
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                changePage(page) {
+                    this.fetchDocuments(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                resetFilters() {
+                    this.sortFilter = 'newest';
+                    this.statusFilter = '';
+                    this.typeFilter = '';
+                    this.fetchDocuments(1);
+                },
+
+                openDetail(doc) {
+                    window.dispatchEvent(new CustomEvent('open-detail-modal', {
+                        bubbles: true,
+                        detail: { doc, context: 'repository' },
+                    }));
+                },
+            }));
+        });
+    </script>
+@endsection
