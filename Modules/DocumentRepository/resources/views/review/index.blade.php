@@ -89,6 +89,19 @@
                                             <div class="text-xs text-gray-500 mt-0.5">
                                                 Oleh: <span x-text="doc.creator_name"></span>
                                             </div>
+                                            <div class="flex flex-wrap gap-1.5 mt-2">
+                                                <span class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold border"
+                                                    :class="doc.sifat_dokumen === 'Publik'
+                                                        ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
+                                                        : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50'">
+                                                    <i class="fa-solid" :class="doc.sifat_dokumen === 'Publik' ? 'fa-globe' : 'fa-lock'"></i>
+                                                    <span x-text="doc.sifat_dokumen === 'Publik' ? 'Public' : 'Private'"></span>
+                                                </span>
+                                                <span x-show="doc.is_ppid" x-cloak
+                                                    class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50">
+                                                    <i class="fa-solid fa-clipboard-check"></i> PPID
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

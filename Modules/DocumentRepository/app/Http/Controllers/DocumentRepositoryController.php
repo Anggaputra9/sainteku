@@ -42,7 +42,7 @@ class DocumentRepositoryController extends Controller
             $perPage = 50;
         }
 
-        $documents = $this->buildDocumentsQuery($request)
+        $documents = $this->buildDocumentsQuery($request, false)
             ->paginate($perPage)
             ->through(fn (Document $doc): array => $this->formatDocumentForApi($doc));
 
@@ -76,7 +76,7 @@ class DocumentRepositoryController extends Controller
             $perPage = 50;
         }
 
-        $documents = $this->buildDocumentsQuery($request)
+        $documents = $this->buildDocumentsQuery($request, true)
             ->paginate($perPage)
             ->through(fn (Document $doc): array => $this->formatDocumentForApi($doc, true));
 
@@ -86,7 +86,7 @@ class DocumentRepositoryController extends Controller
             ->header('Expires', '0');
     }
 
-    private function buildDocumentsQuery(Request $request)
+    private function buildDocumentsQuery(Request $request, bool $reviewContext = false)
     {
         $query = Document::with([
             'type',
@@ -95,6 +95,13 @@ class DocumentRepositoryController extends Controller
             'workflowStatus',
             'versions' => fn ($q) => $q->orderByDesc('version'),
         ]);
+
+        if (! $reviewContext) {
+            $query->where(function ($q) {
+                $q->where('sifat_dokumen', 'Publik')
+                    ->orWhere('created_by', auth()->id());
+            });
+        }
 
         $search = trim((string) $request->query('search', ''));
         if ($search !== '') {
@@ -118,6 +125,15 @@ class DocumentRepositoryController extends Controller
         $typeId = $request->query('document_type_id');
         if ($typeId !== null && $typeId !== '') {
             $query->where('document_type_id', $typeId);
+        }
+
+        $visibility = (string) $request->query('visibility', '');
+        if (! $reviewContext && $visibility !== '') {
+            match ($visibility) {
+                'public' => $query->where('sifat_dokumen', 'Publik'),
+                'private' => $query->where('sifat_dokumen', 'Private'),
+                default => null,
+            };
         }
 
         $sort = (string) $request->query('sort', 'newest');
@@ -145,6 +161,8 @@ class DocumentRepositoryController extends Controller
         $canReview = $reviewContext
             && Auth::user()->hasPermission($this->moduleId, 'A')
             && (int) $doc->status !== 3;
+        $canEdit = Auth::user()->hasPermission($this->moduleId, 'U')
+            && $doc->created_by === auth()->id();
 
         return [
             'id' => $doc->id,
@@ -160,14 +178,18 @@ class DocumentRepositoryController extends Controller
             'creator_name' => $doc->creator->name ?? 'Sistem',
             'effective_date' => $doc->effective_date,
             'expired_date' => $doc->expired_date,
+            'sifat_dokumen' => $doc->sifat_dokumen ?? 'Private',
+            'is_ppid' => (bool) ($doc->is_ppid ?? false),
             'revision_note' => $revisionNote,
             'initial' => mb_strtoupper(mb_substr($doc->document_title, 0, 1)),
             'download_url' => route('DocumentRepository.download', $doc->id),
             'revise_url' => route('DocumentRepository.revise', $doc->id),
             'review_url' => route('DocumentRepository.review', $doc->id),
+            'update_url' => route('DocumentRepository.update', $doc->id),
             'can_download' => $canDownload && ($reviewContext || (int) $doc->status === 3),
             'can_revise' => $canRevise,
             'can_review' => $canReview,
+            'can_edit' => $canEdit,
             'is_locked' => in_array((int) $doc->status, [1, 2], true),
         ];
     }
@@ -189,6 +211,8 @@ class DocumentRepositoryController extends Controller
             'document_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
             'effective_date' => 'required|date',
             'expired_date' => 'nullable|date|after_or_equal:effective_date',
+            'sifat_dokumen' => 'required|in:Publik,Private',
+            'is_ppid' => 'nullable|boolean',
         ]);
 
         DB::beginTransaction();
@@ -210,6 +234,8 @@ class DocumentRepositoryController extends Controller
                 'version' => 1,
                 'file_path' => $filePath,
                 'status' => 1,
+                'sifat_dokumen' => $request->sifat_dokumen,
+                'is_ppid' => $request->has('is_ppid'),
                 'effective_date' => $request->effective_date,
                 'expired_date' => $request->expired_date,
                 'created_by' => auth()->id(),
@@ -255,6 +281,13 @@ class DocumentRepositoryController extends Controller
         }
 
         $document = Document::findOrFail($id);
+
+        if ($document->sifat_dokumen === 'Private'
+            && $document->created_by !== auth()->id()
+            && ! Auth::user()->hasPermission($this->moduleId, 'A')) {
+            abort(403, 'Anda tidak memiliki akses ke dokumen Private ini.');
+        }
+
         if (Storage::disk('public')->exists($document->file_path)) {
             return Storage::disk('public')->response($document->file_path);
         }
@@ -383,6 +416,51 @@ class DocumentRepositoryController extends Controller
             DB::rollBack();
 
             return back()->with('error', 'Gagal revisi: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'U')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $request->validate([
+            'document_title' => 'required|string|max:255',
+            'document_type_id' => 'required|string|exists:ref_document_type,id',
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'effective_date' => 'required|date',
+            'expired_date' => 'nullable|date|after_or_equal:effective_date',
+            'sifat_dokumen' => 'required|in:Publik,Private',
+            'is_ppid' => 'nullable|boolean',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $document = Document::findOrFail($id);
+
+            if ($document->created_by !== auth()->id()) {
+                abort(403, 'Anda hanya dapat mengedit dokumen milik sendiri.');
+            }
+
+            $document->update([
+                'document_title' => $request->document_title,
+                'document_type_id' => $request->document_type_id,
+                'unit_id' => $request->unit_id,
+                'effective_date' => $request->effective_date,
+                'expired_date' => $request->expired_date,
+                'sifat_dokumen' => $request->sifat_dokumen,
+                'is_ppid' => $request->has('is_ppid'),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('DocumentRepository.index')
+                ->with('success', 'Dokumen berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with('error', 'Gagal memperbarui dokumen: ' . $e->getMessage())->withInput();
         }
     }
 }

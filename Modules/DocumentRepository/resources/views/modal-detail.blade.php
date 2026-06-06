@@ -71,6 +71,22 @@
                                 }"
                                 x-text="docData.status_label"></span>
                         </div>
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Visibilitas</div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold border"
+                                    :class="docData.sifat_dokumen === 'Publik'
+                                        ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/50'
+                                        : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700/30 dark:text-gray-400 dark:border-gray-600/50'">
+                                    <i class="fa-solid" :class="docData.sifat_dokumen === 'Publik' ? 'fa-globe' : 'fa-lock'"></i>
+                                    <span x-text="docData.sifat_dokumen === 'Publik' ? 'Public' : 'Private'"></span>
+                                </span>
+                                <span x-show="docData.is_ppid" x-cloak
+                                    class="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800/50">
+                                    <i class="fa-solid fa-clipboard-check"></i> PPID
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -120,6 +136,10 @@
                         <i class="fas fa-times"></i> Tutup
                     </button>
                     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                        <button type="button" x-show="docData.can_edit" @click="openEdit()"
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-slate-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-slate-700 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-pen-to-square"></i> Edit
+                        </button>
                         <button type="button" x-show="docData.can_review" @click="enterReviewMode()"
                             class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                             <i class="fas fa-gavel"></i> Review
@@ -211,6 +231,14 @@
                         reviseUrl: this.docData.revise_url,
                         documentTitle: this.docData.document_title,
                     },
+                }));
+            },
+
+            openEdit() {
+                this.openDetail = false;
+                window.dispatchEvent(new CustomEvent('open-edit-modal', {
+                    bubbles: true,
+                    detail: { doc: this.docData },
                 }));
             },
         }));

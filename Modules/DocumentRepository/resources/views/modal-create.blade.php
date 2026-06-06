@@ -17,6 +17,7 @@
             tingkatUnit: '',
             filterFakultas: '',
             unitPemilikId: '{{ old('unit_id') }}',
+            sifatDokumen: '{{ old('sifat_dokumen', 'Private') }}',
             fileName: '',
             kampusId: '{{ $kampusId }}',
             kampusName: '{{ $kampusName }}',
@@ -106,6 +107,67 @@
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                        <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                                <i class="fa-solid fa-eye text-indigo-500"></i> Visibilitas Dokumen
+                            </h4>
+                        </div>
+                        <div class="p-5 space-y-4">
+                            <input type="hidden" name="sifat_dokumen" :value="sifatDokumen" required>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <button type="button" @click="sifatDokumen = 'Publik'"
+                                    class="rounded-xl border p-4 text-left transition"
+                                    :class="sifatDokumen === 'Publik'
+                                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-900/30'
+                                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-gray-500'">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                            :class="sifatDokumen === 'Publik' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-800/50 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'">
+                                            <i class="fa-solid fa-globe"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white">Public</p>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Semua pengguna dapat melihat dokumen ini di repositori.</p>
+                                        </div>
+                                    </div>
+                                </button>
+                                <button type="button" @click="sifatDokumen = 'Private'"
+                                    class="rounded-xl border p-4 text-left transition"
+                                    :class="sifatDokumen === 'Private'
+                                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-900/30'
+                                        : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-gray-500'">
+                                    <div class="flex items-start gap-3">
+                                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                            :class="sifatDokumen === 'Private' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-800/50 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'">
+                                            <i class="fa-solid fa-lock"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-900 dark:text-white">Private</p>
+                                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Hanya Anda yang dapat melihat dan mengakses dokumen ini.</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-800/50 dark:bg-amber-900/20">
+                                <label class="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" name="is_ppid" value="1" {{ old('is_ppid') ? 'checked' : '' }}
+                                        class="mt-1 h-5 w-5 rounded border-gray-300 text-amber-600 focus:ring-2 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-900">
+                                    <div class="flex-1">
+                                        <span class="block text-sm font-bold text-gray-900 dark:text-white">
+                                            <i class="fa-solid fa-clipboard-check text-amber-600 dark:text-amber-400 mr-1"></i>
+                                            Dokumen PPID
+                                        </span>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                            Tandai jika dokumen termasuk kategori informasi publik Pejabat Pengelola Informasi dan Dokumentasi.
+                                        </p>
+                                    </div>
+                                </label>
                             </div>
                         </div>
                     </div>

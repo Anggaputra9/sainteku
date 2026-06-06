@@ -25,6 +25,7 @@ Route::prefix('documentrepository')->middleware(['web', 'auth'])->group(function
     Route::get('/review', [DocumentRepositoryController::class, 'reviewIndex'])->name('DocumentRepository.review.index');
 
     // 4. Route Aksi Review & Revisi
+    Route::put('/{id}/update', [DocumentRepositoryController::class, 'update'])->name('DocumentRepository.update');
     Route::post('/{id}/review', [DocumentRepositoryController::class, 'review'])->name('DocumentRepository.review');
     Route::post('/{id}/revise', [DocumentRepositoryController::class, 'revise'])->name('DocumentRepository.revise');
 
