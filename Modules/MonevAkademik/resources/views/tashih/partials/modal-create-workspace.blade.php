@@ -94,7 +94,7 @@
 
                     {{-- FOOTER --}}
                     <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
-                        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between sm:items-center">
+                        <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
                             <button type="button" @click="
                                 if(isEditMode) {
                                     openCreate = false;
@@ -104,11 +104,11 @@
                                     $dispatch('buka-modal-matkul');
                                 }
                             "
-                                class="inline-flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 transition">
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                                 <i class="fas fa-arrow-left"></i> Kembali
                             </button>
                             <button type="submit" id="btn-submit" disabled
-                                class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-8 py-2.5 text-sm font-bold text-white shadow-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400">
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed sm:px-8 sm:py-2.5 sm:text-sm transition-all">
                                 <i class="fas fa-paper-plane"></i>
                                 <span x-text="isEditMode ? 'Simpan Perubahan' : 'Kirim Pengajuan'"></span>
                             </button>

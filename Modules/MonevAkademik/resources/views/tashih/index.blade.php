@@ -3,6 +3,7 @@
 @section('content')
     <div class="space-y-6" x-data="tashihApp()" x-init="initData()"
         @buka-modal-matkul.window="openSelectCourse = true; courseId = ''; courseName = '';"
+        @tutup-modal-matkul.window="openSelectCourse = false"
         @lanjut-bikin-soal.window="
             courseId = $event.detail.id;
             courseName = $event.detail.name;
@@ -224,7 +225,8 @@
 
         {{-- FAB FILTER --}}
         <template x-teleport="body">
-        <div class="fixed z-[9990] flex flex-col items-end gap-3"
+        <div x-show="!openSelectCourse && !openCreate && !openBankSoal && !openDetail" x-cloak
+            class="fixed z-[9990] flex flex-col items-end gap-3"
             style="bottom: 1.5rem; right: 1.5rem; left: auto;"
             @click.away="filterFabOpen = false">
             <div x-show="filterFabOpen" x-cloak
