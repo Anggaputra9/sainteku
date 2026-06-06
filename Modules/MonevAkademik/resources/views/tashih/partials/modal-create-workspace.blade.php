@@ -9,22 +9,22 @@
             class="relative w-full max-w-5xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
 
             {{-- HEADER --}}
-            <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
-                <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
-                    <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
-                        <i class="fa-solid fa-file-circle-plus text-sm text-blue-600 dark:text-blue-400 sm:text-base"></i>
+            <div class="shrink-0 border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 sticky top-0">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                        <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 dark:bg-indigo-900/30 dark:border-indigo-800/50">
+                            <i class="fa-solid fa-file-circle-plus text-sm text-indigo-600 dark:text-indigo-400 sm:text-base"></i>
+                        </div>
+                        <div class="min-w-0 leading-tight">
+                            <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl"
+                                x-text="isEditMode ? 'Edit Pengajuan Soal' : 'Buat Pengajuan Soal'"></h3>
+                            <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm" x-text="courseName"></p>
+                        </div>
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl"
-                            x-text="isEditMode ? 'Edit Pengajuan Soal' : 'Buat Pengajuan Soal'"></h3>
-                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm" x-text="courseName"></p>
-                    </div>
-                </div>
-                <div class="shrink-0">
                     <span id="weight-badge"
-                        class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-gray-800 border border-gray-200 transition-all duration-300 whitespace-nowrap shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200">
-                        Bobot: <span id="weight-number" class="ml-1">0</span>
-                        <span class="mx-0.5 text-gray-400">/</span> 100
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-slate-600 border border-slate-200 transition-all duration-300 whitespace-nowrap dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300">
+                        <i class="fa-solid fa-scale-balanced text-[10px] opacity-60"></i>
+                        <span id="weight-number">0</span><span class="text-slate-400">/100</span>
                     </span>
                 </div>
             </div>
@@ -40,7 +40,8 @@
                     <input type="hidden" name="course_id" :value="courseId">
 
                     <div class="p-4 sm:p-6 lg:p-8 flex-1 space-y-5">
-                        {{-- SETUP UJIAN --}}
+
+                        {{-- INFORMASI UJIAN --}}
                         <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
                             <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
                                 <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
@@ -51,7 +52,7 @@
                                 <div>
                                     <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Jenis Ujian</label>
                                     <select name="exam_type" required
-                                        class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                                        class="w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500">
                                         <option value="UTS">Ujian Tengah Semester (UTS)</option>
                                         <option value="UAS">Ujian Akhir Semester (UAS)</option>
                                     </select>
@@ -59,7 +60,7 @@
                                 <div>
                                     <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Periode Akademik</label>
                                     <select name="period_id" required
-                                        class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                                        class="w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500">
                                         <option value="">-- Pilih Periode --</option>
                                         @foreach($periods as $period)
                                             <option value="{{ $period->id }}" {{ $period->is_active ? 'selected' : '' }}>
@@ -73,18 +74,18 @@
 
                         {{-- BUTIR SOAL --}}
                         <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                            <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
                                 <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                                     <i class="fa-solid fa-list-ol text-indigo-500"></i> Butir Soal
                                 </h4>
-                                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total bobot harus 100%</span>
+                                <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500">Total bobot 100%</span>
                             </div>
                             <div class="p-5">
                                 <div id="questions-container" class="space-y-4"></div>
 
                                 <div id="action-buttons-container" class="mt-4 flex justify-center" style="display: none;">
                                     <button type="button" @click="openBankSoalModal()"
-                                        class="inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-6 py-3 text-sm font-bold text-indigo-600 hover:bg-indigo-50 transition w-full sm:w-auto dark:border-indigo-800/50 dark:bg-indigo-900/10 dark:text-indigo-400 dark:hover:bg-indigo-900/20">
+                                        class="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-slate-50 px-6 py-3 text-sm font-semibold text-indigo-600 transition hover:border-indigo-300 hover:bg-indigo-50/50 dark:border-gray-600 dark:bg-[#0f172a] dark:text-indigo-400 dark:hover:border-indigo-700 dark:hover:bg-indigo-900/10">
                                         <i class="fas fa-database"></i> Cari dari Bank Soal
                                     </button>
                                 </div>
@@ -108,7 +109,7 @@
                                 <i class="fas fa-arrow-left"></i> Kembali
                             </button>
                             <button type="submit" id="btn-submit" disabled
-                                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                                class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed sm:px-8 sm:py-2.5 sm:text-sm transition-all">
                                 <i class="fas fa-paper-plane"></i>
                                 <span x-text="isEditMode ? 'Simpan Perubahan' : 'Kirim Pengajuan'"></span>
                             </button>
@@ -151,78 +152,75 @@
         const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
         let checkboxesHtml = cpmkDataList.map(cpmk => `
-            <label class="flex items-center p-1.5 sm:p-2 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors dark:hover:bg-indigo-900/20">
+            <label class="flex items-start gap-2.5 rounded-lg px-2 py-1.5 cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <input type="checkbox" name="questions[${uniqueId}][cpmk_id][]" value="${cpmk.id}"
                     onchange="validateFormStates(); saveDraft()"
-                    class="q-cpmk-checkbox w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 cursor-pointer dark:bg-gray-700 dark:border-gray-600">
-                <span class="ml-2.5 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 select-none">${cpmk.id} - ${cpmk.name}</span>
+                    class="q-cpmk-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-0 focus:ring-offset-0 dark:border-gray-600 dark:bg-gray-700">
+                <span class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-snug">${cpmk.id} — ${cpmk.name}</span>
             </label>
         `).join('');
 
         const html = `
-            <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#0f172a] overflow-hidden question-card" id="q-card-${uniqueId}">
-                <div class="flex items-center justify-between border-b border-gray-100 bg-gray-50/80 px-4 sm:px-5 py-3 dark:bg-[#1e293b] dark:border-gray-700">
-                    <div class="flex items-center gap-2">
-                        <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 dark:bg-indigo-900/40">
-                            <i class="fa-solid fa-circle-question text-xs text-indigo-600 dark:text-indigo-400"></i>
-                        </div>
-                        <h5 class="font-bold text-gray-800 dark:text-gray-200 question-number-title text-sm">Soal #</h5>
+            <div class="question-card rounded-xl border border-gray-200 bg-slate-50/50 overflow-hidden dark:border-gray-700 dark:bg-[#0f172a]/50" id="q-card-${uniqueId}">
+                <div class="flex items-center justify-between bg-white px-4 py-3 border-b border-gray-100 dark:bg-[#1e293b] dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <span class="question-number-badge flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-xs font-bold text-white shadow-sm">1</span>
+                        <span class="question-number-title text-sm font-bold text-gray-700 dark:text-gray-200">Butir Soal</span>
                     </div>
                     <button type="button" onclick="removeCard('${uniqueId}')"
-                        class="delete-card-btn inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-1.5 text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600 transition dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-red-900/20"
+                        class="delete-card-btn inline-flex items-center justify-center rounded-lg p-1.5 text-gray-400 transition hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20"
                         title="Hapus Soal">
                         <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 </div>
 
-                <div class="p-4 sm:p-5 space-y-4">
+                <div class="p-4 sm:p-5 space-y-4 bg-white dark:bg-[#1e293b]">
                     <div>
                         <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Pertanyaan</label>
                         <textarea name="questions[${uniqueId}][question_text]" rows="3"
                             oninput="validateFormStates(); saveDraft()"
-                            class="q-text w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-3 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white"
+                            class="q-text w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition resize-y focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500"
                             required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 border-t border-gray-100 pt-4 dark:border-gray-700">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Target CPMK</label>
-                                <div class="max-h-36 overflow-y-auto custom-scrollbar rounded-xl border border-gray-200 bg-gray-50/50 p-2 dark:bg-[#0f172a] dark:border-gray-600 space-y-0.5">
-                                    ${checkboxesHtml}
-                                </div>
-                                <p class="text-[10px] text-red-500 mt-1.5 font-medium hidden error-cpmk" id="err-cpmk-${uniqueId}">* Pilih minimal 1 CPMK</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-1">
+                        <div class="lg:col-span-1">
+                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Target CPMK</label>
+                            <div class="max-h-40 overflow-y-auto custom-scrollbar rounded-xl border border-gray-200 bg-slate-50 p-2 space-y-0.5 dark:border-gray-600 dark:bg-[#0f172a]">
+                                ${checkboxesHtml}
                             </div>
-                            <div>
-                                <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Bobot (%)</label>
-                                <div class="relative">
-                                    <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}"
-                                        oninput="validateFormStates(); saveDraft()"
-                                        class="q-weight w-full rounded-xl border-gray-300 bg-gray-50 pl-4 pr-10 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white"
-                                        required placeholder="0">
-                                    <span class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 font-bold text-sm pointer-events-none">%</span>
-                                </div>
+                            <p class="text-[10px] text-red-500 mt-1.5 font-medium hidden error-cpmk" id="err-cpmk-${uniqueId}">Pilih minimal 1 CPMK</p>
+                        </div>
+
+                        <div>
+                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Bobot (%)</label>
+                            <div class="relative">
+                                <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}"
+                                    oninput="validateFormStates(); saveDraft()"
+                                    class="q-weight w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500 pr-10"
+                                    required placeholder="0" min="0" max="100">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm font-semibold text-gray-400 pointer-events-none">%</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Ilustrasi (Opsional)</label>
-                            <div class="relative flex items-center justify-center min-h-[120px] w-full rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors dark:border-gray-600 dark:bg-[#0f172a] p-3 text-center cursor-pointer group/file ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
+                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Ilustrasi <span class="normal-case font-medium text-gray-300">(opsional)</span></label>
+                            <div class="relative flex items-center justify-center min-h-[112px] w-full rounded-xl border border-dashed border-gray-300 bg-slate-50 p-3 text-center cursor-pointer transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-indigo-700 ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
                                 <input type="file" name="questions[${uniqueId}][image]" accept="image/*"
                                     onchange="handleImagePreview(this, '${uniqueId}')"
-                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                <div class="flex flex-col items-center justify-center gap-1">
-                                    <i class="fas fa-image text-2xl text-gray-300 group-hover/file:text-indigo-500 transition-colors dark:text-gray-600"></i>
-                                    <span class="text-xs font-medium text-gray-500 group-hover/file:text-indigo-600 dark:text-gray-400">Klik untuk menyisipkan gambar</span>
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                    <i class="fas fa-image text-xl text-gray-300 dark:text-gray-600"></i>
+                                    <span class="text-xs text-gray-400">Klik untuk upload gambar</span>
                                 </div>
                             </div>
-                            <div id="preview-container-${uniqueId}" class="relative rounded-xl border border-gray-200 bg-gray-50 p-2 ${data.image_path ? '' : 'hidden'} dark:bg-[#0f172a] dark:border-gray-600">
+                            <div id="preview-container-${uniqueId}" class="relative rounded-xl border border-gray-200 bg-slate-50 p-2 ${data.image_path ? '' : 'hidden'} dark:border-gray-600 dark:bg-[#0f172a]">
                                 <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}"
-                                    class="w-full h-28 object-contain rounded-lg bg-white dark:bg-gray-900">
+                                    class="w-full h-28 object-contain rounded-lg">
                                 <button type="button" onclick="removeImage('${uniqueId}')"
-                                    class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 transition"
+                                    class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] hover:bg-red-500 transition"
                                     title="Hapus Gambar">
-                                    <i class="fas fa-times text-[10px]"></i>
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
@@ -288,8 +286,8 @@
     function updateQuestionNumbers() {
         const cards = document.querySelectorAll('.question-card');
         cards.forEach((card, index) => {
-            const title = card.querySelector('.question-number-title');
-            if (title) title.innerText = `Soal #${index + 1}`;
+            const badge = card.querySelector('.question-number-badge');
+            if (badge) badge.innerText = index + 1;
             const deleteBtn = card.querySelector('.delete-card-btn');
             if (deleteBtn) deleteBtn.style.display = cards.length === 1 ? 'none' : 'inline-flex';
         });
@@ -348,14 +346,14 @@
         clearTimeout(autoAddTimer);
 
         if (total === 100 && isAllCardsFilled) {
-            badge.className = 'inline-flex items-center rounded-full bg-green-50 border border-green-200 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-green-700 transition-all duration-300 whitespace-nowrap shadow-sm dark:bg-green-900/30 dark:border-green-800 dark:text-green-400';
+            badge.className = 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-emerald-700 border border-emerald-200 transition-all duration-300 whitespace-nowrap dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400';
             btnSubmit.disabled = false;
             actionContainer.style.display = 'none';
         } else {
             if (total > 100) {
-                badge.className = 'inline-flex items-center rounded-full bg-red-50 border border-red-200 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-red-700 transition-all duration-300 whitespace-nowrap shadow-sm dark:bg-red-900/30 dark:border-red-800 dark:text-red-400';
+                badge.className = 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-red-700 border border-red-200 transition-all duration-300 whitespace-nowrap dark:bg-red-900/20 dark:border-red-800 dark:text-red-400';
             } else {
-                badge.className = 'inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-amber-700 transition-all duration-300 whitespace-nowrap shadow-sm dark:bg-amber-900/30 dark:border-amber-800 dark:text-amber-400';
+                badge.className = 'inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold text-amber-700 border border-amber-200 transition-all duration-300 whitespace-nowrap dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400';
             }
             btnSubmit.disabled = true;
             actionContainer.style.display = 'flex';
