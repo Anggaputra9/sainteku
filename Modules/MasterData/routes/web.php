@@ -40,12 +40,15 @@ Route::middleware([
     // Admin UI: manage users 
     // (Middleware role:1 dihapus karena grup luar udah khusus Admin)
     Route::prefix('admin')->group(function () {
+        Route::get('users/api/data', [AdminController::class, 'getUsersData'])->name('admin.users.api.data');
         Route::get('users', [AdminController::class, 'index'])->name('admin.users.index');
         Route::post('users/{id}/role', [AdminController::class, 'assignRole'])->name('admin.users.assign');
 
         // User CRUD
         Route::get('users/create', [AdminController::class, 'create'])->name('admin.users.create');
         Route::post('users', [AdminController::class, 'store'])->name('admin.users.store');
+        Route::post('users/bulk', [AdminController::class, 'bulkStore'])->name('admin.users.bulk.store');
+        Route::get('users/bulk/template', [AdminController::class, 'downloadBulkTemplate'])->name('admin.users.bulk.template');
         Route::get('users/{id}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
         Route::put('users/{id}', [AdminController::class, 'update'])->name('admin.users.update');
         Route::delete('users/{id}', [AdminController::class, 'destroy'])->name('admin.users.destroy');

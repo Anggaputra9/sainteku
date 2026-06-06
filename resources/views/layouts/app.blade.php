@@ -15,6 +15,20 @@
         [x-cloak] {
             display: none !important;
         }
+
+        #modal-root {
+            position: relative;
+            z-index: 10000000;
+            pointer-events: none;
+        }
+
+        #modal-root > * {
+            pointer-events: auto;
+        }
+
+        .app-modal-overlay {
+            z-index: 10000000 !important;
+        }
     </style>
 
     <!-- Scripts -->
@@ -184,6 +198,8 @@
             </main>
         </div>
     </div>
+
+    <div id="modal-root"></div>
 </body>
 
 @stack('scripts')

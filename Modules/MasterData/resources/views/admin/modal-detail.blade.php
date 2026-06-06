@@ -1,7 +1,12 @@
 @php
+    $adminRoleId = $roles->first(fn ($r) => $r->role_code === 'ADM')?->id;
+    $mahasiswaRoleId = $roles->first(fn ($r) => $r->role_code === 'MHS')?->id;
+    $studentUserType = \Modules\MasterData\Http\Controllers\AdminController::STUDENT_USER_TYPE;
+    $primaryAdminId = \Modules\MasterData\Http\Controllers\AdminController::PRIMARY_ADMIN_ID;
+
     // Data Hierarki Unit
     $kampus = $units->first(fn($u) => $u->id === $u->unit_parent);
-    $kampusId = $kampus->id ?? 'U001';
+    $kampusId = $kampus->id ?? 'UIN';
     $kampusName = $kampus->unit_name ?? 'UIN Prof. K.H. Saifuddin Zuhri';
 
     $fakultasList = $units->filter(fn($u) => $u->unit_parent === $kampusId && $u->id !== $kampusId)->values();
@@ -12,33 +17,33 @@
     $listProdiArr = $prodiList->map(fn($p) => ['id' => (string) $p->id, 'name' => $p->unit_name, 'parent' => (string) $p->unit_parent])->toArray();
 @endphp
 
+<template x-teleport="#modal-root">
 <div x-data="openDetailModal()" @open-detail-modal.window="handleOpenDetail($event)" x-show="openDetail"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm"
-    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
+    class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
+    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
     <div @click.away="openDetail = false"
-        class="relative w-full max-w-4xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-200 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
+        class="relative w-full max-w-4xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
 
         {{-- MODAL HEADER --}}
         <div
-            class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700">
-            <div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-user text-indigo-500"></i> Detail User
-                </h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Informasi pengguna: <span
-                        class="font-semibold text-indigo-600 dark:text-indigo-400" x-text="userData.name"></span></p>
+            class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
+            <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
+                <div
+                    class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
+                    <i class="fa-solid fa-user text-sm text-blue-600 dark:text-blue-400 sm:text-base"></i>
+                </div>
+                <div class="min-w-0 leading-tight">
+                    <h3 class="truncate whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl">
+                        Detail User
+                    </h3>
+                    <p class="truncate whitespace-nowrap text-xs text-gray-500 dark:text-gray-400 sm:text-sm"
+                        x-text="userData.name"></p>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button type="button" @click="toggleEditMode()"
-                    class="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold transition shadow-sm"
-                    :class="editMode ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-800' : 'bg-indigo-600 text-white hover:bg-indigo-700'">
-                    <i class="fa-solid" :class="editMode ? 'fa-eye' : 'fa-pen'"></i>
-                    <span x-text="editMode ? 'Mode Lihat' : 'Mode Edit'"></span>
-                </button>
-            </div>
+            <div class="shrink-0 w-8 sm:w-9"></div>
         </div>
 
         {{-- FORM WRAPPER --}}
@@ -50,7 +55,7 @@
             <input type="hidden" name="unit_id" :value="userData.unit">
 
             {{-- SCROLLABLE BODY --}}
-            <div class="flex-1 overflow-y-auto p-6 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
+            <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
 
                 {{-- ================= MODE LIHAT (READONLY) ================= --}}
                 <div x-show="!editMode" class="space-y-5" x-transition>
@@ -62,6 +67,12 @@
                             </h4>
                         </div>
                         <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="md:col-span-2">
+                                <div class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                                    ID User</div>
+                                <div class="text-sm font-mono font-semibold text-indigo-700 dark:text-indigo-400"
+                                    x-text="userData.id || '—'"></div>
+                            </div>
                             <div>
                                 <div class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">
                                     Nama Lengkap</div>
@@ -128,12 +139,16 @@
                                     Unit Utama</div>
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">
                                     @foreach ($units as $unit)
-                                        <span x-show="userData.unit == '{{ $unit->id }}'">{{ $unit->unit_name }}</span>
+                                        <span x-show="userData.unit == '{{ $unit->id }}'">
+                                            <span class="font-mono font-semibold text-indigo-600 dark:text-indigo-400">{{ $unit->id }}</span>
+                                            <span class="text-gray-400 mx-1">—</span>
+                                            {{ $unit->unit_name }}
+                                        </span>
                                     @endforeach
                                 </div>
                             </div>
                             <div
-                                x-show="userData.tingkatUtama !== 'kampus' && userData.unitTambahan && userData.unitTambahan.length > 0">
+                                x-show="!isMahasiswa() && userData.tingkatUtama !== 'kampus' && userData.unitTambahan && userData.unitTambahan.length > 0">
                                 <div class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">
                                     Unit Tambahan / Rangkap</div>
                                 <div class="flex flex-wrap gap-2">
@@ -297,8 +312,9 @@
                     </div>
 
                     {{-- SECTION: UNIT TAMBAHAN / RANGKAP --}}
-                    <div x-show="userData.tingkatUtama !== '' && userData.unit !== '' && userData.tingkatUtama !== 'kampus'"
-                        x-cloak x-transition
+                    <template
+                        x-if="!isMahasiswa() && userData.tingkatUtama !== '' && userData.unit !== '' && userData.tingkatUtama !== 'kampus'">
+                    <div
                         class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
                         <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
                             <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
@@ -381,26 +397,45 @@
                             </div>
                         </div>
                     </div>
+                    </template>
 
-                    <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1e293b]">
-                        <h4 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200">
-                            <i class="fa-solid fa-shield-halved text-indigo-500"></i> Hak Akses / Role <span
-                                class="text-red-500">*</span>
-                        </h4>
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                            @foreach ($roles as $role)
-                                <label class="flex items-start gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
-                                        x-model="userData.roles"
-                                        class="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700">
-                                    <span
-                                        class="text-sm leading-snug text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 transition">
-                                        {{ $role->role_name }}
-                                    </span>
-                                </label>
-                            @endforeach
+                    <template x-if="isMahasiswa()">
+                        <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1e293b]">
+                            <h4 class="mb-3 flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200">
+                                <i class="fa-solid fa-shield-halved text-indigo-500"></i> Hak Akses / Role
+                            </h4>
+                            <div
+                                class="flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-800/50 dark:bg-blue-900/20 dark:text-blue-300">
+                                <i class="fa-solid fa-lock text-blue-500"></i>
+                                <span>Otomatis <strong>Mahasiswa</strong> sesuai tipe pengguna.</span>
+                            </div>
+                            <input type="hidden" name="role_ids[]" :value="mahasiswaRoleId">
                         </div>
-                    </div>
+                    </template>
+
+                    <template x-if="!isMahasiswa()">
+                        <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1e293b]">
+                            <h4 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200">
+                                <i class="fa-solid fa-shield-halved text-indigo-500"></i> Hak Akses / Role <span
+                                    class="text-red-500">*</span>
+                            </h4>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                                @foreach ($roles as $role)
+                                    <label class="flex items-start gap-3 cursor-pointer group"
+                                        :class="isAdminRoleLocked({{ $role->id }}) ? 'opacity-60 cursor-not-allowed' : ''">
+                                        <input type="checkbox" name="role_ids[]" value="{{ $role->id }}"
+                                            x-model="userData.roles"
+                                            :disabled="isAdminRoleLocked({{ $role->id }})"
+                                            class="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 disabled:cursor-not-allowed">
+                                        <span
+                                            class="text-sm leading-snug text-gray-700 dark:text-gray-300 group-hover:text-indigo-600 transition">
+                                            {{ $role->role_name }}
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </template>
 
                     <div class="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-[#1e293b]">
                         <h4 class="mb-4 flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200">
@@ -419,34 +454,58 @@
             </div>
 
             <div
-                class="shrink-0 flex justify-between border-t border-gray-200 bg-gray-50 px-6 py-4 dark:bg-gray-800/40 dark:border-gray-700 z-20">
-                <button type="button" @click="confirmDelete()"
-                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700 border border-red-200 hover:bg-red-100">
-                    <i class="fa-solid fa-trash"></i> Hapus
-                </button>
-                <div class="flex gap-2">
-                    <button type="button" @click="openDetail = false"
-                        class="inline-flex items-center gap-2 rounded-lg bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
-                        <i class="fa-solid fa-times"></i> Tutup
-                    </button>
-                    <button type="submit" x-show="editMode" x-transition
-                        class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 shadow-md transition">
-                        <i class="fa-solid fa-save"></i> Simpan
-                    </button>
+                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
+                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
+
+                    {{-- Mode lihat: Tutup | Mode edit: Batal (batalkan perubahan) --}}
+                    <div class="flex shrink-0 items-center">
+                        <button type="button" x-show="!editMode" @click="openDetail = false"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-times"></i> Tutup
+                        </button>
+                        <button type="button" x-show="editMode" @click="cancelEdit()"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                    </div>
+
+                    <div class="flex shrink-0 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
+                        <button type="button" x-show="!editMode && canDelete" @click="confirmDelete()"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg focus:ring-4 focus:ring-red-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+
+                        <button type="button" x-show="!editMode" @click="enterEditMode()"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 sm:gap-2 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+
+                        <button type="submit" x-show="editMode"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 sm:gap-2 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-save"></i> Simpan
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
+</template>
 
 <script>
     function openDetailModal() {
         return {
             openDetail: false,
             editMode: false,
+            canDelete: true,
             url: '',
             deleteUrl: '',
             userName: '',
+            editSnapshot: null,
+            adminRoleId: {{ $adminRoleId ?? 'null' }},
+            mahasiswaRoleId: {{ $mahasiswaRoleId ?? 'null' }},
+            studentUserType: @json($studentUserType),
+            primaryAdminId: @json($primaryAdminId),
 
             // Variabel untuk Filter Unit Dinamis
             kampusId: '{{ $kampusId }}',
@@ -459,6 +518,7 @@
             isInitializing: false,
 
             userData: {
+                id: '',
                 name: '',
                 email: '',
                 identity: '',
@@ -471,6 +531,11 @@
             },
 
             init() {
+                this.$watch('userData.type', (value, oldValue) => {
+                    if (this.isInitializing) return;
+                    this.applyMahasiswaTypeRules(value, oldValue);
+                });
+
                 // Pantau perubahan unit utama untuk mereset unit tambahan secara otomatis
                 this.$watch('userData.tingkatUtama', value => {
                     if (this.isInitializing) return;
@@ -498,6 +563,8 @@
                 this.url = event.detail.url;
                 this.deleteUrl = event.detail.deleteUrl;
                 this.userName = event.detail.userName;
+                this.canDelete = event.detail.canDelete ?? true;
+                this.editSnapshot = null;
 
                 // Clone objek agar tidak merusak data aslinya dan paksa array menjadi string 
                 // agar x-model checkboxes bekerja semestinya dengan perbandingan Strict (===)
@@ -528,8 +595,41 @@
                 setTimeout(() => { this.isInitializing = false; }, 100);
             },
 
-            toggleEditMode() {
-                this.editMode = !this.editMode;
+            enterEditMode() {
+                this.editSnapshot = JSON.parse(JSON.stringify(this.userData));
+                this.editMode = true;
+            },
+
+            cancelEdit() {
+                if (this.editSnapshot) {
+                    this.userData = JSON.parse(JSON.stringify(this.editSnapshot));
+                }
+                this.editMode = false;
+                this.editSnapshot = null;
+            },
+
+            isMahasiswa() {
+                return this.userData.type === this.studentUserType;
+            },
+
+            applyMahasiswaTypeRules(value, oldValue) {
+                if (value === this.studentUserType) {
+                    if (this.mahasiswaRoleId !== null) {
+                        this.userData.roles = [String(this.mahasiswaRoleId)];
+                    }
+                    this.userData.unitTambahan = [];
+                    return;
+                }
+
+                if (oldValue === this.studentUserType) {
+                    this.userData.roles = [];
+                }
+            },
+
+            isAdminRoleLocked(roleId) {
+                return this.adminRoleId !== null
+                    && String(roleId) === String(this.adminRoleId)
+                    && this.userData.id === this.primaryAdminId;
             },
 
             confirmDelete() {
