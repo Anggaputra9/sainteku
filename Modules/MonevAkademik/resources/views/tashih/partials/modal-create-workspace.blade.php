@@ -184,45 +184,47 @@
                             required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-1">
-                        <div class="lg:col-span-1">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                        <div>
                             <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Target CPMK</label>
-                            <div class="max-h-40 overflow-y-auto custom-scrollbar rounded-xl border border-gray-200 bg-slate-50 p-2 space-y-0.5 dark:border-gray-600 dark:bg-[#0f172a]">
+                            <div class="max-h-48 overflow-y-auto custom-scrollbar rounded-xl border border-gray-200 bg-slate-50 p-2 space-y-0.5 dark:border-gray-600 dark:bg-[#0f172a]">
                                 ${checkboxesHtml}
                             </div>
                             <p class="text-[10px] text-red-500 mt-1.5 font-medium hidden error-cpmk" id="err-cpmk-${uniqueId}">Pilih minimal 1 CPMK</p>
                         </div>
 
-                        <div>
-                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Bobot (%)</label>
-                            <div class="relative">
-                                <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}"
-                                    oninput="validateFormStates(); saveDraft()"
-                                    class="q-weight w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500 pr-10"
-                                    required placeholder="0" min="0" max="100">
-                                <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm font-semibold text-gray-400 pointer-events-none">%</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Ilustrasi <span class="normal-case font-medium text-gray-300">(opsional)</span></label>
-                            <div class="relative flex items-center justify-center min-h-[112px] w-full rounded-xl border border-dashed border-gray-300 bg-slate-50 p-3 text-center cursor-pointer transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-indigo-700 ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
-                                <input type="file" name="questions[${uniqueId}][image]" accept="image/*"
-                                    onchange="handleImagePreview(this, '${uniqueId}')"
-                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                                <div class="flex flex-col items-center gap-1 pointer-events-none">
-                                    <i class="fas fa-image text-xl text-gray-300 dark:text-gray-600"></i>
-                                    <span class="text-xs text-gray-400">Klik untuk upload gambar</span>
+                        <div class="flex flex-col gap-4">
+                            <div>
+                                <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Bobot (%)</label>
+                                <div class="relative">
+                                    <input type="number" name="questions[${uniqueId}][weight]" value="${data.weight}"
+                                        oninput="validateFormStates(); saveDraft()"
+                                        class="q-weight w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500 pr-10"
+                                        required placeholder="0" min="0" max="100">
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm font-semibold text-gray-400 pointer-events-none">%</span>
                                 </div>
                             </div>
-                            <div id="preview-container-${uniqueId}" class="relative rounded-xl border border-gray-200 bg-slate-50 p-2 ${data.image_path ? '' : 'hidden'} dark:border-gray-600 dark:bg-[#0f172a]">
-                                <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}"
-                                    class="w-full h-28 object-contain rounded-lg">
-                                <button type="button" onclick="removeImage('${uniqueId}')"
-                                    class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] hover:bg-red-500 transition"
-                                    title="Hapus Gambar">
-                                    <i class="fas fa-times"></i>
-                                </button>
+
+                            <div>
+                                <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Ilustrasi <span class="normal-case font-medium text-gray-300">(opsional)</span></label>
+                                <div class="relative flex items-center justify-center min-h-[112px] w-full rounded-xl border border-dashed border-gray-300 bg-slate-50 p-3 text-center cursor-pointer transition hover:border-indigo-300 hover:bg-indigo-50/30 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-indigo-700 ${data.image_path ? 'hidden' : ''}" id="upload-wrapper-${uniqueId}">
+                                    <input type="file" name="questions[${uniqueId}][image]" accept="image/*"
+                                        onchange="handleImagePreview(this, '${uniqueId}')"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <div class="flex flex-col items-center gap-1 pointer-events-none">
+                                        <i class="fas fa-image text-xl text-gray-300 dark:text-gray-600"></i>
+                                        <span class="text-xs text-gray-400">Klik untuk upload gambar</span>
+                                    </div>
+                                </div>
+                                <div id="preview-container-${uniqueId}" class="relative rounded-xl border border-gray-200 bg-slate-50 p-2 ${data.image_path ? '' : 'hidden'} dark:border-gray-600 dark:bg-[#0f172a]">
+                                    <img id="img-preview-${uniqueId}" src="${data.image_path ? '/storage/' + data.image_path : '#'}"
+                                        class="w-full h-28 object-contain rounded-lg">
+                                    <button type="button" onclick="removeImage('${uniqueId}')"
+                                        class="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] hover:bg-red-500 transition"
+                                        title="Hapus Gambar">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
