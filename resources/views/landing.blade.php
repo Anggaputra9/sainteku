@@ -141,12 +141,21 @@
             z-index: 1001;
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: all 0.3s ease;
         }
 
         .mobile-menu-overlay.active {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* Modal tertutup tidak menangkap klik */
+        #loginModal.hidden,
+        #forgotPasswordModal.hidden {
+            display: none !important;
+            pointer-events: none !important;
         }
 
         /* Focus ring */
@@ -196,7 +205,7 @@
             {{-- Desktop Right Actions --}}
             <div class="hidden lg:flex items-center gap-3">
                 {{-- Language Dropdown --}}
-                <div class="relative" x-data="{ open: false }">
+                <div class="relative">
                     <button id="langToggle" onclick="document.getElementById('langMenu').classList.toggle('hidden')"
                         class="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors">
                         <i class="ri-global-line text-base"></i>
@@ -861,7 +870,7 @@
     {{-- ============================
     FORGOT PASSWORD MODAL
     ============================= --}}
-    <div class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1050] flex items-center justify-center p-4"
+    <div class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1050] flex items-center justify-center overflow-y-auto p-4"
         id="forgotPasswordModal">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between mb-4">
@@ -912,12 +921,19 @@
             });
 
             // Close modal on backdrop click
-            document.getElementById('loginModal').addEventListener('click', function (e) {
-                if (e.target === this) this.classList.add('hidden');
-            });
-            document.getElementById('forgotPasswordModal').addEventListener('click', function (e) {
-                if (e.target === this) this.classList.add('hidden');
-            });
+            const loginModal = document.getElementById('loginModal');
+            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+
+            if (loginModal) {
+                loginModal.addEventListener('click', function (e) {
+                    if (e.target === this) this.classList.add('hidden');
+                });
+            }
+            if (forgotPasswordModal) {
+                forgotPasswordModal.addEventListener('click', function (e) {
+                    if (e.target === this) this.classList.add('hidden');
+                });
+            }
 
             // Password toggle
             const togglePasswordBtn = document.getElementById('togglePasswordBtn');
@@ -1028,7 +1044,7 @@
 
             // Laravel errors → open login modal
             @if($errors->any())
-                document.getElementById('loginModal').classList.remove('hidden');
+                if (loginModal) loginModal.classList.remove('hidden');
                 showAlert('error', '{{ $errors->first() }}');
             @endif
 
