@@ -260,11 +260,11 @@
             </div>
         </div>
 
-        {{-- FAB FILTER (dalam konteks modal) --}}
-        <template x-teleport="body">
+        {{-- FAB FILTER (di atas layer modal) --}}
         <div x-show="openSelectCourse" x-cloak
-            class="fixed z-[10010] flex flex-col items-end gap-3"
+            class="pointer-events-auto fixed z-[10000001] flex flex-col items-end gap-3"
             style="bottom: 1.5rem; right: 1.5rem; left: auto;"
+            @click.stop
             @click.away="filterFabOpen = false">
             <div x-show="filterFabOpen" x-cloak
                 x-transition:enter="transition ease-out duration-200"
@@ -329,7 +329,6 @@
                 </span>
             </button>
         </div>
-        </template>
     </div>
 </template>
 

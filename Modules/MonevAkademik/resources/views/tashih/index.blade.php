@@ -338,6 +338,7 @@
                 coursesList: [],
                 filterFakultas: '',
                 filterProdi: '',
+                bankFilterFabOpen: false,
                 selectedBankCourseName: '',
                 searchCourseQuery: '',
 
@@ -351,6 +352,13 @@
                     if (this.sortFilter !== 'newest') count++;
                     if (this.activeTab === 'saya' && this.statusFilter !== '') count++;
                     if (this.examTypeFilter !== '') count++;
+                    return count;
+                },
+
+                get activeBankFilterCount() {
+                    let count = 0;
+                    if (this.filterFakultas !== '') count++;
+                    if (this.filterProdi !== '') count++;
                     return count;
                 },
 
@@ -450,11 +458,20 @@
                 openBankSoalModal() {
                     this.openBankSoal = true;
                     this.bankViewMode = 'courses';
+                    this.bankFilterFabOpen = false;
                     this.filterFakultas = '';
                     this.filterProdi = '';
+                    this.prodisList = [];
                     this.searchCourseQuery = '';
                     this.searchQueryBank = '';
                     this.fetchFaculties();
+                    this.fetchCourses();
+                },
+
+                resetBankFilters() {
+                    this.filterFakultas = '';
+                    this.filterProdi = '';
+                    this.prodisList = [];
                     this.fetchCourses();
                 },
 
