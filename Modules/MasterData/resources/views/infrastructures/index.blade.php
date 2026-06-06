@@ -1,286 +1,405 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mx-auto" x-cloak>
+    <div class="space-y-6" x-data="infrastructuresApp()" x-init="initData()" x-cloak>
 
-        {{-- Header & Breadcrumb --}}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+        {{-- HEADER --}}
+        <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Data Infrastruktur & Inventaris</h2>
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fa-solid fa-boxes-stacked text-indigo-500"></i> Manajemen Infrastruktur
+                </h2>
                 <nav>
-                    <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                    <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
                         <li>Master Data /</li>
-                        <li class="text-blue-600 dark:text-blue-400">Infrastruktur</li>
+                        <li class="text-indigo-600 dark:text-indigo-400">Infrastruktur</li>
                     </ol>
                 </nav>
             </div>
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
+                <i class="fa-solid fa-plus"></i> Tambah
+            </button>
+        </div>
 
-            <div x-data="{ openCreate: false }">
-                <button @click="$dispatch('open-create-modal')" type="button"
-                    class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-green-700 transition">
-                    <i class="fas fa-plus"></i> Tambah Infrastruktur
-                </button>
-                @include('masterdata::infrastructures.modal-create')
+        {{-- ALERTS --}}
+        <template x-if="alert.message">
+            <div class="flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                :class="alert.type === 'error' ? 'border-red-500 bg-red-50 text-red-700' : 'border-green-500 bg-green-50 text-green-700'">
+                <i class="fa-solid" :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                <span class="text-sm font-bold" x-text="alert.message"></span>
+            </div>
+        </template>
+
+        {{-- TOOLBAR --}}
+        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="flex flex-nowrap items-center gap-3">
+                <div class="relative min-w-0 flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchItems()"
+                        placeholder="Cari nama, kode, merk, atau unit..."
+                        class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                </div>
+                <div class="flex shrink-0 items-center gap-2">
+                    <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
+                    <select x-model="perPageFilter" @change="fetchItems(1)" title="Jumlah data per halaman"
+                        class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                        <option value="250">250</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        {{-- Alert Messages --}}
-        @if (session('success'))
-            <div class="flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg mb-6">
-                <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
-                <p class="text-sm font-bold text-green-700 dark:text-green-400">{{ session('success') }}</p>
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg mb-6">
-                <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mr-3"></i>
-                <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
-            </div>
-        @endif
+        {{-- TABLE --}}
+        <div class="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                    <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">Info Barang</th>
+                            <th class="px-6 py-4 font-semibold min-w-[150px]">Tipe & Unit</th>
+                            <th class="px-6 py-4 font-semibold text-center">Stok & Harga</th>
+                            <th class="px-6 py-4 font-semibold">Status</th>
+                            <th class="px-6 py-4 font-semibold text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr x-show="isLoading">
+                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-indigo-600"></i>
+                                <p class="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Memuat data...</p>
+                            </td>
+                        </tr>
 
-        {{-- Main Container --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 min-h-[60vh] flex flex-col">
+                        <tr x-show="itemsList.length === 0 && !isLoading">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <i class="mb-3 text-3xl opacity-50 fa-solid fa-boxes-stacked"></i><br>
+                                Data infrastruktur tidak ditemukan.
+                            </td>
+                        </tr>
 
-            {{-- AREA FILTER --}}
-            <div class="mb-6 space-y-4 bg-gray-50 dark:bg-gray-700/50 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-                <form method="GET" class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        {{-- Input Cari --}}
-                        <div class="relative w-full sm:max-w-xs">
-                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-gray-500">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="Cari nama atau kode..."
-                                class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 pl-9 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:placeholder-gray-400 transition">
-                        </div>
-                        {{-- Dropdown Jumlah Data --}}
-                        <select name="per_page" onchange="this.form.submit()"
-                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white transition cursor-pointer">
-                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 Baris</option>
-                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 Baris</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 Baris</option>
-                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100 Baris</option>
+                        <template x-for="item in itemsList" :key="item.id">
+                            <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <template x-if="item.photo_url">
+                                            <button type="button" @click="openImage(item)"
+                                                class="group relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full ring-2 ring-indigo-100 dark:ring-indigo-900/50">
+                                                <img :src="item.photo_url" :alt="item.item_name" class="h-full w-full object-cover transition group-hover:scale-110">
+                                            </button>
+                                        </template>
+                                        <template x-if="!item.photo_url">
+                                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400"
+                                                x-text="item.initial"></div>
+                                        </template>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="item.item_name"></div>
+                                            <div class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="item.id"></div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                                <i class="fa-solid fa-tag text-[10px]"></i>
+                                                <span x-text="item.brand || 'Tanpa Merk'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800"
+                                        x-text="item.type_description"></span>
+                                    <div class="mt-1.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                        <i class="fa-regular fa-building"></i>
+                                        <span x-text="item.unit_name || 'Universitas (Umum)'"></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex h-7 items-center justify-center rounded-full bg-gray-100 px-3 text-sm font-bold text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                        <span x-text="item.stock"></span>
+                                        <span class="ml-1 text-[10px] font-medium text-gray-500" x-text="item.unit_measure || 'PCS'"></span>
+                                    </span>
+                                    <div class="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                        Rp <span x-text="item.price_formatted"></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span x-show="item.status == '1'"
+                                        class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                        <span class="w-1.5 h-1.5 bg-green-600 rounded-full dark:bg-green-400"></span> Baik
+                                    </span>
+                                    <span x-show="item.status != '1'"
+                                        class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+                                        <span class="w-1.5 h-1.5 bg-red-600 rounded-full dark:bg-red-400"></span> Rusak
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <button type="button" @click="openDetail(item)"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                        <i class="fa-solid fa-eye"></i> Detail
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Pagination --}}
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2"
+            x-show="pagination.total > 0 && !isLoading">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Menampilkan <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.from"></span>
+                – <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.to"></span>
+                dari <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.total"></span> data
+            </span>
+            <div class="flex gap-2">
+                <button type="button" @click="changePage(pagination.current_page - 1)" :disabled="!pagination.prev_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                    <i class="fa-solid fa-chevron-left"></i> Prev
+                </button>
+                <button type="button" @click="changePage(pagination.current_page + 1)" :disabled="!pagination.next_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        @include('masterdata::infrastructures.modal-create')
+        @include('masterdata::infrastructures.modal-detail')
+        @include('masterdata::infrastructures.delete-modal')
+
+        {{-- FAB Filter --}}
+        <template x-teleport="body">
+        <div class="fixed z-[9990] flex flex-col items-end gap-3"
+            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
+            @click.away="filterFabOpen = false">
+            <div x-show="filterFabOpen" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
+                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
+
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
+                    </h3>
+                    <button type="button" x-show="activeFilterCount > 0" @click="resetFilters()"
+                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
+                        Reset
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
+                        <select x-model="sortFilter" @change="fetchItems(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="name_asc">Nama A-Z</option>
+                            <option value="name_desc">Nama Z-A</option>
+                            <option value="code_asc">Kode A-Z</option>
+                            <option value="code_desc">Kode Z-A</option>
+                            <option value="stock_desc">Stok Terbanyak</option>
+                            <option value="stock_asc">Stok Terendah</option>
                         </select>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
-                        {{-- Tombol Filter --}}
-                        <button type="submit"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-filter text-xs"></i> Filter
-                        </button>
-
-                        {{-- Tombol Muat Ulang --}}
-                        <a href="{{ route('masterdata.infrastructures.index') }}"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 transition shadow-sm">
-                            <i class="fa-solid fa-rotate text-xs"></i> Reset
-                        </a>
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Kategori Tipe</label>
+                        <select x-model="typeFilter" @change="fetchItems(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua tipe</option>
+                            @foreach ($inventoryTypes as $type)
+                                <option value="{{ $type->id }}">{{ $type->description }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </form>
-            </div>
 
-            {{-- AREA KONTEN (TABEL) --}}
-            <div class="flex-1 relative rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
-                        <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
-                            <tr>
-                                <th class="px-6 py-4 font-semibold whitespace-nowrap">Kode</th>
-                                <th class="px-6 py-4 font-semibold min-w-[200px]">Nama & Merk</th>
-                                <th class="px-6 py-4 font-semibold min-w-[150px]">Tipe & Unit</th>
-                                <th class="px-6 py-4 font-semibold text-center">Stok & Harga</th>
-                                <th class="px-6 py-4 font-semibold text-center">Status</th>
-                                <th class="px-6 py-4 font-semibold text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                            @forelse($infrastructures ?? [] as $item)
-                                <tr class="bg-transparent transition hover:bg-gray-50 dark:hover:bg-gray-700/20">
-                                    {{-- Kolom 1: Kode / ID --}}
-                                    <td class="px-6 py-4 text-sm font-medium text-blue-600 dark:text-blue-400">
-                                        #{{ $item->id }}
-                                    </td>
-
-                                    {{-- Kolom 2: Foto & Nama Barang --}}
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-4">
-                                            {{-- Thumbnail Foto --}}
-                                            <div class="h-12 w-12 flex-shrink-0">
-                                                @if(!empty($item->photo))
-                                                    <button
-                                                        type="button"
-                                                        @click="$dispatch('open-image-modal', { url: '{{ asset('storage/' . $item->photo) }}', title: '{{ addslashes($item->item_name) }}' })"
-                                                        class="group relative block h-12 w-12 overflow-hidden rounded-lg shadow-sm ring-1 ring-gray-200 transition focus:outline-none focus:ring-2 focus:ring-blue-500 dark:ring-gray-700"
-                                                        title="Lihat Gambar Penuh">
-                                                        <img src="{{ asset('storage/' . $item->photo) }}" alt="Foto Barang" class="h-full w-full object-cover transition duration-300 group-hover:scale-110 group-hover:opacity-75">
-                                                        <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-black/30">
-                                                            <i class="fa-solid fa-magnifying-glass text-white drop-shadow-md"></i>
-                                                        </div>
-                                                    </button>
-                                                @else
-                                                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700">
-                                                        <i class="fa-solid fa-box-open text-gray-400"></i>
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                            {{-- Teks Info --}}
-                                            <div>
-                                                <div class="text-sm font-bold text-gray-900 dark:text-white">
-                                                    {{ $item->item_name }}
-                                                </div>
-                                                <div class="mt-1 flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                                                    <i class="fa-solid fa-tag"></i>
-                                                    {{ $item->brand ?: 'Tanpa Merk' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-
-                                    {{-- Kolom 3: Tipe & Unit Pemilik --}}
-                                    <td class="px-6 py-4 text-sm">
-                                        <span class="inline-flex mb-1.5 rounded-md bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-700 ring-1 ring-inset ring-purple-700/10 dark:bg-purple-900/30 dark:text-purple-300">
-                                            {{ $item->type_description ?? 'Tipe ' . $item->inventory_type }}
-                                        </span>
-                                        <div class="flex items-center gap-1.5 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                                            <i class="fa-regular fa-building"></i>
-                                            {{ $item->unit_name ?: 'Universitas (Umum)' }}
-                                        </div>
-                                    </td>
-
-                                    {{-- Kolom 4: Stok & Harga --}}
-                                    <td class="px-6 py-4 text-center">
-                                        <span class="inline-flex h-7 items-center justify-center rounded-full bg-gray-100 px-3 text-sm font-bold text-gray-800 dark:bg-gray-700 dark:text-gray-200">
-                                            {{ $item->stock }} <span class="ml-1 text-[10px] font-medium text-gray-500">{{ $item->unit_measure ?: 'PCS' }}</span>
-                                        </span>
-                                        <div class="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                                            Rp {{ number_format($item->price ?? 0, 0, ',', '.') }}
-                                        </div>
-                                    </td>
-
-                                    {{-- Kolom 5: Status Kondisi --}}
-                                    <td class="px-6 py-4 text-center text-sm">
-                                        @if ($item->status == 1)
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Baik
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 dark:bg-red-900/30 dark:text-red-400">
-                                                <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span> Rusak
-                                            </span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Kolom 6: Aksi --}}
-                                    <td class="px-6 py-4 text-sm">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <button
-                                                type="button"
-                                                @click="$dispatch('open-edit-modal', {
-                                                    url: '{{ route('masterdata.infrastructures.update', $item->id) }}',
-                                                    id: '{{ $item->id }}',
-                                                    item_name: '{{ addslashes($item->item_name) }}',
-                                                    type: '{{ $item->inventory_type }}',
-                                                    brand: '{{ addslashes($item->brand ?? '') }}',
-                                                    unit_measure: '{{ $item->unit_measure ?? '' }}',
-                                                    stock: '{{ $item->stock }}',
-                                                    price: '{{ $item->price ?? 0 }}',
-                                                    status: '{{ $item->status ?? 1 }}',
-                                                    unit_id: '{{ $item->unit_id ?? '' }}',
-                                                    description: '{{ addslashes($item->description ?? '') }}'
-                                                })"
-                                                class="inline-flex items-center gap-1.5 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-amber-600 focus:ring-4 focus:ring-amber-300 dark:focus:ring-amber-800"
-                                                title="Ubah Data">
-                                                <i class="fa-solid fa-pencil"></i> Ubah
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                @click="$dispatch('open-delete-modal', {
-                                                    url: '{{ route('masterdata.infrastructures.destroy', $item->id) }}',
-                                                    name: '{{ addslashes($item->item_name) }}'
-                                                })"
-                                                class="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900"
-                                                title="Hapus Data">
-                                                <i class="fa-solid fa-trash"></i> Hapus
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                {{-- Tampilan saat data kosong --}}
-                                <tr>
-                                    <td colspan="6" class="px-6 py-16 text-center text-gray-500 dark:text-gray-400">
-                                        <div class="flex flex-col items-center justify-center">
-                                            <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                                <i class="fas fa-boxes-stacked text-3xl text-gray-400 dark:text-gray-500"></i>
-                                            </div>
-                                            <h4 class="text-base font-semibold text-gray-900 dark:text-white">Belum Ada Data Infrastruktur</h4>
-                                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Mulai dengan menambahkan data ruangan atau inventaris pertama Anda.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <div>
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                        <select x-model="statusFilter" @change="fetchItems(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            <option value="1">Baik / Aktif</option>
+                            <option value="0">Rusak / Nonaktif</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            {{-- End of Table Container --}}
 
-            {{-- Pagination --}}
-            @if (isset($infrastructures) && $infrastructures->hasPages())
-                <div class="mt-6">
-                    {{ $infrastructures->appends(request()->query())->links() }}
-                </div>
-            @endif
-
-        </div>
-        {{-- End of Main Container --}}
-
-    </div>
-    {{-- End of Wrapper --}}
-
-    {{-- Panggil Modal --}}
-    @include('masterdata::infrastructures.modal-edit')
-    @include('masterdata::infrastructures.delete-modal')
-
-    {{-- Modal Preview Gambar Penuh --}}
-    <div x-data="{ openImage: false, imageUrl: '', imageTitle: '' }"
-        @open-image-modal.window="openImage = true; imageUrl = $event.detail.url; imageTitle = $event.detail.title"
-        x-show="openImage"
-        class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-        x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak style="display: none;">
-
-        <div @click.away="openImage = false" x-show="openImage"
-            x-transition:enter="transition ease-out duration-300 transform"
-            x-transition:enter-start="opacity-0 scale-90"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-200 transform"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-90"
-            class="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-transparent transition-all max-h-[90vh]">
-            
-            {{-- Header Modal (Melayang) --}}
-            <div class="absolute right-0 top-0 z-10 flex w-full items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
-                <h3 class="text-lg font-bold text-white drop-shadow-md" x-text="imageTitle"></h3>
-                <button type="button" @click="openImage = false"
-                    class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <i class="fas fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            {{-- Area Gambar Penuh --}}
-            <div class="relative flex flex-1 items-center justify-center p-2">
-                <img :src="imageUrl" :alt="imageTitle" class="max-h-[85vh] max-w-full rounded-lg object-contain drop-shadow-2xl">
-            </div>
-            
-            {{-- Bantuan Teks Bawah --}}
-            <div class="absolute bottom-4 left-0 w-full text-center">
-                <span class="rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white/80 backdrop-blur-md">
-                    Klik di luar gambar untuk menutup
+            <button type="button" @click="filterFabOpen = !filterFabOpen"
+                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
+                :title="activeFilterCount > 0 && !filterFabOpen
+                    ? activeFilterCount + ' filter aktif'
+                    : (filterFabOpen ? 'Tutup filter' : 'Buka filter')">
+                <span class="relative inline-block leading-none">
+                    <i class="fa-solid text-lg transition-transform duration-200"
+                        :class="filterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
+                    <span x-show="activeFilterCount > 0 && !filterFabOpen" x-cloak
+                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
+                        aria-hidden="true"></span>
                 </span>
-            </div>
+            </button>
         </div>
+        </template>
+
+        {{-- Modal Preview Gambar --}}
+        <template x-teleport="#modal-root">
+            <div x-show="imagePreview.open"
+                class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/80 p-4 overflow-y-auto backdrop-blur-sm z-[10000]"
+                x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
+                <div @click.away="imagePreview.open = false"
+                    class="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl transition-all max-h-[90vh]">
+                    <div class="absolute right-0 top-0 z-10 flex w-full items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4">
+                        <h3 class="text-lg font-bold text-white drop-shadow-md" x-text="imagePreview.title"></h3>
+                        <button type="button" @click="imagePreview.open = false"
+                            class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition hover:bg-red-500">
+                            <i class="fas fa-xmark text-lg"></i>
+                        </button>
+                    </div>
+                    <div class="relative flex flex-1 items-center justify-center p-2">
+                        <img :src="imagePreview.url" :alt="imagePreview.title" class="max-h-[85vh] max-w-full rounded-lg object-contain drop-shadow-2xl">
+                    </div>
+                </div>
+            </div>
+        </template>
+
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('infrastructuresApp', () => ({
+                searchQuery: '',
+                perPageFilter: '50',
+                sortFilter: 'newest',
+                typeFilter: '',
+                statusFilter: '',
+                filterFabOpen: false,
+                itemsList: [],
+                isLoading: false,
+                pagination: {},
+                alert: { type: '', message: '' },
+                imagePreview: { open: false, url: '', title: '' },
+
+                get activeFilterCount() {
+                    let count = 0;
+                    if (this.sortFilter !== 'newest') count++;
+                    if (this.typeFilter !== '') count++;
+                    if (this.statusFilter !== '') count++;
+                    return count;
+                },
+
+                initData() {
+                    @if(session('success'))
+                        this.flash('success', @js(session('success')));
+                    @endif
+                    @if(session('error'))
+                        this.flash('error', @js(session('error')));
+                    @endif
+                    window.addEventListener('open-image-from-detail', (e) => {
+                        this.imagePreview = { open: true, url: e.detail.url, title: e.detail.title };
+                    });
+                    this.fetchItems();
+                },
+
+                flash(type, message) {
+                    this.alert = { type, message };
+                    setTimeout(() => { this.alert.message = ''; }, 4000);
+                },
+
+                openImage(item) {
+                    this.imagePreview = { open: true, url: item.photo_url, title: item.item_name };
+                },
+
+                async fetchItems(page = 1) {
+                    this.isLoading = true;
+                    this.itemsList = [];
+
+                    const params = new URLSearchParams({
+                        page: page,
+                        per_page: this.perPageFilter,
+                        search: this.searchQuery,
+                        sort: this.sortFilter,
+                        inventory_type: this.typeFilter,
+                        status: this.statusFilter,
+                    });
+
+                    try {
+                        const response = await fetch(`{{ route('masterdata.infrastructures.api.data') }}?${params.toString()}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        const result = await response.json();
+                        this.itemsList = result.data || [];
+                        this.pagination = {
+                            current_page: result.current_page,
+                            from: result.from || 0,
+                            to: result.to || 0,
+                            total: result.total || 0,
+                            prev_page_url: result.prev_page_url,
+                            next_page_url: result.next_page_url,
+                        };
+                    } catch (error) {
+                        console.error('Gagal memuat infrastruktur', error);
+                        this.pagination = { total: 0, from: 0, to: 0 };
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                changePage(page) {
+                    this.fetchItems(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+
+                resetFilters() {
+                    this.sortFilter = 'newest';
+                    this.typeFilter = '';
+                    this.statusFilter = '';
+                    this.fetchItems(1);
+                },
+
+                openDetail(item) {
+                    window.dispatchEvent(new CustomEvent('open-detail-modal', {
+                        bubbles: true,
+                        detail: {
+                            url: item.update_url,
+                            deleteUrl: item.delete_url,
+                            itemName: item.item_name,
+                            canDelete: item.can_delete,
+                            itemData: {
+                                id: item.id,
+                                item_name: item.item_name,
+                                inventory_type: String(item.inventory_type),
+                                type_description: item.type_description,
+                                brand: item.brand || '',
+                                unit_measure: item.unit_measure || '',
+                                stock: item.stock,
+                                price: item.price,
+                                price_formatted: item.price_formatted,
+                                status: String(item.status),
+                                unit_id: item.unit_id || '',
+                                unit_name: item.unit_name,
+                                description: item.description || '',
+                                photo_url: item.photo_url,
+                                loan_count: item.loan_count,
+                            },
+                        },
+                    }));
+                },
+            }));
+        });
+    </script>
 @endsection

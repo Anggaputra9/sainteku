@@ -57,6 +57,7 @@ Route::middleware([
     });
 
     // Infrastructure management
+    Route::get('infrastructures/api/data', [InfrastructureController::class, 'getInfrastructuresData'])->name('infrastructures.api.data');
     Route::resource('infrastructures', InfrastructureController::class);
 
     // BENAR: API ditaruh di ATAS Route::resource

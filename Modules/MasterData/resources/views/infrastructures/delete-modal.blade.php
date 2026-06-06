@@ -1,42 +1,45 @@
-<div x-data="{ openDelete: false, url: '', itemName: '' }"
-    @open-delete-modal.window="openDelete = true; url = $event.detail.url; itemName = $event.detail.name;"
-    x-show="openDelete"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-sm"
-    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
+<template x-teleport="#modal-root">
+    <div x-data="{ openDelete: false, url: '', itemName: '' }"
+        @open-delete-modal.window="openDelete = true; url = $event.detail.url; itemName = $event.detail.name"
+        x-show="openDelete"
+        class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
+        x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
-    <div @click.away="openDelete = false"
-        class="relative w-full max-w-md transform rounded-2xl bg-white p-6 text-center shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
+        <div @click.away="openDelete = false"
+            class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
 
-        <button @click="openDelete = false"
-            class="absolute right-4 top-4 inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all dark:hover:bg-red-900/30 dark:hover:text-red-400">
-            <i class="fas fa-times text-lg"></i>
-        </button>
+            <div class="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:bg-[#1e293b] dark:border-gray-700">
+                <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+                    <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-red-100 bg-red-50 dark:border-red-800/50 dark:bg-red-900/30">
+                        <i class="fa-solid fa-triangle-exclamation text-sm text-red-600 dark:text-red-400 sm:text-base"></i>
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Konfirmasi Hapus</h3>
+                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm" x-text="itemName"></p>
+                    </div>
+                </div>
+            </div>
 
-        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-            <i class="fa-solid fa-triangle-exclamation text-3xl text-red-600 dark:text-red-400"></i>
-        </div>
+            <div class="p-6 space-y-5 bg-slate-50 dark:bg-[#0f172a]">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    Apakah Anda yakin ingin menghapus infrastruktur <span class="font-bold text-gray-900 dark:text-white" x-text="itemName"></span>? Tindakan ini tidak dapat dibatalkan.
+                </p>
 
-        <h3 class="mb-2 text-xl font-bold text-gray-900 dark:text-white">Hapus Infrastruktur?</h3>
-        <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-            Apakah Anda yakin ingin menghapus data <strong class="text-gray-800 dark:text-gray-200" x-text="itemName"></strong>? <br> Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
-        </p>
-
-        <div class="flex flex-col sm:flex-row gap-3">
-            <button type="button" @click="openDelete = false"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                <i class="fas fa-times"></i> Batal
-            </button>
-
-            <form :action="url" method="POST" class="m-0 p-0 w-full">
-                @csrf
-                @method('DELETE')
-                <button type="submit"
-                    class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-md hover:bg-red-700 transition">
-                    <i class="fa-solid fa-trash"></i> Ya, Hapus Data
-                </button>
-            </form>
+                <div class="flex flex-row flex-nowrap items-center justify-end gap-2 pt-2">
+                    <button type="button" @click="openDelete = false"
+                        class="inline-flex shrink-0 items-center justify-center rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-5 sm:py-2.5 sm:text-sm transition">
+                        Batal
+                    </button>
+                    <form :action="url" method="POST" class="m-0 shrink-0 p-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</template>
