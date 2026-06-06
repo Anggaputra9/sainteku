@@ -5,20 +5,20 @@
     x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-    <div @click.away="!reviewMode && (openDetail = false)"
+    <div @click.away="!reviewMode && !editMode && (openDetail = false)"
         class="relative w-full flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden"
-        :class="reviewMode ? 'max-w-2xl' : 'max-w-3xl'">
+        :class="reviewMode ? 'max-w-2xl' : 'max-w-4xl'">
 
         {{-- HEADER --}}
         <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
             <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
                 <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
                     <i class="fa-solid text-sm text-blue-600 dark:text-blue-400 sm:text-base"
-                        :class="reviewMode ? 'fa-gavel' : 'fa-file-lines'"></i>
+                        :class="reviewMode ? 'fa-gavel' : (editMode ? 'fa-pen-to-square' : 'fa-file-lines')"></i>
                 </div>
                 <div class="min-w-0 leading-tight">
                     <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-xl"
-                        x-text="reviewMode ? 'Review Dokumen' : 'Detail Dokumen'"></h3>
+                        x-text="reviewMode ? 'Review Dokumen' : (editMode ? 'Edit Dokumen' : 'Detail Dokumen')"></h3>
                     <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm" x-text="docData.document_title"></p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
         </div>
 
         {{-- MODE LIHAT --}}
-        <div x-show="!reviewMode" class="flex flex-col flex-1 overflow-hidden">
+        <div x-show="!reviewMode && !editMode" class="flex flex-col flex-1 overflow-hidden">
             <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
                 <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
                     <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
@@ -132,14 +132,10 @@
             <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
                 <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
                     <button type="button" @click="openDetail = false"
-                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                         <i class="fas fa-times"></i> Tutup
                     </button>
                     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-                        <button type="button" x-show="docData.can_edit" @click="openEdit()"
-                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-slate-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-slate-700 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
-                            <i class="fas fa-pen-to-square"></i> Edit
-                        </button>
                         <button type="button" x-show="docData.can_review" @click="enterReviewMode()"
                             class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-700 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                             <i class="fas fa-gavel"></i> Review
@@ -149,13 +145,151 @@
                             <i class="fas fa-clock-rotate-left"></i> Revisi File
                         </button>
                         <a x-show="docData.can_download" :href="docData.download_url" target="_blank"
-                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                             <i class="fas fa-eye"></i> Lihat File
                         </a>
+                        <button type="button" x-show="docData.can_edit" @click="enterEditMode()"
+                            class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- MODE EDIT (inline) --}}
+        <form x-show="!reviewMode && editMode" :action="docData.update_url" method="POST" class="flex flex-col flex-1 overflow-hidden m-0" x-cloak>
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="unit_id" x-model="docData.unit_id" required>
+            <input type="hidden" name="sifat_dokumen" :value="docData.sifat_dokumen" required>
+
+            <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-file-lines text-indigo-500"></i> Informasi Dokumen
+                        </h4>
+                    </div>
+                    <div class="p-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="md:col-span-2">
+                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                Judul Dokumen <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="document_title" x-model="docData.document_title" required
+                                class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                Tipe Dokumen <span class="text-red-500">*</span>
+                            </label>
+                            <select name="document_type_id" x-model="docData.document_type_id" required
+                                class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                                <option value="">-- Pilih Tipe --</option>
+                                @foreach ($documentTypes as $type)
+                                    <option value="{{ $type->id }}">{{ $type->description }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-eye text-indigo-500"></i> Visibilitas Dokumen
+                        </h4>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <button type="button" @click="docData.sifat_dokumen = 'Publik'"
+                                class="rounded-xl border p-4 text-left transition"
+                                :class="docData.sifat_dokumen === 'Publik'
+                                    ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-900/30'
+                                    : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-gray-500'">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                        :class="docData.sifat_dokumen === 'Publik' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-800/50 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'">
+                                        <i class="fa-solid fa-globe"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-900 dark:text-white">Public</p>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Semua pengguna dapat melihat dokumen ini.</p>
+                                    </div>
+                                </div>
+                            </button>
+                            <button type="button" @click="docData.sifat_dokumen = 'Private'"
+                                class="rounded-xl border p-4 text-left transition"
+                                :class="docData.sifat_dokumen === 'Private'
+                                    ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-900/30'
+                                    : 'border-gray-200 bg-gray-50 hover:border-gray-300 dark:border-gray-600 dark:bg-[#0f172a] dark:hover:border-gray-500'">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                                        :class="docData.sifat_dokumen === 'Private' ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-800/50 dark:text-indigo-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-900 dark:text-white">Private</p>
+                                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Hanya Anda yang dapat melihat dokumen ini.</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-800/50 dark:bg-amber-900/20">
+                            <label class="flex items-start gap-3 cursor-pointer">
+                                <input type="checkbox" name="is_ppid" value="1" x-model="docData.is_ppid"
+                                    class="mt-1 h-5 w-5 rounded border-gray-300 text-amber-600 focus:ring-2 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-900">
+                                <div class="flex-1">
+                                    <span class="block text-sm font-bold text-gray-900 dark:text-white">
+                                        <i class="fa-solid fa-clipboard-check text-amber-600 dark:text-amber-400 mr-1"></i>
+                                        Dokumen PPID
+                                    </span>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                        Tandai jika dokumen termasuk kategori informasi publik PPID.
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar text-indigo-500"></i> Masa Berlaku
+                        </h4>
+                    </div>
+                    <div class="p-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                Tanggal Berlaku <span class="text-red-500">*</span>
+                            </label>
+                            <input type="date" name="effective_date" x-model="docData.effective_date" required
+                                class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Tanggal Kadaluarsa</label>
+                            <input type="date" name="expired_date" x-model="docData.expired_date"
+                                class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
+                <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
+                    <button type="button" @click="cancelEdit()"
+                        class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+                    <button type="submit"
+                        class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </div>
+        </form>
 
         {{-- MODE REVIEW --}}
         <form x-show="reviewMode" :action="docData.review_url" method="POST" class="flex flex-col flex-1 overflow-hidden m-0">
@@ -211,16 +345,32 @@
         Alpine.data('openDocumentDetailModal', () => ({
             openDetail: false,
             reviewMode: false,
+            editMode: false,
             docData: {},
+            docSnapshot: {},
 
             handleOpenDetail(event) {
                 this.docData = event.detail.doc || {};
                 this.reviewMode = false;
+                this.editMode = false;
+                this.docSnapshot = {};
                 this.openDetail = true;
             },
 
             enterReviewMode() {
                 this.reviewMode = true;
+            },
+
+            enterEditMode() {
+                this.docSnapshot = JSON.parse(JSON.stringify(this.docData));
+                this.editMode = true;
+            },
+
+            cancelEdit() {
+                if (Object.keys(this.docSnapshot).length > 0) {
+                    this.docData = JSON.parse(JSON.stringify(this.docSnapshot));
+                }
+                this.editMode = false;
             },
 
             openRevise() {
@@ -231,14 +381,6 @@
                         reviseUrl: this.docData.revise_url,
                         documentTitle: this.docData.document_title,
                     },
-                }));
-            },
-
-            openEdit() {
-                this.openDetail = false;
-                window.dispatchEvent(new CustomEvent('open-edit-modal', {
-                    bubbles: true,
-                    detail: { doc: this.docData },
                 }));
             },
         }));

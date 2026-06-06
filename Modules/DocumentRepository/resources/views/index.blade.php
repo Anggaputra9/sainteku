@@ -172,7 +172,6 @@
         </div>
 
         @include('documentrepository::modal-create')
-        @include('documentrepository::modal-edit')
         @include('documentrepository::modal-detail')
         @include('documentrepository::modal-revise')
 
