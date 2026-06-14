@@ -29,6 +29,22 @@
         .app-modal-overlay {
             z-index: 10000000 !important;
         }
+
+        /* Sidebar flyout — selalu di atas konten & footer */
+        #sidebar-flyout-portal {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483000;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        #sidebar-flyout-portal .sidebar-flyout-panel {
+            position: fixed !important;
+            z-index: 2147483000 !important;
+            pointer-events: auto;
+            margin: 0;
+        }
     </style>
 
     <!-- Scripts -->
@@ -241,9 +257,9 @@
         </div>
     </div>
 
-    <div id="sidebar-flyout-root" class="pointer-events-none fixed inset-0 z-[10000002]" aria-hidden="true"></div>
     <div id="modal-root"></div>
     @include('components.common.confirm-modal')
+    <div id="sidebar-flyout-portal" aria-hidden="true"></div>
 </body>
 
 @stack('scripts')

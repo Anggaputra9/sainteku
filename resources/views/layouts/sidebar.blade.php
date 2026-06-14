@@ -53,13 +53,10 @@
         display: none !important;
     }
 
-    /* Flyout submenu — animasi smooth ala web sekolah */
-    .sidebar-flyout-panel {
-        position: fixed !important;
-        z-index: 10000002 !important;
+    /* Flyout submenu — animasi di inner wrapper, panel luar cuma posisi */
+    .sidebar-flyout-animate {
         transform-origin: left center;
         will-change: transform, opacity;
-        pointer-events: auto;
     }
 
     .sidebar-flyout-enter {
@@ -322,53 +319,60 @@
     </div>
 
     {{-- FLYOUT SUBMENU: satu panel mengambang (desktop, sidebar minimize) --}}
-    <template x-teleport="#sidebar-flyout-root">
-    <div x-show="$store.sidebar.flyoutIndex !== null && !$store.sidebar.isExpanded && !$store.sidebar.isMobileOpen && window.innerWidth >= 1280"
-        x-transition:enter="sidebar-flyout-enter"
-        x-transition:enter-start="sidebar-flyout-enter-start"
-        x-transition:enter-end="sidebar-flyout-enter-end"
-        x-transition:leave="sidebar-flyout-leave"
-        x-transition:leave-start="sidebar-flyout-leave-start"
-        x-transition:leave-end="sidebar-flyout-leave-end"
-        :style="`top: ${$store.sidebar.flyoutTop}px; left: ${$store.sidebar.flyoutLeft}px`"
-        @mouseenter="$store.sidebar.keepFlyout()"
-        @mouseleave="$store.sidebar.scheduleHideFlyout()"
-        class="sidebar-flyout-panel min-w-[220px] max-w-[280px] rounded-xl border border-gray-100 bg-white shadow-[8px_8px_32px_rgba(0,0,0,0.15)] dark:border-gray-700 dark:bg-gray-900 py-2">
+    <template x-teleport="#sidebar-flyout-portal">
+        <div x-show="$store.sidebar.flyoutIndex !== null && !$store.sidebar.isExpanded && !$store.sidebar.isMobileOpen"
+            :style="{
+                position: 'fixed',
+                top: $store.sidebar.flyoutTop + 'px',
+                left: $store.sidebar.flyoutLeft + 'px',
+                zIndex: 2147483000
+            }"
+            @mouseenter="$store.sidebar.keepFlyout()"
+            @mouseleave="$store.sidebar.scheduleHideFlyout()"
+            class="sidebar-flyout-panel">
 
-        <div class="relative">
-            <span class="sidebar-flyout-arrow bg-white dark:bg-gray-900" aria-hidden="true"></span>
+            <div class="sidebar-flyout-animate min-w-[220px] max-w-[280px] rounded-xl border border-gray-100 bg-white shadow-[8px_8px_32px_rgba(0,0,0,0.15)] dark:border-gray-700 dark:bg-gray-900 py-2 relative"
+                x-show="$store.sidebar.flyoutIndex !== null"
+                x-transition:enter="sidebar-flyout-enter"
+                x-transition:enter-start="sidebar-flyout-enter-start"
+                x-transition:enter-end="sidebar-flyout-enter-end"
+                x-transition:leave="sidebar-flyout-leave"
+                x-transition:leave-start="sidebar-flyout-leave-start"
+                x-transition:leave-end="sidebar-flyout-leave-end">
 
-        <template x-if="$store.sidebar.flyoutMenu">
-            <div :key="$store.sidebar.flyoutIndex"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0"
-                x-transition:enter-end="opacity-100"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0">
+                <span class="sidebar-flyout-arrow bg-white dark:bg-gray-900" aria-hidden="true"></span>
 
-                <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
-                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 truncate"
-                        x-text="$store.sidebar.flyoutMenu.name"></p>
-                </div>
+                <template x-if="$store.sidebar.flyoutMenu">
+                    <div :key="$store.sidebar.flyoutIndex"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0">
 
-                <ul class="p-1.5 space-y-0.5">
-                    <template x-for="(child, idx) in $store.sidebar.flyoutMenu.children" :key="child.url + child.name">
-                        <li class="sidebar-flyout-item"
-                            :style="`animation-delay: ${80 + (idx * 40)}ms`">
-                            <a :href="child.url"
-                                @click="$store.sidebar.hideFlyout()"
-                                class="block px-3 py-2 text-[13px] rounded-lg transition-all duration-200 active:scale-[0.98] whitespace-nowrap truncate"
-                                :class="child.active
-                                    ? 'text-indigo-600 bg-indigo-50/50 font-semibold dark:text-indigo-400 dark:bg-indigo-500/10'
-                                    : 'text-gray-500 font-medium hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/40'"
-                                x-text="child.name"></a>
-                        </li>
-                    </template>
-                </ul>
+                        <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 truncate"
+                                x-text="$store.sidebar.flyoutMenu.name"></p>
+                        </div>
+
+                        <ul class="p-1.5 space-y-0.5">
+                            <template x-for="(child, idx) in $store.sidebar.flyoutMenu.children" :key="child.url + child.name">
+                                <li class="sidebar-flyout-item"
+                                    :style="`animation-delay: ${80 + (idx * 40)}ms`">
+                                    <a :href="child.url"
+                                        @click="$store.sidebar.hideFlyout()"
+                                        class="block px-3 py-2 text-[13px] rounded-lg transition-all duration-200 active:scale-[0.98] whitespace-nowrap truncate"
+                                        :class="child.active
+                                            ? 'text-indigo-600 bg-indigo-50/50 font-semibold dark:text-indigo-400 dark:bg-indigo-500/10'
+                                            : 'text-gray-500 font-medium hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/40'"
+                                        x-text="child.name"></a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
             </div>
-        </template>
         </div>
-    </div>
     </template>
 </aside>
