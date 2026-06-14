@@ -71,8 +71,9 @@
         </div>
 
         {{-- ============== MODAL KONFIRMASI MULAI UJIAN ============== --}}
-        <div x-show="confirmOpen"
-            class="fixed inset-0 z-[999991] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/50"
+        <template x-teleport="#modal-root">
+            <div x-show="confirmOpen"
+            class="app-modal-overlay fixed inset-0 z-[999991] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
             x-transition x-cloak>
             <div @click.away="!confirmSubmitting && (confirmOpen = false)"
                 class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
@@ -107,10 +108,11 @@
                 </div>
             </div>
         </div>
+        </template>
 
         {{-- ============== MODAL SCANNER ============== --}}
         <div x-show="scannerOpen"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/70"
+            class="fixed inset-0 flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/70"
             x-transition x-cloak>
             <div class="relative w-full max-w-md rounded-2xl bg-[#0f172a] shadow-2xl flex flex-col overflow-hidden">
                 <div class="flex items-center justify-between border-b border-gray-700 px-5 py-3 text-white">

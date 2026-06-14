@@ -148,9 +148,9 @@
         {{-- ======================================================= --}}
         {{-- MODAL 1: EDIT PROFIL UMUM (PAKAI X-TELEPORT) --}}
         {{-- ======================================================= --}}
-        <template x-teleport="body">
+        <template x-teleport="#modal-root">
             <div x-show="editProfileOpen"
-                class="fixed inset-0 z-[99999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-sm"
+                class="app-modal-overlay fixed inset-0 flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-sm"
                 x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
                 <div @click.away="editProfileOpen = false"
@@ -240,9 +240,9 @@
         {{-- ======================================================= --}}
         {{-- MODAL 2: TANDA TANGAN KHUSUS (PAKAI X-TELEPORT) --}}
         {{-- ======================================================= --}}
-        <template x-teleport="body">
+        <template x-teleport="#modal-root">
             <div x-show="signatureOpen"
-                class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+                class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
                 x-transition x-cloak>
 
                 <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800" x-data="{
@@ -345,9 +345,9 @@
         {{-- ======================================================= --}}
         {{-- MODAL 3: UBAH PASSWORD (PAKAI X-TELEPORT) --}}
         {{-- ======================================================= --}}
-        <template x-teleport="body">
+        <template x-teleport="#modal-root">
             <div x-show="changePasswordOpen"
-                class="fixed inset-0 z-[99999] flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm"
+                class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm"
                 x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
                 {{-- State showPassword untuk fitur intip password --}}

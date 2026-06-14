@@ -32,10 +32,10 @@ class DatabaseSeeder extends Seeder
 
         // 3. LEVEL 1 - Universitas (Root)
         DB::table('mst_unit')->updateOrInsert(
-            ['id' => 'U001'],
+            ['id' => 'UIN'],
             [
                 'unit_name' => 'UIN Prof. K.H. Saifuddin Zuhri',
-                'unit_parent' => 'U001',
+                'unit_parent' => 'UIN',
                 'unit_type_id' => 1,
                 'is_active' => '1',
                 'created_at' => now(),
@@ -44,10 +44,10 @@ class DatabaseSeeder extends Seeder
 
         // 4. LEVEL 2 - Fakultas
         DB::table('mst_unit')->updateOrInsert(
-            ['id' => 'U002'],
+            ['id' => 'FST'],
             [
                 'unit_name' => 'Fakultas Sains dan Teknologi',
-                'unit_parent' => 'U001',
+                'unit_parent' => 'UIN',
                 'unit_type_id' => 2,
                 'is_active' => '1',
                 'created_at' => now(),
@@ -56,10 +56,10 @@ class DatabaseSeeder extends Seeder
 
         // 5. LEVEL 3 - Program Studi
         $prodies = [
-            ['id' => 'U003', 'name' => 'Informatika'],
-            ['id' => 'U004', 'name' => 'Arsitektur'],
-            ['id' => 'U005', 'name' => 'Ilmu Lingkungan'],
-            ['id' => 'U006', 'name' => 'Perpustakaan dan Sains Informasi'],
+            ['id' => 'INF', 'name' => 'Informatika'],
+            ['id' => 'ARS', 'name' => 'Arsitektur'],
+            ['id' => 'ILK', 'name' => 'Ilmu Lingkungan'], // ILK: Ilmu + Lingkungan
+            ['id' => 'PSI', 'name' => 'Perpustakaan dan Sains Informasi'],
         ];
 
         foreach ($prodies as $prodi) {
@@ -67,7 +67,7 @@ class DatabaseSeeder extends Seeder
                 ['id' => $prodi['id']],
                 [
                     'unit_name' => $prodi['name'],
-                    'unit_parent' => 'U002',
+                    'unit_parent' => 'FST',
                     'unit_type_id' => 3,
                     'is_active' => '1',
                     'created_at' => now(),
@@ -92,85 +92,85 @@ class DatabaseSeeder extends Seeder
 
         // --- USER 1: ADMIN ---
         DB::table('mst_user')->updateOrInsert(
-            ['id' => 'U0001'],
+            ['id' => 'ADM-UIN-0000001'],
             [
                 'name' => 'Admin Sainteku',
                 'email' => 'admin@sainteku.ac.id',
                 'password' => Hash::make('password'),
                 'identity_id' => '19900101001',
                 'user_type' => 'STF',
-                'unit_id' => 'U001',
+                'unit_id' => 'UIN',
                 'is_active' => '1',
                 'created_at' => now(),
             ]
         );
         if ($roleAdminId) {
             DB::table('trx_user_role')->updateOrInsert(
-                ['user_id' => 'U0001', 'role_id' => $roleAdminId],
-                ['user_id' => 'U0001', 'role_id' => $roleAdminId]
+                ['user_id' => 'ADM-UIN-0000001', 'role_id' => $roleAdminId],
+                ['user_id' => 'ADM-UIN-0000001', 'role_id' => $roleAdminId]
             );
         }
 
         // --- USER 2: ARIFIAN (Dosen) ---
         DB::table('mst_user')->updateOrInsert(
-            ['id' => 'U0002'],
+            ['id' => 'DSN-INF-0000001'],
             [
                 'name' => 'Arifian Ilham Nurriandana',
                 'email' => 'arifianilhamnurriandana@gmail.com',
                 'password' => Hash::make('Argtgbgt'),
                 'identity_id' => '19950505002',
                 'user_type' => 'DSN',
-                'unit_id' => 'U003',
+                'unit_id' => 'INF',
                 'is_active' => '1',
                 'created_at' => now(),
             ]
         );
         if ($roleDosenId) {
             DB::table('trx_user_role')->updateOrInsert(
-                ['user_id' => 'U0002', 'role_id' => $roleDosenId],
-                ['user_id' => 'U0002', 'role_id' => $roleDosenId]
+                ['user_id' => 'DSN-INF-0000001', 'role_id' => $roleDosenId],
+                ['user_id' => 'DSN-INF-0000001', 'role_id' => $roleDosenId]
             );
         }
 
         // --- USER 3: ANAS AZIMI (Kaprodi) ---
         DB::table('mst_user')->updateOrInsert(
-            ['id' => 'U0003'],
+            ['id' => 'KPD-INF-0000001'],
             [
                 'name' => 'Anas Azimi Qalban',
                 'email' => 'anas@uinsaizu.ac.id',
                 'password' => Hash::make('kaprodi'),
                 'identity_id' => '19880808003',
                 'user_type' => 'DSN',
-                'unit_id' => 'U003',
+                'unit_id' => 'INF',
                 'is_active' => '1',
                 'created_at' => now(),
             ]
         );
         if ($roleKaprodiId) {
             DB::table('trx_user_role')->updateOrInsert(
-                ['user_id' => 'U0003', 'role_id' => $roleKaprodiId],
-                ['user_id' => 'U0003', 'role_id' => $roleKaprodiId]
+                ['user_id' => 'KPD-INF-0000001', 'role_id' => $roleKaprodiId],
+                ['user_id' => 'KPD-INF-0000001', 'role_id' => $roleKaprodiId]
             );
         }
 
         // --- USER 4: NIAMILAH (Mahasiswa) ---
         DB::table('mst_user')->updateOrInsert(
-            ['id' => 'U0004'],
+            ['id' => 'MHS-INF-0000001'],
             [
                 'name' => 'Niamilah Nabil Syahputra',
                 'email' => 'niamilah@uinsaizu.ac.id',
                 'password' => Hash::make('password'),
                 'identity_id' => '234110601087',
                 'user_type' => 'MHS',
-                'unit_id' => 'U003',
+                'unit_id' => 'INF',
                 'is_active' => '1',
                 'created_at' => now(),
             ]
         );
         if ($roleMhsId) {
             DB::table('trx_user_role')->updateOrInsert(
-                ['user_id' => 'U0004', 'role_id' => $roleMhsId],
-                ['user_id' => 'U0004', 'role_id' => $roleMhsId]
+                ['user_id' => 'MHS-INF-0000001', 'role_id' => $roleMhsId],
+                ['user_id' => 'MHS-INF-0000001', 'role_id' => $roleMhsId]
             );
         }
 

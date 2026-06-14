@@ -1,6 +1,7 @@
 {{-- Overlay --}}
-<div x-show="openCreateDosen"
-    class="fixed inset-0 z-[999999] bg-black/50 backdrop-blur-sm transition-all duration-300"
+<template x-teleport="#modal-root">
+    <div x-show="openCreateDosen"
+    class="app-modal-overlay fixed inset-0 bg-black/50 overflow-y-auto backdrop-blur-sm transition-all duration-300"
     @click="openCreateDosen = false"
     x-transition:enter="ease-out duration-300"
     x-transition:enter-start="opacity-0"
@@ -11,10 +12,11 @@
     x-cloak
     style="display: none;">
 </div>
+</template>
 
 {{-- Modal Panel --}}
 <div x-show="openCreateDosen"
-    class="fixed inset-0 z-[999999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
+    class="fixed inset-0 flex items-start justify-center overflow-y-auto bg-black/50 p-4 py-10 backdrop-blur-md"
     x-transition:enter="transition ease-out duration-300"
     x-transition:opacity
     x-cloak

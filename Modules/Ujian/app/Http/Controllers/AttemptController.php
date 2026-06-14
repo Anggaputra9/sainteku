@@ -57,33 +57,50 @@ class AttemptController extends Controller
             return back()->withErrors(['room_code' => 'Kode ruang ujian tidak ditemukan.'])->withInput();
         }
 
-        // Auto-close jika waktu sudah lewat — supaya pesan ke mahasiswa
-        // langsung "ditutup" (bukan "tidak aktif") tanpa harus nunggu
-        // dosen klik tombol close manual.
+        $room->autoStartIfScheduled();
         if ($room->autoCloseIfExpired()) {
             $room->refresh();
         }
 
-        // Pesan dipisah biar status di sisi mahasiswa lebih jelas:
-        // - DRAFT  : dosen masih menyiapkan, belum dipublikasi
-        // - CLOSED : ujian sudah dihentikan oleh dosen
-        // - !is_active: dinonaktifkan manual
-        if ($room->status === 'DRAFT') {
-            return back()->withErrors(['room_code' => 'Ruang ujian belum dipublikasi oleh dosen.'])->withInput();
-        }
         if ($room->status === 'CLOSED') {
             return back()->withErrors(['room_code' => 'Ruang ujian sudah ditutup.'])->withInput();
         }
-        if ($room->status !== 'PUBLISHED' || !$room->is_active) {
+        if ($room->status === 'DRAFT') {
+            $joinOpens = $room->start_at?->copy()->subMinutes(ExamRoom::JOIN_GRACE_MINUTES);
+
+            return back()->withErrors([
+                'room_code' => $joinOpens
+                    ? 'Ruang ujian belum dibuka. Mahasiswa dapat masuk mulai '
+                        . $joinOpens->translatedFormat('d M Y H:i') . ' WIB.'
+                    : 'Ruang ujian belum dimulai.',
+            ])->withInput();
+        }
+        if ($room->status !== 'PUBLISHED' || ! $room->is_active) {
             return back()->withErrors(['room_code' => 'Ruang ujian tidak aktif.'])->withInput();
         }
 
         $now = now();
-        if ($now->lt($room->start_at)) {
+        $joinOpens = $room->joinOpensAt();
+
+        if (! $joinOpens || $now->lt($joinOpens)) {
             return back()->withErrors([
-                'room_code' => 'Ruang ujian belum dimulai. Akan dibuka ' . $room->start_at->translatedFormat('d M Y H:i') . ' WIB.',
+                'room_code' => 'Ruang ujian belum dibuka. Mahasiswa dapat masuk mulai '
+                    . ($joinOpens?->translatedFormat('d M Y H:i') ?? '-') . ' WIB.',
             ])->withInput();
         }
+
+        $hasAttempt = ExamAttempt::where('room_id', $room->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        $joinDeadline = $room->joinDeadline();
+        if (! $hasAttempt && $joinDeadline && $now->gt($joinDeadline)) {
+            return back()->withErrors([
+                'room_code' => 'Batas waktu masuk ruang ujian sudah berakhir pada '
+                    . $joinDeadline->translatedFormat('d M Y H:i') . ' WIB.',
+            ])->withInput();
+        }
+
         if ($now->gt($room->end_at)) {
             return back()->withErrors([
                 'room_code' => 'Ruang ujian sudah berakhir pada ' . $room->end_at->translatedFormat('d M Y H:i') . ' WIB.',
@@ -100,8 +117,7 @@ class AttemptController extends Controller
     {
         $room = ExamRoom::where('room_code', strtoupper($code))->firstOrFail();
 
-        // Auto-close kalau end_at sudah lewat → ensureRoomOpen() di bawah
-        // akan menolak request dengan pesan yang sesuai.
+        $room->autoStartIfScheduled();
         if ($room->autoCloseIfExpired()) {
             $room->refresh();
         }
@@ -276,6 +292,8 @@ class AttemptController extends Controller
     {
         $attempt->load([
             'room.proposal.examQuestions.question',
+            'room.proposal.course.unit',
+            'room.proposal.period',
             'user:id,name,identity_id',
             'answers',
         ]);
@@ -321,9 +339,11 @@ class AttemptController extends Controller
      |==========================================================*/
     private function ensureRoomOpen(ExamRoom $room): void
     {
-        abort_if($room->status !== 'PUBLISHED' || !$room->is_active, 403, 'Ruang ujian tidak aktif.');
+        abort_if($room->status !== 'PUBLISHED' || ! $room->is_active, 403, 'Ruang ujian tidak aktif.');
+
         $now = now();
-        abort_if($now->lt($room->start_at), 403, 'Ruang ujian belum dibuka.');
+        $joinOpens = $room->joinOpensAt();
+        abort_if(! $joinOpens || $now->lt($joinOpens), 403, 'Ruang ujian belum dibuka.');
         abort_if($now->gt($room->end_at), 403, 'Ruang ujian sudah berakhir.');
     }
 
@@ -342,14 +362,16 @@ class AttemptController extends Controller
                 ->first();
 
             $now = now();
+            $examStart = $room->started_at ?? $room->start_at;
+            $attemptStart = ($examStart && $now->lt($examStart)) ? $examStart->copy() : $now->copy();
 
             if (!$attempt) {
                 $attempt = ExamAttempt::create([
                     'room_id'          => $room->id,
                     'user_id'          => $userId,
                     'status'           => 'ONGOING',
-                    'started_at'       => $now,
-                    'expires_at'       => $this->calculateExpiresAt($room, $now),
+                    'started_at'       => $attemptStart,
+                    'expires_at'       => $this->calculateExpiresAt($room, $attemptStart),
                     'last_activity_at' => $now,
                     'ip_address'       => $request->ip(),
                     'user_agent'       => substr((string) $request->userAgent(), 0, 250),

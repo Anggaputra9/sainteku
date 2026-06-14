@@ -1,5 +1,6 @@
-<div x-show="openCreate || openEdit"
-    class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+<template x-teleport="#modal-root">
+    <div x-show="openCreate || openEdit"
+    class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/40"
     x-transition x-cloak>
     <div @click.away="openCreate=false; openEdit=false"
         class="relative w-full max-w-3xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
@@ -195,3 +196,4 @@
         </form>
     </div>
 </div>
+</template>

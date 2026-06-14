@@ -29,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::prefix('ujian/rooms')->name('ujian.rooms.')->group(function () {
         Route::get('/',                       [RoomController::class, 'index'])->name('index');
+        Route::get('api/data',                [RoomController::class, 'getRoomsData'])->name('api.data');
         Route::post('/',                      [RoomController::class, 'store'])->name('store');
 
         Route::get('{room:uuid}',             [RoomController::class, 'show'])->name('show');
@@ -36,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('{room:uuid}',          [RoomController::class, 'destroy'])->name('destroy');
         Route::delete('{room:uuid}/attempts/{attempt:uuid}', [RoomController::class, 'destroyAttempt'])->name('attempts.destroy');
 
-        Route::post('{room:uuid}/publish',    [RoomController::class, 'publish'])->name('publish');
+        Route::post('{room:uuid}/start',      [RoomController::class, 'start'])->name('start');
         Route::post('{room:uuid}/close',      [RoomController::class, 'close'])->name('close');
         Route::post('{room:uuid}/reopen',     [RoomController::class, 'reopen'])->name('reopen');
         Route::post('{room:uuid}/attempts/{attempt:uuid}/reset-violation', [RoomController::class, 'resetViolation'])->name('attempts.reset-violation');

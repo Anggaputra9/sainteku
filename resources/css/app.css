@@ -881,3 +881,18 @@ pre[class*='language-'] {
     margin-right: -60px !important;
   }
 }
+
+/* Modal layer — always above sidebar (999999) and header (999980) */
+#modal-root {
+  position: relative;
+  z-index: 10000000;
+  pointer-events: none;
+}
+
+#modal-root > * {
+  pointer-events: auto;
+}
+
+.app-modal-overlay {
+  z-index: 10000000 !important;
+}

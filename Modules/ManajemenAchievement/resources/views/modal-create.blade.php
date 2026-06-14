@@ -1,5 +1,6 @@
-<div x-show="openCreate"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+<template x-teleport="#modal-root">
+    <div x-show="openCreate"
+    class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
     <div @click.away="openCreate = false"
@@ -146,6 +147,7 @@
         </form>
     </div>
 </div>
+</template>
 
 {{-- Flatpickr --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">

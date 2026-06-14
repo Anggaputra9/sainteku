@@ -128,8 +128,9 @@
         </div>
 
         {{-- Modal Tambah --}}
-        <div x-show="openCreate"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+        <template x-teleport="#modal-root">
+            <div x-show="openCreate"
+            class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/40"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
@@ -164,10 +165,11 @@
                 </form>
             </div>
         </div>
+        </template>
 
         {{-- Modal Detail/Edit/Hapus --}}
         <div x-show="openDetail"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+            class="fixed inset-0 flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
             x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
@@ -251,5 +253,4 @@
         }
     </script>
 @endsection
-
 

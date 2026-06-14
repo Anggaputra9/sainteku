@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mst_course', function (Blueprint $table) {
-            $table->string('id', 5)->primary();
+            $table->string('id', 8)->primary();
             $table->string('course_name', 100);
             $table->string('unit_id', 4);
             $table->enum('is_active', ['0', '1']);

@@ -200,8 +200,9 @@
 </script>
 
 {{-- MODAL TANDA TANGAN (sama seperti sebelumnya) --}}
-<div id="signatureModal"
-    class="fixed inset-0 z-[99999] hidden items-center justify-center bg-black/50 backdrop-blur-sm"
+<template x-teleport="#modal-root">
+    <div id="signatureModal"
+    class="app-modal-overlay fixed inset-0 hidden items-center justify-center bg-black/50 overflow-y-auto backdrop-blur-sm"
     style="display: none;">
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md mx-4">
         <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6 py-4">
@@ -271,6 +272,7 @@
         </div>
     </div>
 </div>
+</template>
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>

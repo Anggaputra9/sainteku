@@ -17,12 +17,16 @@
 </style>
 
 {{-- ================= OVERLAY GELAP (Backdrop) ala Anyeoung Gift ================= --}}
-<div x-show="$store.sidebar.isMobileOpen"
-    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999990] xl:hidden transition-opacity"
-    @click="$store.sidebar.isMobileOpen = false" x-transition:enter="ease-out duration-300"
-    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
-    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
-</div>
+<template x-teleport="body">
+    <div x-show="$store.sidebar.isMobileOpen"
+        class="fixed inset-0 z-[999900] bg-black/60 backdrop-blur-sm xl:hidden transition-opacity"
+        @click="$store.sidebar.isMobileOpen = false"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        x-cloak></div>
+</template>
 
 {{-- ================= SIDEBAR UTAMA ================= --}}
 <aside id="sidebar" x-cloak

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
  *
  * - Dosen pengaju (created_by) : U0002 (Arifian Ilham Nurriandana) - data eksisting
  * - Kaprodi (approved_by)      : U0003 (Anas Azimi Qalban) - data eksisting
- * - Mata Kuliah                : MK002 (Pemrograman Web Lanjut)
+ * - Mata Kuliah                : INF002 (Pemrograman Web Lanjut)
  * - Periode                    : id = 1 (2024/2025 Gasal, aktif)
  * - 1 Proposal Ujian (UAS)     : status APPROVED
  *   berisi 10 butir soal (bobot @10, total = 100) dengan CPMK bervariasi.
@@ -23,7 +23,7 @@ class TashihSoalSeeder extends Seeder
         // ============== KONFIGURASI DATA UTAMA ==============
         $dosenId    = 'U0002'; // Pengaju
         $kaprodiId  = 'U0003'; // Approver / Reviewer
-        $courseId   = 'MK002'; // Pemrograman Web Lanjut
+        $courseId   = 'INF002'; // Pemrograman Web Lanjut
         $periodId   = 1;        // 2024/2025 Gasal
         $examType   = 'UAS';
 
@@ -31,7 +31,7 @@ class TashihSoalSeeder extends Seeder
         $checks = [
             'mst_user (Dosen U0002)'   => DB::table('mst_user')->where('id', $dosenId)->exists(),
             'mst_user (Kaprodi U0003)' => DB::table('mst_user')->where('id', $kaprodiId)->exists(),
-            'mst_course (MK002)'       => DB::table('mst_course')->where('id', $courseId)->exists(),
+            'mst_course (INF002)'      => DB::table('mst_course')->where('id', $courseId)->exists(),
             'mst_period (id=1)'        => DB::table('mst_period')->where('id', $periodId)->exists(),
             'mst_cpmk (CP-01..CP-04)'  => DB::table('mst_cpmk')->whereIn('id', ['CP-01', 'CP-02', 'CP-03', 'CP-04'])->count() === 4,
         ];

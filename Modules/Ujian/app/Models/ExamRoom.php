@@ -8,6 +8,8 @@ use Modules\MonevAkademik\app\Models\ExamProposal;
 
 class ExamRoom extends Model
 {
+    public const JOIN_GRACE_MINUTES = 15;
+
     protected $table = 'trx_exam_rooms';
 
     protected $fillable = [
@@ -18,6 +20,7 @@ class ExamRoom extends Model
         'description',
         'created_by',
         'start_at',
+        'started_at',
         'end_at',
         'duration_minutes',
         'tab_switch_policy',
@@ -31,6 +34,7 @@ class ExamRoom extends Model
 
     protected $casts = [
         'start_at'            => 'datetime',
+        'started_at'          => 'datetime',
         'end_at'              => 'datetime',
         'shuffle_questions'   => 'boolean',
         'show_remaining_time' => 'boolean',
@@ -98,9 +102,82 @@ class ExamRoom extends Model
     public function isOpenNow(): bool
     {
         $now = now();
+        $joinOpens = $this->joinOpensAt();
+
         return $this->status === 'PUBLISHED'
             && $this->is_active
-            && $now->between($this->start_at, $this->end_at);
+            && $joinOpens
+            && $now->gte($joinOpens)
+            && $now->lte($this->end_at);
+    }
+
+    /**
+     * Mahasiswa boleh masuk mulai 15 menit sebelum waktu mulai ujian.
+     */
+    public function joinOpensAt(): ?\Carbon\Carbon
+    {
+        if ($this->started_at && $this->start_at && $this->started_at->lt($this->start_at)) {
+            return $this->started_at->copy();
+        }
+
+        $examStart = $this->started_at ?? $this->start_at;
+
+        return $examStart?->copy()->subMinutes(self::JOIN_GRACE_MINUTES);
+    }
+
+    /**
+     * Batas akhir mahasiswa baru boleh masuk (15 menit setelah ujian dimulai).
+     */
+    public function joinDeadline(): ?\Carbon\Carbon
+    {
+        $examStart = $this->started_at ?? $this->start_at;
+
+        return $examStart?->copy()->addMinutes(self::JOIN_GRACE_MINUTES);
+    }
+
+    public static function computeEndAt(\Carbon\Carbon $examStart, int $durationMinutes): \Carbon\Carbon
+    {
+        return $examStart->copy()->addMinutes($durationMinutes);
+    }
+
+    /**
+     * Mulai otomatis saat waktu terjadwal tiba (status DRAFT → PUBLISHED).
+     */
+    public function autoStartIfScheduled(): bool
+    {
+        if ($this->status !== 'DRAFT' || ! $this->start_at) {
+            return false;
+        }
+
+        $joinOpens = $this->start_at->copy()->subMinutes(self::JOIN_GRACE_MINUTES);
+        if (now()->lt($joinOpens)) {
+            return false;
+        }
+
+        $this->forceFill([
+            'started_at' => $this->start_at->copy(),
+            'status'     => 'PUBLISHED',
+            'is_active'  => true,
+            'end_at'     => self::computeEndAt($this->start_at, (int) $this->duration_minutes),
+        ])->save();
+
+        return true;
+    }
+
+    public static function autoStartScheduled(): int
+    {
+        $count = 0;
+
+        self::where('status', 'DRAFT')
+            ->where('start_at', '<=', now()->addMinutes(self::JOIN_GRACE_MINUTES))
+            ->orderBy('id')
+            ->each(function (self $room) use (&$count) {
+                if ($room->autoStartIfScheduled()) {
+                    $count++;
+                }
+            });
+
+        return $count;
     }
 
     /**

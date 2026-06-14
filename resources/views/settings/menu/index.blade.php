@@ -172,8 +172,9 @@
 
         {{-- ================= MODAL CREATE ================= --}}
         {{-- Modal Tambah: form input bersih, header indigo seperti modal email settings --}}
-        <div x-show="openCreate"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+        <template x-teleport="#modal-root">
+            <div x-show="openCreate"
+            class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/40"
             x-transition x-cloak>
             <div @click.away="openCreate = false"
                 class="relative w-full max-w-3xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
@@ -243,6 +244,7 @@
                 </form>
             </div>
         </div>
+        </template>
 
         {{-- ================= MODAL DETAIL ================= --}}
         {{--
@@ -250,7 +252,7 @@
             (toggle isEditing). Tombol Hapus di footer kiri, Edit/Simpan di kanan.
         --}}
         <div x-show="openDetail"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
+            class="fixed inset-0 flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
             x-transition x-cloak>
             <div @click.away="closeDetail()"
                 class="relative w-full max-w-2xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">

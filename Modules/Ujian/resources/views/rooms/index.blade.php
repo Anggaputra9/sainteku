@@ -1,78 +1,68 @@
 @extends('layouts.app')
 
 @section('content')
-    {{--
-        Halaman tunggal "Ruang Ujian" — semua aksi (Buat, Detail, Edit,
-        Hapus, Publish/Tutup) dilakukan via modal Alpine. Tidak ada lagi
-        halaman create/edit/show terpisah. Semua endpoint controller
-        dipanggil pakai fetch() dengan Accept: application/json.
+    <div class="space-y-6" x-data="examRoomsApp()" x-init="initData()"
+        @rooms-data-changed.window="handleDataChanged($event)" x-cloak>
 
-        URL admin pakai uuid (lihat ExamRoom::getRouteKeyName()).
-    --}}
-    <div class="space-y-6" x-data="examRoomsApp" x-init="init()" x-cloak>
-
-        {{-- ================= HEADER ================= --}}
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+        {{-- HEADER --}}
+        <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
             <div>
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
                     <i class="fa-solid fa-chalkboard-user text-indigo-500"></i> Ruang Ujian
                 </h2>
                 <nav>
-                    <ol class="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                    <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
                         <li>Monev Akademik /</li>
                         <li class="text-indigo-600 dark:text-indigo-400">Ujian</li>
                     </ol>
                 </nav>
             </div>
-            <button type="button" @click="openCreateModal()"
-                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition">
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-create-modal', { bubbles: true }))"
+                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-indigo-600 rounded-lg shadow-md hover:bg-indigo-700">
                 <i class="fa-solid fa-plus"></i> Buat Ruang Ujian
             </button>
         </div>
 
-        {{-- ================= ALERTS dari toast Alpine ================= --}}
+        {{-- ALERTS --}}
         <template x-if="alert.message">
-            <div class="border-l-4 p-4 rounded-r-lg shadow-sm flex items-center gap-3"
-                 :class="alert.type === 'error'
-                    ? 'border-red-500 bg-red-50 text-red-700'
-                    : 'border-green-500 bg-green-50 text-green-700'">
-                <i class="fa-solid"
-                   :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+            <div class="flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                :class="alert.type === 'error' ? 'border-red-500 bg-red-50 text-red-700' : 'border-green-500 bg-green-50 text-green-700'">
+                <i class="fa-solid" :class="alert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
                 <span class="text-sm font-bold" x-text="alert.message"></span>
             </div>
         </template>
 
-        {{-- ================= FILTERS ================= --}}
+        {{-- TOOLBAR --}}
         <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-                <div class="md:col-span-2">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Pencarian</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul / kode ruang..."
-                        class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+            <div class="flex flex-nowrap items-center gap-3">
+                <div class="relative min-w-0 flex-1">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchRooms()"
+                        placeholder="Cari judul, kode ruang, atau mata kuliah..."
+                        class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Status</label>
-                    <select name="status" class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                        <option value="">Semua</option>
-                        <option value="DRAFT" @selected(request('status')==='DRAFT')>Draft</option>
-                        <option value="PUBLISHED" @selected(request('status')==='PUBLISHED')>Published</option>
-                        <option value="CLOSED" @selected(request('status')==='CLOSED')>Closed</option>
+                <div class="flex shrink-0 items-center gap-2">
+                    <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
+                    <select x-model="perPageFilter" @change="fetchRooms(1)" title="Jumlah data per halaman"
+                        class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="150">150</option>
+                        <option value="250">250</option>
                     </select>
                 </div>
-                <div class="flex gap-2">
-                    <button class="flex-1 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-indigo-700">Filter</button>
-                    <a href="{{ route('ujian.rooms.index') }}" class="flex-1 inline-flex justify-center rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Reset</a>
-                </div>
-            </form>
+            </div>
         </div>
 
-        {{-- ================= TABEL (gaya tashih: tombol Detail saja) ================= --}}
-        <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {{-- TABLE --}}
+        <div class="overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-600 dark:text-gray-400">
-                    <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
+                <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                    <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
                         <tr>
-                            <th class="px-6 py-4 font-semibold w-1/3">Ruang Ujian</th>
+                            <th class="px-6 py-4 font-semibold">Ruang Ujian</th>
                             <th class="px-6 py-4 font-semibold text-center">Mata Kuliah & Jadwal</th>
                             <th class="px-6 py-4 font-semibold text-center">Peserta</th>
                             <th class="px-6 py-4 font-semibold text-center">Status</th>
@@ -80,1113 +70,273 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse($rooms as $room)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                        <tr x-show="isLoading">
+                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
+                                <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-indigo-600"></i>
+                                <p class="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Memuat data...</p>
+                            </td>
+                        </tr>
+
+                        <tr x-show="roomsList.length === 0 && !isLoading">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fa-solid fa-clipboard-list text-3xl mb-3 opacity-50"></i><br>
+                                Belum ada ruang ujian.
+                            </td>
+                        </tr>
+
+                        <template x-for="room in roomsList" :key="room.uuid">
+                            <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                 <td class="px-6 py-4">
-                                    <div class="font-bold text-gray-900 dark:text-white text-base">{{ $room->title }}</div>
-                                    <div class="text-xs text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
-                                        <span class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 font-mono font-bold text-indigo-700 border border-indigo-200">
-                                            <i class="fa-solid fa-key text-[10px]"></i> {{ $room->room_code }}
-                                        </span>
-                                        <span>{{ $room->tabSwitchLabel() }}</span>
-                                        <span>· {{ $room->duration_minutes }} mnt</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-indigo-600 bg-indigo-100 rounded-full dark:bg-indigo-900/40 dark:text-indigo-400"
+                                            x-text="room.initial"></div>
+                                        <div>
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="room.title"></div>
+                                            <div class="flex flex-wrap items-center gap-2 mt-1 text-xs text-gray-500">
+                                                <span class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 font-mono font-bold text-indigo-700 border border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
+                                                    <i class="fa-solid fa-key text-[10px]"></i>
+                                                    <span x-text="room.room_code"></span>
+                                                </span>
+                                                <span x-text="room.tab_switch_label"></span>
+                                                <span>· <span x-text="room.duration_minutes"></span> mnt</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <div class="font-bold text-gray-700 dark:text-gray-300">{{ $room->proposal->course->course_name ?? '-' }}</div>
+                                    <div class="font-bold text-gray-700 dark:text-gray-300" x-text="room.course_name"></div>
                                     <div class="text-xs text-gray-500 mt-0.5">
-                                        {{ $room->start_at->format('d M Y H:i') }} – {{ $room->end_at->format('H:i') }}
+                                        <span x-text="room.start_at"></span> – <span x-text="room.end_at_time"></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <div class="font-bold text-gray-900 dark:text-white tabular-nums">{{ $room->attempts_count }}</div>
+                                    <div class="font-bold text-gray-900 dark:text-white tabular-nums" x-text="room.attempts_count"></div>
                                     <div class="text-[11px] text-gray-500">
-                                        <span class="text-emerald-600">{{ $room->attempts_ongoing_count }} aktif</span>
-                                        · {{ $room->attempts_finished_count }} selesai
+                                        <span class="text-emerald-600" x-text="room.attempts_ongoing_count + ' aktif'"></span>
+                                        · <span x-text="room.attempts_finished_count + ' selesai'"></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    @php
-                                        $badge = match($room->status) {
-                                            'PUBLISHED' => 'bg-green-100 text-green-800 border-green-200',
-                                            'DRAFT'     => 'bg-gray-100 text-gray-700 border-gray-200',
-                                            'CLOSED'    => 'bg-red-100 text-red-700 border-red-200',
-                                        };
-                                    @endphp
-                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border {{ $badge }}">{{ $room->status }}</span>
+                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border"
+                                        :class="room.status === 'PUBLISHED'
+                                            ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                                            : room.status === 'CLOSED'
+                                                ? 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                                                : 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-700/50 dark:text-gray-300 dark:border-gray-600'"
+                                        x-text="statusLabel(room.status)"></span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <button type="button" @click="openDetailModal('{{ $room->uuid }}')"
-                                        class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
-                                        <i class="fa-solid fa-eye text-blue-500"></i> Detail
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <button type="button" @click="openDetail(room)"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                        <i class="fa-solid fa-eye"></i> Detail
                                     </button>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fa-solid fa-clipboard-list text-3xl mb-3 opacity-50"></i><br>
-                                    Belum ada ruang ujian.
-                                </td>
-                            </tr>
-                        @endforelse
+                        </template>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        @if($rooms->hasPages())
-            <div class="px-2">{{ $rooms->links() }}</div>
-        @endif
-
-        {{-- ================= MODAL CREATE / EDIT ================= --}}
-        <div x-show="openForm"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
-            x-transition x-cloak>
-            <div @click.away="openForm = false"
-                class="relative w-full max-w-3xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
-                <div class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <h3 class="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <i class="fa-solid fa-chalkboard-user text-indigo-500"></i>
-                        <span x-text="formMode === 'edit' ? 'Edit Ruang Ujian' : 'Buat Ruang Ujian'"></span>
-                    </h3>
-                    <button type="button" @click="openForm = false" class="text-gray-400 hover:text-gray-600">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
-
-                <form @submit.prevent="submitForm()" class="flex-1 flex flex-col overflow-hidden">
-                    <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="md:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Paket Soal (Approved) *</label>
-                                <select x-model="form.proposal_id" :disabled="formMode === 'edit' && hasAttempts" required
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm disabled:bg-gray-100 dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                                    <option value="">— Pilih paket soal —</option>
-                                    @foreach($proposals as $p)
-                                        <option value="{{ $p->id }}">{{ $p->label }}</option>
-                                    @endforeach
-                                </select>
-                                <p class="text-[10px] text-gray-500 mt-1" x-show="formMode === 'edit' && hasAttempts">
-                                    Sudah ada peserta — paket soal dikunci.
-                                </p>
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Judul *</label>
-                                <input x-model="form.title" required maxlength="150"
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Deskripsi</label>
-                                <textarea x-model="form.description" rows="2" maxlength="1000"
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Mulai *</label>
-                                <input type="datetime-local" x-model="form.start_at" required
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Berakhir *</label>
-                                <input type="datetime-local" x-model="form.end_at" required
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Durasi (menit) *</label>
-                                <input type="number" min="1" max="600" x-model.number="form.duration_minutes" required
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Kebijakan Tab Switch *</label>
-                                <select x-model="form.tab_switch_policy"
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                                    <option value="strict">Tanpa Toleransi (auto-submit 1x)</option>
-                                    <option value="limited">Limited (ada batas)</option>
-                                    <option value="unlimited">Tanpa Batas</option>
-                                </select>
-                            </div>
-                            <div x-show="form.tab_switch_policy === 'limited'">
-                                <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Batas Tab Switch</label>
-                                <input type="number" min="0" max="50" x-model.number="form.tab_switch_limit"
-                                    class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
-                            </div>
-                        </div>
-
-                        {{--
-                            Pengaturan Tambahan: dipindah ke pola list dengan
-                            switch toggle, identik dengan halaman Pengaturan
-                            Email. Tujuannya konsisten visual & lebih mudah
-                            dibaca daripada checkbox biasa.
-                        --}}
-                        <div class="rounded-xl border border-gray-200 bg-white overflow-hidden dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700">
-                                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                                    <i class="fa-solid fa-sliders text-indigo-500"></i> Pengaturan Tambahan
-                                </h4>
-                            </div>
-
-                            <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                                {{-- Acak urutan soal --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_200px] gap-3 md:gap-6 items-center">
-                                    <div class="min-w-0">
-                                        <div class="font-semibold text-gray-700 dark:text-gray-300">Acak Urutan Soal</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Tiap mahasiswa mendapat urutan soal yang berbeda</div>
-                                    </div>
-                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
-                                        <span class="relative inline-flex shrink-0">
-                                            <input type="checkbox" x-model="form.shuffle_questions" class="sr-only peer">
-                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
-                                        </span>
-                                        <span class="text-sm font-semibold text-right tabular-nums"
-                                              :class="form.shuffle_questions ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
-                                              x-text="form.shuffle_questions ? 'Aktif' : 'Nonaktif'"></span>
-                                    </label>
-                                </li>
-
-                                {{-- Tampilkan sisa waktu --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_200px] gap-3 md:gap-6 items-center">
-                                    <div class="min-w-0">
-                                        <div class="font-semibold text-gray-700 dark:text-gray-300">Tampilkan Sisa Waktu</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">Mahasiswa melihat countdown waktu pengerjaan</div>
-                                    </div>
-                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
-                                        <span class="relative inline-flex shrink-0">
-                                            <input type="checkbox" x-model="form.show_remaining_time" class="sr-only peer">
-                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
-                                        </span>
-                                        <span class="text-sm font-semibold text-right tabular-nums"
-                                              :class="form.show_remaining_time ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
-                                              x-text="form.show_remaining_time ? 'Aktif' : 'Nonaktif'"></span>
-                                    </label>
-                                </li>
-
-                                {{-- Auto Grading dengan AI --}}
-                                <li class="px-4 py-3 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_200px] gap-3 md:gap-6 items-center">
-                                    <div class="min-w-0">
-                                        <div class="font-semibold text-gray-700 dark:text-gray-300">Koreksi Otomatis dengan AI</div>
-                                        <div class="text-xs text-gray-500 mt-0.5">AI akan mengoreksi jawaban secara otomatis setelah mahasiswa submit</div>
-                                    </div>
-                                    <label class="md:justify-self-end grid grid-cols-[auto_72px] items-center gap-3 cursor-pointer select-none">
-                                        <span class="relative inline-flex shrink-0">
-                                            <input type="checkbox" x-model="form.auto_grading_enabled" class="sr-only peer">
-                                            <span class="relative w-11 h-6 bg-gray-300 rounded-full peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></span>
-                                        </span>
-                                        <span class="text-sm font-semibold text-right tabular-nums"
-                                              :class="form.auto_grading_enabled ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
-                                              x-text="form.auto_grading_enabled ? 'Aktif' : 'Nonaktif'"></span>
-                                    </label>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <template x-if="formError">
-                            <div class="border-l-4 border-red-500 bg-red-50 p-3 text-sm text-red-700 rounded-r-lg" x-text="formError"></div>
-                        </template>
-                    </div>
-
-                    <div class="shrink-0 border-t border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" @click="openForm = false"
-                            class="rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Batal</button>
-                        <button type="submit" :disabled="submitting"
-                            class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span x-text="submitting ? 'Menyimpan…' : 'Simpan'"></span>
-                        </button>
-                    </div>
-                </form>
+        {{-- Pagination --}}
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 px-2"
+            x-show="pagination.total > 0 && !isLoading">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Menampilkan <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.from"></span>
+                – <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.to"></span>
+                dari <span class="font-bold text-gray-900 dark:text-white" x-text="pagination.total"></span> data
+            </span>
+            <div class="flex gap-2">
+                <button type="button" @click="changePage(pagination.current_page - 1)" :disabled="!pagination.prev_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-gray-200 px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+                    <i class="fa-solid fa-chevron-left"></i> Prev
+                </button>
+                <button type="button" @click="changePage(pagination.current_page + 1)" :disabled="!pagination.next_page_url"
+                    class="inline-flex items-center gap-1 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
         </div>
 
-        {{-- ================= MODAL DETAIL ================= --}}
-        <div x-show="openDetail"
-            class="fixed inset-0 z-[999990] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
-            x-transition x-cloak>
-            <div @click.away="openDetail = false"
-                class="relative w-full max-w-4xl rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[95vh] overflow-hidden">
-                <div class="shrink-0 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <div class="pr-4">
-                        <h3 class="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100" x-text="detail.room?.title || 'Detail Ruang Ujian'"></h3>
-                        <p class="text-xs text-gray-500 mt-1">Bagikan kode/QR ke mahasiswa untuk mulai ujian.</p>
-                    </div>
-                    <button type="button" @click="openDetail = false" class="text-gray-400 hover:text-gray-600">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
+        @include('ujian::rooms.modal-create')
+        @include('ujian::rooms.modal-detail')
+        @include('ujian::rooms.delete-modal')
 
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-5 bg-slate-50 dark:bg-[#0f172a]">
+        {{-- FAB Filter --}}
+        <template x-teleport="body">
+        <div class="fixed z-[9990] flex flex-col items-end gap-3"
+            style="bottom: 1.5rem; right: 1.5rem; left: auto;"
+            @click.away="filterFabOpen = false">
+            <div x-show="filterFabOpen" x-cloak
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-3 scale-95"
+                class="w-72 max-w-[calc(100vw-3rem)] rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl ring-1 ring-gray-900/5 dark:border-gray-700 dark:bg-[#1e293b]">
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {{-- KARTU QR --}}
-                        <div class="rounded-2xl border border-gray-200 bg-white p-4 text-center dark:border-gray-700 dark:bg-[#1e293b]">
-                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Kode Akses</div>
-                            <div class="font-mono text-2xl font-bold tracking-[0.3em] text-indigo-700 dark:text-indigo-300" x-text="detail.room?.room_code"></div>
-                            <div class="mt-3 flex items-center justify-center">
-                                <div class="rounded-xl bg-white p-3 ring-1 ring-gray-200 dark:ring-gray-700">
-                                    <div x-ref="qrCanvas"></div>
-                                </div>
-                            </div>
-                            <p class="text-[11px] text-gray-500 mt-3">
-                                Scan dengan kamera HP / arahkan ke
-                                <a :href="detail.room?.join_url" class="font-bold text-indigo-600 underline">halaman join</a>
-                            </p>
-                        </div>
-
-                        {{-- KARTU INFO --}}
-                        <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</div>
-                                <div class="mt-1">
-                                    <span class="inline-flex rounded-md px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border"
-                                          :class="detail.room?.status === 'PUBLISHED' ? 'bg-green-100 text-green-800 border-green-200'
-                                                : detail.room?.status === 'CLOSED' ? 'bg-red-100 text-red-700 border-red-200'
-                                                : 'bg-gray-100 text-gray-700 border-gray-200'"
-                                          x-text="detail.room?.status"></span>
-                                </div>
-                            </div>
-                            <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Durasi</div>
-                                <div class="mt-1 font-bold text-gray-900 dark:text-white">
-                                    <span x-text="detail.room?.duration_minutes"></span> menit
-                                </div>
-                            </div>
-                            <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Mulai</div>
-                                <div class="mt-1 text-sm text-gray-900 dark:text-white" x-text="detail.room?.start_at_human || detail.room?.start_at"></div>
-                            </div>
-                            <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b]">
-                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Berakhir</div>
-                                <div class="mt-1 text-sm text-gray-900 dark:text-white" x-text="detail.room?.end_at_human || detail.room?.end_at"></div>
-                            </div>
-                            <div class="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#1e293b] sm:col-span-2">
-                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Kebijakan Tab Switch</div>
-                                <div class="mt-1 text-sm text-gray-900 dark:text-white" x-text="detail.room?.tab_switch_label"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- PESERTA --}}
-                    <div class="rounded-xl border border-gray-200 bg-white overflow-hidden dark:border-gray-700 dark:bg-[#1e293b]">
-                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700 flex items-center justify-between">
-                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                                <i class="fa-solid fa-users text-indigo-500"></i> Peserta
-                                (<span x-text="detail.attempts?.length || 0"></span>)
-                            </h4>
-                            <button type="button" @click="reloadDetail()" class="text-xs text-indigo-600 hover:underline">
-                                <i class="fa-solid fa-arrows-rotate"></i> Refresh
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-gray-50 text-[11px] uppercase tracking-wider text-gray-700 dark:bg-gray-700/30 dark:text-gray-300">
-                                    <tr>
-                                        <th class="px-4 py-3">Mahasiswa</th>
-                                        <th class="px-4 py-3 text-center">Status</th>
-                                        <th class="px-4 py-3 text-center">Jawaban</th>
-                                        <th class="px-4 py-3 text-center">Pelanggaran</th>
-                                        <th class="px-4 py-3 text-center">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    <template x-for="a in detail.attempts" :key="a.uuid">
-                                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                                            <td class="px-4 py-2.5">
-                                                <div class="font-bold text-gray-900 dark:text-white" x-text="a.user_name"></div>
-                                                <div class="text-xs text-gray-500" x-text="a.user_identity"></div>
-                                            </td>
-                                            <td class="px-4 py-2.5 text-center">
-                                                <span class="inline-flex rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border"
-                                                    :class="a.status === 'ONGOING' ? 'bg-amber-100 text-amber-800 border-amber-200'
-                                                          : a.status === 'SUBMITTED' ? 'bg-green-100 text-green-800 border-green-200'
-                                                          : 'bg-red-100 text-red-700 border-red-200'"
-                                                    x-text="a.status_label"></span>
-                                            </td>
-                                            <td class="px-4 py-2.5 text-center tabular-nums">
-                                                <span x-text="`${a.answered}/${a.total_questions}`"></span>
-                                            </td>
-                                            <td class="px-4 py-2.5 text-center tabular-nums" x-text="a.tab_switch_count"></td>
-                                            <td class="px-4 py-2.5 text-center">
-                                                <div class="flex items-center justify-center gap-2">
-                                                    <a :href="`{{ url('ujian/attempt/result') }}/${a.uuid}`" target="_blank"
-                                                       class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100">
-                                                        <i class="fa-solid fa-eye"></i> Hasil
-                                                    </a>
-                                                    <template x-if="a.status === 'AUTO_SUBMITTED_VIOLATION' && detail.room?.status === 'PUBLISHED'">
-                                                        <button type="button" @click="confirmResetViolation(a)"
-                                                            class="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 border border-amber-200 hover:bg-amber-100">
-                                                            <i class="fa-solid fa-rotate-left"></i> Reset
-                                                        </button>
-                                                    </template>
-                                                    <button type="button" @click="confirmDeleteAttempt(a)"
-                                                        class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100">
-                                                        <i class="fa-solid fa-user-xmark"></i> Hapus
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <tr x-show="!detail.attempts || detail.attempts.length === 0">
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 text-sm">Belum ada peserta.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Footer Aksi --}}
-                <div class="shrink-0 border-t border-gray-200 bg-white px-4 sm:px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <button type="button" @click="confirmDelete()"
-                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700 border border-red-200 hover:bg-red-100">
-                            <i class="fa-solid fa-trash"></i> Hapus
-                        </button>
-                        <div class="flex flex-wrap items-center justify-end gap-2">
-                            <template x-if="!detail.room?.auto_grading_enabled && hasUngradedAttempts()">
-                                <button type="button" @click="startBatchGrading(false)"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-bold text-purple-700 border border-purple-200 hover:bg-purple-100">
-                                    <i class="fa-solid fa-robot"></i> Koreksi Semua Peserta dengan AI
-                                </button>
-                            </template>
-                            <template x-if="!detail.room?.auto_grading_enabled && hasAllGraded()">
-                                <button type="button" @click="startBatchGrading(true)"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-purple-50 px-4 py-2 text-sm font-bold text-purple-700 border border-purple-200 hover:bg-purple-100">
-                                    <i class="fa-solid fa-rotate"></i> Koreksi Ulang Semua dengan AI
-                                </button>
-                            </template>
-                            <a :href="`{{ url('ujian/rooms') }}/${detail.room?.uuid}/export-pdf`"
-                                class="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-bold text-green-700 border border-green-200 hover:bg-green-100">
-                                <i class="fa-solid fa-file-pdf"></i> Export PDF
-                            </a>
-                            <template x-if="detail.room?.status === 'DRAFT'">
-                                <button type="button" @click="changeStatus('publish')"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
-                                    <i class="fa-solid fa-paper-plane"></i> Publish
-                                </button>
-                            </template>
-                            <template x-if="detail.room?.status === 'CLOSED'">
-                                <button type="button" @click="openReopen()"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 border border-emerald-200 hover:bg-emerald-100">
-                                    <i class="fa-solid fa-rotate-right"></i> Buka Kembali
-                                </button>
-                            </template>
-                            <template x-if="detail.room?.status === 'PUBLISHED'">
-                                <button type="button" @click="changeStatus('close')"
-                                    class="inline-flex items-center gap-2 rounded-lg bg-amber-50 px-4 py-2 text-sm font-bold text-amber-700 border border-amber-200 hover:bg-amber-100">
-                                    <i class="fa-solid fa-circle-stop"></i> Tutup
-                                </button>
-                            </template>
-                            <button type="button" @click="openEditFromDetail()"
-                                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-indigo-700">
-                                <i class="fa-solid fa-pen"></i> Edit
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ================= MODAL REOPEN ================= --}}
-        {{--
-            Dipakai dosen untuk membuka kembali ruang ujian yang sudah CLOSED
-            (mis. karena auto-close end_at lewat). Wajib mengisi end_at baru
-            yang ada di masa depan; opsional override durasi attempt.
-        --}}
-        <div x-show="openReopenModal"
-            class="fixed inset-0 z-[999991] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/40"
-            x-transition x-cloak>
-            <div @click.away="openReopenModal = false"
-                class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
-                <div class="flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <i class="fa-solid fa-rotate-right text-emerald-500"></i> Buka Kembali Ruang Ujian
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-filter text-indigo-500"></i> Filter
                     </h3>
-                    <button type="button" @click="openReopenModal = false" class="text-gray-400 hover:text-gray-600">
-                        <i class="fa-solid fa-xmark text-xl"></i>
+                    <button type="button" x-show="activeFilterCount > 0" @click="resetFilters()"
+                        class="text-[11px] font-bold uppercase tracking-wide text-red-600 hover:text-red-700 dark:text-red-400">
+                        Reset
                     </button>
                 </div>
-                <form @submit.prevent="submitReopen()" class="p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                        Tentukan kapan ruang ujian akan ditutup lagi. Durasi pengerjaan
-                        boleh diubah; biarkan kosong untuk memakai durasi lama.
-                    </p>
+
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Berakhir Baru *</label>
-                        <input type="datetime-local" x-model="reopenForm.end_at" required
-                            class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
+                        <select x-model="sortFilter" @change="fetchRooms(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="newest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="title_asc">Judul A-Z</option>
+                            <option value="title_desc">Judul Z-A</option>
+                        </select>
                     </div>
+
                     <div>
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Durasi (menit) — opsional</label>
-                        <input type="number" min="1" max="600" x-model.number="reopenForm.duration_minutes"
-                            placeholder="Biarkan kosong untuk durasi lama"
-                            class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm dark:bg-[#1e293b] dark:border-gray-600 dark:text-white">
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                        <select x-model="statusFilter" @change="fetchRooms(1)"
+                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <option value="">Semua</option>
+                            <option value="DRAFT">Menunggu</option>
+                            <option value="PUBLISHED">Berjalan</option>
+                            <option value="CLOSED">Selesai</option>
+                        </select>
                     </div>
-                    <template x-if="reopenError">
-                        <div class="border-l-4 border-red-500 bg-red-50 p-3 text-sm text-red-700 rounded-r-lg" x-text="reopenError"></div>
-                    </template>
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" @click="openReopenModal = false"
-                            class="rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">Batal</button>
-                        <button type="submit" :disabled="reopenSubmitting"
-                            class="rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60">
-                            <i class="fa-solid fa-rotate-right"></i>
-                            <span x-text="reopenSubmitting ? 'Memproses…' : 'Buka Kembali'"></span>
-                        </button>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
 
-        {{-- ================= MODAL KONFIRMASI UNIVERSAL ================= --}}
-        <div x-show="confirmModal.open"
-            class="fixed inset-0 z-[999992] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/50"
-            x-transition x-cloak>
-            <div @click.away="closeConfirmModal()"
-                class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
-                <div class="border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100" x-text="confirmModal.title"></h3>
-                </div>
-                <div class="p-6 space-y-5 bg-slate-50 dark:bg-[#0f172a]">
-                    <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line" x-text="confirmModal.message"></p>
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" @click="closeConfirmModal()" :disabled="confirmModal.submitting"
-                            class="rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-60 dark:bg-gray-700 dark:text-gray-200">
-                            Batal
-                        </button>
-                        <button type="button" @click="executeConfirmAction()" :disabled="confirmModal.submitting"
-                            class="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60">
-                            <span x-text="confirmModal.submitting ? 'Memproses…' : 'Ya, Lanjutkan'"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <button type="button" @click="filterFabOpen = !filterFabOpen"
+                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 outline-none transition hover:bg-indigo-700 hover:shadow-xl"
+                :title="activeFilterCount > 0 && !filterFabOpen
+                    ? activeFilterCount + ' filter aktif'
+                    : (filterFabOpen ? 'Tutup filter' : 'Buka filter')">
+                <span class="relative inline-block leading-none">
+                    <i class="fa-solid text-lg transition-transform duration-200"
+                        :class="filterFabOpen ? 'fa-xmark' : 'fa-sliders'"></i>
+                    <span x-show="activeFilterCount > 0 && !filterFabOpen" x-cloak
+                        style="position:absolute;top:-3px;right:-6px;width:8px;height:8px;border-radius:9999px;background:#ef4444;border:2px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.25);pointer-events:none;"
+                        aria-hidden="true"></span>
+                </span>
+            </button>
         </div>
-
-        {{-- ================= MODAL PROGRESS BATCH GRADING ================= --}}
-        <div x-show="batchGrading.open"
-            class="fixed inset-0 z-[999993] flex items-center justify-center p-3 sm:p-6 backdrop-blur-sm bg-gray-900/50"
-            x-transition x-cloak>
-            <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
-                <div class="border-b border-gray-200 bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                    <h3 class="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        <i class="fa-solid fa-robot text-purple-500"></i> Koreksi Otomatis dengan AI
-                    </h3>
-                </div>
-                <div class="p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-300">Progress</span>
-                            <span class="font-bold text-gray-900 dark:text-white" x-text="batchGrading.progressText"></span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden">
-                            <div class="bg-purple-600 h-3 rounded-full transition-all duration-300"
-                                :style="`width: ${batchGrading.progressPercent}%`"></div>
-                        </div>
-                    </div>
-                    <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 dark:bg-blue-900/20 dark:border-blue-900/40">
-                        <p class="text-sm text-blue-800 dark:text-blue-200" x-text="batchGrading.message"></p>
-                    </div>
-                    <template x-if="batchGrading.status === 'processing'">
-                        <div class="flex justify-end">
-                            <button type="button" @click="cancelBatchGrading()"
-                                class="rounded-lg bg-red-50 px-4 py-2 text-sm font-bold text-red-700 border border-red-200 hover:bg-red-100">
-                                <i class="fa-solid fa-stop"></i> Batalkan
-                            </button>
-                        </div>
-                    </template>
-                    <template x-if="batchGrading.status === 'completed' || batchGrading.status === 'cancelled'">
-                        <div class="space-y-3">
-                            <template x-if="batchGrading.failed.length > 0">
-                                <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 dark:bg-amber-900/20 dark:border-amber-900/40">
-                                    <p class="text-xs font-bold text-amber-800 dark:text-amber-200 mb-2">
-                                        <i class="fa-solid fa-triangle-exclamation"></i> Gagal dikoreksi: <span x-text="batchGrading.failed.length"></span> peserta
-                                    </p>
-                                    <ul class="text-xs text-amber-700 dark:text-amber-300 space-y-1">
-                                        <template x-for="fail in batchGrading.failed" :key="fail.uuid">
-                                            <li x-text="`• ${fail.student}: ${fail.error}`"></li>
-                                        </template>
-                                    </ul>
-                                </div>
-                            </template>
-                            <div class="flex justify-end">
-                                <button type="button" @click="closeBatchGrading()"
-                                    class="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-bold text-white hover:bg-indigo-700">
-                                    Tutup
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </div>
+        </template>
     </div>
 
-    {{-- QR Code library: pakai CDN qrcodejs (no dependency) --}}
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-    </style>
-
     <script>
-        // Daftarkan komponen lewat alpine:init biar urutan eksekusinya
-        // konsisten — sama seperti modul Tashih (lihat tashih/index.blade.php).
         document.addEventListener('alpine:init', () => {
             Alpine.data('examRoomsApp', () => ({
-                /* ====== state ====== */
-                openForm: false,
-                openDetail: false,
-                openReopenModal: false,
-                reopenForm: { end_at: '', duration_minutes: null },
-                reopenError: '',
-                reopenSubmitting: false,
-                formMode: 'create',     // 'create' | 'edit'
-                submitting: false,
-                formError: '',
-                hasAttempts: false,
-                // Diisi via init() — tidak boleh panggil this.blankForm() di
-                // property initializer karena `this` belum siap saat itu.
-                form: {
-                    proposal_id: '',
-                    title: '',
-                    description: '',
-                    start_at: '',
-                    end_at: '',
-                    duration_minutes: 60,
-                    tab_switch_policy: 'strict',
-                    tab_switch_limit: 0,
-                    shuffle_questions: false,
-                    show_remaining_time: true,
-                    auto_grading_enabled: false,
-                },
-                detail: { room: null, attempts: [] },
-                editingUuid: null,
+                searchQuery: '',
+                perPageFilter: '50',
+                sortFilter: 'newest',
+                statusFilter: '',
+                filterFabOpen: false,
+                roomsList: [],
+                isLoading: false,
+                pagination: {},
                 alert: { type: '', message: '' },
-                confirmModal: {
-                    open: false,
-                    title: '',
-                    message: '',
-                    action: '',
-                    data: null,
-                    submitting: false,
-                },
-                batchGrading: {
-                    open: false,
-                    status: 'idle', // idle, processing, completed, cancelled
-                    message: '',
-                    progressPercent: 0,
-                    progressText: '0/0',
-                    failed: [],
-                    pollingInterval: null,
+
+                statusLabel(status) {
+                    return { DRAFT: 'Menunggu', PUBLISHED: 'Berjalan', CLOSED: 'Selesai' }[status] || status || '-';
                 },
 
-                csrf: document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                get activeFilterCount() {
+                    let count = 0;
+                    if (this.sortFilter !== 'newest') count++;
+                    if (this.statusFilter !== '') count++;
+                    return count;
+                },
 
-                init() {
+                initData() {
                     @if(session('success'))
-                        this.flash('success', @json(session('success')));
+                        this.flash('success', @js(session('success')));
                     @endif
-                },
-
-                blankForm() {
-                    return {
-                        proposal_id: '',
-                        title: '',
-                        description: '',
-                        start_at: '',
-                        end_at: '',
-                        duration_minutes: 60,
-                        tab_switch_policy: 'strict',
-                        tab_switch_limit: 0,
-                        shuffle_questions: false,
-                        show_remaining_time: true,
-                        auto_grading_enabled: false,
-                    };
+                    @if(session('error'))
+                        this.flash('error', @js(session('error')));
+                    @endif
+                    this.fetchRooms();
                 },
 
                 flash(type, message) {
                     this.alert = { type, message };
-                    setTimeout(() => { this.alert = { type: '', message: '' }; }, 4000);
+                    setTimeout(() => { this.alert.message = ''; }, 4000);
                 },
 
-                /* ============ CREATE ============ */
-                openCreateModal() {
-                    this.formMode = 'create';
-                    this.form = this.blankForm();
-                    this.formError = '';
-                    this.hasAttempts = false;
-                    this.editingUuid = null;
-                    this.openForm = true;
-                },
-
-                /* ============ DETAIL ============ */
-                async openDetailModal(uuid) {
-                    this.editingUuid = uuid;
-                    this.detail = { room: null, attempts: [] };
-                    this.openDetail = true;
-
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${uuid}`, {
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        if (!res.ok) throw new Error('Gagal memuat detail');
-                        const data = await res.json();
-                        this.detail = data;
-                        this.$nextTick(() => this.renderQR());
-                    } catch (e) {
-                        this.flash('error', e.message);
-                        this.openDetail = false;
+                handleDataChanged(event) {
+                    const detail = event.detail || {};
+                    if (detail.message) {
+                        this.flash(detail.type || 'success', detail.message);
                     }
+                    this.fetchRooms(this.pagination.current_page || 1);
                 },
 
-                reloadDetail() {
-                    if (this.editingUuid) this.openDetailModal(this.editingUuid);
-                },
+                async fetchRooms(page = 1) {
+                    this.isLoading = true;
+                    this.roomsList = [];
 
-                /** Render QR code dari kode ruang */
-                renderQR() {
-                    if (!this.$refs.qrCanvas || !this.detail.room) return;
-                    this.$refs.qrCanvas.innerHTML = '';
-                    const url = `${window.location.origin}{{ route('ujian.attempt.scan', [], false) }}?code=${encodeURIComponent(this.detail.room.room_code)}`;
-                    new QRCode(this.$refs.qrCanvas, {
-                        text: url,
-                        width: 160,
-                        height: 160,
-                        correctLevel: QRCode.CorrectLevel.M,
+                    const params = new URLSearchParams({
+                        page: page,
+                        per_page: this.perPageFilter,
+                        search: this.searchQuery,
+                        sort: this.sortFilter,
+                        status: this.statusFilter,
                     });
-                },
-
-                openEditFromDetail() {
-                    if (!this.detail.room) return;
-                    const r = this.detail.room;
-                    this.formMode = 'edit';
-                    this.editingUuid = r.uuid;
-                    this.hasAttempts = (this.detail.attempts || []).length > 0;
-                    this.form = {
-                        proposal_id: r.proposal_id,
-                        title: r.title,
-                        description: r.description || '',
-                        start_at: r.start_at?.replace(' ', 'T').slice(0,16) || '',
-                        end_at:   r.end_at?.replace(' ', 'T').slice(0,16)   || '',
-                        duration_minutes: r.duration_minutes,
-                        tab_switch_policy: r.tab_switch_policy,
-                        tab_switch_limit: r.tab_switch_limit,
-                        shuffle_questions: !!r.shuffle_questions,
-                        show_remaining_time: !!r.show_remaining_time,
-                    };
-                    this.formError = '';
-                    this.openDetail = false;
-                    this.openForm = true;
-                },
-
-                /* ============ SUBMIT FORM ============ */
-                async submitForm() {
-                    this.submitting = true;
-                    this.formError = '';
-
-                    const url = this.formMode === 'edit'
-                        ? `{{ url('ujian/rooms') }}/${this.editingUuid}`
-                        : `{{ route('ujian.rooms.store') }}`;
-                    const method = this.formMode === 'edit' ? 'PUT' : 'POST';
 
                     try {
-                        const res = await fetch(url, {
-                            method,
+                        const response = await fetch(`{{ route('ujian.rooms.api.data') }}?${params.toString()}`, {
                             headers: {
-                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                                 'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
                             },
-                            body: JSON.stringify(this.form),
                         });
-                        const data = await res.json().catch(() => ({}));
 
-                        if (!res.ok) {
-                            const msg = data?.message || (data?.errors ? Object.values(data.errors).flat().join(', ') : 'Gagal menyimpan.');
-                            throw new Error(msg);
-                        }
+                        if (!response.ok) throw new Error('Gagal memuat data ruang ujian');
 
-                        this.openForm = false;
-                        this.flash('success', data.message || 'Tersimpan');
-                        // Reload halaman supaya tabel terupdate (paling simpel & aman)
-                        setTimeout(() => window.location.reload(), 600);
-                    } catch (e) {
-                        this.formError = e.message;
-                    } finally {
-                        this.submitting = false;
-                    }
-                },
-
-                confirmDelete() {
-                    this.confirmModal = {
-                        open: true,
-                        title: 'Hapus Ruang Ujian',
-                        message: 'Yakin ingin menghapus ruang ujian ini? Tindakan ini tidak dapat dibatalkan.',
-                        action: 'delete-room',
-                        data: null,
-                        submitting: false,
-                    };
-                },
-
-                async executeDelete() {
-                    this.confirmModal.submitting = true;
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}`, {
-                            method: 'DELETE',
-                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': this.csrf },
-                        });
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) throw new Error(data?.message || 'Gagal menghapus.');
-                        this.confirmModal.open = false;
-                        this.openDetail = false;
-                        this.flash('success', data.message || 'Ruang ujian dihapus.');
-                        setTimeout(() => window.location.reload(), 600);
-                    } catch (e) {
-                        this.flash('error', e.message);
-                        this.confirmModal.open = false;
-                    } finally {
-                        this.confirmModal.submitting = false;
-                    }
-                },
-
-                confirmDeleteAttempt(attempt) {
-                    if (!attempt?.uuid) return;
-                    const name = attempt.user_name || 'peserta ini';
-                    this.confirmModal = {
-                        open: true,
-                        title: 'Hapus Peserta Ujian',
-                        message: `Yakin ingin menghapus ${name} dari ruang ujian ini?\n\nSemua jawaban dan log aktivitas peserta akan ikut terhapus. Tindakan ini tidak dapat dibatalkan.`,
-                        action: 'delete-attempt',
-                        data: attempt,
-                        submitting: false,
-                    };
-                },
-
-                async executeDeleteAttempt() {
-                    const attempt = this.confirmModal.data;
-                    if (!attempt?.uuid) return;
-                    this.confirmModal.submitting = true;
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/attempts/${attempt.uuid}`, {
-                            method: 'DELETE',
-                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': this.csrf },
-                        });
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) throw new Error(data?.message || 'Gagal menghapus peserta.');
-                        this.confirmModal.open = false;
-                        this.flash('success', data.message || 'Peserta ujian dihapus.');
-                        this.reloadDetail();
-                    } catch (e) {
-                        this.flash('error', e.message);
-                        this.confirmModal.open = false;
-                    } finally {
-                        this.confirmModal.submitting = false;
-                    }
-                },
-
-                confirmResetViolation(attempt) {
-                    if (!attempt?.uuid) return;
-                    const name = attempt.user_name || 'peserta ini';
-                    this.confirmModal = {
-                        open: true,
-                        title: 'Reset Pelanggaran',
-                        message: `Yakin ingin me-reset pelanggaran untuk ${name}?\n\nPeserta akan dapat melanjutkan ujian dengan counter pelanggaran di-reset ke 0. Pastikan waktu ujian masih berlangsung.`,
-                        action: 'reset-violation',
-                        data: attempt,
-                        submitting: false,
-                    };
-                },
-
-                async executeResetViolation() {
-                    const attempt = this.confirmModal.data;
-                    if (!attempt?.uuid) return;
-                    this.confirmModal.submitting = true;
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/attempts/${attempt.uuid}/reset-violation`, {
-                            method: 'POST',
-                            headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': this.csrf },
-                        });
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) throw new Error(data?.message || 'Gagal me-reset pelanggaran.');
-                        this.confirmModal.open = false;
-                        this.flash('success', data.message || 'Pelanggaran berhasil di-reset.');
-                        this.reloadDetail();
-                    } catch (e) {
-                        this.flash('error', e.message);
-                        this.confirmModal.open = false;
-                    } finally {
-                        this.confirmModal.submitting = false;
-                    }
-                },
-
-                changeStatus(action) {
-                    if (action === 'publish') {
-                        this.confirmModal = {
-                            open: true,
-                            title: 'Publish Ruang Ujian',
-                            message: `Yakin ingin mempublish ruang ujian ini?\n\nSetelah dipublish, mahasiswa dapat masuk menggunakan kode ruang. Pastikan semua pengaturan sudah benar.`,
-                            action: 'publish',
-                            data: null,
-                            submitting: false,
+                        const result = await response.json();
+                        this.roomsList = result.data || [];
+                        this.pagination = {
+                            current_page: result.current_page,
+                            from: result.from || 0,
+                            to: result.to || 0,
+                            total: result.total || 0,
+                            prev_page_url: result.prev_page_url,
+                            next_page_url: result.next_page_url,
                         };
-                    } else if (action === 'close') {
-                        this.confirmModal = {
-                            open: true,
-                            title: 'Tutup Ruang Ujian',
-                            message: `Yakin ingin menutup ruang ujian ini?\n\nSetelah ditutup, mahasiswa tidak dapat lagi masuk atau melanjutkan ujian. Ujian yang sedang berlangsung akan otomatis disubmit.`,
-                            action: 'close',
-                            data: null,
-                            submitting: false,
-                        };
-                    }
-                },
-
-                async executeChangeStatus() {
-                    const action = this.confirmModal.action;
-                    const url = `{{ url('ujian/rooms') }}/${this.editingUuid}/${action}`;
-
-                    this.confirmModal.submitting = true;
-                    try {
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
-                                'Content-Type': 'application/json'
-                            },
-                        });
-
-                        const data = await res.json().catch(() => ({}));
-
-                        if (!res.ok) throw new Error(data?.message || 'Gagal');
-
-                        this.confirmModal.open = false;
-                        this.flash('success', data.message);
-                        this.reloadDetail();
-                    } catch (e) {
-                        console.error('Error in executeChangeStatus:', e);
-                        this.flash('error', e.message);
-                        this.confirmModal.open = false;
+                    } catch (error) {
+                        console.error(error);
+                        this.flash('error', 'Gagal memuat data ruang ujian');
+                        this.pagination = { total: 0, from: 0, to: 0 };
                     } finally {
-                        this.confirmModal.submitting = false;
+                        this.isLoading = false;
                     }
                 },
 
-                /* ============ CONFIRM MODAL EXECUTOR ============ */
-                executeConfirmAction() {
-                    const action = this.confirmModal.action;
-
-                    if (action === 'delete-room') {
-                        this.executeDelete();
-                    } else if (action === 'delete-attempt') {
-                        this.executeDeleteAttempt();
-                    } else if (action === 'reset-violation') {
-                        this.executeResetViolation();
-                    } else if (action === 'publish' || action === 'close') {
-                        this.executeChangeStatus();
-                    } else {
-                        console.error('Unknown action:', action);
-                    }
+                changePage(page) {
+                    this.fetchRooms(page);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
-                closeConfirmModal() {
-                    if (!this.confirmModal.submitting) {
-                        this.confirmModal.open = false;
-                    }
+                resetFilters() {
+                    this.sortFilter = 'newest';
+                    this.statusFilter = '';
+                    this.fetchRooms(1);
                 },
 
-                /* ============ REOPEN ============ */
-                openReopen() {
-                    // Default: end_at = sekarang + 60 menit (datetime-local format)
-                    const d = new Date();
-                    d.setMinutes(d.getMinutes() + 60 - d.getTimezoneOffset());
-                    const iso = d.toISOString().slice(0, 16);
-                    this.reopenForm = {
-                        end_at: iso,
-                        duration_minutes: this.detail.room?.duration_minutes || null,
-                    };
-                    this.reopenError = '';
-                    this.openReopenModal = true;
-                },
-
-                async submitReopen() {
-                    this.reopenSubmitting = true;
-                    this.reopenError = '';
-                    try {
-                        const payload = { end_at: this.reopenForm.end_at };
-                        if (this.reopenForm.duration_minutes) {
-                            payload.duration_minutes = this.reopenForm.duration_minutes;
-                        }
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/reopen`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
-                            },
-                            body: JSON.stringify(payload),
-                        });
-                        const data = await res.json().catch(() => ({}));
-                        if (!res.ok) {
-                            const msg = data?.message || (data?.errors ? Object.values(data.errors).flat().join(', ') : 'Gagal membuka ulang.');
-                            throw new Error(msg);
-                        }
-                        this.openReopenModal = false;
-                        this.flash('success', data.message || 'Ruang ujian dibuka kembali.');
-                        this.reloadDetail();
-                    } catch (e) {
-                        this.reopenError = e.message;
-                    } finally {
-                        this.reopenSubmitting = false;
-                    }
-                },
-
-                /* ============ BATCH GRADING ============ */
-                hasUngradedAttempts() {
-                    if (!this.detail.attempts) return false;
-                    return this.detail.attempts.some(a =>
-                        ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status) &&
-                        (a.score === null || a.score === undefined)
-                    );
-                },
-
-                hasAllGraded() {
-                    if (!this.detail.attempts) return false;
-                    const finished = this.detail.attempts.filter(a =>
-                        ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status)
-                    );
-                    if (finished.length === 0) return false;
-                    return finished.every(a => a.score !== null && a.score !== undefined);
-                },
-
-                async startBatchGrading(forceRegrade = false) {
-                    const message = forceRegrade
-                        ? 'Koreksi ulang semua peserta dengan AI?\n\nNilai yang sudah ada akan ditimpa.'
-                        : 'Koreksi semua peserta yang belum dinilai dengan AI?\n\nProses ini mungkin memakan waktu beberapa menit.';
-
-                    if (!confirm(message)) return;
-
-                    this.batchGrading = {
-                        open: true,
-                        status: 'processing',
-                        message: 'Memulai koreksi...',
-                        progressPercent: 0,
-                        progressText: '0/0',
-                        failed: [],
-                        pollingInterval: null,
-                    };
-
-                    try {
-                        // Start batch grading
-                        const startRes = fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/grade-all-attempts`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
-                            },
-                            body: JSON.stringify({ force_regrade: forceRegrade }),
-                        });
-
-                        // Start polling immediately
-                        this.startPollingProgress();
-
-                        // Wait for completion
-                        const res = await startRes;
-                        const data = await res.json().catch(() => ({}));
-
-                        if (!res.ok) {
-                            throw new Error(data?.message || 'Gagal memulai koreksi.');
-                        }
-
-                        // Final status will be updated by polling
-                    } catch (e) {
-                        console.error('Error starting batch grading:', e);
-                        this.batchGrading.status = 'completed';
-                        this.batchGrading.message = 'Error: ' + e.message;
-                        this.stopPollingProgress();
-                    }
-                },
-
-                startPollingProgress() {
-                    this.batchGrading.pollingInterval = setInterval(() => {
-                        this.pollProgress();
-                    }, 2000);
-                },
-
-                stopPollingProgress() {
-                    if (this.batchGrading.pollingInterval) {
-                        clearInterval(this.batchGrading.pollingInterval);
-                        this.batchGrading.pollingInterval = null;
-                    }
-                },
-
-                async pollProgress() {
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/grading-progress`, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
-                            },
-                        });
-
-                        const data = await res.json().catch(() => ({}));
-
-                        if (!res.ok) return;
-
-                        if (data.status === 'idle') {
-                            // No active grading
-                            return;
-                        }
-
-                        this.batchGrading.status = data.status;
-                        this.batchGrading.message = data.message || '';
-                        this.batchGrading.failed = data.failed || [];
-
-                        if (data.total_attempts > 0) {
-                            this.batchGrading.progressPercent = Math.round((data.current_attempt / data.total_attempts) * 100);
-                            this.batchGrading.progressText = `${data.current_attempt}/${data.total_attempts}`;
-                        }
-
-                        if (data.status === 'completed' || data.status === 'cancelled') {
-                            this.stopPollingProgress();
-                            this.reloadDetail();
-                        }
-                    } catch (e) {
-                        console.error('Error polling progress:', e);
-                    }
-                },
-
-                async cancelBatchGrading() {
-                    if (!confirm('Batalkan proses koreksi?\n\nProses akan berhenti setelah soal saat ini selesai.')) return;
-
-                    try {
-                        const res = await fetch(`{{ url('ujian/rooms') }}/${this.editingUuid}/cancel-grading`, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrf,
-                            },
-                        });
-
-                        const data = await res.json().catch(() => ({}));
-
-                        if (!res.ok) {
-                            throw new Error(data?.message || 'Gagal membatalkan.');
-                        }
-
-                        this.batchGrading.message = 'Membatalkan proses...';
-                    } catch (e) {
-                        console.error('Error cancelling:', e);
-                        alert('Gagal membatalkan: ' + e.message);
-                    }
-                },
-
-                closeBatchGrading() {
-                    this.stopPollingProgress();
-                    this.batchGrading.open = false;
-                    this.reloadDetail();
+                openDetail(room) {
+                    window.dispatchEvent(new CustomEvent('open-detail-modal', {
+                        bubbles: true,
+                        detail: {
+                            uuid: room.uuid,
+                            title: room.title,
+                            deleteUrl: room.delete_url,
+                            canDelete: room.can_delete,
+                        },
+                    }));
                 },
             }));
         });

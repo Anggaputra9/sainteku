@@ -19,6 +19,6 @@ class Period extends Model
      */
     public function examProposals()
     {
-        return $this->hasMany(\Modules\MonevAkademik\App\Models\ExamProposal::class, 'period_id');
+        return $this->hasMany(\Modules\MonevAkademik\app\Models\ExamProposal::class, 'period_id');
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiSetting;
-use Modules\MonevAkademik\App\Models\Question;
+use Modules\MonevAkademik\app\Models\Question;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 use Illuminate\Support\Facades\Log;
 

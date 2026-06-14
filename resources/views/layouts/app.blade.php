@@ -200,6 +200,7 @@
     </div>
 
     <div id="modal-root"></div>
+    @include('components.common.confirm-modal')
 </body>
 
 @stack('scripts')

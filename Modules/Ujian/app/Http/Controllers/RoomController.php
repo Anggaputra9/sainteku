@@ -4,6 +4,7 @@ namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Services\AiService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -50,71 +51,34 @@ class RoomController extends Controller
     public function index(Request $request)
     {
         $this->guardLecturer();
-        $userId = Auth::id();
 
-        // Auto-close: room PUBLISHED yang sudah lewat end_at otomatis di-CLOSED
-        // sebelum data ditampilkan ke dosen.
+        $proposals = $this->getApprovedProposals();
+        $proposalDefaults = $this->getProposalFilterDefaults($proposals);
+
+        return view('ujian::rooms.index', compact('proposals', 'proposalDefaults'))
+            ->with('title', 'Ruang Ujian');
+    }
+
+    public function getRoomsData(Request $request)
+    {
+        $this->guardLecturer();
+        ExamRoom::autoStartScheduled();
         ExamRoom::autoCloseExpired();
 
-        $query = ExamRoom::with([
-                'proposal.course:id,course_name',
-                'proposal.period:id,name',
-                'creator:id,name',
-            ])
-            ->withCount([
-                'attempts',
-                'attempts as attempts_finished_count' => function ($q) {
-                    $q->whereIn('status', ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION']);
-                },
-                'attempts as attempts_ongoing_count' => function ($q) {
-                    $q->where('status', 'ONGOING');
-                },
-            ]);
-
-        // Dosen biasa hanya melihat room miliknya. Admin lihat semua.
-        if (!$this->isAdmin()) {
-            $query->where('created_by', $userId);
+        $allowedPerPage = [10, 25, 50, 100, 150, 250];
+        $perPage = (int) $request->query('per_page', 50);
+        if (! in_array($perPage, $allowedPerPage, true)) {
+            $perPage = 50;
         }
 
-        $query->when($request->filled('search'), function ($q) use ($request) {
-                $s = $request->string('search');
-                $q->where(function ($qq) use ($s) {
-                    $qq->where('title', 'like', "%{$s}%")
-                       ->orWhere('room_code', 'like', "%{$s}%");
-                });
-            })
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status));
+        $rooms = $this->buildRoomsQuery($request)
+            ->paginate($perPage)
+            ->through(fn (ExamRoom $room): array => $this->formatRoomForList($room));
 
-        $rooms = $query->orderByDesc('id')->paginate(10)->withQueryString();
-
-        // Ambil daftar paket soal yang sudah APPROVED untuk modal Tambah.
-        // Catatan: tabel trx_exam_proposals tidak punya kolom proposal_no,
-        // jadi label option dirakit dari course + period + exam_type.
-        $proposalsQuery = ExamProposal::with(['course:id,course_name', 'period:id,name'])
-            ->where('status', 'APPROVED');
-        if (!$this->isAdmin()) {
-            $proposalsQuery->where('created_by', $userId);
-        }
-        $proposals = $proposalsQuery->latest()
-            ->get(['id', 'uuid', 'exam_type', 'course_id', 'period_id'])
-            ->map(fn ($p) => (object) [
-                'id'         => $p->id,
-                'exam_type'  => $p->exam_type,
-                'label'      => trim(
-                    ($p->course->course_name ?? 'Mata kuliah ?') . ' — ' . $p->exam_type
-                    . ($p->period ? ' (' . $p->period->name . ')' : '')
-                ),
-            ]);
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'rooms'     => $rooms,
-                'proposals' => $proposals,
-            ]);
-        }
-
-        return view('ujian::rooms.index', compact('rooms', 'proposals'))
-            ->with('title', 'Ruang Ujian');
+        return response()->json($rooms)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     /* =========================================================
@@ -125,7 +89,7 @@ class RoomController extends Controller
         $this->guardLecturer();
         $this->ensureCanManage($room);
 
-        // Auto-close jika end_at sudah lewat
+        $room->autoStartIfScheduled();
         if ($room->autoCloseIfExpired()) {
             $room->refresh();
         }
@@ -157,20 +121,27 @@ class RoomController extends Controller
                 'tab_switch_count' => (int) $a->tab_switch_count,
                 'answered'         => (int) $a->answered_count,
                 'total_questions'  => $totalQuestions,
+                'score'            => $a->score,
             ]);
 
         // Format datetime ke "Y-m-d H:i" + "d M Y H:i" supaya:
         //  - ramah ditampilkan langsung di UI (tanpa suffix "Z" / micro-detik)
         //  - tetap mudah dipakai untuk pre-fill input datetime-local saat edit
         return response()->json([
+            'proposal_context' => $this->resolveProposalContext((int) $room->proposal_id),
             'room' => array_merge($room->toArray(), [
                 'tab_switch_label' => $room->tabSwitchLabel(),
                 'join_url'         => route('ujian.attempt.join'),
                 'qr_payload'       => $room->room_code,
+                'started_at'       => $room->started_at?->format('Y-m-d H:i:s'),
                 'start_at'         => $room->start_at?->format('Y-m-d H:i:s'),
                 'end_at'           => $room->end_at?->format('Y-m-d H:i:s'),
                 'start_at_human'   => $room->start_at?->translatedFormat('d M Y H:i') . ' WIB',
+                'started_at_human' => $room->started_at?->translatedFormat('d M Y H:i') . ' WIB',
                 'end_at_human'     => $room->end_at?->translatedFormat('d M Y H:i') . ' WIB',
+                'join_grace_minutes' => ExamRoom::JOIN_GRACE_MINUTES,
+                'join_opens_at_human' => $room->joinOpensAt()?->translatedFormat('d M Y H:i') . ' WIB',
+                'join_deadline_human' => $room->joinDeadline()?->translatedFormat('d M Y H:i') . ' WIB',
             ]),
             'total_questions' => $totalQuestions,
             'attempts'        => $attempts,
@@ -207,7 +178,7 @@ class RoomController extends Controller
         $this->ensureCanManage($room);
 
         $hasAttempts = $room->attempts()->exists();
-        $data = $this->validateRoom($request, $hasAttempts);
+        $data = $this->validateRoom($request, $hasAttempts, $room);
         $room->update($data);
 
         if ($request->expectsJson()) {
@@ -256,16 +227,34 @@ class RoomController extends Controller
     /* =========================================================
      | Status transition
      |==========================================================*/
-    public function publish(Request $request, ExamRoom $room)
+    /**
+     * Mulai ujian secara manual — mahasiswa dapat langsung masuk.
+     * Dipakai dosen yang ingin mempercepat sebelum jadwal terjadwal.
+     */
+    public function start(Request $request, ExamRoom $room)
     {
         $this->guardLecturer();
         $this->ensureCanManage($room);
-        $room->update(['status' => 'PUBLISHED', 'is_active' => true]);
+
+        abort_if($room->status !== 'DRAFT', 422, 'Ruang ujian sudah dimulai atau ditutup.');
+
+        $now = now();
+        $room->update([
+            'started_at' => $now,
+            'status'     => 'PUBLISHED',
+            'is_active'  => true,
+            'end_at'     => ExamRoom::computeEndAt($now, (int) $room->duration_minutes),
+        ]);
+
+        $fresh = $room->fresh();
+        $message = "Ujian dimulai. Mahasiswa dapat masuk menggunakan kode {$room->room_code} "
+            . "(batas masuk {$fresh->joinDeadline()?->translatedFormat('d M Y H:i')} WIB).";
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => "Ruang ujian dipublish (kode {$room->room_code})."]);
+            return response()->json(['message' => $message, 'room' => $room->fresh()]);
         }
-        return back()->with('success', "Ruang ujian dipublish. Bagikan kode {$room->room_code} ke mahasiswa.");
+
+        return back()->with('success', $message);
     }
 
     public function close(Request $request, ExamRoom $room)
@@ -328,14 +317,21 @@ class RoomController extends Controller
             'duration_minutes' => 'nullable|integer|min:1|max:600',
         ]);
 
+        $now = now();
+        $duration = ! empty($data['duration_minutes'])
+            ? (int) $data['duration_minutes']
+            : (int) $room->duration_minutes;
+        $endAt = Carbon::parse($data['end_at']);
+
         $update = [
-            'status'    => 'PUBLISHED',
-            'is_active' => true,
-            'end_at'    => $data['end_at'],
+            'started_at' => $now,
+            'status'     => 'PUBLISHED',
+            'is_active'  => true,
+            'end_at'     => $endAt->gt($now) ? $endAt : ExamRoom::computeEndAt($now, $duration),
         ];
 
-        if (!empty($data['duration_minutes'])) {
-            $update['duration_minutes'] = (int) $data['duration_minutes'];
+        if (! empty($data['duration_minutes'])) {
+            $update['duration_minutes'] = $duration;
         }
 
         $room->update($update);
@@ -533,6 +529,7 @@ class RoomController extends Controller
 
         // Polling juga merupakan kesempatan refresh status; auto-close
         // memastikan UI dosen langsung berubah tanpa harus reload halaman.
+        $room->autoStartIfScheduled();
         if ($room->autoCloseIfExpired()) {
             $room->refresh();
         }
@@ -826,6 +823,187 @@ class RoomController extends Controller
     /* =========================================================
      | Helpers
      |==========================================================*/
+    private function buildRoomsQuery(Request $request)
+    {
+        $query = ExamRoom::with([
+                'proposal.course:id,course_name',
+                'proposal.period:id,name',
+            ])
+            ->withCount([
+                'attempts',
+                'attempts as attempts_finished_count' => function ($q) {
+                    $q->whereIn('status', ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION']);
+                },
+                'attempts as attempts_ongoing_count' => function ($q) {
+                    $q->where('status', 'ONGOING');
+                },
+            ]);
+
+        if (! $this->isAdmin()) {
+            $query->where('created_by', Auth::id());
+        }
+
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('room_code', 'like', "%{$search}%")
+                    ->orWhereHas('proposal.course', fn ($qq) => $qq->where('course_name', 'like', "%{$search}%"));
+            });
+        }
+
+        $status = $request->query('status');
+        if (in_array($status, ['DRAFT', 'PUBLISHED', 'CLOSED'], true)) {
+            $query->where('status', $status);
+        }
+
+        $sort = (string) $request->query('sort', 'newest');
+        match ($sort) {
+            'oldest'     => $query->orderBy('id'),
+            'title_asc'  => $query->orderBy('title'),
+            'title_desc' => $query->orderByDesc('title'),
+            default      => $query->orderByDesc('id'),
+        };
+
+        return $query;
+    }
+
+    private function formatRoomForList(ExamRoom $room): array
+    {
+        return [
+            'uuid'                     => $room->uuid,
+            'title'                    => $room->title,
+            'room_code'                => $room->room_code,
+            'initial'                  => strtoupper(substr($room->title, 0, 1)),
+            'course_name'              => $room->proposal->course->course_name ?? '-',
+            'start_at'                 => $room->start_at?->format('d M Y H:i'),
+            'end_at_time'              => $room->end_at?->format('H:i'),
+            'duration_minutes'         => $room->duration_minutes,
+            'tab_switch_label'         => $room->tabSwitchLabel(),
+            'attempts_count'           => (int) $room->attempts_count,
+            'attempts_ongoing_count'   => (int) $room->attempts_ongoing_count,
+            'attempts_finished_count'  => (int) $room->attempts_finished_count,
+            'status'                   => $room->status,
+            'show_url'                 => route('ujian.rooms.show', $room->uuid),
+            'update_url'               => route('ujian.rooms.update', $room->uuid),
+            'delete_url'               => route('ujian.rooms.destroy', $room->uuid),
+            'can_delete'               => (int) $room->attempts_count === 0,
+        ];
+    }
+
+    private function getApprovedProposals()
+    {
+        $proposalsQuery = $this->buildApprovedProposalsQuery();
+
+        if (! $this->isAdmin()) {
+            $proposalsQuery->where('trx_exam_proposals.created_by', Auth::id());
+        }
+
+        return $proposalsQuery
+            ->orderByDesc('trx_exam_proposals.id')
+            ->get($this->approvedProposalSelectColumns())
+            ->map(fn ($p) => $this->formatProposalItem($p))
+            ->values();
+    }
+
+    private function buildApprovedProposalsQuery()
+    {
+        return ExamProposal::query()
+            ->join('mst_course', 'trx_exam_proposals.course_id', '=', 'mst_course.id')
+            ->join('mst_unit as prodi', 'mst_course.unit_id', '=', 'prodi.id')
+            ->leftJoin('mst_unit as fakultas', 'prodi.unit_parent', '=', 'fakultas.id')
+            ->leftJoin('mst_period', 'trx_exam_proposals.period_id', '=', 'mst_period.id')
+            ->where('trx_exam_proposals.status', 'APPROVED');
+    }
+
+    private function approvedProposalSelectColumns(): array
+    {
+        return [
+            'trx_exam_proposals.id',
+            'trx_exam_proposals.exam_type',
+            'trx_exam_proposals.course_id',
+            'mst_course.course_name',
+            'prodi.id as prodi_id',
+            'prodi.unit_name as prodi_name',
+            'fakultas.id as fakultas_id',
+            'fakultas.unit_name as fakultas_name',
+            'mst_period.name as period_name',
+        ];
+    }
+
+    private function formatProposalItem(object $p): array
+    {
+        return [
+            'id'            => $p->id,
+            'exam_type'     => $p->exam_type,
+            'course_id'     => $p->course_id,
+            'course_name'   => $p->course_name,
+            'prodi_id'      => $p->prodi_id,
+            'prodi_name'    => $p->prodi_name,
+            'fakultas_id'   => $p->fakultas_id,
+            'fakultas_name' => $p->fakultas_name,
+            'period_name'   => $p->period_name,
+            'label'         => trim(
+                ($p->course_name ?? 'Mata kuliah ?') . ' — ' . $p->exam_type
+                . ($p->period_name ? ' (' . $p->period_name . ')' : '')
+            ),
+            'short_label'   => trim(
+                $p->exam_type . ($p->period_name ? ' (' . $p->period_name . ')' : '')
+            ),
+        ];
+    }
+
+    private function buildProposalContextQuery()
+    {
+        return ExamProposal::query()
+            ->join('mst_course', 'trx_exam_proposals.course_id', '=', 'mst_course.id')
+            ->join('mst_unit as prodi', 'mst_course.unit_id', '=', 'prodi.id')
+            ->leftJoin('mst_unit as fakultas', 'prodi.unit_parent', '=', 'fakultas.id')
+            ->leftJoin('mst_period', 'trx_exam_proposals.period_id', '=', 'mst_period.id');
+    }
+
+    private function resolveProposalContext(int $proposalId): ?array
+    {
+        if ($proposalId <= 0) {
+            return null;
+        }
+
+        $proposal = $this->buildProposalContextQuery()
+            ->where('trx_exam_proposals.id', $proposalId)
+            ->first($this->approvedProposalSelectColumns());
+
+        return $proposal ? $this->formatProposalItem($proposal) : null;
+    }
+
+    private function getProposalFilterDefaults($proposals): array
+    {
+        if ($this->isAdmin()) {
+            return [
+                'fakultas_id' => '',
+                'prodi_id'    => '',
+                'course_id'   => '',
+                'proposal_id' => '',
+            ];
+        }
+
+        $latest = $proposals->first();
+        if (! $latest) {
+            return [
+                'fakultas_id' => '',
+                'prodi_id'    => '',
+                'course_id'   => '',
+                'proposal_id' => '',
+            ];
+        }
+
+        return [
+            'fakultas_id' => (string) ($latest['fakultas_id'] ?? ''),
+            'prodi_id'    => (string) ($latest['prodi_id'] ?? ''),
+            'course_id'   => (string) ($latest['course_id'] ?? ''),
+            'proposal_id' => (string) ($latest['id'] ?? ''),
+        ];
+    }
+
     private function ensureCanManage(ExamRoom $room): void
     {
         if ($this->isAdmin()) return;
@@ -839,14 +1017,13 @@ class RoomController extends Controller
         return $byDuration->gt($room->end_at) ? $room->end_at->copy() : $byDuration;
     }
 
-    private function validateRoom(Request $request, bool $restricted = false): array
+    private function validateRoom(Request $request, bool $restricted = false, ?ExamRoom $room = null): array
     {
         $rules = [
             'proposal_id'         => 'required|integer|exists:trx_exam_proposals,id',
             'title'               => 'required|string|max:150',
             'description'         => 'nullable|string|max:1000',
             'start_at'            => 'required|date',
-            'end_at'              => 'required|date|after:start_at',
             'duration_minutes'    => 'required|integer|min:1|max:600',
             'tab_switch_policy'   => 'required|in:unlimited,strict,limited',
             'tab_switch_limit'    => 'nullable|integer|min:0|max:50',
@@ -867,6 +1044,13 @@ class RoomController extends Controller
         $data['tab_switch_limit']    = $data['tab_switch_policy'] === 'limited'
             ? ($data['tab_switch_limit'] ?? 0)
             : 0;
+
+        $scheduledStart = Carbon::parse($data['start_at']);
+        if ($room && $room->status !== 'DRAFT') {
+            unset($data['start_at']);
+        } else {
+            $data['end_at'] = ExamRoom::computeEndAt($scheduledStart, (int) $data['duration_minutes']);
+        }
 
         if (!empty($data['proposal_id'])) {
             $approved = ExamProposal::where('id', $data['proposal_id'])

@@ -17,6 +17,8 @@ class ExportController extends Controller
         $this->guardLecturer();
         $this->ensureCanManage($room);
 
+        abort_unless($room->status === 'CLOSED', 422, 'Export PDF hanya tersedia setelah ujian selesai.');
+
         $room->load([
             'proposal.examQuestions',
             'proposal.course',

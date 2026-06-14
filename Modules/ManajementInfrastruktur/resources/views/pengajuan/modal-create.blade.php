@@ -1,6 +1,7 @@
 {{-- MODAL TAMBAH PENGAJUAN INFRASTRUKTUR (Desain Premium & Kalender Visual) --}}
-<div x-show="openCreate"
-    class="fixed inset-0 z-[999999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+<template x-teleport="#modal-root">
+    <div x-show="openCreate"
+    class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
     x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
@@ -111,6 +112,7 @@
         </form>
     </div>
 </div>
+</template>
 
 <style>
     .custom-scrollbar::-webkit-scrollbar {

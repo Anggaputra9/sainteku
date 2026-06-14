@@ -64,6 +64,6 @@ class ExamProposal extends Model
     public function logs()
     {
         // Arahkan ke namespace Modul yang bener cuy
-        return $this->hasMany(\Modules\MonevAkademik\App\Models\ExamQuestionLog::class, 'proposal_id');
+        return $this->hasMany(ExamQuestionLog::class, 'proposal_id');
     }
 }
