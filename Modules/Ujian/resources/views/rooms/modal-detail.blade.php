@@ -23,9 +23,9 @@
     class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/40 dark:bg-black/60"
     x-transition x-cloak>
 
-    <div @click.away="!editMode && (openDetail = false)"
+    <div @click.away="!editMode && closeDetail()"
         class="relative w-full rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 flex flex-col max-h-[90dvh] sm:max-h-[95vh] overflow-hidden transition-all"
-        :class="editMode ? 'max-w-3xl' : 'max-w-4xl'">
+        :class="editMode ? 'max-w-3xl' : 'max-w-5xl'">
 
         <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
             <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
@@ -159,78 +159,177 @@
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700 flex items-center justify-between">
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 dark:bg-gray-800/40 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                            <i class="fa-solid fa-users text-indigo-500"></i> Peserta
-                            (<span x-text="detail.attempts?.length || 0"></span>)
+                            <i class="fa-solid fa-chart-line text-indigo-500"></i> Monitor Live
+                            <span x-show="livePolling" class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 border border-emerald-200">
+                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
+                            </span>
                         </h4>
-                        <button type="button" @click="reloadDetail()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
-                            <i class="fa-solid fa-arrows-rotate"></i> Refresh
-                        </button>
+                        <div class="flex items-center gap-2 text-[11px] text-gray-500">
+                            <span x-show="lastLiveUpdate">Update <span x-text="lastLiveUpdate"></span></span>
+                            <button type="button" @click="reloadDetail()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                <i class="fa-solid fa-arrows-rotate" :class="liveUpdating && 'fa-spin'"></i> Refresh
+                            </button>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-gray-50 text-[11px] uppercase tracking-wider text-gray-700 dark:bg-gray-700/30 dark:text-gray-300">
-                                <tr>
-                                    <th class="px-4 py-3">Mahasiswa</th>
-                                    <th class="px-4 py-3 text-center">Status</th>
-                                    <th class="px-4 py-3 text-center">Jawaban</th>
-                                    <th class="px-4 py-3 text-center">Pelanggaran</th>
-                                    <th class="px-4 py-3 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                <template x-for="a in detail.attempts" :key="a.uuid">
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30">
-                                        <td class="px-4 py-2.5">
-                                            <div class="font-bold text-gray-900 dark:text-white" x-text="a.user_name"></div>
-                                            <div class="text-xs text-gray-500" x-text="a.user_identity"></div>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <span class="inline-flex rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border"
-                                                :class="a.status === 'ONGOING' ? 'bg-amber-100 text-amber-800 border-amber-200'
-                                                    : a.status === 'SUBMITTED' ? 'bg-green-100 text-green-800 border-green-200'
-                                                    : 'bg-red-100 text-red-700 border-red-200'"
-                                                x-text="a.status_label"></span>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center tabular-nums">
-                                            <span x-text="`${a.answered}/${a.total_questions}`"></span>
-                                        </td>
-                                        <td class="px-4 py-2.5 text-center tabular-nums" x-text="a.tab_switch_count"></td>
-                                        <td class="px-4 py-2.5 text-center">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <a :href="`{{ url('ujian/attempt/result') }}/${a.uuid}`" target="_blank"
-                                                    class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100">
-                                                    <i class="fa-solid fa-eye"></i> Hasil
-                                                </a>
-                                                <template x-if="a.status === 'AUTO_SUBMITTED_VIOLATION' && detail.room?.status === 'PUBLISHED'">
-                                                    <button type="button" @click="confirmResetViolation(a)"
-                                                        class="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700 border border-amber-200 hover:bg-amber-100">
-                                                        <i class="fa-solid fa-rotate-left"></i> Reset
-                                                    </button>
-                                                </template>
-                                                <button type="button" @click="confirmDeleteAttempt(a)"
-                                                    class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100">
-                                                    <i class="fa-solid fa-user-xmark"></i> Hapus
-                                                </button>
-                                            </div>
-                                        </td>
+
+                    <div class="p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-b border-gray-100 dark:border-gray-700">
+                        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#0f172a]">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Peserta</div>
+                            <div class="mt-1 text-xl font-black text-gray-900 dark:text-white tabular-nums" x-text="detail.summary?.total_participants || 0"></div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">
+                                <span class="text-amber-600" x-text="(detail.summary?.ongoing || 0) + ' aktif'"></span>
+                                · <span x-text="(detail.summary?.finished || 0) + ' selesai'"></span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#0f172a]">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Soal Dijawab</div>
+                            <div class="mt-1 text-xl font-black text-gray-900 dark:text-white tabular-nums">
+                                <span x-text="detail.summary?.total_answered || 0"></span><span class="text-sm text-gray-400">/<span x-text="detail.summary?.max_answerable || 0"></span></span>
+                            </div>
+                            <div class="text-[11px] text-gray-500 mt-0.5"><span x-text="detail.summary?.total_questions || detail.total_questions || 0"></span> soal / peserta</div>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#0f172a]">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Sudah Dinilai</div>
+                            <div class="mt-1 text-xl font-black text-emerald-600 tabular-nums" x-text="detail.summary?.graded || 0"></div>
+                            <div class="text-[11px] text-gray-500 mt-0.5">
+                                <span x-text="(detail.summary?.grading_pending || 0) + ' menunggu'"></span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-[#0f172a]">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Koreksi AI</div>
+                            <div class="mt-1 text-sm font-bold"
+                                :class="detail.summary?.auto_grading_enabled ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'"
+                                x-text="detail.summary?.auto_grading_enabled ? 'Otomatis aktif' : 'Manual'"></div>
+                            <div class="text-[11px] mt-0.5"
+                                :class="detail.summary?.grading_active ? 'text-purple-600 font-semibold' : 'text-gray-500'"
+                                x-text="detail.summary?.grading_active ? 'Sedang mengoreksi…' : 'Siap'"></div>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-indigo-500"></i>
+                            Daftar Peserta
+                            <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                                x-text="detail.attempts?.length || 0"></span>
+                        </h4>
+                    </div>
+
+                    <template x-if="!detail.attempts || detail.attempts.length === 0">
+                        <div class="px-6 py-12 text-center">
+                            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800">
+                                <i class="fa-solid fa-user-group text-lg"></i>
+                            </div>
+                            <p class="mt-3 text-sm font-semibold text-gray-600 dark:text-gray-300">Belum ada peserta</p>
+                            <p class="mt-1 text-xs text-gray-500">Bagikan kode atau QR ruang ujian ke mahasiswa.</p>
+                        </div>
+                    </template>
+
+                    <template x-if="detail.attempts && detail.attempts.length > 0">
+                        <div class="overflow-x-auto">
+                            <table class="participant-table w-full min-w-[720px] text-left text-sm text-gray-600 dark:text-gray-400">
+                                <thead class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 text-gray-700 border-b border-gray-200 dark:bg-gray-700/50 dark:text-gray-300 dark:border-gray-600">
+                                    <tr>
+                                        <th class="px-4 py-2.5 text-center w-10">#</th>
+                                        <th class="px-4 py-2.5">Peserta</th>
+                                        <th class="px-4 py-2.5 w-36">Jawaban</th>
+                                        <th class="px-4 py-2.5">Status</th>
+                                        <th class="px-4 py-2.5 text-center w-16"
+                                            x-show="detail.room?.auto_grading_enabled">Skor</th>
+                                        <th class="px-4 py-2.5 text-right w-28">Aksi</th>
                                     </tr>
-                                </template>
-                                <tr x-show="!detail.attempts || detail.attempts.length === 0">
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 text-sm">Belum ada peserta.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-700/80">
+                                    <template x-for="(a, idx) in detail.attempts" :key="a.uuid">
+                                        <tr class="participant-row transition-colors hover:bg-indigo-50/50 dark:hover:bg-indigo-950/20">
+                                            <td class="px-4 py-3 text-center text-xs font-bold tabular-nums text-gray-400" x-text="idx + 1"></td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex min-w-0 items-center gap-2.5">
+                                                    <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-black border"
+                                                        :class="participantAvatarClass(a.user_name)"
+                                                        x-text="participantInitial(a.user_name)"></div>
+                                                    <div class="min-w-0">
+                                                        <div class="truncate font-bold text-gray-900 dark:text-white" x-text="a.user_name || '—'"></div>
+                                                        <div class="truncate text-[11px] text-gray-500 dark:text-gray-400 font-mono" x-text="a.user_identity || '—'"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-gray-500 mb-1">
+                                                    <span class="tabular-nums text-gray-700 dark:text-gray-300" x-text="`${a.answered}/${a.total_questions}`"></span>
+                                                    <span class="tabular-nums" x-text="`${participantAnswerPercent(a)}%`"></span>
+                                                </div>
+                                                <div class="h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                                                    <div class="h-full rounded-full transition-all duration-500"
+                                                        :class="participantProgressClass(a)"
+                                                        :style="`width: ${participantAnswerPercent(a)}%`"></div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 min-w-[9rem]">
+                                                <div class="flex flex-col gap-1.5 min-w-0">
+                                                    <span class="participant-pill max-w-full min-w-0 uppercase tracking-wide truncate"
+                                                        :class="participantStatusClass(a)"
+                                                        :title="a.status_label"
+                                                        x-text="a.status_label"></span>
+                                                    <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+                                                        <template x-if="detail.room?.auto_grading_enabled">
+                                                            <span class="participant-pill max-w-full min-w-0"
+                                                                :class="participantGradingClass(a)"
+                                                                :title="a.grading_label || '—'">
+                                                                <i class="fa-solid participant-pill-icon shrink-0"
+                                                                    :class="a.grading_status === 'grading' ? 'fa-spinner fa-spin' : (a.grading_status === 'done' ? 'fa-check' : 'fa-robot')"></i>
+                                                                <span class="truncate" x-text="a.grading_label || '—'"></span>
+                                                            </span>
+                                                        </template>
+                                                        <span x-show="a.tab_switch_count > 0"
+                                                            class="participant-pill participant-pill-violation shrink-0"
+                                                            :title="a.tab_switch_count + ' kali tab switch'">
+                                                            <i class="fa-solid fa-triangle-exclamation participant-pill-icon"></i>
+                                                            <span class="tabular-nums" x-text="a.tab_switch_count"></span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 text-center" x-show="detail.room?.auto_grading_enabled">
+                                                <span class="text-sm font-black tabular-nums"
+                                                    :class="a.score !== null && a.score !== undefined ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-300 dark:text-gray-600'"
+                                                    x-text="a.score !== null && a.score !== undefined ? Number(a.score).toFixed(1) : '—'"></span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center justify-end gap-1">
+                                                    <a :href="`{{ url('ujian/attempt/result') }}/${a.uuid}`" target="_blank"
+                                                        title="Lihat hasil"
+                                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+                                                        <i class="fa-solid fa-eye text-xs"></i>
+                                                    </a>
+                                                    <template x-if="a.status === 'AUTO_SUBMITTED_VIOLATION' && detail.room?.status === 'PUBLISHED'">
+                                                        <button type="button" @click="confirmResetViolation(a)" title="Reset pelanggaran"
+                                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100">
+                                                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                                                        </button>
+                                                    </template>
+                                                    <button type="button" @click="confirmDeleteAttempt(a)" title="Hapus peserta"
+                                                        class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                                                        <i class="fa-solid fa-trash text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
                 </div>
             </div>
 
             <div class="shrink-0 border-t border-gray-200 bg-white/95 backdrop-blur px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0">
                 <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
                     <div class="flex shrink-0 items-center gap-2">
-                        <button type="button" @click="openDetail = false" class="{{ $btnGray }}">
+                        <button type="button" @click="closeDetail()" class="{{ $btnGray }}">
                             <i class="fas fa-times"></i> Tutup
                         </button>
                         <button type="button" x-show="canDelete" @click="openDeleteConfirm()" class="{{ $btnRed }}">
@@ -651,6 +750,51 @@
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
     }
+
+    .participant-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        height: 1.375rem;
+        min-height: 1.375rem;
+        padding: 0 8px;
+        border-radius: 9999px;
+        border-width: 1px;
+        border-style: solid;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+    .participant-pill-icon {
+        font-size: 8px;
+        line-height: 1;
+    }
+    .participant-pill-violation {
+        background-color: rgb(254 226 226);
+        color: rgb(185 28 28);
+        border-color: rgb(254 202 202);
+    }
+    .dark .participant-pill-violation {
+        background-color: rgba(127, 29, 29, 0.35);
+        color: rgb(252 165 165);
+        border-color: rgba(185, 28, 28, 0.45);
+    }
+    .participant-table thead th {
+        background-color: rgb(249 250 251);
+    }
+    .dark .participant-table thead th {
+        background-color: rgba(55, 65, 81, 0.5);
+        color: rgb(209 213 219);
+    }
+    .participant-table tbody tr.participant-row:nth-child(even) {
+        background-color: rgba(248, 250, 252, 0.55);
+    }
+    .dark .participant-table tbody tr.participant-row:nth-child(even) {
+        background-color: rgba(15, 23, 42, 0.3);
+    }
 </style>
 
 <script>
@@ -667,7 +811,11 @@
             formError: '',
             formSnapshot: null,
             form: {},
-            detail: { room: null, attempts: [], proposal_context: null },
+            detail: { room: null, attempts: [], proposal_context: null, summary: null },
+            livePolling: false,
+            liveUpdating: false,
+            livePollInterval: null,
+            lastLiveUpdate: null,
             editProposalContext: null,
             proposalsAll: @json($proposals),
             filterFakultas: '',
@@ -691,6 +839,64 @@
 
             statusLabel(status) {
                 return { DRAFT: 'Menunggu', PUBLISHED: 'Berjalan', CLOSED: 'Selesai' }[status] || status || '-';
+            },
+
+            participantInitial(name) {
+                const n = (name || '?').trim();
+                return n ? n.charAt(0).toUpperCase() : '?';
+            },
+
+            participantAvatarClass(name) {
+                const palettes = [
+                    'bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800',
+                    'bg-violet-50 text-violet-700 border-violet-100 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800',
+                    'bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-900/30 dark:text-sky-300 dark:border-sky-800',
+                    'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800',
+                    'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+                ];
+                const n = (name || '').trim();
+                if (!n) return palettes[0];
+                let hash = 0;
+                for (let i = 0; i < n.length; i++) {
+                    hash = n.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                return palettes[Math.abs(hash) % palettes.length];
+            },
+
+            participantProgressClass(attempt) {
+                const pct = this.participantAnswerPercent(attempt);
+                if (attempt?.status === 'ONGOING') return 'bg-amber-500';
+                if (pct >= 100) return 'bg-emerald-500';
+                return 'bg-indigo-500';
+            },
+
+            participantAnswerPercent(attempt) {
+                const total = Number(attempt?.total_questions || 0);
+                const answered = Number(attempt?.answered || 0);
+                if (total <= 0) return 0;
+                return Math.min(100, Math.round((answered / total) * 100));
+            },
+
+            participantStatusClass(attempt) {
+                if (attempt?.status === 'ONGOING') {
+                    return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800';
+                }
+                if (attempt?.status === 'SUBMITTED') {
+                    return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800';
+                }
+                return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800';
+            },
+
+            participantGradingClass(attempt) {
+                const map = {
+                    grading: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800',
+                    pending: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+                    pending_manual: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+                    done: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800',
+                    working: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+                    none: 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
+                };
+                return map[attempt?.grading_status] || map.none;
             },
 
             proposalShortLabel(ctx) {
@@ -857,9 +1063,10 @@
                 this.changingPackage = false;
                 this.formError = '';
                 this.editProposalContext = null;
-                this.detail = { room: null, attempts: [], proposal_context: null };
+                this.detail = { room: null, attempts: [], proposal_context: null, summary: null };
                 this.openDetail = true;
                 await this.reloadDetail();
+                this.startLivePolling();
             },
 
             async reloadDetail() {
@@ -870,7 +1077,7 @@
                     });
                     if (!res.ok) throw new Error('Gagal memuat detail');
                     this.detail = await res.json();
-                    this.hasAttempts = (this.detail.attempts || []).length > 0;
+                    this.applyMonitorData(this.detail);
                     if (this.detail.proposal_context) {
                         this.ensureProposalInList(this.detail.proposal_context);
                     }
@@ -879,11 +1086,64 @@
                     }
                     this.$nextTick(() => this.renderQR());
                 } catch (e) {
+                    this.stopLivePolling();
                     window.dispatchEvent(new CustomEvent('rooms-data-changed', {
                         bubbles: true,
                         detail: { type: 'error', message: e.message },
                     }));
                     this.openDetail = false;
+                }
+            },
+
+            applyMonitorData(data) {
+                if (!data) return;
+                if (Array.isArray(data.attempts)) {
+                    this.detail.attempts = data.attempts;
+                }
+                if (data.summary) {
+                    this.detail.summary = data.summary;
+                }
+                if (data.total_questions) {
+                    this.detail.total_questions = data.total_questions;
+                }
+                if (data.room && this.detail.room) {
+                    this.detail.room = { ...this.detail.room, ...data.room };
+                }
+                this.hasAttempts = (this.detail.attempts || []).length > 0;
+                if (data.server_time) {
+                    this.lastLiveUpdate = data.server_time;
+                }
+            },
+
+            startLivePolling() {
+                this.stopLivePolling();
+                this.livePolling = true;
+                this.pollLiveMonitor();
+                this.livePollInterval = setInterval(() => this.pollLiveMonitor(), 3000);
+            },
+
+            stopLivePolling() {
+                this.livePolling = false;
+                if (this.livePollInterval) {
+                    clearInterval(this.livePollInterval);
+                    this.livePollInterval = null;
+                }
+            },
+
+            async pollLiveMonitor() {
+                if (!this.roomUuid || !this.openDetail || this.editMode) return;
+                this.liveUpdating = true;
+                try {
+                    const res = await fetch(`{{ url('ujian/rooms') }}/${this.roomUuid}/live-monitor`, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    this.applyMonitorData(data);
+                } catch (e) {
+                    // Polling gagal — coba lagi interval berikutnya
+                } finally {
+                    this.liveUpdating = false;
                 }
             },
 
@@ -972,8 +1232,14 @@
                 this.syncEditProposalContext(this.detail.proposal_context || null);
             },
 
+            closeDetail() {
+                this.stopLivePolling();
+                this.openDetail = false;
+            },
+
             enterEditMode() {
                 if (!this.detail.room) return;
+                this.stopLivePolling();
                 this.changingPackage = false;
                 this.form = this.buildFormFromRoom(this.detail.room);
                 this.syncEditProposalContext(this.detail.proposal_context || null);
@@ -988,6 +1254,7 @@
                 this.editProposalContext = null;
                 this.editMode = false;
                 this.formError = '';
+                this.startLivePolling();
             },
 
             async submitEdit() {
@@ -1018,6 +1285,7 @@
                     }
                     this.editMode = false;
                     await this.reloadDetail();
+                    this.startLivePolling();
                     window.dispatchEvent(new CustomEvent('rooms-data-changed', {
                         bubbles: true,
                         detail: { message: data.message || 'Ruang ujian diperbarui.' },
@@ -1030,7 +1298,7 @@
             },
 
             openDeleteConfirm() {
-                this.openDetail = false;
+                this.closeDetail();
                 window.dispatchEvent(new CustomEvent('open-delete-modal', {
                     bubbles: true,
                     detail: { deleteUrl: this.deleteUrl, title: this.roomTitle },

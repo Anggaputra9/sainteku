@@ -3,6 +3,7 @@
 namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Support\PdfImageHelper;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Modules\Ujian\Models\ExamRoom;
@@ -21,36 +22,39 @@ class ExportController extends Controller
 
         $room->load([
             'proposal.examQuestions',
-            'proposal.course',
+            'proposal.course:id,course_name',
             'attempts' => function ($q) {
                 $q->whereIn('status', ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'])
-                  ->with(['user:id,name,identity_id', 'answers' => function($query) {
-                      $query->whereNotNull('score');
-                  }])
+                  ->with('user:id,name,identity_id')
+                  ->withCount(['answers as answered_count' => fn ($query) => $query->where('is_answered', true)])
                   ->orderBy('submitted_at');
             }
         ]);
 
-        // Hitung statistik
+        $totalQuestions = $room->proposal->examQuestions->count();
         $totalAttempts = $room->attempts->count();
-        $gradedAttempts = $room->attempts->filter(function($attempt) {
-            return $attempt->score !== null;
-        })->count();
+        $gradedAttempts = $room->attempts->filter(fn ($attempt) => $attempt->score !== null)->count();
         $avgScore = $room->attempts->whereNotNull('score')->avg('score');
 
-        // Prepare data untuk PDF
         $data = [
             'room' => $room,
             'attempts' => $room->attempts,
+            'totalQuestions' => $totalQuestions,
             'totalAttempts' => $totalAttempts,
             'gradedAttempts' => $gradedAttempts,
             'avgScore' => $avgScore ? round($avgScore, 2) : 0,
-            'exportDate' => now()->translatedFormat('d F Y H:i'),
+            'exportDate' => now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y H:i') . ' WIB',
             'exportBy' => Auth::user()->name,
+            'logoBase64' => PdfImageHelper::uinPrintLogoDataUri(),
         ];
 
-        $pdf = Pdf::loadView('ujian::exports.room-results', $data);
-        $pdf->setPaper('a4', 'landscape');
+        $pdf = Pdf::setOptions([
+            'isRemoteEnabled' => false,
+            'isHtml5ParserEnabled' => true,
+            'dpi' => 96,
+        ])
+            ->loadView('ujian::exports.room-results', $data)
+            ->setPaper('a4', 'portrait');
 
         $filename = 'Hasil_Ujian_' . str_replace(' ', '_', $room->title) . '_' . now()->format('YmdHis') . '.pdf';
 

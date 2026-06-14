@@ -3,7 +3,7 @@
 namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Services\AiService;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -100,51 +100,14 @@ class RoomController extends Controller
             'proposal.examQuestions',
         ]);
 
-        $totalQuestions = $room->proposal->examQuestions->count();
+        $monitor = $this->buildRoomMonitorPayload($room);
 
-        $attempts = ExamAttempt::with('user:id,name,identity_id')
-            ->withCount(['answers as answered_count' => fn ($q) => $q->where('is_answered', true)])
-            ->where('room_id', $room->id)
-            ->orderByDesc('last_activity_at')
-            ->orderByDesc('started_at')
-            ->get()
-            ->map(fn ($a) => [
-                'uuid'             => $a->uuid,
-                'user_name'        => $a->user?->name,
-                'user_identity'    => $a->user?->identity_id,
-                'status'           => $a->status,
-                'status_label'     => $a->statusLabel(),
-                'started_at'       => $a->started_at?->toDateTimeString(),
-                'expires_at'       => $a->expires_at?->toDateTimeString(),
-                'submitted_at'     => $a->submitted_at?->toDateTimeString(),
-                'last_activity_at' => $a->last_activity_at?->toDateTimeString(),
-                'tab_switch_count' => (int) $a->tab_switch_count,
-                'answered'         => (int) $a->answered_count,
-                'total_questions'  => $totalQuestions,
-                'score'            => $a->score,
-            ]);
-
-        // Format datetime ke "Y-m-d H:i" + "d M Y H:i" supaya:
-        //  - ramah ditampilkan langsung di UI (tanpa suffix "Z" / micro-detik)
-        //  - tetap mudah dipakai untuk pre-fill input datetime-local saat edit
         return response()->json([
             'proposal_context' => $this->resolveProposalContext((int) $room->proposal_id),
-            'room' => array_merge($room->toArray(), [
-                'tab_switch_label' => $room->tabSwitchLabel(),
-                'join_url'         => route('ujian.attempt.join'),
-                'qr_payload'       => $room->room_code,
-                'started_at'       => $room->started_at?->format('Y-m-d H:i:s'),
-                'start_at'         => $room->start_at?->format('Y-m-d H:i:s'),
-                'end_at'           => $room->end_at?->format('Y-m-d H:i:s'),
-                'start_at_human'   => $room->start_at?->translatedFormat('d M Y H:i') . ' WIB',
-                'started_at_human' => $room->started_at?->translatedFormat('d M Y H:i') . ' WIB',
-                'end_at_human'     => $room->end_at?->translatedFormat('d M Y H:i') . ' WIB',
-                'join_grace_minutes' => ExamRoom::JOIN_GRACE_MINUTES,
-                'join_opens_at_human' => $room->joinOpensAt()?->translatedFormat('d M Y H:i') . ' WIB',
-                'join_deadline_human' => $room->joinDeadline()?->translatedFormat('d M Y H:i') . ' WIB',
-            ]),
-            'total_questions' => $totalQuestions,
-            'attempts'        => $attempts,
+            'room' => $this->formatRoomDetailMeta($room),
+            'total_questions' => $monitor['total_questions'],
+            'attempts'        => $monitor['attempts'],
+            'summary'         => $monitor['summary'],
             'server_time'     => now()->toDateTimeString(),
         ]);
     }
@@ -481,28 +444,8 @@ class RoomController extends Controller
                 }
             }
 
-            // Hitung total score berdasarkan bobot soal
-            $room = $attempt->room;
-            $room->load('proposal.examQuestions');
-            $totalScore = 0;
-            $totalWeight = 0;
-
-            foreach ($room->proposal->examQuestions as $examQuestion) {
-                $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
-                    ->where('question_id', $examQuestion->question_id)
-                    ->first();
-
-                if ($answer && $answer->score !== null) {
-                    $weight = $examQuestion->weight ?? 0;
-                    $totalScore += ($answer->score * $weight / 100);
-                    $totalWeight += $weight;
-                }
-            }
-
-            // Simpan total score ke attempt
-            $finalScore = $totalWeight > 0 ? $totalScore : 0;
+            $attempt->recalculateScore();
             $attempt->update([
-                'score' => $finalScore,
                 'grader_note' => 'Dinilai oleh ' . Auth::user()->name . ' pada ' . now()->translatedFormat('d M Y H:i'),
             ]);
         });
@@ -534,33 +477,16 @@ class RoomController extends Controller
             $room->refresh();
         }
 
-        $room->load('proposal.examQuestions');
-        $totalQuestions = $room->proposal->examQuestions->count();
-
-        $attempts = ExamAttempt::with('user:id,name,identity_id')
-            ->withCount(['answers as answered_count' => fn ($q) => $q->where('is_answered', true)])
-            ->where('room_id', $room->id)
-            ->orderByDesc('last_activity_at')
-            ->orderByDesc('started_at')
-            ->get()
-            ->map(fn ($a) => [
-                'uuid'             => $a->uuid,
-                'user_name'        => $a->user?->name,
-                'user_identity'    => $a->user?->identity_id,
-                'status'           => $a->status,
-                'status_label'     => $a->statusLabel(),
-                'started_at'       => $a->started_at?->toDateTimeString(),
-                'expires_at'       => $a->expires_at?->toDateTimeString(),
-                'submitted_at'     => $a->submitted_at?->toDateTimeString(),
-                'last_activity_at' => $a->last_activity_at?->toDateTimeString(),
-                'tab_switch_count' => (int) $a->tab_switch_count,
-                'answered'         => (int) $a->answered_count,
-                'total_questions'  => $totalQuestions,
-            ]);
+        $monitor = $this->buildRoomMonitorPayload($room);
 
         return response()->json([
-            'total_questions' => $totalQuestions,
-            'attempts'        => $attempts,
+            'room' => [
+                'status' => $room->status,
+                'auto_grading_enabled' => (bool) $room->auto_grading_enabled,
+            ],
+            'total_questions' => $monitor['total_questions'],
+            'attempts'        => $monitor['attempts'],
+            'summary'         => $monitor['summary'],
             'server_time'     => now()->toDateTimeString(),
         ]);
     }
@@ -615,7 +541,7 @@ class RoomController extends Controller
             'message' => 'Memulai koreksi...',
         ], now()->addHours(2));
 
-        $aiService = app(AiService::class);
+        $gradingService = app(\App\Services\AiGradingService::class);
         $failedAttempts = [];
         $processedCount = 0;
 
@@ -682,39 +608,27 @@ class RoomController extends Controller
                         continue;
                     }
 
-                    // Koreksi dengan AI
-                    $prompt = $this->buildGradingPrompt($examQuestion->question, $answer->answer_text);
-                    $aiResponse = $aiService->sendMessage($prompt);
-                    [$score, $feedback] = $this->parseAiResponse($aiResponse);
+                    $result = $gradingService->gradeQuestionText(
+                        $examQuestion->question->question_text,
+                        $answer->answer_text,
+                        $examQuestion->question->key_answer ?? null,
+                    );
+
+                    if (!$result['success']) {
+                        throw new \RuntimeException($result['error'] ?? 'AI grading gagal.');
+                    }
 
                     $answer->update([
-                        'score' => $score,
+                        'score' => $result['score'],
                         'grading_method' => 'ai',
-                        'ai_feedback' => $feedback,
+                        'ai_feedback' => $result['feedback'],
                         'graded_by' => Auth::id(),
                         'graded_at' => now(),
                     ]);
                 }
 
-                // Hitung total score
-                $totalScore = 0;
-                $totalWeight = 0;
-
-                foreach ($room->proposal->examQuestions as $examQuestion) {
-                    $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
-                        ->where('question_id', $examQuestion->question_id)
-                        ->first();
-
-                    if ($answer && $answer->score !== null) {
-                        $weight = $examQuestion->weight ?? 0;
-                        $totalScore += ($answer->score * $weight / 100);
-                        $totalWeight += $weight;
-                    }
-                }
-
-                $finalScore = $totalWeight > 0 ? $totalScore : 0;
+                $attempt->recalculateScore();
                 $attempt->update([
-                    'score' => $finalScore,
                     'grader_note' => 'Dikoreksi otomatis dengan AI pada ' . now()->translatedFormat('d M Y H:i'),
                 ]);
 
@@ -787,42 +701,113 @@ class RoomController extends Controller
         ]);
     }
 
-    private function buildGradingPrompt($question, $answer): string
-    {
-        return "Kamu adalah asisten dosen yang bertugas mengoreksi jawaban ujian mahasiswa.\n\n"
-            . "SOAL:\n{$question->question_text}\n\n"
-            . "JAWABAN MAHASISWA:\n{$answer}\n\n"
-            . "Tugasmu:\n"
-            . "1. Baca dan pahami soal serta jawaban mahasiswa\n"
-            . "2. Berikan nilai 0-100 berdasarkan:\n"
-            . "   - Ketepatan jawaban (50%)\n"
-            . "   - Kelengkapan penjelasan (30%)\n"
-            . "   - Struktur dan kejelasan (20%)\n"
-            . "3. Berikan feedback singkat (1-2 kalimat) yang konstruktif\n\n"
-            . "Format respons:\n"
-            . "NILAI: [angka 0-100]\n"
-            . "FEEDBACK: [feedback singkat]";
-    }
-
-    private function parseAiResponse(string $response): array
-    {
-        $score = 0;
-        $feedback = 'Tidak ada feedback dari AI.';
-
-        if (preg_match('/NILAI:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
-            $score = min(100, max(0, (float) $matches[1]));
-        }
-
-        if (preg_match('/FEEDBACK:\s*(.+?)(?=\n\n|\n[A-Z]+:|$)/s', $response, $matches)) {
-            $feedback = trim($matches[1]);
-        }
-
-        return [$score, $feedback];
-    }
-
     /* =========================================================
      | Helpers
      |==========================================================*/
+
+    private function buildRoomMonitorPayload(ExamRoom $room): array
+    {
+        $room->loadMissing('proposal.examQuestions');
+        $totalQuestions = $room->proposal->examQuestions->count();
+        $finishedStatuses = ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'];
+
+        $attempts = ExamAttempt::with('user:id,name,identity_id')
+            ->withCount(['answers as answered_count' => fn ($q) => $q->where('is_answered', true)])
+            ->where('room_id', $room->id)
+            ->orderByDesc('last_activity_at')
+            ->orderByDesc('started_at')
+            ->get()
+            ->map(function ($a) use ($room, $totalQuestions, $finishedStatuses) {
+                $grading = $this->resolveAttemptGradingMeta($a, $room, $finishedStatuses);
+
+                return [
+                    'uuid'             => $a->uuid,
+                    'user_name'        => $a->user?->name,
+                    'user_identity'    => $a->user?->identity_id,
+                    'status'           => $a->status,
+                    'status_label'     => $a->statusLabel(),
+                    'started_at'       => $a->started_at?->toDateTimeString(),
+                    'expires_at'       => $a->expires_at?->toDateTimeString(),
+                    'submitted_at'     => $a->submitted_at?->toDateTimeString(),
+                    'last_activity_at' => $a->last_activity_at?->toDateTimeString(),
+                    'tab_switch_count' => (int) $a->tab_switch_count,
+                    'answered'         => (int) $a->answered_count,
+                    'total_questions'  => $totalQuestions,
+                    'score'            => $a->score,
+                    'grading_status'   => $grading['status'],
+                    'grading_label'    => $grading['label'],
+                ];
+            })
+            ->values();
+
+        $finishedAttempts = $attempts->filter(fn ($a) => in_array($a['status'], $finishedStatuses, true));
+        $gradedAttempts = $finishedAttempts->filter(fn ($a) => $a['score'] !== null);
+        $gradingActive = $attempts->contains(fn ($a) => $a['grading_status'] === 'grading');
+
+        $summary = [
+            'total_participants'   => $attempts->count(),
+            'ongoing'              => $attempts->where('status', 'ONGOING')->count(),
+            'finished'             => $finishedAttempts->count(),
+            'not_started'          => $attempts->where('status', 'NOT_STARTED')->count(),
+            'total_questions'      => $totalQuestions,
+            'total_answered'       => (int) $attempts->sum('answered'),
+            'max_answerable'       => $attempts->count() * $totalQuestions,
+            'graded'               => $gradedAttempts->count(),
+            'grading_pending'      => max(0, $finishedAttempts->count() - $gradedAttempts->count()),
+            'grading_active'       => $gradingActive,
+            'auto_grading_enabled' => (bool) $room->auto_grading_enabled,
+        ];
+
+        return [
+            'total_questions' => $totalQuestions,
+            'attempts'        => $attempts,
+            'summary'         => $summary,
+        ];
+    }
+
+    private function resolveAttemptGradingMeta(ExamAttempt $attempt, ExamRoom $room, array $finishedStatuses): array
+    {
+        if ($attempt->status === 'ONGOING') {
+            return ['status' => 'working', 'label' => 'Mengerjakan'];
+        }
+
+        if (! in_array($attempt->status, $finishedStatuses, true)) {
+            return ['status' => 'none', 'label' => '—'];
+        }
+
+        if ($attempt->score !== null) {
+            return ['status' => 'done', 'label' => 'Sudah dinilai'];
+        }
+
+        if (Cache::get("attempt_grading_{$attempt->id}")) {
+            return ['status' => 'grading', 'label' => 'AI mengoreksi…'];
+        }
+
+        if ($room->auto_grading_enabled) {
+            return ['status' => 'pending', 'label' => 'Menunggu AI'];
+        }
+
+        return ['status' => 'pending_manual', 'label' => 'Belum dinilai'];
+    }
+
+    private function formatRoomDetailMeta(ExamRoom $room): array
+    {
+        return array_merge($room->toArray(), [
+            'tab_switch_label'    => $room->tabSwitchLabel(),
+            'join_url'            => route('ujian.attempt.join'),
+            'qr_payload'          => $room->room_code,
+            'started_at'          => $room->started_at?->format('Y-m-d H:i:s'),
+            'start_at'            => $room->start_at?->format('Y-m-d H:i:s'),
+            'end_at'              => $room->end_at?->format('Y-m-d H:i:s'),
+            'start_at_human'      => $room->start_at?->translatedFormat('d M Y H:i') . ' WIB',
+            'started_at_human'    => $room->started_at?->translatedFormat('d M Y H:i') . ' WIB',
+            'end_at_human'        => $room->end_at?->translatedFormat('d M Y H:i') . ' WIB',
+            'join_grace_minutes'  => ExamRoom::JOIN_GRACE_MINUTES,
+            'join_opens_at_human' => $room->joinOpensAt()?->translatedFormat('d M Y H:i') . ' WIB',
+            'join_deadline_human' => $room->joinDeadline()?->translatedFormat('d M Y H:i') . ' WIB',
+        ]);
+    }
+
     private function buildRoomsQuery(Request $request)
     {
         $query = ExamRoom::with([

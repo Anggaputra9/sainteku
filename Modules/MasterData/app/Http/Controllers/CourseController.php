@@ -5,7 +5,9 @@ namespace Modules\MasterData\app\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\MasterData\Support\BulkCourseImportService;
 use Modules\MasterData\Support\CourseCodeGenerator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CourseController extends Controller
 {
@@ -155,6 +157,57 @@ class CourseController extends Controller
             'delete_url' => route('masterdata.courses.destroy', $course->id),
             'can_delete' => $proposalCount === 0 && $questionCount === 0 && $mappingCount === 0,
         ];
+    }
+
+    public function bulkStore(Request $request, BulkCourseImportService $importService)
+    {
+        $data = $request->validate([
+            'unit_id' => 'required|string|exists:mst_unit,id',
+            'is_active' => 'required|in:0,1',
+            'bulk_text' => 'required|string',
+        ]);
+
+        $prodi = DB::table('mst_unit')
+            ->where('id', $data['unit_id'])
+            ->where('unit_type_id', 3)
+            ->first();
+
+        if (! $prodi) {
+            return response()->json([
+                'message' => 'Unit yang dipilih bukan program studi.',
+            ], 422);
+        }
+
+        $result = $importService->import(
+            $data['unit_id'],
+            $data['is_active'],
+            $data['bulk_text'],
+        );
+
+        $message = $result['success_count'] . ' mata kuliah berhasil ditambahkan';
+        if ($result['failed_count'] > 0) {
+            $message .= ', ' . $result['failed_count'] . ' gagal';
+        }
+
+        return response()->json([
+            ...$result,
+            'message' => $message,
+        ]);
+    }
+
+    public function downloadBulkTemplate(): StreamedResponse
+    {
+        return response()->streamDownload(function (): void {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, ['nama']);
+            fputcsv($handle, ['Pemrograman Web']);
+            fputcsv($handle, ['Basis Data']);
+            fputcsv($handle, ['Jaringan Komputer']);
+            fclose($handle);
+        }, 'template-bulk-mata-kuliah.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function store(Request $request)

@@ -63,6 +63,8 @@ Route::middleware([
     // BENAR: API ditaruh di ATAS Route::resource
     Route::get('courses/api/prodis', [CourseController::class, 'getProdi'])->name('courses.api.prodis');
     Route::get('courses/api/data', [CourseController::class, 'getCoursesData'])->name('courses.api.data');
+    Route::post('courses/bulk', [CourseController::class, 'bulkStore'])->name('courses.bulk.store');
+    Route::get('courses/bulk/template', [CourseController::class, 'downloadBulkTemplate'])->name('courses.bulk.template');
 
     // Route Resource ditaruh di BAWAH API
     Route::resource('courses', CourseController::class);

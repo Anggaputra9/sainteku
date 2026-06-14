@@ -3,7 +3,7 @@
 namespace Modules\Ujian\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Services\AiService;
+
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -493,12 +493,18 @@ class AttemptController extends Controller
                 'occurred_at' => now(),
             ]);
 
-            // Dispatch auto-grading job if enabled
+            // Koreksi AI otomatis di background (setelah respons submit dikirim ke mahasiswa)
             $room = $attempt->room;
             if ($room && $room->auto_grading_enabled) {
-                GradeAttemptJob::dispatch($attempt)
-                    ->onQueue('grading')
-                    ->delay(now()->addSeconds(2)); // Small delay to ensure transaction committed
+                $attemptId = $attempt->id;
+                dispatch(function () use ($attemptId) {
+                    $freshAttempt = ExamAttempt::find($attemptId);
+                    if (!$freshAttempt) {
+                        return;
+                    }
+
+                    (new GradeAttemptJob($freshAttempt))->handle(app(\App\Services\AiGradingService::class));
+                })->afterResponse();
             }
         });
     }
@@ -520,31 +526,32 @@ class AttemptController extends Controller
             return response()->json(['message' => 'Soal tidak ditemukan.'], 404);
         }
 
-        $aiService = app(AiService::class);
-        $prompt = $this->buildGradingPrompt($answer->question->question_text, $answer->answer_text);
+        $grading = app(\App\Services\AiGradingService::class);
 
         try {
-            $result = $aiService->sendPrompt($prompt, null, ['max_tokens' => 500]);
+            $result = $grading->gradeAnswer($answer);
 
             if (!$result['success']) {
                 return response()->json(['message' => 'AI grading gagal: ' . $result['error']], 500);
             }
 
-            $parsed = $this->parseAiResponse($result['response']);
-
             $answer->update([
-                'score' => $parsed['score'],
+                'score' => $result['score'],
                 'grader_note' => null,
                 'grading_method' => 'ai',
-                'ai_feedback' => $parsed['feedback'],
+                'ai_feedback' => $result['feedback'],
                 'graded_by' => Auth::id(),
                 'graded_at' => now(),
             ]);
 
+            $attempt = $answer->attempt;
+            $totalScore = $attempt->recalculateScore();
+
             return response()->json([
-                'message' => 'Jawaban berhasil dikoreksi dengan AI. Score: ' . $parsed['score'],
-                'score' => $parsed['score'],
-                'feedback' => $parsed['feedback'],
+                'message' => 'Jawaban berhasil dikoreksi dengan AI. Score: ' . $result['score'],
+                'score' => $result['score'],
+                'feedback' => $result['feedback'],
+                'total_score' => $totalScore,
             ]);
 
         } catch (\Exception $e) {
@@ -563,9 +570,9 @@ class AttemptController extends Controller
 
         $gradedCount = 0;
         $errors = [];
-        $aiService = app(AiService::class);
+        $grading = app(\App\Services\AiGradingService::class);
 
-        DB::transaction(function () use ($attempt, $aiService, &$gradedCount, &$errors) {
+        DB::transaction(function () use ($attempt, $grading, &$gradedCount, &$errors) {
             $questions = $attempt->room->proposal->examQuestions;
             $existingAnswers = $attempt->answers->keyBy('question_id');
 
@@ -601,19 +608,15 @@ class AttemptController extends Controller
                     continue;
                 }
 
-                $prompt = $this->buildGradingPrompt($answer->question->question_text, $answer->answer_text);
-
                 try {
-                    $result = $aiService->sendPrompt($prompt, null, ['max_tokens' => 500]);
+                    $result = $grading->gradeAnswer($answer);
 
                     if ($result['success']) {
-                        $parsed = $this->parseAiResponse($result['response']);
-
                         $answer->update([
-                            'score' => $parsed['score'],
+                            'score' => $result['score'],
                             'grader_note' => null,
                             'grading_method' => 'ai',
-                            'ai_feedback' => $parsed['feedback'],
+                            'ai_feedback' => $result['feedback'],
                             'graded_by' => Auth::id(),
                             'graded_at' => now(),
                         ]);
@@ -626,6 +629,8 @@ class AttemptController extends Controller
                     $errors[] = "Soal #{$questionId}: " . $e->getMessage();
                 }
             }
+
+            $attempt->recalculateScore();
         });
 
         $message = "Berhasil mengoreksi {$gradedCount} jawaban.";
@@ -638,67 +643,6 @@ class AttemptController extends Controller
             'graded_count' => $gradedCount,
             'errors' => $errors,
         ]);
-    }
-
-    /**
-     * Build grading prompt untuk AI.
-     */
-    private function buildGradingPrompt(string $questionText, ?string $answerText): string
-    {
-        $answer = $answerText ?: '(Tidak dijawab)';
-
-        return <<<PROMPT
-Anda adalah asisten pengoreksi ujian essay. Tugas Anda adalah menilai jawaban mahasiswa berdasarkan soal yang diberikan.
-
-SOAL:
-{$questionText}
-
-JAWABAN MAHASISWA:
-{$answer}
-
-Berikan penilaian dalam format berikut:
-SCORE: [0-100]
-FEEDBACK: [Penjelasan singkat tentang penilaian, maksimal 3 kalimat]
-
-Kriteria penilaian:
-- Relevansi dengan pertanyaan (40%)
-- Kedalaman pemahaman (30%)
-- Struktur dan kejelasan (20%)
-- Kelengkapan jawaban (10%)
-
-Jika jawaban kosong atau tidak relevan sama sekali, berikan score 0.
-PROMPT;
-    }
-
-    /**
-     * Parse response dari AI untuk ekstrak score dan feedback.
-     */
-    private function parseAiResponse(string $response): array
-    {
-        $score = 0;
-        $feedback = '';
-
-        if (preg_match('/SCORE:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
-            $score = min(100, max(0, (float) $matches[1]));
-        }
-
-        if (preg_match('/FEEDBACK:\s*(.+?)(?=\n\n|\z)/is', $response, $matches)) {
-            $feedback = trim($matches[1]);
-        } else {
-            $parts = preg_split('/SCORE:\s*\d+(?:\.\d+)?/i', $response, 2);
-            if (isset($parts[1])) {
-                $feedback = trim($parts[1]);
-            }
-        }
-
-        if (empty($feedback)) {
-            $feedback = trim($response);
-        }
-
-        return [
-            'score' => $score,
-            'feedback' => $feedback,
-        ];
     }
 
     /**

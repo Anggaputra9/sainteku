@@ -64,7 +64,8 @@
         <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700 no-print">
             <div>
                 <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
-                    <i class="fa-solid fa-clipboard-check text-indigo-500 dark:text-indigo-400"></i> Hasil Ujian
+                    <i class="fa-solid fa-clipboard-check text-indigo-500 dark:text-indigo-400"></i>
+                    {{ $isLecturer ? 'Hasil Ujian' : 'Ringkasan Jawaban' }}
                 </h2>
                 <nav>
                     <ol class="flex flex-wrap items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -91,19 +92,26 @@
                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ $attempt->user?->identity_id ?? '—' }}</div>
                     </div>
                 </div>
-                <div class="shrink-0 text-center sm:text-right sm:pl-6 sm:border-l border-gray-100 dark:border-gray-700">
-                    <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Total Skor</div>
-                    @if ($attempt->score !== null)
-                        <div class="mt-1 text-4xl font-black tabular-nums text-indigo-600 dark:text-indigo-400">{{ $attempt->score }}</div>
-                    @else
-                        <div class="mt-1 text-sm font-semibold italic text-gray-400 dark:text-gray-500">Belum dinilai</div>
-                    @endif
-                    @if ($allGraded)
-                        <div class="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">Semua soal dinilai</div>
-                    @elseif ($gradedCount > 0)
-                        <div class="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">{{ $gradedCount }}/{{ $totalQuestions }} dinilai</div>
-                    @endif
-                </div>
+                @if ($isLecturer)
+                    <div class="shrink-0 text-center sm:text-right sm:pl-6 sm:border-l border-gray-100 dark:border-gray-700">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Total Skor</div>
+                        @if ($attempt->score !== null)
+                            <div class="mt-1 text-4xl font-black tabular-nums text-indigo-600 dark:text-indigo-400">{{ $attempt->score }}</div>
+                        @else
+                            <div class="mt-1 text-sm font-semibold italic text-gray-400 dark:text-gray-500">Belum dinilai</div>
+                        @endif
+                        @if ($allGraded)
+                            <div class="mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">Semua soal dinilai</div>
+                        @elseif ($gradedCount > 0)
+                            <div class="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">{{ $gradedCount }}/{{ $totalQuestions }} dinilai</div>
+                        @endif
+                    </div>
+                @else
+                    <div class="shrink-0 text-center sm:text-right sm:pl-6 sm:border-l border-gray-100 dark:border-gray-700">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Status</div>
+                        <div class="mt-1 text-sm font-bold text-emerald-600 dark:text-emerald-400">Jawaban tersimpan</div>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -185,41 +193,47 @@
         {{-- Jawaban --}}
         @if ($isLecturer || $attempt->isFinished())
             <div class="{{ $cardClass }} overflow-hidden"
-                x-data="gradingApp()" x-init="init()"
-                :class="gradingMode ? 'border-blue-400 dark:border-blue-600' : ''">
-                <div class="px-4 py-3 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print transition-colors"
-                    :class="gradingMode
-                        ? 'bg-blue-600 border-blue-700 dark:bg-blue-700 dark:border-blue-800'
-                        : 'bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700'">
-                    <h4 class="text-sm font-bold flex items-center gap-2"
-                        :class="gradingMode ? 'text-white' : 'text-gray-700 dark:text-gray-200'">
-                        <i class="fa-solid fa-list-check"
-                            :class="gradingMode ? 'text-blue-100' : 'text-indigo-500 dark:text-indigo-400'"></i>
+                @if ($isLecturer) x-data="gradingApp()" x-init="init()" :class="gradingMode ? 'border-blue-400 dark:border-blue-600' : ''" @endif>
+                <div class="px-4 py-3 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 no-print transition-colors
+                    @if ($isLecturer) bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700 @else bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700 @endif"
+                    @if ($isLecturer)
+                        :class="gradingMode
+                            ? 'bg-blue-600 border-blue-700 dark:bg-blue-700 dark:border-blue-800'
+                            : 'bg-gray-50 border-gray-200 dark:bg-gray-800/40 dark:border-gray-700'"
+                    @endif>
+                    <h4 class="text-sm font-bold flex items-center gap-2 text-gray-700 dark:text-gray-200"
+                        @if ($isLecturer) :class="gradingMode ? 'text-white' : 'text-gray-700 dark:text-gray-200'" @endif>
+                        <i class="fa-solid fa-list-check text-indigo-500 dark:text-indigo-400"
+                            @if ($isLecturer) :class="gradingMode ? 'text-blue-100' : 'text-indigo-500 dark:text-indigo-400'" @endif></i>
                         Jawaban
-                        <span class="text-xs font-semibold"
-                            :class="gradingMode ? 'text-blue-100/80' : 'text-gray-400'">({{ $totalQuestions }} soal)</span>
-                        <span x-show="gradingMode" x-cloak
-                            class="inline-flex rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white border border-white/25">
-                            Mode Koreksi
-                        </span>
+                        <span class="text-xs font-semibold text-gray-400"
+                            @if ($isLecturer) :class="gradingMode ? 'text-blue-100/80' : 'text-gray-400'" @endif>({{ $totalQuestions }} soal)</span>
+                        @if ($isLecturer)
+                            <span x-show="gradingMode" x-cloak
+                                class="inline-flex rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white border border-white/25">
+                                Mode Koreksi
+                            </span>
+                        @endif
                     </h4>
-                    <div class="flex flex-wrap items-center gap-2">
-                        @if ($isLecturer && $attempt->isFinished())
-                            <button type="button" @click="gradeAllWithAi()" :disabled="submitting" class="{{ $btnPurple }} disabled:opacity-60 disabled:cursor-not-allowed">
-                                <i class="fas fa-robot"></i> Koreksi AI
-                            </button>
-                            <button type="button" @click="toggleGradingMode()"
-                                :class="gradingMode ? '{{ $btnGray }}' : '{{ $btnBlue }}'">
-                                <i class="fas" :class="gradingMode ? 'fa-eye' : 'fa-edit'"></i>
-                                <span x-text="gradingMode ? 'Mode Lihat' : 'Mode Koreksi'"></span>
-                            </button>
-                        @endif
-                        @if ($attempt->isFinished() && $allGraded)
-                            <button type="button" @click="printResult()" class="{{ $btnGreen }}">
-                                <i class="fas fa-print"></i> Print
-                            </button>
-                        @endif
-                    </div>
+                    @if ($isLecturer)
+                        <div class="flex flex-wrap items-center gap-2">
+                            @if ($attempt->isFinished())
+                                <button type="button" @click="gradeAllWithAi()" :disabled="submitting" class="{{ $btnPurple }} disabled:opacity-60 disabled:cursor-not-allowed">
+                                    <i class="fas fa-robot"></i> Koreksi AI
+                                </button>
+                                <button type="button" @click="toggleGradingMode()"
+                                    :class="gradingMode ? '{{ $btnGray }}' : '{{ $btnBlue }}'">
+                                    <i class="fas" :class="gradingMode ? 'fa-eye' : 'fa-edit'"></i>
+                                    <span x-text="gradingMode ? 'Mode Lihat' : 'Mode Koreksi'"></span>
+                                </button>
+                            @endif
+                            @if ($attempt->isFinished() && $allGraded)
+                                <button type="button" @click="printResult()" class="{{ $btnGreen }}">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            @endif
+                        </div>
+                    @endif
                 </div>
 
                 <div class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -235,17 +249,34 @@
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
-                                            Bobot {{ $eq->weight }}%
-                                        </div>
-                                        @if ($ans && $ans->score !== null)
-                                            <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
-                                                Skor {{ $ans->score }}
-                                            </span>
-                                        @elseif ($hasAnswer)
-                                            <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
-                                                Belum dinilai
-                                            </span>
+                                        @if ($isLecturer)
+                                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                                Bobot {{ $eq->weight }}%
+                                            </div>
+                                        @else
+                                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                                                Soal {{ $eq->order_no }}
+                                            </div>
+                                            @if ($hasAnswer)
+                                                <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+                                                    Terjawab
+                                                </span>
+                                            @else
+                                                <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
+                                                    Kosong
+                                                </span>
+                                            @endif
+                                        @endif
+                                        @if ($isLecturer)
+                                            @if ($ans && $ans->score !== null)
+                                                <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+                                                    Skor {{ $ans->score }}
+                                                </span>
+                                            @elseif ($hasAnswer)
+                                                <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
+                                                    Belum dinilai
+                                                </span>
+                                            @endif
                                         @endif
                                     </div>
                                     <div class="text-sm text-gray-900 dark:text-white leading-relaxed">{!! nl2br(e($eq->question?->question_text ?? '—')) !!}</div>
@@ -304,19 +335,6 @@
                                                 </div>
                                             </div>
                                         @endif
-                                    @elseif ($ans && ($ans->grader_note || $ans->ai_feedback))
-                                        <div class="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-3.5 dark:bg-blue-900/20 dark:border-blue-900/40">
-                                            <div class="text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:text-blue-300 mb-1.5">
-                                                @if ($ans->grading_method === 'ai')
-                                                    <i class="fas fa-robot"></i> Feedback AI
-                                                @else
-                                                    <i class="fas fa-comment-dots"></i> Catatan Dosen
-                                                @endif
-                                            </div>
-                                            <div class="text-sm text-blue-800 dark:text-blue-200 leading-relaxed">
-                                                {{ $ans->grading_method === 'ai' ? $ans->ai_feedback : $ans->grader_note }}
-                                            </div>
-                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -358,6 +376,7 @@
     </div>
 @endsection
 
+@if ($isLecturer)
 @push('scripts')
 <script>
 function gradingApp() {
@@ -520,3 +539,4 @@ function gradingApp() {
 }
 </style>
 @endpush
+@endif

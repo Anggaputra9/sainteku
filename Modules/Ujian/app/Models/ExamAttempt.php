@@ -108,4 +108,36 @@ class ExamAttempt extends Model
             'AUTO_SUBMITTED_VIOLATION' => 'Auto-Submit (Pelanggaran)',
         };
     }
+
+    /**
+     * Hitung ulang total skor attempt berdasarkan bobot tiap soal.
+     * Rumus: sum(nilai_soal × bobot_soal / 100)
+     */
+    public function recalculateScore(): float
+    {
+        $this->loadMissing(['room.proposal.examQuestions', 'answers']);
+
+        $proposal = $this->room?->proposal;
+        if (!$proposal) {
+            return (float) ($this->score ?? 0);
+        }
+
+        $answersByQuestion = $this->answers->keyBy('question_id');
+        $totalScore = 0;
+        $totalWeight = 0;
+
+        foreach ($proposal->examQuestions as $examQuestion) {
+            $answer = $answersByQuestion->get($examQuestion->question_id);
+            if ($answer && $answer->score !== null) {
+                $weight = (float) ($examQuestion->weight ?? 0);
+                $totalScore += ((float) $answer->score * $weight / 100);
+                $totalWeight += $weight;
+            }
+        }
+
+        $finalScore = $totalWeight > 0 ? $totalScore : 0;
+        $this->update(['score' => $finalScore]);
+
+        return (float) $finalScore;
+    }
 }

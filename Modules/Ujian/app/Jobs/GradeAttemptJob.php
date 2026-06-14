@@ -2,15 +2,15 @@
 
 namespace Modules\Ujian\Jobs;
 
-use App\Services\AiService;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Services\AiGradingService;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 
-class GradeAttemptJob implements ShouldQueue
+class GradeAttemptJob
 {
     use Queueable;
 
@@ -27,10 +27,17 @@ class GradeAttemptJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(AiService $aiService): void
+    public function handle(AiGradingService $gradingService): void
     {
+        $attempt = $this->attempt->fresh();
+        if (!$attempt) {
+            return;
+        }
+
+        $cacheKey = "attempt_grading_{$attempt->id}";
+        Cache::put($cacheKey, true, now()->addMinutes(30));
+
         try {
-            $attempt = $this->attempt;
             $room = $attempt->room;
             $room->load('proposal.examQuestions.question');
 
@@ -62,39 +69,27 @@ class GradeAttemptJob implements ShouldQueue
                     continue;
                 }
 
-                // Koreksi dengan AI
-                $prompt = $this->buildGradingPrompt($examQuestion->question, $answer->answer_text);
-                $aiResponse = $aiService->sendMessage($prompt);
-                [$score, $feedback] = $this->parseAiResponse($aiResponse);
+                $result = $gradingService->gradeQuestionText(
+                    $examQuestion->question->question_text,
+                    $answer->answer_text,
+                    $examQuestion->question->key_answer ?? null,
+                );
+
+                if (!$result['success']) {
+                    throw new \RuntimeException($result['error'] ?? 'AI grading gagal.');
+                }
 
                 $answer->update([
-                    'score' => $score,
+                    'score' => $result['score'],
                     'grading_method' => 'ai',
-                    'ai_feedback' => $feedback,
+                    'ai_feedback' => $result['feedback'],
                     'graded_by' => null,
                     'graded_at' => now(),
                 ]);
             }
 
-            // Hitung total score
-            $totalScore = 0;
-            $totalWeight = 0;
-
-            foreach ($room->proposal->examQuestions as $examQuestion) {
-                $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
-                    ->where('question_id', $examQuestion->question_id)
-                    ->first();
-
-                if ($answer && $answer->score !== null) {
-                    $weight = $examQuestion->weight ?? 0;
-                    $totalScore += ($answer->score * $weight / 100);
-                    $totalWeight += $weight;
-                }
-            }
-
-            $finalScore = $totalWeight > 0 ? $totalScore : 0;
+            $finalScore = $attempt->recalculateScore();
             $attempt->update([
-                'score' => $finalScore,
                 'grader_note' => 'Dikoreksi otomatis dengan AI pada ' . now()->translatedFormat('d M Y H:i'),
             ]);
 
@@ -112,39 +107,9 @@ class GradeAttemptJob implements ShouldQueue
                 'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
+        } finally {
+            Cache::forget($cacheKey);
         }
     }
 
-    private function buildGradingPrompt($question, $answer): string
-    {
-        return "Kamu adalah asisten dosen yang bertugas mengoreksi jawaban ujian mahasiswa.\n\n"
-            . "SOAL:\n{$question->question_text}\n\n"
-            . "JAWABAN MAHASISWA:\n{$answer}\n\n"
-            . "Tugasmu:\n"
-            . "1. Baca dan pahami soal serta jawaban mahasiswa\n"
-            . "2. Berikan nilai 0-100 berdasarkan:\n"
-            . "   - Ketepatan jawaban (50%)\n"
-            . "   - Kelengkapan penjelasan (30%)\n"
-            . "   - Struktur dan kejelasan (20%)\n"
-            . "3. Berikan feedback singkat (1-2 kalimat) yang konstruktif\n\n"
-            . "Format respons:\n"
-            . "NILAI: [angka 0-100]\n"
-            . "FEEDBACK: [feedback singkat]";
-    }
-
-    private function parseAiResponse(string $response): array
-    {
-        $score = 0;
-        $feedback = 'Tidak ada feedback dari AI.';
-
-        if (preg_match('/NILAI:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
-            $score = min(100, max(0, (float) $matches[1]));
-        }
-
-        if (preg_match('/FEEDBACK:\s*(.+?)(?=\n\n|\n[A-Z]+:|$)/s', $response, $matches)) {
-            $feedback = trim($matches[1]);
-        }
-
-        return [$score, $feedback];
-    }
 }

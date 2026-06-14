@@ -29,7 +29,7 @@
                 </p>
             @else
                 <p class="mt-4 text-sm text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    Terima kasih, jawaban Anda sudah berhasil disubmit. Silakan tunggu hasil dari dosen.
+                    Terima kasih, jawaban Anda sudah berhasil disubmit.
                 </p>
             @endif
 
@@ -52,7 +52,7 @@
                 {{-- Pakai uuid attempt biar URL hasil tidak gampang ditebak --}}
                 <a href="{{ route('ujian.attempt.result', ['attempt' => $attempt->uuid]) }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
-                    <i class="fa-solid fa-clipboard-check"></i> Lihat Hasil Saya
+                    <i class="fa-solid fa-clipboard-check"></i> Lihat Jawaban Saya
                 </a>
                 <a href="{{ route('dashboard') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-gray-200 px-6 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">

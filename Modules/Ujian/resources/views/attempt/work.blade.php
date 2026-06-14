@@ -74,28 +74,30 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex w-full items-stretch justify-end gap-2 sm:w-auto sm:items-center sm:gap-3">
                     @if($room->show_remaining_time)
-                        <div class="rounded-xl border bg-white px-4 py-2 dark:bg-[#1e293b] dark:border-gray-700"
-                            :class="timeWarn ? 'border-red-300 ring-2 ring-red-200' : 'border-gray-200'">
-                            <div class="text-[10px] font-bold uppercase text-gray-500">Sisa Waktu</div>
-                            <div class="text-2xl font-black font-mono"
+                        <div class="inline-flex h-11 min-w-[6.5rem] items-center justify-center gap-2 rounded-xl border bg-white px-4 dark:bg-[#1e293b]"
+                            :class="timeWarn ? 'border-red-300 ring-2 ring-red-200 dark:border-red-400' : 'border-gray-200 dark:border-gray-700'"
+                            title="Sisa waktu">
+                            <i class="fa-solid fa-clock text-sm shrink-0"
+                                :class="timeWarn ? 'text-red-500' : 'text-indigo-500'"></i>
+                            <span class="text-sm font-bold font-mono tabular-nums leading-none sm:text-base"
                                 :class="timeWarn ? 'text-red-600' : 'text-indigo-700 dark:text-indigo-300'"
-                                x-text="timeLeft"></div>
+                                x-text="timeLeft"></span>
                         </div>
                     @endif
 
-                    <div class="hidden sm:block text-xs text-gray-500 min-w-[110px]">
+                    <div class="hidden sm:flex h-11 min-w-[7rem] items-center text-xs text-gray-500">
                         <div class="flex items-center gap-1.5">
                             <i class="fa-solid fa-cloud-arrow-up text-emerald-500"></i>
                             <span x-text="saveStatus"></span>
                         </div>
                     </div>
 
-                    <button type="button" @click="confirmSubmit()"
-                        class="rounded-xl bg-emerald-600 px-4 sm:px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 shadow-sm">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span class="hidden sm:inline">Submit</span>
+                    <button type="button" @click="confirmSubmit()" aria-label="Submit jawaban"
+                        class="inline-flex h-11 min-w-[6.5rem] shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm hover:bg-emerald-700 sm:text-base">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                        <span>Submit</span>
                     </button>
                 </div>
             </div>
@@ -179,29 +181,40 @@
                     </div>
                 </template>
 
-                {{-- Tombol prev / next / submit --}}
-                <div class="mt-6 flex items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <button type="button" @click="prev()" :disabled="currentIndex === 0"
-                        class="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-[#0f172a] dark:border-gray-600 dark:text-gray-200">
-                        <i class="fa-solid fa-arrow-left"></i> Sebelumnya
-                    </button>
+                {{-- Tombol prev / next / submit — compact sampai layout desktop (lg) --}}
+                <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center justify-center gap-2 lg:justify-between lg:gap-3">
+                        <button type="button" @click="prev()" :disabled="currentIndex === 0"
+                            aria-label="Soal sebelumnya"
+                            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-[#0f172a] dark:text-gray-200 lg:h-auto lg:w-auto lg:gap-2 lg:px-4 lg:py-2">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span class="hidden lg:inline">Sebelumnya</span>
+                        </button>
 
-                    <div class="text-xs text-gray-500 tabular-nums">
-                        <span x-text="answeredCount()"></span> dari <span x-text="questions.length"></span> dijawab
+                        <div class="min-w-[4.5rem] text-center text-xs text-gray-500 tabular-nums lg:min-w-0">
+                            <span class="lg:hidden">
+                                <span x-text="currentIndex + 1"></span>/<span x-text="questions.length"></span>
+                            </span>
+                            <span class="hidden lg:inline">
+                                <span x-text="answeredCount()"></span> dari <span x-text="questions.length"></span> dijawab
+                            </span>
+                        </div>
+
+                        <template x-if="currentIndex < questions.length - 1">
+                            <button type="button" @click="next()" aria-label="Soal berikutnya"
+                                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-sm font-bold text-white hover:bg-indigo-700 lg:h-auto lg:w-auto lg:gap-2 lg:px-5 lg:py-2">
+                                <span class="hidden lg:inline">Berikutnya</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </template>
+                        <template x-if="currentIndex === questions.length - 1">
+                            <button type="button" @click="confirmSubmit()" aria-label="Submit jawaban"
+                                class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-sm font-bold text-white hover:bg-emerald-700 lg:h-auto lg:w-auto lg:gap-2 lg:px-5 lg:py-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span class="hidden lg:inline">Submit</span>
+                            </button>
+                        </template>
                     </div>
-
-                    <template x-if="currentIndex < questions.length - 1">
-                        <button type="button" @click="next()"
-                            class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white hover:bg-indigo-700">
-                            Berikutnya <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </template>
-                    <template x-if="currentIndex === questions.length - 1">
-                        <button type="button" @click="confirmSubmit()"
-                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">
-                            <i class="fa-solid fa-paper-plane"></i> Submit
-                        </button>
-                    </template>
                 </div>
             </section>
 
@@ -215,10 +228,10 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-5 gap-2">
+                    <div class="flex flex-wrap justify-center gap-2 lg:grid lg:grid-cols-5 lg:gap-2">
                         <template x-for="(q, idx) in questions" :key="`nav-${q.id}`">
                             <button type="button" @click="goTo(idx)"
-                                class="aspect-square flex items-center justify-center rounded-lg text-sm font-bold border transition"
+                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold border transition lg:aspect-square lg:h-auto lg:w-auto lg:text-sm"
                                 :class="idx === currentIndex
                                     ? 'bg-indigo-600 text-white border-indigo-600 ring-2 ring-indigo-300'
                                     : (q.is_answered

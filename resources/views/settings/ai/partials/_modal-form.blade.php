@@ -105,29 +105,51 @@
                             <i class="fa-solid fa-sliders text-indigo-500"></i> Parameter Model
                         </h4>
                     </div>
-                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 space-y-4">
+                        <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-[11px] text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-200">
+                            <i class="fa-solid fa-circle-info mr-1"></i>
+                            Parameter ini dipakai otomatis oleh <b>koreksi ujian AI</b>. Tidak perlu diatur manual di kode.
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Temperature (0-2)</label>
                             <input type="number" step="0.1" min="0" max="2" name="temperature" x-model="form.temperature"
                                 class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <p class="mt-1 text-[10px] text-gray-500">Kreativitas respons (default: 0.7)</p>
+                            <p class="mt-1.5 text-[10px] leading-relaxed text-gray-500">
+                                Mengatur seberapa <b>acak</b> jawaban model.
+                                <span class="block mt-1 text-emerald-700 dark:text-emerald-300">
+                                    <b>0.3–0.7</b> → konsisten &amp; jelas. <b>Disarankan untuk koreksi ujian.</b>
+                                </span>
+                                <span class="block mt-1 text-red-600 dark:text-red-400">
+                                    <b>1.0–2.0</b> → lebih kreatif tapi sering tidak koheren; feedback bisa berantakan atau terpotong.
+                                </span>
+                            </p>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Max Tokens</label>
                             <input type="number" min="1" max="100000" name="max_tokens" x-model="form.max_tokens"
                                 class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <p class="mt-1 text-[10px] text-gray-500">Panjang maksimal respons (default: 2000)</p>
+                            <p class="mt-1.5 text-[10px] leading-relaxed text-gray-500">
+                                Batas panjang respons AI (nilai + feedback).
+                                <span class="block mt-1">
+                                    Default <b>2000</b>. Untuk model reasoning (mis. Gemini), naikkan ke <b>3000–4096</b> agar feedback tidak terpotong.
+                                </span>
+                            </p>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Top P (0-1)</label>
                             <input type="number" step="0.1" min="0" max="1" name="top_p" x-model="form.top_p"
                                 class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <p class="mt-1 text-[10px] text-gray-500">Sampling alternatif; biasanya biarkan <b>1.0</b>.</p>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-gray-500 uppercase mb-2">Daily Limit</label>
                             <input type="number" min="0" name="daily_limit" x-model="form.daily_limit"
                                 placeholder="0 = unlimited"
                                 class="w-full rounded-lg border-gray-300 bg-white px-3 py-2 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
+                            <p class="mt-1 text-[10px] text-gray-500">Batas pemakaian harian. <b>0</b> = tanpa batas.</p>
+                        </div>
                         </div>
                     </div>
                 </div>

@@ -5,71 +5,100 @@ namespace App\Services;
 use App\Models\AiSetting;
 use Modules\MonevAkademik\app\Models\Question;
 use Modules\Ujian\Models\ExamAttemptAnswer;
-use Illuminate\Support\Facades\Log;
 
 class AiGradingService
 {
-    protected AiService $aiService;
-
-    public function __construct(AiService $aiService)
-    {
-        $this->aiService = $aiService;
-    }
+    public function __construct(
+        protected AiService $aiService,
+    ) {}
 
     /**
-     * Grade a single answer using AI.
+     * Koreksi satu jawaban — seluruh parameter model (max_tokens, temperature, dll.)
+     * diambil dari pengaturan AI aktif, tanpa override manual di kode.
      *
-     * @param ExamAttemptAnswer $answer
-     * @param AiSetting|null $setting
-     * @return array ['success' => bool, 'score' => float, 'feedback' => string, 'error' => string|null]
+     * @return array{success: bool, score: float, feedback: string, error: string|null}
      */
     public function gradeAnswer(ExamAttemptAnswer $answer, ?AiSetting $setting = null): array
     {
-        // Load question with relations
         $answer->load('question');
         $question = $answer->question;
 
         if (!$question) {
-            return [
-                'success' => false,
-                'score' => 0,
-                'feedback' => '',
-                'error' => 'Question not found.',
-            ];
+            return $this->fail('Soal tidak ditemukan.');
         }
 
-        // Build grading prompt
-        $prompt = $this->buildGradingPrompt($question, $answer->answer_text);
+        return $this->gradeQuestionText(
+            $question->question_text,
+            $answer->answer_text,
+            $question->key_answer ?? null,
+            $setting,
+        );
+    }
 
-        // Send to AI
+    /**
+     * @return array{success: bool, score: float, feedback: string, error: string|null}
+     */
+    public function gradeQuestionText(
+        string $questionText,
+        ?string $answerText,
+        ?string $keyAnswer = null,
+        ?AiSetting $setting = null,
+    ): array {
+        $setting = $this->resolveSetting($setting);
+        if (!$setting) {
+            return $this->fail('Konfigurasi AI aktif tidak ditemukan.');
+        }
+
+        $prompt = $this->buildGradingPrompt($questionText, $answerText, $keyAnswer);
+
+        // Tanpa array $options — max_tokens, temperature, top_p, dll. dari AiSetting.
         $result = $this->aiService->sendPrompt($prompt, $setting);
 
         if (!$result['success']) {
-            return [
-                'success' => false,
-                'score' => 0,
-                'feedback' => '',
-                'error' => $result['error'],
-            ];
+            return $this->fail($result['error'] ?? 'Permintaan AI gagal.');
         }
 
-        // Parse AI response
-        $parsed = $this->parseGradingResponse($result['response'], $question);
+        $parsed = AiGradingResponseParser::parse($result['response']);
+        if (!$parsed['parsed']) {
+            return $this->fail('Gagal membaca nilai dari respons AI.');
+        }
 
         return [
             'success' => true,
-            'score' => $parsed['score'],
+            'score' => (float) $parsed['score'],
             'feedback' => $parsed['feedback'],
             'error' => null,
         ];
     }
 
+    public function buildGradingPrompt(string $questionText, ?string $answerText, ?string $keyAnswer = null): string
+    {
+        $question = $this->normalizeForGrading(strip_tags($questionText));
+        $answer = $this->normalizeForGrading(trim((string) $answerText));
+        $answer = $answer !== '' ? $answer : '(Tidak dijawab)';
+
+        $prompt = "Anda adalah dosen pengoreksi ujian essay. Nilai jawaban mahasiswa secara objektif.\n\n";
+        $prompt .= "SOAL:\n{$question}\n\n";
+
+        if (!empty($keyAnswer)) {
+            $prompt .= "KUNCI JAWABAN (referensi):\n" . $this->normalizeForGrading(strip_tags($keyAnswer)) . "\n\n";
+        }
+
+        $prompt .= "JAWABAN MAHASISWA:\n{$answer}\n\n";
+        $prompt .= "INSTRUKSI:\n";
+        $prompt .= "- Beri nilai 0-100 berdasarkan ketepatan, kelengkapan, struktur, dan relevansi.\n";
+        $prompt .= "- FEEDBACK wajib Bahasa Indonesia formal yang jelas dan mudah dibaca.\n";
+        $prompt .= "- FEEDBACK 2-3 kalimat utuh. Tanpa LaTeX, tanpa simbol rumus, tanpa kata acak.\n";
+        $prompt .= "- Jangan ulang atau mengutip jawaban mahasiswa di FEEDBACK.\n";
+        $prompt .= "- Hanya keluarkan tepat 2 baris berikut, tanpa teks lain:\n\n";
+        $prompt .= "NILAI: [angka 0-100]\n";
+        $prompt .= "FEEDBACK: [kalimat penilaian]";
+
+        return $prompt;
+    }
+
     /**
      * Grade multiple answers in batch.
-     *
-     * @param array $answers Array of ExamAttemptAnswer
-     * @param AiSetting|null $setting
-     * @return array
      */
     public function gradeAnswersBatch(array $answers, ?AiSetting $setting = null): array
     {
@@ -83,85 +112,13 @@ class AiGradingService
     }
 
     /**
-     * Build grading prompt for AI.
-     */
-    private function buildGradingPrompt(Question $question, string $studentAnswer): string
-    {
-        $prompt = "Anda adalah seorang dosen yang sedang mengoreksi jawaban ujian mahasiswa.\n\n";
-        $prompt .= "**SOAL:**\n";
-        $prompt .= strip_tags($question->question_text) . "\n\n";
-
-        // Add key answer if available
-        if (!empty($question->key_answer)) {
-            $prompt .= "**KUNCI JAWABAN:**\n";
-            $prompt .= strip_tags($question->key_answer) . "\n\n";
-        }
-
-        $prompt .= "**JAWABAN MAHASISWA:**\n";
-        $prompt .= $studentAnswer . "\n\n";
-
-        $prompt .= "**INSTRUKSI PENILAIAN:**\n";
-        $prompt .= "1. Baca dan pahami soal, kunci jawaban, dan jawaban mahasiswa.\n";
-        $prompt .= "2. Evaluasi jawaban mahasiswa berdasarkan:\n";
-        $prompt .= "   - Ketepatan konsep dan pemahaman materi\n";
-        $prompt .= "   - Kelengkapan jawaban\n";
-        $prompt .= "   - Struktur dan kejelasan penjelasan\n";
-        $prompt .= "   - Relevansi dengan pertanyaan\n";
-        $prompt .= "3. Berikan nilai dalam skala 0-100.\n";
-        $prompt .= "4. Berikan feedback konstruktif untuk mahasiswa.\n\n";
-
-        $prompt .= "**FORMAT RESPONS:**\n";
-        $prompt .= "NILAI: [angka 0-100]\n";
-        $prompt .= "FEEDBACK: [feedback untuk mahasiswa]\n\n";
-
-        $prompt .= "Berikan penilaian yang objektif dan adil.";
-
-        return $prompt;
-    }
-
-    /**
-     * Parse AI grading response.
-     */
-    private function parseGradingResponse(string $response, Question $question): array
-    {
-        $score = 0;
-        $feedback = '';
-
-        // Try to extract score
-        if (preg_match('/NILAI\s*:\s*(\d+(?:\.\d+)?)/i', $response, $matches)) {
-            $score = (float) $matches[1];
-            // Ensure score is within 0-100
-            $score = max(0, min(100, $score));
-        }
-
-        // Try to extract feedback
-        if (preg_match('/FEEDBACK\s*:\s*(.+?)(?=\n\n|$)/is', $response, $matches)) {
-            $feedback = trim($matches[1]);
-        }
-
-        // If parsing failed, use the whole response as feedback
-        if (empty($feedback)) {
-            $feedback = $response;
-        }
-
-        return [
-            'score' => $score,
-            'feedback' => $feedback,
-        ];
-    }
-
-    /**
      * Grade all answers for an exam attempt.
-     *
-     * @param int $attemptId
-     * @param AiSetting|null $setting
-     * @return array ['success' => bool, 'graded_count' => int, 'total_score' => float, 'errors' => array]
      */
     public function gradeExamAttempt(int $attemptId, ?AiSetting $setting = null): array
     {
         $answers = ExamAttemptAnswer::where('attempt_id', $attemptId)
             ->where('is_answered', true)
-            ->whereNull('score') // Only grade ungraded answers
+            ->whereNull('score')
             ->get();
 
         if ($answers->isEmpty()) {
@@ -181,7 +138,6 @@ class AiGradingService
             $result = $this->gradeAnswer($answer, $setting);
 
             if ($result['success']) {
-                // Update answer with score and feedback
                 $answer->update([
                     'score' => $result['score'],
                     'grader_note' => $result['feedback'],
@@ -198,11 +154,8 @@ class AiGradingService
             }
         }
 
-        // Calculate average score for the attempt
         if ($gradedCount > 0) {
             $averageScore = $totalScore / $gradedCount;
-
-            // Update attempt score
             $attempt = \Modules\Ujian\Models\ExamAttempt::find($attemptId);
             if ($attempt) {
                 $attempt->update(['score' => $averageScore]);
@@ -218,17 +171,11 @@ class AiGradingService
         ];
     }
 
-    /**
-     * Re-grade a single answer (for manual correction).
-     */
     public function regradeAnswer(ExamAttemptAnswer $answer, ?AiSetting $setting = null): array
     {
         return $this->gradeAnswer($answer, $setting);
     }
 
-    /**
-     * Get grading statistics for an attempt.
-     */
     public function getGradingStats(int $attemptId): array
     {
         $answers = ExamAttemptAnswer::where('attempt_id', $attemptId)->get();
@@ -244,6 +191,37 @@ class AiGradingService
             'ungraded' => $ungraded,
             'average_score' => round($avgScore, 2),
             'completion_percentage' => $total > 0 ? round(($graded / $total) * 100, 2) : 0,
+        ];
+    }
+
+    private function resolveSetting(?AiSetting $setting): ?AiSetting
+    {
+        if ($setting && $setting->is_active) {
+            return $setting;
+        }
+
+        return AiSetting::getActiveDefault();
+    }
+
+    private function normalizeForGrading(string $text): string
+    {
+        $text = preg_replace('/\$\$([^$]+)\$\$/', '$1', $text) ?? $text;
+        $text = preg_replace('/\$([^$]+)\$/', '$1', $text) ?? $text;
+        $text = preg_replace('/\s+/', ' ', $text) ?? $text;
+
+        return trim($text);
+    }
+
+    /**
+     * @return array{success: bool, score: float, feedback: string, error: string|null}
+     */
+    private function fail(string $error): array
+    {
+        return [
+            'success' => false,
+            'score' => 0,
+            'feedback' => '',
+            'error' => $error,
         ];
     }
 }

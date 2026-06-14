@@ -99,6 +99,20 @@ class AiService
     /**
      * Send prompt to OpenAI API.
      */
+    /**
+     * Backward-compatible helper used by legacy grading code paths.
+     */
+    public function sendMessage(string $prompt, ?AiSetting $setting = null, array $options = []): string
+    {
+        $result = $this->sendPrompt($prompt, $setting, $options);
+
+        if (!$result['success']) {
+            throw new \RuntimeException($result['error'] ?? 'AI request failed.');
+        }
+
+        return $result['response'];
+    }
+
     private function sendToOpenAI(string $prompt, AiSetting $setting, array $options): array
     {
         $response = Http::withHeaders([
@@ -112,6 +126,7 @@ class AiService
             'temperature' => $options['temperature'] ?? $setting->temperature,
             'max_tokens' => $options['max_tokens'] ?? $setting->max_tokens,
             'top_p' => $options['top_p'] ?? $setting->top_p,
+            'stream' => false,
         ]);
 
         if (!$response->successful()) {
@@ -124,9 +139,24 @@ class AiService
             ];
         }
 
-        $data = $response->json();
-        $content = $data['choices'][0]['message']['content'] ?? '';
-        $tokens = $data['usage']['total_tokens'] ?? 0;
+        ['content' => $content, 'tokens' => $tokens] = $this->extractOpenAIContent($response->body());
+
+        if ($content === '') {
+            Log::warning('AI response empty after parsing', [
+                'provider' => $setting->provider,
+                'model' => $setting->model,
+                'endpoint' => $setting->api_endpoint,
+            ]);
+
+            return [
+                'success' => false,
+                'response' => '',
+                'error' => 'AI mengembalikan respons kosong.',
+                'tokens' => $tokens,
+                'cost' => 0,
+            ];
+        }
+
         $cost = ($tokens / 1000) * $setting->cost_per_1k_tokens;
 
         return [
@@ -136,6 +166,51 @@ class AiService
             'tokens' => $tokens,
             'cost' => $cost,
         ];
+    }
+
+    /**
+     * @return array{content: string, tokens: int}
+     */
+    private function extractOpenAIContent(string $body): array
+    {
+        $data = json_decode($body, true);
+        if (is_array($data) && isset($data['choices'][0]['message']['content'])) {
+            return [
+                'content' => (string) $data['choices'][0]['message']['content'],
+                'tokens' => (int) ($data['usage']['total_tokens'] ?? 0),
+            ];
+        }
+
+        $content = '';
+        $tokens = 0;
+
+        foreach (preg_split('/\r?\n/', $body) as $line) {
+            $line = trim($line);
+            if (! str_starts_with($line, 'data:')) {
+                continue;
+            }
+
+            $payload = trim(substr($line, 5));
+            if ($payload === '' || $payload === '[DONE]') {
+                continue;
+            }
+
+            $chunk = json_decode($payload, true);
+            if (! is_array($chunk)) {
+                continue;
+            }
+
+            $delta = $chunk['choices'][0]['delta']['content'] ?? null;
+            if (is_string($delta) && $delta !== '') {
+                $content .= $delta;
+            }
+
+            if (isset($chunk['usage']['total_tokens'])) {
+                $tokens = (int) $chunk['usage']['total_tokens'];
+            }
+        }
+
+        return ['content' => $content, 'tokens' => $tokens];
     }
 
     /**

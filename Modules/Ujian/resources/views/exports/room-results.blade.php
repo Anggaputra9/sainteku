@@ -1,235 +1,286 @@
+@php
+    $tz = 'Asia/Jakarta';
+    $formatWib = static function ($dateTime, string $pattern = 'd F Y H:i') use ($tz): string {
+        if (! $dateTime) {
+            return '-';
+        }
+
+        return $dateTime->copy()->timezone($tz)->locale('id')->translatedFormat($pattern) . ' WIB';
+    };
+    $formatWibShort = static fn ($dateTime) => $formatWib($dateTime, 'd F Y H:i');
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hasil Ujian - {{ $room->title }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @page {
+            size: A4 portrait;
+            margin-top: 4cm;
+            margin-right: 3cm;
+            margin-bottom: 3cm;
+            margin-left: 4cm;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            font-size: 10pt;
-            line-height: 1.4;
-            color: #333;
-            padding: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.45;
+            color: #111;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #333;
+        .kop-surat {
+            width: 100%;
+            border-bottom: 3px solid #111;
+            margin-bottom: 2px;
+        }
+        .kop-inner {
+            border-bottom: 1px solid #111;
+            display: table;
+            width: 100%;
             padding-bottom: 10px;
         }
-        .header h1 {
-            font-size: 16pt;
-            margin-bottom: 5px;
-            color: #1a1a1a;
+        .logo {
+            display: table-cell;
+            width: 100px;
+            vertical-align: middle;
         }
-        .header h2 {
-            font-size: 14pt;
-            margin-bottom: 3px;
-            color: #444;
+        .logo img {
+            width: 90px;
+            height: auto;
         }
-        .header p {
-            font-size: 9pt;
-            color: #666;
-        }
-        .info-section {
-            margin-bottom: 15px;
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .info-row {
-            display: flex;
-            margin-bottom: 5px;
-        }
-        .info-label {
-            font-weight: bold;
-            width: 150px;
-        }
-        .info-value {
-            flex: 1;
-        }
-        .stats-box {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-            padding: 10px;
-            background: #e8f4f8;
-            border-radius: 5px;
-        }
-        .stat-item {
+        .text-kop {
+            display: table-cell;
             text-align: center;
+            vertical-align: middle;
         }
-        .stat-label {
-            font-size: 8pt;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-        .stat-value {
-            font-size: 14pt;
+        .text-kop .line-main {
+            font-size: 12pt;
             font-weight: bold;
-            color: #1a73e8;
+            text-transform: uppercase;
+            line-height: 1.35;
         }
-        table {
+        .text-kop .line-sub {
+            font-size: 10pt;
+            line-height: 1.35;
+        }
+        .doc-header {
+            text-align: center;
+            margin: 18px 0 16px;
+        }
+        .doc-header .title {
+            font-size: 13pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+        }
+        .doc-header .subtitle {
+            margin-top: 6px;
+            font-size: 11pt;
+        }
+        .doc-header .meta {
+            margin-top: 4px;
+            font-size: 10pt;
+            color: #333;
+        }
+        .section-title {
+            font-size: 10.5pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 14px 0 8px;
+            letter-spacing: 0.3px;
+        }
+        .info-table,
+        .summary-table,
+        .result-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
         }
-        thead {
-            background: #1a73e8;
-            color: white;
+        .info-table td {
+            padding: 4px 0;
+            vertical-align: top;
+            font-size: 10.5pt;
         }
-        th {
-            padding: 8px 5px;
-            text-align: left;
-            font-size: 9pt;
+        .info-table .label {
+            width: 145px;
             font-weight: bold;
         }
-        td {
-            padding: 6px 5px;
-            border-bottom: 1px solid #ddd;
-            font-size: 9pt;
+        .info-table .sep {
+            width: 12px;
         }
-        tbody tr:nth-child(even) {
-            background: #f9f9f9;
+        .summary-table {
+            margin-top: 4px;
+            border: 1px solid #111;
         }
-        tbody tr:hover {
-            background: #f0f0f0;
-        }
-        .text-center {
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid #111;
+            padding: 7px 10px;
             text-align: center;
+            font-size: 10.5pt;
         }
-        .text-right {
-            text-align: right;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 7pt;
+        .summary-table th {
             font-weight: bold;
             text-transform: uppercase;
+            background: #f2f2f2;
         }
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
+        .summary-table td.value {
+            font-size: 12pt;
+            font-weight: bold;
         }
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
+        .result-table {
+            margin-top: 6px;
+            border: 1px solid #111;
         }
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
+        .result-table th,
+        .result-table td {
+            border: 1px solid #111;
+            padding: 5px 4px;
+            font-size: 8.5pt;
+            vertical-align: middle;
         }
-        .badge-secondary {
-            background: #e2e3e5;
-            color: #383d41;
-        }
-        .footer {
-            margin-top: 30px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-            font-size: 8pt;
-            color: #666;
+        .result-table th {
+            background: #f2f2f2;
+            font-weight: bold;
             text-align: center;
+            text-transform: uppercase;
+        }
+        .result-table td.center { text-align: center; }
+        .result-table td.right { text-align: right; }
+        .result-table tbody tr:nth-child(even) {
+            background: #fafafa;
         }
         .no-data {
+            margin-top: 20px;
+            padding: 18px;
+            border: 1px dashed #999;
             text-align: center;
-            padding: 30px;
-            color: #999;
             font-style: italic;
+            color: #555;
+        }
+        .doc-footer {
+            margin-top: 28px;
+            padding-top: 10px;
+            border-top: 1px solid #999;
+            font-size: 9pt;
+            color: #444;
+        }
+        .doc-footer p + p {
+            margin-top: 3px;
+        }
+        .signature-block {
+            margin-top: 36px;
+            width: 240px;
+            margin-left: auto;
+            text-align: center;
+            font-size: 10pt;
+        }
+        .signature-block .place-date {
+            margin-bottom: 52px;
+        }
+        .signature-block .name {
+            font-weight: bold;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>LAPORAN HASIL UJIAN</h1>
-        <h2>{{ $room->title }}</h2>
-        <p>Kode Ruang: {{ $room->room_code }}</p>
-    </div>
-
-    <div class="info-section">
-        <div class="info-row">
-            <div class="info-label">Mata Kuliah:</div>
-            <div class="info-value">{{ $room->proposal->course->name ?? '-' }}</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Waktu Ujian:</div>
-            <div class="info-value">{{ $room->start_at->format('d M Y H:i') }} - {{ $room->end_at->format('d M Y H:i') }} WIB</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Durasi:</div>
-            <div class="info-value">{{ $room->duration_minutes }} menit</div>
-        </div>
-        <div class="info-row">
-            <div class="info-label">Jumlah Soal:</div>
-            <div class="info-value">{{ $room->proposal->examQuestions->count() }} soal</div>
+    <div class="kop-surat">
+        <div class="kop-inner">
+            <div class="logo">
+                @if(!empty($logoBase64))
+                    <img src="{{ $logoBase64 }}" width="90" height="90" alt="Logo UIN Saizu">
+                @endif
+            </div>
+            <div class="text-kop">
+                <div class="line-main">KEMENTRIAN AGAMA REPUBLIK INDONESIA</div>
+                <div class="line-main">UNIVERSITAS ISLAM NEGERI</div>
+                <div class="line-main">PROFESOR KIAI HAJI SAIFUDDIN ZUHRI</div>
+                <div class="line-sub">Jalan MT. Haryono, Karangsentul, Kec. Padamara, Kab. Purbalingga, Jawa Tengah 53372</div>
+                <div class="line-sub">Telepon (0281) 635624 Faksimili (0281) 636553</div>
+                <div class="line-sub">www.uinsaizu.ac.id</div>
+            </div>
         </div>
     </div>
 
-    <div class="stats-box">
-        <div class="stat-item">
-            <div class="stat-label">Total Peserta</div>
-            <div class="stat-value">{{ $totalAttempts }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Sudah Dikoreksi</div>
-            <div class="stat-value">{{ $gradedAttempts }}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Rata-rata Nilai</div>
-            <div class="stat-value">{{ $avgScore }}</div>
-        </div>
+    <div class="doc-header">
+        <div class="title">Laporan Hasil Ujian</div>
+        <div class="subtitle">{{ $room->title }}</div>
+        <div class="meta">Kode Ruang: {{ $room->room_code }} &mdash; Dicetak: {{ $exportDate }}</div>
     </div>
 
+    <div class="section-title">I. Informasi Ujian</div>
+    <table class="info-table">
+        <tr>
+            <td class="label">Mata Kuliah</td>
+            <td class="sep">:</td>
+            <td>{{ $room->proposal?->course?->course_name ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="label">Waktu Pelaksanaan</td>
+            <td class="sep">:</td>
+            <td>{{ $formatWib($room->start_at) }} s.d. {{ $formatWib($room->end_at) }}</td>
+        </tr>
+        <tr>
+            <td class="label">Durasi</td>
+            <td class="sep">:</td>
+            <td>{{ $room->duration_minutes }} menit</td>
+        </tr>
+        <tr>
+            <td class="label">Jumlah Soal</td>
+            <td class="sep">:</td>
+            <td>{{ $totalQuestions }} soal</td>
+        </tr>
+    </table>
+
+    <div class="section-title">II. Ringkasan Hasil</div>
+    <table class="summary-table">
+        <thead>
+            <tr>
+                <th>Total Peserta</th>
+                <th>Sudah Dikoreksi</th>
+                <th>Rata-rata Nilai</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="value">{{ $totalAttempts }}</td>
+                <td class="value">{{ $gradedAttempts }}</td>
+                <td class="value">{{ number_format($avgScore, 1, ',', '.') }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="section-title">III. Daftar Peserta</div>
     @if($attempts->count() > 0)
-        <table>
+        <table class="result-table">
             <thead>
                 <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 15%;">NIM</th>
-                    <th style="width: 25%;">Nama</th>
-                    <th style="width: 15%;" class="text-center">Waktu Submit</th>
-                    <th style="width: 12%;" class="text-center">Status</th>
-                    <th style="width: 10%;" class="text-center">Pelanggaran</th>
-                    <th style="width: 10%;" class="text-center">Dijawab</th>
-                    <th style="width: 8%;" class="text-right">Nilai</th>
+                    <th style="width: 4%;">No</th>
+                    <th style="width: 12%;">NIM</th>
+                    <th style="width: 22%;">Nama Mahasiswa</th>
+                    <th style="width: 18%;">Waktu Submit</th>
+                    <th style="width: 14%;">Status</th>
+                    <th style="width: 8%;">Pelanggaran</th>
+                    <th style="width: 8%;">Dijawab</th>
+                    <th style="width: 8%;">Nilai</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($attempts as $index => $attempt)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ $attempt->user->identity_id }}</td>
-                        <td>{{ $attempt->user->name }}</td>
-                        <td class="text-center">{{ $attempt->submitted_at?->format('d/m/Y H:i') }}</td>
-                        <td class="text-center">
-                            @php
-                                $badgeClass = match($attempt->status) {
-                                    'SUBMITTED' => 'badge-success',
-                                    'AUTO_SUBMITTED_TIME' => 'badge-warning',
-                                    'AUTO_SUBMITTED_VIOLATION' => 'badge-danger',
-                                    default => 'badge-secondary',
-                                };
-                            @endphp
-                            <span class="badge {{ $badgeClass }}">
-                                {{ str_replace('_', ' ', $attempt->status) }}
-                            </span>
-                        </td>
-                        <td class="text-center">{{ $attempt->tab_switch_count }}x</td>
-                        <td class="text-center">{{ $attempt->answers->where('is_answered', true)->count() }}/{{ $room->proposal->examQuestions->count() }}</td>
-                        <td class="text-right">
+                        <td class="center">{{ $index + 1 }}</td>
+                        <td>{{ $attempt->user->identity_id ?? '-' }}</td>
+                        <td>{{ $attempt->user->name ?? '-' }}</td>
+                        <td class="center">{{ $formatWibShort($attempt->submitted_at) }}</td>
+                        <td class="center">{{ $attempt->statusLabel() }}</td>
+                        <td class="center">{{ $attempt->tab_switch_count }} kali</td>
+                        <td class="center">{{ $attempt->answered_count }}/{{ $totalQuestions }}</td>
+                        <td class="right">
                             @if($attempt->score !== null)
-                                <strong>{{ number_format($attempt->score, 2) }}</strong>
+                                {{ number_format($attempt->score, 1, ',', '.') }}
                             @else
-                                <span style="color: #999;">-</span>
+                                -
                             @endif
                         </td>
                     </tr>
@@ -237,14 +288,20 @@
             </tbody>
         </table>
     @else
-        <div class="no-data">
-            Belum ada peserta yang menyelesaikan ujian.
-        </div>
+        <div class="no-data">Belum ada peserta yang menyelesaikan ujian.</div>
     @endif
 
-    <div class="footer">
-        <p>Dicetak oleh: {{ $exportBy }} | Tanggal: {{ $exportDate }}</p>
-        <p>Dokumen ini dibuat secara otomatis oleh sistem.</p>
+    <div class="signature-block">
+        <div class="place-date">
+            Purbalingga, {{ now()->timezone('Asia/Jakarta')->locale('id')->translatedFormat('d F Y') }}
+        </div>
+        <div>Penanggung Jawab,</div>
+        <div class="name">{{ $exportBy }}</div>
+    </div>
+
+    <div class="doc-footer">
+        <p>Dokumen ini dihasilkan secara otomatis oleh sistem ujian Sainteku.</p>
+        <p>Dicetak oleh: {{ $exportBy }} pada {{ $exportDate }}</p>
     </div>
 </body>
 </html>

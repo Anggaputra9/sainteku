@@ -61,10 +61,16 @@
                     <div>
                         <dt class="text-xs text-gray-500 uppercase font-semibold">Temperature</dt>
                         <dd class="mt-1 text-gray-900 dark:text-white font-medium" x-text="detail.temperature"></dd>
+                        <dd class="mt-1 text-[10px] text-gray-500 leading-relaxed">
+                            0.3–0.7 disarankan untuk koreksi ujian. Nilai tinggi (&ge;1) membuat feedback acak.
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-xs text-gray-500 uppercase font-semibold">Max Tokens</dt>
                         <dd class="mt-1 text-gray-900 dark:text-white font-medium" x-text="detail.max_tokens"></dd>
+                        <dd class="mt-1 text-[10px] text-gray-500 leading-relaxed">
+                            Dipakai otomatis koreksi AI. Model reasoning butuh &ge;3000 agar feedback lengkap.
+                        </dd>
                     </div>
                     <div>
                         <dt class="text-xs text-gray-500 uppercase font-semibold">Top P</dt>
@@ -95,8 +101,8 @@
                         </dd>
                     </div>
                     <div>
-                        <dt class="text-xs text-gray-500 uppercase font-semibold">Last Used</dt>
-                        <dd class="mt-1 text-gray-900 dark:text-white font-medium text-xs" x-text="detail.last_used_at || '—'"></dd>
+                        <dt class="text-xs text-gray-500 uppercase font-semibold">Terakhir Dipakai</dt>
+                        <dd class="mt-1 text-gray-900 dark:text-white font-medium" x-text="detail.last_used_at_label || '—'"></dd>
                     </div>
                 </dl>
             </div>

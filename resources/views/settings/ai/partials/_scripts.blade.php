@@ -86,10 +86,27 @@
                 }
             },
 
+            formatDateTime(value) {
+                if (!value) return '—';
+
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return '—';
+
+                return new Intl.DateTimeFormat('id-ID', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZone: 'Asia/Jakarta',
+                }).format(date) + ' WIB';
+            },
+
             openDetailModal(row) {
                 this.detail = {
                     ...row,
-                    provider_label: this.providers[row.provider]?.label || row.provider
+                    provider_label: this.providers[row.provider]?.label || row.provider,
+                    last_used_at_label: this.formatDateTime(row.last_used_at),
                 };
                 this.openDetail = true;
             },

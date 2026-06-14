@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="space-y-6" x-data="coursesApp()" x-init="initData()" x-cloak>
+    <div class="space-y-6" x-data="coursesApp()" x-init="initData()"
+        @courses-bulk-imported.window="handleBulkImported($event)" x-cloak>
 
         {{-- HEADER --}}
         <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
@@ -356,6 +357,15 @@
                     this.statusFilter = '';
                     this.prodiOptions = [];
                     this.fetchCourses(1);
+                },
+
+                handleBulkImported(event) {
+                    const result = event.detail || {};
+                    const type = result.success_count > 0 ? 'success' : 'error';
+                    this.flash(type, result.message || 'Import bulk selesai.');
+                    if (result.success_count > 0) {
+                        this.fetchCourses();
+                    }
                 },
 
                 openDetail(course) {
