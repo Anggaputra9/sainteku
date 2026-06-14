@@ -65,13 +65,13 @@
                                     class="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50 transition shadow-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600">
                                     <i class="fa-solid fa-eye text-blue-500"></i> Detail
                                 </button>
-                                <form action="{{ route('settings.ai.test', $row->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit"
-                                        class="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 border border-green-200 hover:bg-green-100 transition shadow-sm dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
-                                        <i class="fa-solid fa-plug"></i> Test
-                                    </button>
-                                </form>
+                                <button type="button"
+                                    @click="submitTest({{ $row->id }}, @js($row->name))"
+                                    :disabled="isTesting({{ $row->id }})"
+                                    class="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 border border-green-200 hover:bg-green-100 transition shadow-sm disabled:cursor-not-allowed disabled:opacity-60 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                                    <i class="fa-solid" :class="isTesting({{ $row->id }}) ? 'fa-circle-notch fa-spin' : 'fa-plug'"></i>
+                                    <span x-text="isTesting({{ $row->id }}) ? 'Testing...' : 'Test'"></span>
+                                </button>
                             </div>
                         </td>
                     </tr>

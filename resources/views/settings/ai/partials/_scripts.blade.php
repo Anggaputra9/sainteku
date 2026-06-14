@@ -26,9 +26,60 @@
             },
             detail: {},
             editId: null,
+            testingId: null,
+            testingLabel: '',
+            testFeedback: null,
 
             init() {
                 // Initialization if needed
+            },
+
+            async submitTest(id, label = 'Konfigurasi AI') {
+                if (this.testingId) {
+                    return;
+                }
+
+                this.testingId = id;
+                this.testingLabel = label;
+                this.testFeedback = null;
+
+                try {
+                    const response = await fetch(`{{ url('settings/ai') }}/${id}/test`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({}),
+                    });
+
+                    const data = await response.json().catch(() => ({}));
+                    const message = data.message || (response.ok
+                        ? 'Test koneksi berhasil.'
+                        : 'Test koneksi gagal. Silakan coba lagi.');
+
+                    this.testFeedback = {
+                        type: response.ok && data.success ? 'success' : 'error',
+                        message,
+                    };
+                } catch (error) {
+                    this.testFeedback = {
+                        type: 'error',
+                        message: 'Test koneksi gagal: ' + (error.message || 'Terjadi kesalahan jaringan.'),
+                    };
+                } finally {
+                    this.testingId = null;
+                    this.testingLabel = '';
+                    this.$nextTick(() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                }
+            },
+
+            isTesting(id) {
+                return this.testingId === id;
             },
 
             get formAction() {

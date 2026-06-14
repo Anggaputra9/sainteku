@@ -126,12 +126,38 @@ class AiSettingController extends Controller
                 if ($result['cost'] > 0) {
                     $message .= " | Cost: $" . number_format($result['cost'], 4);
                 }
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => $message,
+                    ]);
+                }
+
                 return back()->with('success', $message);
-            } else {
-                return back()->with('error', 'Test koneksi gagal: ' . $result['error']);
             }
+
+            $errorMessage = 'Test koneksi gagal: ' . $result['error'];
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ], 422);
+            }
+
+            return back()->with('error', $errorMessage);
         } catch (\Exception $e) {
-            return back()->with('error', 'Test koneksi gagal: ' . $e->getMessage());
+            $errorMessage = 'Test koneksi gagal: ' . $e->getMessage();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ], 500);
+            }
+
+            return back()->with('error', $errorMessage);
         }
     }
 
