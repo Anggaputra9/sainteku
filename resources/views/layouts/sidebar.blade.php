@@ -1,3 +1,41 @@
+@php
+    $flyoutMenusData = [];
+    foreach (($sidebarMenus ?? collect()) as $i => $menu) {
+        if ($menu->children->count() === 0) {
+            continue;
+        }
+
+        $children = [];
+        foreach ($menu->children as $child) {
+            $childActive = $child->menu_link && (Route::is($child->menu_link) || Route::is($child->menu_link . '*'));
+
+            if (!$childActive && request()->is('ujian/rooms*')) {
+                if (($child->menu_link && str_contains($child->menu_link, 'ujian')) ||
+                    str_contains(strtolower($child->menu_name), 'ujian')) {
+                    $childActive = true;
+                }
+            }
+
+            $children[] = [
+                'name' => $child->menu_name,
+                'url' => $child->menu_link && $child->menu_link !== '#' && Route::has($child->menu_link)
+                    ? route($child->menu_link)
+                    : '#',
+                'active' => $childActive,
+            ];
+        }
+
+        $flyoutMenusData[$i] = [
+            'name' => $menu->menu_name,
+            'children' => $children,
+        ];
+    }
+@endphp
+
+<script>
+    window.__SIDEBAR_FLYOUT_MENUS = @json($flyoutMenusData);
+</script>
+
 <style>
     /* Sembunyiin scrollbar buat Chrome, Safari, Edge, Opera */
     .no-scrollbar::-webkit-scrollbar {
@@ -13,6 +51,79 @@
     /* Jurus Sakti Anti Nge-Glitch / Kedap-kedip pas reload */
     [x-cloak] {
         display: none !important;
+    }
+
+    /* Flyout submenu — animasi smooth ala web sekolah */
+    .sidebar-flyout-panel {
+        position: fixed !important;
+        z-index: 10000002 !important;
+        transform-origin: left center;
+        will-change: transform, opacity;
+        pointer-events: auto;
+    }
+
+    .sidebar-flyout-enter {
+        transition: opacity 280ms cubic-bezier(0.16, 1, 0.3, 1),
+            transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-flyout-enter-start {
+        opacity: 0;
+        transform: translateX(-10px) scale(0.95);
+    }
+
+    .sidebar-flyout-enter-end {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    .sidebar-flyout-leave {
+        transition: opacity 180ms cubic-bezier(0.4, 0, 1, 1),
+            transform 180ms cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    .sidebar-flyout-leave-start {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    .sidebar-flyout-leave-end {
+        opacity: 0;
+        transform: translateX(-6px) scale(0.97);
+    }
+
+    .sidebar-flyout-arrow {
+        position: absolute;
+        left: -6px;
+        top: 18px;
+        width: 12px;
+        height: 12px;
+        background: inherit;
+        border-left: 1px solid rgb(243 244 246);
+        border-bottom: 1px solid rgb(243 244 246);
+        transform: rotate(45deg);
+        border-bottom-left-radius: 2px;
+    }
+
+    .dark .sidebar-flyout-arrow {
+        border-left-color: rgb(55 65 81);
+        border-bottom-color: rgb(55 65 81);
+    }
+
+    @keyframes sidebarFlyoutItemIn {
+        from {
+            opacity: 0;
+            transform: translateX(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .sidebar-flyout-item {
+        animation: sidebarFlyoutItemIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 </style>
 
@@ -34,9 +145,11 @@
     x-data="{
         open: null,
         toggle(i) {
-            this.open = this.open === i ? null : i
+            this.open = this.open === i ? null : i;
         }
-    }" :class="{
+    }"
+    x-effect="if ($store.sidebar.isExpanded || $store.sidebar.isMobileOpen) $store.sidebar.hideFlyout()"
+    @resize.window="$store.sidebar.hideFlyout()" :class="{
         'w-[280px] px-4': $store.sidebar.isExpanded || $store.sidebar.isMobileOpen,
         'w-[84px] px-4': !$store.sidebar.isExpanded,
         'translate-x-0': $store.sidebar.isMobileOpen,
@@ -71,7 +184,7 @@
     </div>
 
     {{-- ================= NAVIGATION ================= --}}
-    <div class="flex flex-col overflow-y-auto no-scrollbar flex-1 pb-8">
+    <div class="flex flex-col overflow-y-auto no-scrollbar flex-1 pb-8" @scroll="$store.sidebar.hideFlyout()">
         <nav>
             <div class="flex flex-col gap-2">
 
@@ -114,13 +227,17 @@
                                 }
                             @endphp
 
-                            <li x-init="{{ $isActive && $hasChildren ? "if (open === null) open = $i;" : "" }}">
+                            <li class="relative"
+                                x-init="{{ $isActive && $hasChildren ? "if (open === null) open = $i;" : "" }}">
 
                                 {{-- ================= PARENT WITH CHILD ================= --}}
                                 @if($hasChildren)
-                                    <button @click="toggle({{ $i }})"
+                                    <button
+                                        @click="($store.sidebar.isExpanded || $store.sidebar.isMobileOpen) ? toggle({{ $i }}) : $store.sidebar.showFlyout({{ $i }}, $el)"
+                                        @mouseenter="$store.sidebar.showFlyout({{ $i }}, $el)"
+                                        @mouseleave="$store.sidebar.scheduleHideFlyout()"
                                         class="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 active:scale-[0.98] outline-none overflow-hidden"
-                                        :class="(open === {{ $i }} || {{ $isActive ? 'true' : 'false' }}) 
+                                        :class="(open === {{ $i }} || $store.sidebar.flyoutIndex === {{ $i }} || {{ $isActive ? 'true' : 'false' }}) 
                                                             ? 'bg-indigo-50/80 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400 font-semibold' 
                                                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-200 font-medium'">
 
@@ -203,4 +320,55 @@
             </div>
         </nav>
     </div>
+
+    {{-- FLYOUT SUBMENU: satu panel mengambang (desktop, sidebar minimize) --}}
+    <template x-teleport="#sidebar-flyout-root">
+    <div x-show="$store.sidebar.flyoutIndex !== null && !$store.sidebar.isExpanded && !$store.sidebar.isMobileOpen && window.innerWidth >= 1280"
+        x-transition:enter="sidebar-flyout-enter"
+        x-transition:enter-start="sidebar-flyout-enter-start"
+        x-transition:enter-end="sidebar-flyout-enter-end"
+        x-transition:leave="sidebar-flyout-leave"
+        x-transition:leave-start="sidebar-flyout-leave-start"
+        x-transition:leave-end="sidebar-flyout-leave-end"
+        :style="`top: ${$store.sidebar.flyoutTop}px; left: ${$store.sidebar.flyoutLeft}px`"
+        @mouseenter="$store.sidebar.keepFlyout()"
+        @mouseleave="$store.sidebar.scheduleHideFlyout()"
+        class="sidebar-flyout-panel min-w-[220px] max-w-[280px] rounded-xl border border-gray-100 bg-white shadow-[8px_8px_32px_rgba(0,0,0,0.15)] dark:border-gray-700 dark:bg-gray-900 py-2">
+
+        <div class="relative">
+            <span class="sidebar-flyout-arrow bg-white dark:bg-gray-900" aria-hidden="true"></span>
+
+        <template x-if="$store.sidebar.flyoutMenu">
+            <div :key="$store.sidebar.flyoutIndex"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0">
+
+                <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 truncate"
+                        x-text="$store.sidebar.flyoutMenu.name"></p>
+                </div>
+
+                <ul class="p-1.5 space-y-0.5">
+                    <template x-for="(child, idx) in $store.sidebar.flyoutMenu.children" :key="child.url + child.name">
+                        <li class="sidebar-flyout-item"
+                            :style="`animation-delay: ${80 + (idx * 40)}ms`">
+                            <a :href="child.url"
+                                @click="$store.sidebar.hideFlyout()"
+                                class="block px-3 py-2 text-[13px] rounded-lg transition-all duration-200 active:scale-[0.98] whitespace-nowrap truncate"
+                                :class="child.active
+                                    ? 'text-indigo-600 bg-indigo-50/50 font-semibold dark:text-indigo-400 dark:bg-indigo-500/10'
+                                    : 'text-gray-500 font-medium hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800/40'"
+                                x-text="child.name"></a>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+        </div>
+    </div>
+    </template>
 </aside>

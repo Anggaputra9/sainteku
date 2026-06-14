@@ -139,19 +139,31 @@ class AiService
             ];
         }
 
-        ['content' => $content, 'tokens' => $tokens] = $this->extractOpenAIContent($response->body());
+        $body = $response->body();
+        ['content' => $content, 'tokens' => $tokens] = $this->extractOpenAIContent($body);
 
         if ($content === '') {
+            $data = json_decode($body, true);
+            $reasoningTokens = (int) ($data['usage']['completion_tokens_details']['reasoning_tokens'] ?? 0);
+            $maxTokens = (int) ($options['max_tokens'] ?? $setting->max_tokens);
+
             Log::warning('AI response empty after parsing', [
                 'provider' => $setting->provider,
                 'model' => $setting->model,
                 'endpoint' => $setting->api_endpoint,
+                'reasoning_tokens' => $reasoningTokens,
+                'max_tokens' => $maxTokens,
             ]);
+
+            $error = 'AI mengembalikan respons kosong.';
+            if ($reasoningTokens > 0) {
+                $error = "AI mengembalikan respons kosong. Model reasoning memakai {$reasoningTokens} token untuk berpikir, sementara Max Tokens hanya {$maxTokens}. Naikkan ke minimal 500 (disarankan 3000+ untuk koreksi ujian).";
+            }
 
             return [
                 'success' => false,
                 'response' => '',
-                'error' => 'AI mengembalikan respons kosong.',
+                'error' => $error,
                 'tokens' => $tokens,
                 'cost' => 0,
             ];

@@ -114,7 +114,9 @@ class AiSettingController extends Controller
 
         try {
             $aiService = app(\App\Services\AiService::class);
-            $result = $aiService->sendPrompt($prompt, $aiSetting, ['max_tokens' => 50]);
+            // Model reasoning (Gemini, o-series) butuh budget token lebih besar untuk output.
+            $testMaxTokens = max(500, min(1000, (int) $aiSetting->max_tokens));
+            $result = $aiService->sendPrompt($prompt, $aiSetting, ['max_tokens' => $testMaxTokens]);
 
             if ($result['success']) {
                 $message = "Test koneksi berhasil! Provider: {$aiSetting->provider}, Model: {$aiSetting->model}";

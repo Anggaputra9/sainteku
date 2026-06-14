@@ -82,9 +82,49 @@
                 isExpanded: false,
                 isMobileOpen: false,
                 isHovered: false,
+                flyoutIndex: null,
+                flyoutTop: 0,
+                flyoutLeft: 0,
+                flyoutMenu: null,
+                flyoutHideTimeout: null,
+
+                isCollapsedDesktop() {
+                    return window.innerWidth >= 1280 && !this.isExpanded && !this.isMobileOpen;
+                },
+
+                showFlyout(index, el) {
+                    if (!this.isCollapsedDesktop()) return;
+                    const menus = window.__SIDEBAR_FLYOUT_MENUS || {};
+                    if (!menus[index]) return;
+
+                    clearTimeout(this.flyoutHideTimeout);
+                    const rect = el.getBoundingClientRect();
+                    const panelHeight = 280;
+                    const maxTop = Math.max(8, window.innerHeight - panelHeight - 16);
+                    this.flyoutTop = Math.min(Math.max(8, rect.top), maxTop);
+                    this.flyoutLeft = rect.right + 6;
+                    this.flyoutIndex = index;
+                    this.flyoutMenu = menus[index];
+                },
+
+                keepFlyout() {
+                    clearTimeout(this.flyoutHideTimeout);
+                },
+
+                scheduleHideFlyout() {
+                    clearTimeout(this.flyoutHideTimeout);
+                    this.flyoutHideTimeout = setTimeout(() => this.hideFlyout(), 280);
+                },
+
+                hideFlyout() {
+                    clearTimeout(this.flyoutHideTimeout);
+                    this.flyoutIndex = null;
+                    this.flyoutMenu = null;
+                },
 
                 toggleExpanded() {
                     this.isExpanded = !this.isExpanded;
+                    this.hideFlyout();
                     // Save state to localStorage (desktop only)
                     if (window.innerWidth >= 1280) {
                         localStorage.setItem('sidebarExpanded', this.isExpanded);
@@ -95,11 +135,13 @@
 
                 toggleMobileOpen() {
                     this.isMobileOpen = !this.isMobileOpen;
+                    this.hideFlyout();
                     // Don't modify isExpanded when toggling mobile menu
                 },
 
                 setMobileOpen(val) {
                     this.isMobileOpen = val;
+                    if (val) this.hideFlyout();
                 },
 
                 setHovered(val) {
@@ -199,6 +241,7 @@
         </div>
     </div>
 
+    <div id="sidebar-flyout-root" class="pointer-events-none fixed inset-0 z-[10000002]" aria-hidden="true"></div>
     <div id="modal-root"></div>
     @include('components.common.confirm-modal')
 </body>
