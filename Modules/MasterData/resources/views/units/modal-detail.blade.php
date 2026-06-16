@@ -123,10 +123,10 @@
                                 </button>
                             </div>
                         </div>
-                        <label x-show="!cplLoading && deletableCplCount > 0" x-cloak
+                        <label x-show="!cplLoading && deletableCplCount() > 0" x-cloak
                             class="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
                             <input type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-[#0f172a]"
-                                :checked="allDeletableCplSelected"
+                                :checked="allDeletableCplSelected()"
                                 @change="toggleSelectAllCpl($event.target.checked)">
                             Pilih semua yang dapat dihapus
                         </label>
@@ -310,60 +310,6 @@
             </div>
         </form>
     </div>
-
-    {{-- Modal konfirmasi hapus CPL --}}
-    <div x-show="cplDeleteModal.open" x-cloak
-        class="fixed inset-0 z-[10000001] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
-        x-transition:enter="transition ease-out duration-300" x-transition:opacity>
-        <div @click.away="closeCplDeleteModal()"
-            class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
-            <div class="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:bg-[#1e293b] dark:border-gray-700">
-                <div class="flex min-w-0 items-center gap-2 sm:gap-3">
-                    <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-red-100 bg-red-50 dark:border-red-800/50 dark:bg-red-900/30">
-                        <i class="fa-solid fa-triangle-exclamation text-sm text-red-600 dark:text-red-400 sm:text-base"></i>
-                    </div>
-                    <div class="min-w-0 leading-tight">
-                        <h3 class="truncate text-sm font-bold text-gray-900 dark:text-gray-100 sm:text-lg">Konfirmasi Hapus CPL</h3>
-                        <p class="truncate text-xs text-gray-500 dark:text-gray-400 sm:text-sm"
-                            x-text="cplDeleteModal.mode === 'bulk' ? (cplDeleteModal.items.length + ' CPL terpilih') : cplDeleteModal.items[0]?.id"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
-                <p class="text-sm text-gray-600 dark:text-gray-300" x-show="cplDeleteModal.mode === 'single'">
-                    Apakah Anda yakin ingin menghapus CPL
-                    <span class="font-bold font-mono text-gray-900 dark:text-white" x-text="cplDeleteModal.items[0]?.id"></span>?
-                    Tindakan ini tidak dapat dibatalkan.
-                </p>
-                <div x-show="cplDeleteModal.mode === 'bulk'" class="space-y-3">
-                    <p class="text-sm text-gray-600 dark:text-gray-300">
-                        Apakah Anda yakin ingin menghapus
-                        <span class="font-bold text-gray-900 dark:text-white" x-text="cplDeleteModal.items.length"></span>
-                        CPL terpilih? Tindakan ini tidak dapat dibatalkan.
-                    </p>
-                    <div class="max-h-32 overflow-y-auto rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-[#1e293b] custom-scrollbar">
-                        <template x-for="item in cplDeleteModal.items" :key="item.id">
-                            <div class="py-1 text-xs text-gray-600 dark:text-gray-300">
-                                <span class="font-bold font-mono text-teal-700 dark:text-teal-300" x-text="item.id"></span>
-                                <span x-show="item.name"> — <span x-text="item.name"></span></span>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                <div class="flex flex-row flex-nowrap items-center justify-end gap-2 pt-2">
-                    <button type="button" @click="closeCplDeleteModal()" :disabled="cplDeleteModal.deleting"
-                        class="inline-flex shrink-0 items-center justify-center rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 disabled:opacity-60 dark:bg-gray-700 dark:text-gray-200 sm:px-5 sm:py-2.5 sm:text-sm transition">
-                        Batal
-                    </button>
-                    <button type="button" @click="executeCplDelete()" :disabled="cplDeleteModal.deleting"
-                        class="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 disabled:opacity-60 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition">
-                        <i class="fas" :class="cplDeleteModal.deleting ? 'fa-circle-notch fa-spin' : 'fa-trash-alt'"></i>
-                        <span x-text="cplDeleteModal.deleting ? 'Menghapus...' : 'Hapus'"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 </template>
 
@@ -400,13 +346,13 @@
             cplFormMode: 'create',
             cplForm: { id: '', name: '', is_active: '1', update_url: '' },
             cplAlert: { type: '', message: '' },
-            cplDeleteModal: { open: false, mode: 'single', items: [], deleting: false },
+            cplDeleting: false,
 
-            get deletableCplCount() {
+            deletableCplCount() {
                 return this.cplList.filter(cpl => cpl.can_delete).length;
             },
 
-            get allDeletableCplSelected() {
+            allDeletableCplSelected() {
                 const ids = this.cplList.filter(cpl => cpl.can_delete).map(cpl => cpl.id);
                 return ids.length > 0 && ids.every(id => this.cplSelectedIds.includes(id));
             },
@@ -458,7 +404,6 @@
                 this.cplFormMode = 'create';
                 this.cplForm = { id: '', name: '', is_active: '1', update_url: '' };
                 this.cplAlert = { type: '', message: '' };
-                this.closeCplDeleteModal();
             },
 
             toggleSelectAllCpl(checked) {
@@ -535,21 +480,28 @@
                 }
             },
 
-            confirmDeleteCpl(cpl) {
+            async confirmDeleteCpl(cpl) {
                 if (!cpl.can_delete) {
                     this.flashCpl('error', 'CPL tidak dapat dihapus karena masih dipetakan ke CPMK.');
                     return;
                 }
 
-                this.cplDeleteModal = {
-                    open: true,
-                    mode: 'single',
-                    items: [{ id: cpl.id, name: cpl.name, delete_url: cpl.delete_url }],
-                    deleting: false,
-                };
+                const confirmed = await Alpine.store('confirm').ask({
+                    title: 'Konfirmasi Hapus CPL',
+                    subtitle: cpl.id,
+                    message: `Apakah Anda yakin ingin menghapus CPL ${cpl.id}? Tindakan ini tidak dapat dibatalkan.`,
+                    confirmLabel: 'Hapus',
+                    variant: 'danger',
+                });
+
+                if (!confirmed) {
+                    return;
+                }
+
+                await this.deleteSingleCpl(cpl.delete_url);
             },
 
-            confirmBulkDeleteCpl() {
+            async confirmBulkDeleteCpl() {
                 if (this.cplSelectedIds.length === 0) {
                     return;
                 }
@@ -563,53 +515,42 @@
                     return;
                 }
 
-                this.cplDeleteModal = {
-                    open: true,
-                    mode: 'bulk',
-                    items,
-                    deleting: false,
-                };
-            },
+                const listText = items
+                    .map(item => `${item.id}${item.name ? ' — ' + item.name : ''}`)
+                    .join('\n');
 
-            closeCplDeleteModal() {
-                this.cplDeleteModal = { open: false, mode: 'single', items: [], deleting: false };
-            },
+                const confirmed = await Alpine.store('confirm').ask({
+                    title: 'Konfirmasi Hapus CPL',
+                    subtitle: `${items.length} CPL terpilih`,
+                    message: `Apakah Anda yakin ingin menghapus ${items.length} CPL terpilih? Tindakan ini tidak dapat dibatalkan.\n\n${listText}`,
+                    confirmLabel: 'Hapus',
+                    variant: 'danger',
+                });
 
-            async executeCplDelete() {
-                if (this.cplDeleteModal.deleting || this.cplDeleteModal.items.length === 0) {
+                if (!confirmed) {
                     return;
                 }
 
-                this.cplDeleteModal.deleting = true;
+                await this.deleteBulkCpl(items.map(item => item.id));
+            },
+
+            async deleteSingleCpl(deleteUrl) {
+                if (this.cplDeleting) {
+                    return;
+                }
+
+                this.cplDeleting = true;
 
                 try {
-                    let response;
-                    let result;
+                    const response = await fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                    });
 
-                    if (this.cplDeleteModal.mode === 'bulk') {
-                        response = await fetch(this.unitData.cpl_bulk_destroy_url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            },
-                            body: JSON.stringify({
-                                ids: this.cplDeleteModal.items.map(item => item.id),
-                            }),
-                        });
-                    } else {
-                        const item = this.cplDeleteModal.items[0];
-                        response = await fetch(item.delete_url, {
-                            method: 'DELETE',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            },
-                        });
-                    }
-
-                    result = await response.json();
+                    const result = await response.json();
 
                     if (!response.ok) {
                         this.flashCpl('error', result.message || 'Gagal menghapus CPL.');
@@ -617,14 +558,49 @@
                     }
 
                     this.flashCpl('success', result.message || 'CPL berhasil dihapus.');
-                    this.closeCplDeleteModal();
                     this.cplSelectedIds = [];
                     await this.fetchCplList();
                 } catch (error) {
                     console.error('Gagal menghapus CPL', error);
                     this.flashCpl('error', 'Terjadi kesalahan saat menghapus CPL.');
                 } finally {
-                    this.cplDeleteModal.deleting = false;
+                    this.cplDeleting = false;
+                }
+            },
+
+            async deleteBulkCpl(ids) {
+                if (this.cplDeleting || !this.unitData.cpl_bulk_destroy_url) {
+                    return;
+                }
+
+                this.cplDeleting = true;
+
+                try {
+                    const response = await fetch(this.unitData.cpl_bulk_destroy_url, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({ ids }),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashCpl('error', result.message || 'Gagal menghapus CPL.');
+                        return;
+                    }
+
+                    this.flashCpl('success', result.message || 'CPL berhasil dihapus.');
+                    this.cplSelectedIds = [];
+                    await this.fetchCplList();
+                } catch (error) {
+                    console.error('Gagal menghapus CPL', error);
+                    this.flashCpl('error', 'Terjadi kesalahan saat menghapus CPL.');
+                } finally {
+                    this.cplDeleting = false;
                 }
             },
 
