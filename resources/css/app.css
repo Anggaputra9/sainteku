@@ -898,6 +898,122 @@ pre[class*='language-'] {
   z-index: 10000000 !important;
 }
 
+/* Unit detail modal — dark mode via html.dark (teleported #modal-root) */
+html:not(.dark) #modal-root .unit-detail-modal {
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+html.dark #modal-root .unit-detail-modal {
+  background-color: #0f172a !important;
+  border: 1px solid #374151 !important;
+  box-shadow: none;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__header {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .unit-detail-modal__header {
+  background-color: #1e293b !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__header h3 {
+  color: #111827;
+}
+
+html.dark #modal-root .unit-detail-modal__header h3 {
+  color: #f3f4f6;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__header p {
+  color: #6b7280;
+}
+
+html.dark #modal-root .unit-detail-modal__header p {
+  color: #9ca3af;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__scroll {
+  background-color: #f8fafc;
+}
+
+html.dark #modal-root .unit-detail-modal__scroll {
+  background-color: #0f172a !important;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__card {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .unit-detail-modal__card {
+  background-color: #1e293b !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__card-header {
+  border-color: #f3f4f6;
+}
+
+html.dark #modal-root .unit-detail-modal__card-header {
+  border-color: #374151;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__card-title {
+  color: #374151;
+}
+
+html.dark #modal-root .unit-detail-modal__card-title {
+  color: #e5e7eb;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__footer {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .unit-detail-modal__footer {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__btn-secondary {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+html.dark #modal-root .unit-detail-modal__btn-secondary {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+html:not(.dark) #modal-root .unit-detail-modal__btn-secondary:hover {
+  background-color: #d1d5db;
+}
+
+html.dark #modal-root .unit-detail-modal__btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+html.dark #modal-root .unit-detail-modal .text-gray-900,
+html.dark #modal-root .unit-detail-modal .font-medium.text-gray-900 {
+  color: #f3f4f6 !important;
+}
+
+html.dark #modal-root .unit-detail-modal .text-gray-600,
+html.dark #modal-root .unit-detail-modal .text-gray-700,
+html.dark #modal-root .unit-detail-modal .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+html.dark #modal-root .unit-detail-modal .text-gray-400 {
+  color: #6b7280 !important;
+}
+
 /* CPL Program Studi — dark mode (html.dark, works in teleported #modal-root) */
 html:not(.dark) #modal-root .cpl-section {
   background-color: #ffffff;

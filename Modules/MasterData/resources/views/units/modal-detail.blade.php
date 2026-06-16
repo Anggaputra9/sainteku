@@ -7,10 +7,10 @@
     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
     <div @click.away="openDetail = false"
-        class="relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
+        class="unit-detail-modal relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl transition-all overflow-hidden">
 
         {{-- HEADER --}}
-        <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
+        <div class="unit-detail-modal__header shrink-0 flex items-center justify-between border-b px-4 sm:px-8 py-3 sm:py-4 z-20 sticky top-0">
             <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
                 <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
                     <i class="fa-solid fa-building text-sm text-blue-600 dark:text-blue-400 sm:text-base"></i>
@@ -26,10 +26,10 @@
 
         {{-- MODE LIHAT --}}
         <div x-show="!editMode" class="flex flex-col flex-1 overflow-hidden">
-            <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
-                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+            <div class="unit-detail-modal__scroll flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 custom-scrollbar">
+                <div class="unit-detail-modal__card rounded-xl border">
+                    <div class="unit-detail-modal__card-header px-5 py-3 border-b">
+                        <h4 class="unit-detail-modal__card-title text-sm font-bold flex items-center gap-2">
                             <i class="fa-solid fa-building text-indigo-500"></i> Informasi Unit
                         </h4>
                     </div>
@@ -75,9 +75,9 @@
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <div class="unit-detail-modal__card rounded-xl border">
+                    <div class="unit-detail-modal__card-header px-5 py-3 border-b">
+                        <h4 class="unit-detail-modal__card-title text-sm font-bold flex items-center gap-2">
                             <i class="fa-solid fa-sitemap text-indigo-500"></i> Relasi & Penggunaan
                         </h4>
                     </div>
@@ -232,10 +232,10 @@
                 </div>
             </div>
 
-            <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
+            <div class="unit-detail-modal__footer shrink-0 border-t px-4 sm:px-6 py-4 z-20 sticky bottom-0 backdrop-blur">
                 <div class="flex flex-row flex-nowrap items-center justify-between gap-2 sm:gap-4">
                     <button type="button" @click="openDetail = false"
-                        class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        class="unit-detail-modal__btn-secondary inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                         <i class="fas fa-times"></i> Tutup
                     </button>
                     <div class="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -256,10 +256,10 @@
         <form x-show="editMode" :action="url" method="POST" class="flex flex-col flex-1 overflow-hidden m-0">
             @csrf
             @method('PUT')
-            <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
-                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+            <div class="unit-detail-modal__scroll flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 custom-scrollbar">
+                <div class="unit-detail-modal__card rounded-xl border">
+                    <div class="unit-detail-modal__card-header px-5 py-3 border-b">
+                        <h4 class="unit-detail-modal__card-title text-sm font-bold flex items-center gap-2">
                             <i class="fa-solid fa-building text-indigo-500"></i> Informasi Unit
                         </h4>
                     </div>
@@ -311,10 +311,10 @@
                     </div>
                 </div>
             </div>
-            <div class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 sticky bottom-0 backdrop-blur">
+            <div class="unit-detail-modal__footer shrink-0 border-t px-4 sm:px-6 py-4 z-20 sticky bottom-0 backdrop-blur">
                 <div class="flex flex-row flex-nowrap items-center justify-between gap-2">
                     <button type="button" @click="cancelEdit()"
-                        class="inline-flex items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                        class="unit-detail-modal__btn-secondary inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold sm:px-6 sm:py-2.5 sm:text-sm transition-all">
                         <i class="fas fa-times"></i> Batal
                     </button>
                     <button type="submit"
