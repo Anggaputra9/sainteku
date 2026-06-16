@@ -33,7 +33,10 @@ class TashihSoalSeeder extends Seeder
             'mst_user (Kaprodi U0003)' => DB::table('mst_user')->where('id', $kaprodiId)->exists(),
             'mst_course (INF002)'      => DB::table('mst_course')->where('id', $courseId)->exists(),
             'mst_period (id=1)'        => DB::table('mst_period')->where('id', $periodId)->exists(),
-            'mst_cpmk (CP-01..CP-04)'  => DB::table('mst_cpmk')->whereIn('id', ['CP-01', 'CP-02', 'CP-03', 'CP-04'])->count() === 4,
+            'mst_cpmk (CP-01..CP-04)'  => DB::table('mst_cpmk')
+                ->where('course_id', $courseId)
+                ->whereIn('id', ['CP-01', 'CP-02', 'CP-03', 'CP-04'])
+                ->count() === 4,
         ];
 
         foreach ($checks as $label => $ok) {

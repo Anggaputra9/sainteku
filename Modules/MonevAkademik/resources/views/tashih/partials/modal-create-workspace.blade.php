@@ -170,13 +170,32 @@
     let autoAddTimer = null;
     let autoRemoveTimer = null;
     let activePreviewImageId = null;
-    const cpmkDataList = @json($cpmkList);
+    let cpmkDataList = [];
 
-    function initCreateModal(cId, existingData = null) {
+    async function loadCpmkForCourse(courseId) {
+        try {
+            const response = await fetch(`{{ url('monev-akademik/tashih/api/cpmk') }}/${courseId}`, {
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (response.ok) {
+                cpmkDataList = await response.json();
+            } else {
+                cpmkDataList = [];
+            }
+        } catch (error) {
+            console.error('Gagal memuat CPMK', error);
+            cpmkDataList = [];
+        }
+    }
+
+    async function initCreateModal(cId, existingData = null) {
         activeCourseId = cId;
         storageKey = `draft_soal_${activeCourseId}`;
         clearTimeout(autoAddTimer);
         clearTimeout(autoRemoveTimer);
+
+        await loadCpmkForCourse(cId);
 
         const container = document.getElementById('questions-container');
         if (container) {
@@ -197,14 +216,16 @@
     function addQuestionCard(data = { text: '', weight: '', cpmk: [], image_path: '' }) {
         const uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
-        let checkboxesHtml = cpmkDataList.map(cpmk => `
+        let checkboxesHtml = cpmkDataList.length > 0
+            ? cpmkDataList.map(cpmk => `
             <label class="flex items-start gap-2.5 rounded-lg px-2 py-1.5 cursor-pointer transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <input type="checkbox" name="questions[${uniqueId}][cpmk_id][]" value="${cpmk.id}"
                     onchange="validateFormStates(); saveDraft()"
                     class="q-cpmk-checkbox mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 focus:ring-0 focus:ring-offset-0 dark:border-gray-600 dark:bg-gray-700">
                 <span class="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 leading-snug">${cpmk.id} — ${cpmk.name}</span>
             </label>
-        `).join('');
+        `).join('')
+            : `<p class="px-2 py-3 text-xs text-amber-700 dark:text-amber-300">Belum ada CPMK untuk mata kuliah ini. Hubungi admin untuk menambahkan CPMK di Master Data.</p>`;
 
         const html = `
             <div class="question-card rounded-xl border border-gray-200 bg-slate-50/50 overflow-hidden dark:border-gray-700 dark:bg-[#0f172a]/50" id="q-card-${uniqueId}">

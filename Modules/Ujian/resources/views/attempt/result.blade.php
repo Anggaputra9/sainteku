@@ -141,7 +141,7 @@
                 </div>
                 <div>
                     <div class="{{ $fieldLabel }}">Periode</div>
-                    <div class="{{ $fieldValue }}">{{ $proposal?->period?->name ?? '—' }}</div>
+                    <div class="{{ $fieldValue }}">{{ $proposal?->period?->display_label ?? '—' }}</div>
                 </div>
                 <div>
                     <div class="{{ $fieldLabel }}">Kode Ruang</div>

@@ -47,6 +47,7 @@ Route::middleware(['web', 'auth', 'role'])->prefix('monev-akademik')->name('mone
 
     // API untuk ditarik ke dalam Modal Create/Edit
     Route::get('/tashih/api/bank-soal/{course_id}', [BankSoalController::class, 'getApiQuestions'])->name('tashih.api.banksoal');
+    Route::get('/tashih/api/cpmk/{course_id}', [ExamProposalController::class, 'getCpmkForCourse'])->name('tashih.api.cpmk');
 
     // UBAH DUA BARIS INI (Hapus monevakademik.-nya)
     Route::get('/tashih/print/{uuid}', [ExamProposalController::class, 'print'])->name('tashih.print');

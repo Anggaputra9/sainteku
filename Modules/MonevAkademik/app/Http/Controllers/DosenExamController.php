@@ -26,7 +26,7 @@ class DosenExamController extends Controller
     public function create($course_id)
     {
         $course = \App\Models\MstCourse::findOrFail($course_id);
-        $cpmkList = \App\Models\MstCpmk::where('is_active', '1')->get();
+        $cpmkList = \App\Models\MstCpmk::forCourse($course_id, true)->get();
 
         return view('monevakademik::dosen.exam.create', compact('course', 'cpmkList'));
     }
@@ -38,9 +38,17 @@ class DosenExamController extends Controller
             'course_id' => 'required',
             'period_id' => 'required',
             'exam_type' => 'required|in:UTS,UAS',
-            'questions' => 'required|array', // Data soal dari local storage frontend
+            'questions' => 'required|array',
             'questions.*.weight' => 'required|numeric',
+            'questions.*.cpmk_id' => 'required|array',
         ]);
+
+        foreach ($request->questions as $question) {
+            $cpmkIds = $question['cpmk_id'] ?? [];
+            if (! \App\Models\MstCpmk::validateIdsForCourse($request->course_id, is_array($cpmkIds) ? $cpmkIds : [])) {
+                return back()->with('error', 'Salah satu CPMK tidak valid untuk mata kuliah ini.');
+            }
+        }
 
         // Validasi backend: pastikan total bobot wajib 100
         $totalWeight = collect($request->questions)->sum('weight');

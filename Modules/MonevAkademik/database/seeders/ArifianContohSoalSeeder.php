@@ -24,7 +24,7 @@ class ArifianContohSoalSeeder extends Seeder
         $examType = 'UAS';
 
         $this->seedPeriodIfMissing($periodId);
-        $this->seedCpmkIfMissing();
+        $this->seedCpmkIfMissing($courseId);
 
         if (! DB::table('mst_user')->where('id', $dosenId)->exists()) {
             $this->log("User dosen {$dosenId} tidak ditemukan.", 'error');
@@ -164,7 +164,7 @@ class ArifianContohSoalSeeder extends Seeder
         ]);
     }
 
-    private function seedCpmkIfMissing(): void
+    private function seedCpmkIfMissing(string $courseId): void
     {
         $cpmks = [
             ['id' => 'CP-01', 'name' => 'Memahami konsep dasar dan representasi citra digital'],
@@ -174,11 +174,12 @@ class ArifianContohSoalSeeder extends Seeder
         ];
 
         foreach ($cpmks as $cpmk) {
-            if (DB::table('mst_cpmk')->where('id', $cpmk['id'])->exists()) {
+            if (DB::table('mst_cpmk')->where('course_id', $courseId)->where('id', $cpmk['id'])->exists()) {
                 continue;
             }
 
             DB::table('mst_cpmk')->insert([
+                'course_id' => $courseId,
                 'id' => $cpmk['id'],
                 'name' => $cpmk['name'],
                 'is_active' => '1',

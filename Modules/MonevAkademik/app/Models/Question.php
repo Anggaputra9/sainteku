@@ -47,9 +47,10 @@ class Question extends Model
             return [];
         }
 
-        // Tarik semua data MstCpmk yang ID-nya ada di dalam array cpmk_id
-        return \App\Models\MstCpmk::whereIn('id', $this->cpmk_id)
-            ->select('id', 'name') // Sesuaikan 'name' dengan nama kolom di tabel mst_cpmk lu
+        return \App\Models\MstCpmk::query()
+            ->where('course_id', $this->course_id)
+            ->whereIn('id', $this->cpmk_id)
+            ->select('id', 'name')
             ->get();
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Period;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -96,7 +97,7 @@ class RoomController extends Controller
 
         $room->load([
             'proposal.course:id,course_name',
-            'proposal.period:id,name',
+            'proposal.period:id,name,semester',
             'proposal.examQuestions',
         ]);
 
@@ -812,7 +813,7 @@ class RoomController extends Controller
     {
         $query = ExamRoom::with([
                 'proposal.course:id,course_name',
-                'proposal.period:id,name',
+                'proposal.period:id,name,semester',
             ])
             ->withCount([
                 'attempts',
@@ -913,11 +914,14 @@ class RoomController extends Controller
             'fakultas.id as fakultas_id',
             'fakultas.unit_name as fakultas_name',
             'mst_period.name as period_name',
+            'mst_period.semester as period_semester',
         ];
     }
 
     private function formatProposalItem(object $p): array
     {
+        $periodLabel = Period::displayLabel($p->period_name ?? null, $p->period_semester ?? null);
+
         return [
             'id'            => $p->id,
             'exam_type'     => $p->exam_type,
@@ -927,13 +931,14 @@ class RoomController extends Controller
             'prodi_name'    => $p->prodi_name,
             'fakultas_id'   => $p->fakultas_id,
             'fakultas_name' => $p->fakultas_name,
-            'period_name'   => $p->period_name,
+            'period_name'   => $periodLabel,
+            'period_semester' => $p->period_semester ?? null,
             'label'         => trim(
                 ($p->course_name ?? 'Mata kuliah ?') . ' — ' . $p->exam_type
-                . ($p->period_name ? ' (' . $p->period_name . ')' : '')
+                . ($periodLabel ? ' (' . $periodLabel . ')' : '')
             ),
             'short_label'   => trim(
-                $p->exam_type . ($p->period_name ? ' (' . $p->period_name . ')' : '')
+                $p->exam_type . ($periodLabel ? ' (' . $periodLabel . ')' : '')
             ),
         ];
     }
