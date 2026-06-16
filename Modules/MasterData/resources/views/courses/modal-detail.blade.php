@@ -1,5 +1,5 @@
 <template x-teleport="#modal-root">
-<div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
+<div x-data="courseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpmk-deleted.window="handleCpmkDeleted($event)" @cpmk-delete-failed.window="handleCpmkDeleteFailed($event)"
     @confirm-modal-opened.window="confirmModalOpen = true"
     @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
@@ -457,22 +457,31 @@
                 }
             },
 
-            resolveCpmkBulkDestroyUrl() {
-                const fromList = this.cpmkList.find(cpmk => cpmk.bulk_destroy_url)?.bulk_destroy_url;
+            resolveCpmkBulkDestroyUrl(cpmk = null) {
+                if (cpmk?.bulk_destroy_url) {
+                    return cpmk.bulk_destroy_url;
+                }
+
+                const courseId = cpmk?.course_id || this.courseData?.id;
+                if (courseId) {
+                    return `/masterdata/courses/${courseId}/cpmk/bulk-delete`;
+                }
+
+                if (cpmk?.delete_url) {
+                    return cpmk.delete_url.replace(/\/[^/]+\/delete$/, '/bulk-delete');
+                }
+
+                const fromList = this.cpmkList.find(item => item.bulk_destroy_url)?.bulk_destroy_url;
                 if (fromList) {
                     return fromList;
                 }
 
-                if (this.courseData.cpmk_bulk_destroy_url) {
+                if (this.courseData?.cpmk_bulk_destroy_url) {
                     return this.courseData.cpmk_bulk_destroy_url;
                 }
 
-                if (this.courseData.cpmk_api_url) {
+                if (this.courseData?.cpmk_api_url) {
                     return this.courseData.cpmk_api_url.replace(/\/api\/data\/?$/, '/bulk-delete');
-                }
-
-                if (this.courseData.id) {
-                    return `/masterdata/courses/${this.courseData.id}/cpmk/bulk-delete`;
                 }
 
                 return '';
@@ -625,19 +634,16 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpmk('error', 'URL hapus CPMK tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
+                const courseId = cpmk.course_id || this.courseData?.id || '';
+                const bulkUrl = this.resolveCpmkBulkDestroyUrl(cpmk);
 
                 window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
-                        items: [{ id: cpmk.id, name: cpmk.name }],
+                        items: [{ id: cpmk.id, name: cpmk.name, course_id: courseId }],
                         bulkUrl,
+                        deleteUrl: cpmk.delete_url || '',
                     },
                 }));
             },
@@ -649,19 +655,18 @@
 
                 const items = this.cpmkList
                     .filter(cpmk => this.cpmkSelectedIds.includes(cpmk.id) && cpmk.can_delete)
-                    .map(cpmk => ({ id: cpmk.id, name: cpmk.name }));
+                    .map(cpmk => ({
+                        id: cpmk.id,
+                        name: cpmk.name,
+                        course_id: cpmk.course_id || this.courseData?.id || '',
+                    }));
 
                 if (items.length === 0) {
                     this.flashCpmk('error', 'Tidak ada CPMK terpilih yang dapat dihapus.');
                     return;
                 }
 
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpmk('error', 'URL hapus bulk CPMK tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
+                const bulkUrl = this.resolveCpmkBulkDestroyUrl(items[0]);
 
                 window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
                     bubbles: true,
@@ -848,4 +853,8 @@
             },
         };
     }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('courseDetailModal', openCourseDetailModal);
+    });
 </script>

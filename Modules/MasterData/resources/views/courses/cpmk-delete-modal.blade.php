@@ -97,6 +97,27 @@
                 return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             },
 
+            resolveBulkUrl() {
+                if (this.bulkUrl) {
+                    return this.bulkUrl;
+                }
+
+                const itemWithCourse = this.items.find(item => item.course_id);
+                if (itemWithCourse?.course_id) {
+                    return `/masterdata/courses/${itemWithCourse.course_id}/cpmk/bulk-delete`;
+                }
+
+                if (this.deleteUrl) {
+                    if (this.deleteUrl.includes('/bulk-delete')) {
+                        return this.deleteUrl;
+                    }
+
+                    return this.deleteUrl.replace(/\/[^/]+\/delete$/, '/bulk-delete');
+                }
+
+                return '';
+            },
+
             async parseJsonResponse(response) {
                 const text = await response.text();
 
@@ -117,7 +138,9 @@
                     return;
                 }
 
-                if (!this.bulkUrl) {
+                const bulkUrl = this.resolveBulkUrl();
+
+                if (!bulkUrl) {
                     window.dispatchEvent(new CustomEvent('cpmk-delete-failed', {
                         bubbles: true,
                         detail: { message: 'URL hapus CPMK tidak tersedia. Muat ulang halaman.' },
@@ -128,7 +151,7 @@
                 this.deleting = true;
 
                 try {
-                    const response = await fetch(this.bulkUrl, {
+                    const response = await fetch(bulkUrl, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
