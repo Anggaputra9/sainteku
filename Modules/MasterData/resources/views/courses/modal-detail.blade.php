@@ -1,7 +1,8 @@
 <template x-teleport="#modal-root">
 <div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpmk-deleted.window="handleCpmkDeleted($event)" @cpmk-delete-failed.window="handleCpmkDeleteFailed($event)"
-    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
+    @confirm-modal-opened.window="confirmModalOpen = true"
+    @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
     x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
@@ -403,6 +404,7 @@
         return {
             openDetail: false,
             confirmModalOpen: false,
+            suppressDetailCloseUntil: 0,
             editMode: false,
             canDelete: false,
             url: '',
@@ -446,6 +448,10 @@
             mappingAlert: { type: '', message: '' },
 
             closeDetailIfAllowed() {
+                if (Date.now() < this.suppressDetailCloseUntil) {
+                    return;
+                }
+
                 if (!this.confirmModalOpen) {
                     this.openDetail = false;
                 }
@@ -503,8 +509,6 @@
                 }
 
                 this.cpmkLoading = true;
-                this.cpmkList = [];
-                this.cpmkSelectedIds = [];
 
                 try {
                     const response = await fetch(this.courseData.cpmk_api_url, {

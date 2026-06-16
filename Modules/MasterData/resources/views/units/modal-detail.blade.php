@@ -1,7 +1,8 @@
 <template x-teleport="#modal-root">
 <div x-data="unitDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpl-deleted.window="handleCplDeleted($event)" @cpl-delete-failed.window="handleCplDeleteFailed($event)"
-    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
+    @confirm-modal-opened.window="confirmModalOpen = true"
+    @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
     x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
@@ -336,6 +337,7 @@
         Alpine.data('unitDetailModal', () => ({
             openDetail: false,
             confirmModalOpen: false,
+            suppressDetailCloseUntil: 0,
             editMode: false,
             canDelete: false,
             url: '',
@@ -376,6 +378,10 @@
             },
 
             closeDetailIfAllowed() {
+                if (Date.now() < this.suppressDetailCloseUntil) {
+                    return;
+                }
+
                 if (!this.confirmModalOpen) {
                     this.openDetail = false;
                 }
@@ -404,8 +410,6 @@
                 }
 
                 this.cplLoading = true;
-                this.cplList = [];
-                this.cplSelectedIds = [];
 
                 try {
                     const response = await fetch(this.unitData.cpl_api_url, {
