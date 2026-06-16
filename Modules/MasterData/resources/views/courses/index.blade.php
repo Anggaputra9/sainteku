@@ -145,6 +145,7 @@
 
         @include('masterdata::courses.modal-create')
         @include('masterdata::courses.modal-detail')
+        @include('masterdata::courses.cpmk-delete-modal')
         @include('masterdata::courses.delete-modal')
 
         {{-- FAB Filter --}}
@@ -390,6 +391,7 @@
                                 mapping_count: course.mapping_count,
                                 cpmk_api_url: course.cpmk_api_url,
                                 cpmk_store_url: course.cpmk_store_url,
+                                cpmk_bulk_destroy_url: course.cpmk_bulk_destroy_url,
                                 mapping_api_url: course.mapping_api_url,
                                 mapping_sync_url: course.mapping_sync_url,
                             },

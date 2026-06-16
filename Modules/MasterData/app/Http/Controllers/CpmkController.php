@@ -102,6 +102,66 @@ class CpmkController extends Controller
         ]);
     }
 
+    public function bulkDestroy(Request $request, string $courseId): JsonResponse
+    {
+        $this->ensureCourseExists($courseId);
+
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string|max:5',
+        ]);
+
+        $deleted = [];
+        $skipped = [];
+
+        foreach ($validated['ids'] as $cpmkId) {
+            $exists = MstCpmk::query()
+                ->where('course_id', $courseId)
+                ->where('id', $cpmkId)
+                ->exists();
+
+            if (! $exists) {
+                $skipped[] = ['id' => $cpmkId, 'reason' => 'CPMK tidak ditemukan.'];
+                continue;
+            }
+
+            if ($this->isCpmkUsedInQuestions($courseId, $cpmkId) || $this->isCpmkUsedInMapping($courseId, $cpmkId)) {
+                $skipped[] = ['id' => $cpmkId, 'reason' => 'Masih digunakan di soal atau pemetaan CPL.'];
+                continue;
+            }
+
+            MstCpmk::query()
+                ->where('course_id', $courseId)
+                ->where('id', $cpmkId)
+                ->delete();
+
+            $deleted[] = $cpmkId;
+        }
+
+        if (count($deleted) === 0) {
+            return response()->json([
+                'message' => 'Tidak ada CPMK yang dapat dihapus.',
+                'deleted_count' => 0,
+                'skipped' => $skipped,
+            ], 422);
+        }
+
+        $message = count($deleted) === 1
+            ? 'CPMK berhasil dihapus.'
+            : count($deleted).' CPMK berhasil dihapus.';
+
+        if (count($skipped) > 0) {
+            $message .= ' '.count($skipped).' CPMK dilewati.';
+        }
+
+        return response()->json([
+            'message' => $message,
+            'deleted_count' => count($deleted),
+            'deleted_ids' => $deleted,
+            'skipped' => $skipped,
+        ]);
+    }
+
     private function ensureCourseExists(string $courseId): void
     {
         abort_unless(

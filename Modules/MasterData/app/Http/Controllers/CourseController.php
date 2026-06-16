@@ -164,6 +164,7 @@ class CourseController extends Controller
             'mapping_count' => $mappingCount,
             'cpmk_api_url' => route('masterdata.courses.cpmk.api.data', $course->id),
             'cpmk_store_url' => route('masterdata.courses.cpmk.store', $course->id),
+            'cpmk_bulk_destroy_url' => route('masterdata.courses.cpmk.bulk.destroy', $course->id),
             'mapping_api_url' => route('masterdata.courses.mapping.api.data', $course->id),
             'mapping_sync_url' => route('masterdata.courses.mapping.sync', $course->id),
             'update_url' => route('masterdata.courses.update', $course->id),

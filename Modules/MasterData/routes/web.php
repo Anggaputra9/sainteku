@@ -81,6 +81,7 @@ Route::middleware([
     // CPMK per mata kuliah
     Route::get('courses/{course}/cpmk/api/data', [CpmkController::class, 'getCpmkData'])->name('courses.cpmk.api.data');
     Route::post('courses/{course}/cpmk', [CpmkController::class, 'store'])->name('courses.cpmk.store');
+    Route::post('courses/{course}/cpmk/bulk-delete', [CpmkController::class, 'bulkDestroy'])->name('courses.cpmk.bulk.destroy');
     Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->name('courses.cpmk.update');
     Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->name('courses.cpmk.destroy');
 

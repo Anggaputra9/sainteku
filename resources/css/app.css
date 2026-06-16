@@ -1296,3 +1296,152 @@ html.dark #modal-root .cpl-checkbox:disabled {
   --tw-ring-shadow: 0 0 #0000 !important;
   --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
+
+/* Course detail modal shell */
+html:not(.dark) #modal-root .course-detail-modal {
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+html.dark #modal-root .course-detail-modal {
+  background-color: #0f172a !important;
+  border: 1px solid #374151 !important;
+  box-shadow: none;
+}
+
+/* CPMK section — mirrors CPL section */
+html:not(.dark) #modal-root .cpmk-section {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .cpmk-section {
+  background-color: #1e293b !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .cpmk-section .cpmk-section-header { border-color: #f3f4f6; }
+html.dark #modal-root .cpmk-section .cpmk-section-header { border-color: #374151; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-section-title { color: #374151; }
+html.dark #modal-root .cpmk-section .cpmk-section-title { color: #e5e7eb; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-btn-add { background-color: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
+html.dark #modal-root .cpmk-section .cpmk-btn-add { background-color: rgba(49, 46, 129, 0.3); color: #818cf8; border-color: #3730a3; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-badge-count { background-color: #eef2ff; color: #4338ca; border-color: #e0e7ff; }
+html.dark #modal-root .cpmk-section .cpmk-badge-count { background-color: rgba(49, 46, 129, 0.3); color: #a5b4fc; border-color: #3730a3; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-btn-delete { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+html.dark #modal-root .cpmk-section .cpmk-btn-delete { background-color: rgba(127, 29, 29, 0.3); color: #f87171; border-color: #991b1b; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-form-panel { background-color: rgba(238, 242, 255, 0.4); border-color: #e0e7ff; }
+html.dark #modal-root .cpmk-section .cpmk-form-panel { background-color: rgba(49, 46, 129, 0.1) !important; border-color: rgba(49, 46, 129, 0.4) !important; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-form-label { color: #9ca3af; }
+html.dark #modal-root .cpmk-section .cpmk-form-label { color: #9ca3af; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-input { background-color: #ffffff; border-color: #d1d5db; color: #111827; }
+html.dark #modal-root .cpmk-section .cpmk-input { background-color: #0f172a !important; border-color: #4b5563 !important; color: #ffffff !important; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-btn-cancel { background-color: #e5e7eb; color: #374151; }
+html.dark #modal-root .cpmk-section .cpmk-btn-cancel { background-color: #374151; color: #e5e7eb; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-loading { color: #6b7280; }
+html.dark #modal-root .cpmk-section .cpmk-loading { color: #9ca3af; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-empty { border-color: #e5e7eb; }
+html.dark #modal-root .cpmk-section .cpmk-empty { border-color: #374151; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-empty .fa-bullseye { color: #d1d5db; }
+html.dark #modal-root .cpmk-section .cpmk-empty .fa-bullseye { color: #4b5563; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-empty-title { color: #6b7280; }
+html.dark #modal-root .cpmk-section .cpmk-empty-title { color: #9ca3af; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-empty-subtitle { color: #9ca3af; }
+html.dark #modal-root .cpmk-section .cpmk-empty-subtitle { color: #6b7280; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-list-item { background-color: rgba(248, 250, 252, 0.6); border-color: #e5e7eb; }
+html.dark #modal-root .cpmk-section .cpmk-list-item { background-color: rgba(15, 23, 42, 0.4) !important; border-color: #374151 !important; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-list-item.is-selected { background-color: rgba(238, 242, 255, 0.6); border-color: #c7d2fe; }
+html.dark #modal-root .cpmk-section .cpmk-list-item.is-selected { background-color: rgba(49, 46, 129, 0.15) !important; border-color: rgba(99, 102, 241, 0.6) !important; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-id-badge { background-color: #e0e7ff; color: #4338ca; }
+html.dark #modal-root .cpmk-section .cpmk-id-badge { background-color: rgba(49, 46, 129, 0.4); color: #a5b4fc; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-badge-active { background-color: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+html.dark #modal-root .cpmk-section .cpmk-badge-active { background-color: rgba(20, 83, 45, 0.2); color: #4ade80; border-color: #166534; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-badge-inactive { background-color: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+html.dark #modal-root .cpmk-section .cpmk-badge-inactive { background-color: rgba(127, 29, 29, 0.2); color: #f87171; border-color: #991b1b; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-item-text { color: #374151; }
+html.dark #modal-root .cpmk-section .cpmk-item-text { color: #d1d5db; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-btn-icon-edit { color: #2563eb; }
+html.dark #modal-root .cpmk-section .cpmk-btn-icon-edit { color: #60a5fa; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-btn-icon-delete { color: #dc2626; }
+html.dark #modal-root .cpmk-section .cpmk-btn-icon-delete { color: #f87171; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-bulk-toolbar { background-color: #f8fafc; border-color: #e5e7eb; }
+html.dark #modal-root .cpmk-section .cpmk-bulk-toolbar { background-color: #0f172a !important; border-color: #374151 !important; }
+html:not(.dark) #modal-root .cpmk-section .cpmk-bulk-label { color: #4b5563; }
+html.dark #modal-root .cpmk-section .cpmk-bulk-label { color: #e5e7eb; }
+
+#modal-root .cpmk-checkbox,
+#modal-root .mapping-checkbox {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  accent-color: #4f46e5;
+}
+
+html.dark #modal-root .cpmk-checkbox,
+html.dark #modal-root .mapping-checkbox {
+  color-scheme: dark;
+  background-color: #1e293b;
+  border-color: #4b5563;
+}
+
+#modal-root .cpmk-input:focus,
+#modal-root .cpmk-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+/* CPL–CPMK mapping section */
+html:not(.dark) #modal-root .mapping-section {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .mapping-section {
+  background-color: #1e293b !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .mapping-section .mapping-section-header { border-color: #f3f4f6; }
+html.dark #modal-root .mapping-section .mapping-section-header { border-color: #374151; }
+html:not(.dark) #modal-root .mapping-section .mapping-section-title { color: #374151; }
+html.dark #modal-root .mapping-section .mapping-section-title { color: #e5e7eb; }
+html:not(.dark) #modal-root .mapping-section .mapping-btn-save { background-color: #4f46e5; color: #ffffff; }
+html.dark #modal-root .mapping-section .mapping-btn-save { background-color: #4f46e5; color: #ffffff; }
+html:not(.dark) #modal-root .mapping-section .mapping-btn-save:hover { background-color: #4338ca; }
+html.dark #modal-root .mapping-section .mapping-btn-save:hover { background-color: #4338ca; }
+html:not(.dark) #modal-root .mapping-section .mapping-loading { color: #6b7280; }
+html.dark #modal-root .mapping-section .mapping-loading { color: #9ca3af; }
+html:not(.dark) #modal-root .mapping-section .mapping-empty { border-color: #e5e7eb; }
+html.dark #modal-root .mapping-section .mapping-empty { border-color: #374151; }
+html:not(.dark) #modal-root .mapping-section .mapping-empty .fa-diagram-project { color: #d1d5db; }
+html.dark #modal-root .mapping-section .mapping-empty .fa-diagram-project { color: #4b5563; }
+html:not(.dark) #modal-root .mapping-section .mapping-empty-title { color: #6b7280; }
+html.dark #modal-root .mapping-section .mapping-empty-title { color: #9ca3af; }
+html:not(.dark) #modal-root .mapping-section .mapping-warn { background-color: rgba(255, 251, 235, 0.5); border-color: #fde68a; }
+html.dark #modal-root .mapping-section .mapping-warn { background-color: rgba(120, 53, 15, 0.15); border-color: rgba(180, 83, 9, 0.4); }
+html:not(.dark) #modal-root .mapping-section .mapping-warn-title { color: #92400e; }
+html.dark #modal-root .mapping-section .mapping-warn-title { color: #fcd34d; }
+html:not(.dark) #modal-root .mapping-section .mapping-warn-subtitle { color: rgba(146, 64, 14, 0.8); }
+html.dark #modal-root .mapping-section .mapping-warn-subtitle { color: #fbbf24; }
+html:not(.dark) #modal-root .mapping-section .mapping-legend { color: #9ca3af; border-color: #e5e7eb; background-color: #f8fafc; }
+html.dark #modal-root .mapping-section .mapping-legend { color: #9ca3af; border-color: #374151; background-color: rgba(15, 23, 42, 0.5); }
+html:not(.dark) #modal-root .mapping-section .mapping-row { background-color: rgba(248, 250, 252, 0.6); border-color: #e5e7eb; }
+html.dark #modal-root .mapping-section .mapping-row { background-color: rgba(15, 23, 42, 0.4) !important; border-color: #374151 !important; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpmk-id { background-color: #e0e7ff; color: #4338ca; }
+html.dark #modal-root .mapping-section .mapping-cpmk-id { background-color: rgba(49, 46, 129, 0.4); color: #a5b4fc; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpmk-name { color: #374151; }
+html.dark #modal-root .mapping-section .mapping-cpmk-name { color: #d1d5db; }
+html:not(.dark) #modal-root .mapping-section .mapping-count-badge { background-color: #eef2ff; color: #4338ca; border-color: #e0e7ff; }
+html.dark #modal-root .mapping-section .mapping-count-badge { background-color: rgba(49, 46, 129, 0.3); color: #a5b4fc; border-color: #3730a3; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpl-chip { background-color: #ffffff; border-color: #e5e7eb; }
+html.dark #modal-root .mapping-section .mapping-cpl-chip { background-color: #0f172a; border-color: #4b5563; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpl-chip.is-checked { background-color: rgba(238, 242, 255, 0.8); border-color: #a5b4fc; }
+html.dark #modal-root .mapping-section .mapping-cpl-chip.is-checked { background-color: rgba(49, 46, 129, 0.25) !important; border-color: rgba(99, 102, 241, 0.6) !important; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpl-id { color: #0f766e; }
+html.dark #modal-root .mapping-section .mapping-cpl-id { color: #5eead4; }
+html:not(.dark) #modal-root .mapping-section .mapping-cpl-name { color: #6b7280; }
+html.dark #modal-root .mapping-section .mapping-cpl-name { color: #9ca3af; }

@@ -1,12 +1,15 @@
 <template x-teleport="#modal-root">
-<div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)" x-show="openDetail"
+<div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
+    @cpmk-deleted.window="handleCpmkDeleted($event)" @cpmk-delete-failed.window="handleCpmkDeleteFailed($event)"
+    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
+    x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
     x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-    <div @click.away="openDetail = false"
-        class="relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl bg-slate-50 shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 transition-all overflow-hidden">
+    <div @click.away="closeDetailIfAllowed()"
+        class="course-detail-modal relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl transition-all overflow-hidden">
 
         {{-- HEADER --}}
         <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
@@ -101,18 +104,39 @@
                     </p>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <div data-cpmk-ui="v1" class="cpmk-section rounded-xl border">
+                    <div class="cpmk-section-header px-5 py-3 border-b flex items-center justify-between gap-3">
+                        <h4 class="cpmk-section-title text-sm font-bold flex items-center gap-2">
                             <i class="fa-solid fa-bullseye text-indigo-500"></i> CPMK Mata Kuliah
                         </h4>
                         <button type="button" @click="showCpmkForm = !showCpmkForm"
-                            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition">
+                            class="cpmk-btn-add inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition">
                             <i class="fa-solid fa-plus"></i> Tambah
                         </button>
                     </div>
 
-                    <div class="p-5 space-y-4">
+                    <div class="cpmk-section-body p-5 space-y-4">
+                        <div x-show="!cpmkLoading && cpmkList.length > 0" x-cloak
+                            class="cpmk-bulk-toolbar flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed px-3 py-2.5">
+                            <label class="cpmk-bulk-label inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold">
+                                <input type="checkbox"
+                                    class="cpmk-checkbox h-4 w-4 shrink-0 rounded"
+                                    :checked="allDeletableCpmkSelected()"
+                                    @change="toggleSelectAllCpmk($event.target.checked)">
+                                <span>Pilih semua yang dapat dihapus</span>
+                            </label>
+                            <span x-show="cpmkSelectedIds.length > 0" x-cloak
+                                class="cpmk-badge-count inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border">
+                                <span x-text="cpmkSelectedIds.length"></span>
+                                <span>terpilih</span>
+                            </span>
+                            <button type="button" x-show="cpmkSelectedIds.length > 0" x-cloak @click="requestBulkDeleteCpmk()"
+                                class="cpmk-btn-delete ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition">
+                                <i class="fa-solid fa-trash-alt"></i>
+                                Hapus Terpilih
+                            </button>
+                        </div>
+
                         <div x-show="cpmkAlert.message" x-cloak
                             class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
                             :class="cpmkAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
@@ -120,20 +144,20 @@
                             <span x-text="cpmkAlert.message"></span>
                         </div>
 
-                        <div x-show="showCpmkForm" x-cloak class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                        <div x-show="showCpmkForm" x-cloak class="cpmk-form-panel rounded-xl border p-4">
                             <div class="grid grid-cols-1 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    <label class="cpmk-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">
                                         Deskripsi CPMK <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" x-model="cpmkForm.name" maxlength="100"
-                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600"
+                                        class="cpmk-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
                                         placeholder="Contoh: Memahami konsep dasar jaringan komputer">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                                    <label class="cpmk-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">Status</label>
                                     <select x-model="cpmkForm.is_active"
-                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                        class="cpmk-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500">
                                         <option value="1">Aktif</option>
                                         <option value="0">Nonaktif</option>
                                     </select>
@@ -141,7 +165,7 @@
                             </div>
                             <div class="mt-3 flex items-center justify-end gap-2">
                                 <button type="button" @click="cancelCpmkForm()"
-                                    class="rounded-lg bg-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                                    class="cpmk-btn-cancel rounded-lg px-4 py-2 text-xs font-bold">
                                     Batal
                                 </button>
                                 <button type="button" @click="saveCpmk()" :disabled="cpmkSaving"
@@ -151,36 +175,49 @@
                             </div>
                         </div>
 
-                        <div x-show="cpmkLoading" class="py-6 text-center text-sm text-gray-500">
+                        <div x-show="cpmkLoading" class="cpmk-loading py-6 text-center text-sm">
                             <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat CPMK...
                         </div>
 
-                        <div x-show="!cpmkLoading && cpmkList.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
-                            <i class="fa-solid fa-bullseye text-2xl text-gray-300 mb-2"></i>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Belum ada CPMK untuk mata kuliah ini.</p>
-                            <p class="text-xs text-gray-400 mt-1">Tambahkan CPMK agar dosen bisa memetakan butir soal.</p>
+                        <div x-show="!cpmkLoading && cpmkList.length === 0" class="cpmk-empty rounded-xl border border-dashed px-4 py-8 text-center">
+                            <i class="fa-solid fa-bullseye text-2xl mb-2"></i>
+                            <p class="cpmk-empty-title text-sm font-medium">Belum ada CPMK untuk mata kuliah ini.</p>
+                            <p class="cpmk-empty-subtitle text-xs mt-1">Tambahkan CPMK agar dosen bisa memetakan butir soal.</p>
                         </div>
 
                         <div x-show="!cpmkLoading && cpmkList.length > 0" class="space-y-2">
                             <template x-for="cpmk in cpmkList" :key="cpmk.id">
-                                <div class="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 dark:border-gray-700 dark:bg-[#0f172a]/40">
+                                <div class="cpmk-list-item flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors sm:px-4"
+                                    :class="cpmkSelectedIds.includes(cpmk.id) ? 'is-selected' : ''">
+                                    <div class="flex shrink-0 items-center pt-1">
+                                        <input type="checkbox"
+                                            :checked="cpmkSelectedIds.includes(cpmk.id)"
+                                            @change="toggleCpmkSelection(cpmk.id, $event.target.checked)"
+                                            :disabled="!cpmk.can_delete"
+                                            class="cpmk-checkbox h-4 w-4 shrink-0 rounded disabled:opacity-40 disabled:cursor-not-allowed"
+                                            :title="cpmk.can_delete ? 'Pilih CPMK' : 'CPMK masih digunakan di soal atau pemetaan'">
+                                    </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2 mb-1">
-                                            <span class="inline-flex rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold font-mono text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" x-text="cpmk.id"></span>
+                                            <span class="cpmk-id-badge inline-flex rounded-md px-2 py-0.5 text-xs font-bold font-mono" x-text="cpmk.id"></span>
                                             <span x-show="cpmk.is_active == '1'"
-                                                class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200">Aktif</span>
+                                                class="cpmk-badge-active inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span> Aktif
+                                            </span>
                                             <span x-show="cpmk.is_active != '1'"
-                                                class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200">Nonaktif</span>
+                                                class="cpmk-badge-inactive inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span> Nonaktif
+                                            </span>
                                         </div>
-                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug" x-text="cpmk.name"></p>
+                                        <p class="cpmk-item-text text-sm leading-snug" x-text="cpmk.name"></p>
                                     </div>
-                                    <div class="flex shrink-0 items-center gap-1">
+                                    <div class="flex shrink-0 items-center gap-0.5 self-center">
                                         <button type="button" @click="editCpmk(cpmk)"
-                                            class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit">
+                                            class="cpmk-btn-icon cpmk-btn-icon-edit rounded-lg p-2" title="Edit">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <button type="button" @click="deleteCpmk(cpmk)" :disabled="!cpmk.can_delete"
-                                            class="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-900/20" title="Hapus">
+                                        <button type="button" @click="requestDeleteCpmk(cpmk)" :disabled="!cpmk.can_delete"
+                                            class="cpmk-btn-icon cpmk-btn-icon-delete rounded-lg p-2 disabled:opacity-40" title="Hapus">
                                             <i class="fas fa-trash-alt text-xs"></i>
                                         </button>
                                     </div>
@@ -190,19 +227,19 @@
                     </div>
                 </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                <div class="mapping-section rounded-xl border">
+                    <div class="mapping-section-header px-5 py-3 border-b flex items-center justify-between gap-3">
+                        <h4 class="mapping-section-title text-sm font-bold flex items-center gap-2">
                             <i class="fa-solid fa-diagram-project text-indigo-500"></i> Pemetaan CPL ↔ CPMK
                         </h4>
                         <button type="button" @click="saveMapping()" :disabled="mappingSaving || mappingLoading"
-                            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60 transition">
+                            class="mapping-btn-save inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition disabled:opacity-60">
                             <i class="fa-solid fa-save"></i>
                             <span x-text="mappingSaving ? 'Menyimpan...' : 'Simpan Pemetaan'"></span>
                         </button>
                     </div>
 
-                    <div class="p-5 space-y-4">
+                    <div class="mapping-section-body p-5 space-y-4">
                         <div x-show="mappingAlert.message" x-cloak
                             class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
                             :class="mappingAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
@@ -210,36 +247,48 @@
                             <span x-text="mappingAlert.message"></span>
                         </div>
 
-                        <div x-show="mappingLoading" class="py-6 text-center text-sm text-gray-500">
+                        <div x-show="mappingLoading" class="mapping-loading py-6 text-center text-sm">
                             <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat pemetaan...
                         </div>
 
-                        <div x-show="!mappingLoading && mappingCpmks.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tambahkan CPMK terlebih dahulu sebelum memetakan ke CPL.</p>
+                        <div x-show="!mappingLoading && mappingCpmks.length === 0" class="mapping-empty rounded-xl border border-dashed px-4 py-8 text-center">
+                            <i class="fa-solid fa-diagram-project text-2xl mb-2"></i>
+                            <p class="mapping-empty-title text-sm font-medium">Tambahkan CPMK terlebih dahulu sebelum memetakan ke CPL.</p>
                         </div>
 
-                        <div x-show="!mappingLoading && mappingCpmks.length > 0 && mappingCpls.length === 0" class="rounded-xl border border-dashed border-amber-200 bg-amber-50/50 px-4 py-6 text-center dark:border-amber-900/40 dark:bg-amber-900/10">
-                            <p class="text-sm font-medium text-amber-800 dark:text-amber-300">Belum ada CPL di prodi <span class="font-bold" x-text="courseData.prodi_name"></span>.</p>
-                            <p class="text-xs text-amber-700/80 dark:text-amber-400 mt-1">Kelola CPL lewat Master Data → Unit → Detail Prodi.</p>
+                        <div x-show="!mappingLoading && mappingCpmks.length > 0 && mappingCpls.length === 0" class="mapping-warn rounded-xl border border-dashed px-4 py-6 text-center">
+                            <p class="mapping-warn-title text-sm font-medium">Belum ada CPL di prodi <span class="font-bold" x-text="courseData.prodi_name"></span>.</p>
+                            <p class="mapping-warn-subtitle text-xs mt-1">Kelola CPL lewat Master Data → Unit → Detail Prodi.</p>
                         </div>
 
                         <div x-show="!mappingLoading && mappingCpmks.length > 0 && mappingCpls.length > 0" class="space-y-3">
+                            <div class="mapping-legend hidden sm:flex items-center justify-between gap-2 rounded-lg border border-dashed px-3 py-2 text-[10px] font-bold uppercase tracking-widest">
+                                <span>CPMK</span>
+                                <span>CPL Prodi — centang untuk memetakan</span>
+                            </div>
                             <template x-for="cpmk in mappingCpmks" :key="cpmk.id">
-                                <div class="rounded-xl border border-gray-200 bg-slate-50/60 p-4 dark:border-gray-700 dark:bg-[#0f172a]/40">
-                                    <div class="mb-3">
-                                        <span class="inline-flex rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold font-mono text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" x-text="cpmk.id"></span>
-                                        <p class="mt-1 text-sm text-gray-700 dark:text-gray-300" x-text="cpmk.name"></p>
+                                <div class="mapping-row rounded-xl border p-4">
+                                    <div class="mapping-row-header flex flex-wrap items-start justify-between gap-2 mb-3">
+                                        <div class="min-w-0 flex-1">
+                                            <span class="mapping-cpmk-id inline-flex rounded-md px-2 py-0.5 text-xs font-bold font-mono" x-text="cpmk.id"></span>
+                                            <p class="mapping-cpmk-name mt-1 text-sm leading-snug" x-text="cpmk.name"></p>
+                                        </div>
+                                        <span class="mapping-count-badge inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border">
+                                            <span x-text="(mappingState[cpmk.id] || []).length"></span>
+                                            <span>CPL</span>
+                                        </span>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <template x-for="cpl in mappingCpls" :key="cpmk.id + '-' + cpl.id">
-                                            <label class="flex items-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 cursor-pointer hover:border-indigo-200 dark:border-gray-600 dark:bg-[#1e293b]">
+                                            <label class="mapping-cpl-chip flex items-start gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-colors"
+                                                :class="isCplMapped(cpmk.id, cpl.id) ? 'is-checked' : ''">
                                                 <input type="checkbox"
                                                     :checked="isCplMapped(cpmk.id, cpl.id)"
                                                     @change="toggleCplMapping(cpmk.id, cpl.id, $event.target.checked)"
-                                                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-0 dark:border-gray-600">
-                                                <span class="text-xs leading-snug text-gray-600 dark:text-gray-300">
-                                                    <span class="font-bold font-mono text-teal-700 dark:text-teal-300" x-text="cpl.id"></span>
-                                                    — <span x-text="cpl.name"></span>
+                                                    class="mapping-checkbox mt-0.5 h-4 w-4 shrink-0 rounded">
+                                                <span class="min-w-0 text-xs leading-snug">
+                                                    <span class="mapping-cpl-id font-bold font-mono" x-text="cpl.id"></span>
+                                                    <span class="mapping-cpl-name block mt-0.5" x-text="cpl.name"></span>
                                                 </span>
                                             </label>
                                         </template>
@@ -353,6 +402,7 @@
     function openCourseDetailModal() {
         return {
             openDetail: false,
+            confirmModalOpen: false,
             editMode: false,
             canDelete: false,
             url: '',
@@ -376,10 +426,12 @@
                 mapping_count: 0,
                 cpmk_api_url: '',
                 cpmk_store_url: '',
+                cpmk_bulk_destroy_url: '',
                 mapping_api_url: '',
                 mapping_sync_url: '',
             },
             cpmkList: [],
+            cpmkSelectedIds: [],
             cpmkLoading: false,
             cpmkSaving: false,
             showCpmkForm: false,
@@ -393,8 +445,42 @@
             mappingSaving: false,
             mappingAlert: { type: '', message: '' },
 
+            closeDetailIfAllowed() {
+                if (!this.confirmModalOpen) {
+                    this.openDetail = false;
+                }
+            },
+
+            allDeletableCpmkSelected() {
+                const ids = this.cpmkList.filter(cpmk => cpmk.can_delete).map(cpmk => cpmk.id);
+                return ids.length > 0 && ids.every(id => this.cpmkSelectedIds.includes(id));
+            },
+
+            toggleSelectAllCpmk(checked) {
+                if (checked) {
+                    this.cpmkSelectedIds = this.cpmkList
+                        .filter(cpmk => cpmk.can_delete)
+                        .map(cpmk => cpmk.id);
+                    return;
+                }
+
+                this.cpmkSelectedIds = [];
+            },
+
+            toggleCpmkSelection(id, checked) {
+                if (checked) {
+                    if (!this.cpmkSelectedIds.includes(id)) {
+                        this.cpmkSelectedIds = [...this.cpmkSelectedIds, id];
+                    }
+                    return;
+                }
+
+                this.cpmkSelectedIds = this.cpmkSelectedIds.filter(item => item !== id);
+            },
+
             handleOpenDetail(event) {
                 this.openDetail = true;
+                this.confirmModalOpen = false;
                 this.editMode = false;
                 this.url = event.detail.url;
                 this.deleteUrl = event.detail.deleteUrl;
@@ -418,6 +504,7 @@
 
                 this.cpmkLoading = true;
                 this.cpmkList = [];
+                this.cpmkSelectedIds = [];
 
                 try {
                     const response = await fetch(this.courseData.cpmk_api_url, {
@@ -427,6 +514,7 @@
                     if (response.ok) {
                         this.cpmkList = await response.json();
                         this.courseData.cpmk_count = this.cpmkList.length;
+                        this.cpmkSelectedIds = this.cpmkSelectedIds.filter(id => this.cpmkList.some(cpmk => cpmk.id === id));
                     }
                 } catch (error) {
                     console.error('Gagal memuat CPMK', error);
@@ -506,39 +594,60 @@
                 }
             },
 
-            async deleteCpmk(cpmk) {
+            requestDeleteCpmk(cpmk) {
                 if (!cpmk.can_delete) {
-                    this.flashCpmk('error', 'CPMK tidak dapat dihapus karena masih digunakan di soal.');
+                    this.flashCpmk('error', 'CPMK tidak dapat dihapus karena masih digunakan di soal atau pemetaan CPL.');
                     return;
                 }
 
-                if (!confirm(`Hapus CPMK ${cpmk.id}?`)) {
+                window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
+                    bubbles: true,
+                    detail: {
+                        mode: 'single',
+                        items: [{ id: cpmk.id, name: cpmk.name }],
+                        deleteUrl: cpmk.delete_url,
+                    },
+                }));
+            },
+
+            requestBulkDeleteCpmk() {
+                if (this.cpmkSelectedIds.length === 0) {
                     return;
                 }
 
-                try {
-                    const response = await fetch(cpmk.delete_url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        },
-                    });
+                const items = this.cpmkList
+                    .filter(cpmk => this.cpmkSelectedIds.includes(cpmk.id) && cpmk.can_delete)
+                    .map(cpmk => ({ id: cpmk.id, name: cpmk.name }));
 
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        this.flashCpmk('error', result.message || 'Gagal menghapus CPMK.');
-                        return;
-                    }
-
-                    this.flashCpmk('success', result.message || 'CPMK berhasil dihapus.');
-                    await this.fetchCpmkList();
-                    await this.fetchMappingData();
-                } catch (error) {
-                    console.error('Gagal menghapus CPMK', error);
-                    this.flashCpmk('error', 'Terjadi kesalahan saat menghapus CPMK.');
+                if (items.length === 0) {
+                    this.flashCpmk('error', 'Tidak ada CPMK terpilih yang dapat dihapus.');
+                    return;
                 }
+
+                if (!this.courseData.cpmk_bulk_destroy_url) {
+                    this.flashCpmk('error', 'URL hapus bulk CPMK tidak tersedia. Muat ulang halaman.');
+                    return;
+                }
+
+                window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
+                    bubbles: true,
+                    detail: {
+                        mode: 'bulk',
+                        items,
+                        bulkUrl: this.courseData.cpmk_bulk_destroy_url,
+                    },
+                }));
+            },
+
+            async handleCpmkDeleted(event) {
+                this.flashCpmk('success', event.detail?.message || 'CPMK berhasil dihapus.');
+                this.cpmkSelectedIds = [];
+                await this.fetchCpmkList();
+                await this.fetchMappingData();
+            },
+
+            handleCpmkDeleteFailed(event) {
+                this.flashCpmk('error', event.detail?.message || 'Gagal menghapus CPMK.');
             },
 
             async fetchMappingData() {
