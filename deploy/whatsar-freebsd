@@ -1,0 +1,62 @@
+#!/bin/sh
+# PROVIDE: whatsar
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+#
+# Sainteku Whatsar — rc.d service (FreeBSD native)
+#
+# /etc/rc.conf:
+#   whatsar_enable="YES"
+#   whatsar_user="www"
+#   whatsar_app_dir="/usr/local/www/saintekku"
+
+. /etc/rc.subr
+
+name="whatsar"
+rcvar="whatsar_enable"
+
+: "${whatsar_enable:="NO"}"
+: "${whatsar_user:="www"}"
+: "${whatsar_app_dir:="/usr/local/www/saintekku"}"
+
+pidfile="/var/run/whatsar.pid"
+command="/usr/local/sbin/whatsar-wrapper.sh"
+command_args="${whatsar_app_dir}"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+
+whatsar_start()
+{
+    if [ ! -x "${command}" ]; then
+        echo "${command} tidak executable"
+        return 1
+    fi
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "whatsar sudah berjalan (pid $(cat "${pidfile}"))"
+        return 1
+    fi
+    /usr/sbin/daemon -u "${whatsar_user}" -p "${pidfile}" "${command}" "${whatsar_app_dir}"
+}
+
+whatsar_stop()
+{
+    if [ -f "${pidfile}" ]; then
+        kill "$(cat "${pidfile}")" 2>/dev/null || true
+        rm -f "${pidfile}"
+    fi
+}
+
+whatsar_status()
+{
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "whatsar is running as pid $(cat "${pidfile}")"
+        return 0
+    fi
+    echo "whatsar is not running"
+    return 1
+}
+
+load_rc_config "${name}"
+run_rc_command "$1"

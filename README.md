@@ -143,7 +143,7 @@ bash update.sh --no-git --restart-whatsar
 
 `update.sh` menjalankan: git pull → composer → migrate → npm build → Laravel optimize.
 
-Script install/update mendeteksi OS otomatis (Ubuntu/Debian, RHEL/Alpine, macOS, FreeBSD): user web (`www-data` / `nginx` / `www`), `sed` portabel, dan binary Whatsar sesuai arsitektur CPU (amd64/arm64/arm). Whatsar hanya di Linux.
+Script install/update mendeteksi OS otomatis (Ubuntu/Debian, RHEL/Alpine, macOS, FreeBSD): user web (`www-data` / `nginx` / `www`), `sed` portabel, dan Whatsar sesuai platform — **Linux:** binary release; **FreeBSD:** build native dari source (tanpa Linuxulator).
 
 ## Instalasi Dev (manual)
 
@@ -184,11 +184,25 @@ Akses: http://127.0.0.1:8000
 
 ### Whatsar (opsional, untuk notif & reset password via WA)
 
-Setelah `.env` dikonfigurasi, install binary + systemd:
+Setelah `.env` dikonfigurasi:
+
+**Linux (VPS):** binary release + systemd
 
 ```bash
 sudo bash scripts/whatsar-install.sh
+systemctl status whatsar
 ```
+
+**FreeBSD (production):** build native Go + rc.d — ringan, tanpa Linuxulator
+
+```bash
+sudo bash scripts/whatsar-install-freebsd.sh
+# atau otomatis lewat install.sh production:
+sudo bash install.sh
+service whatsar status
+```
+
+Path production umum: `/usr/local/www/saintekku` (lihat `deploy/pull-from-freebsd.sh`).
 
 Variabel penting di `.env`:
 
@@ -197,12 +211,12 @@ WHATSAPP_DRIVER=whatsar
 WHATSAPP_ENABLED=true
 WHATSAR_URL=http://127.0.0.1:8080
 WHATSAR_API_KEY=<api-key-dari-install-script>
+WHATSAR_ADMIN_PASSWORD=<password-admin-/admin>
 ```
 
-Cek service:
+Cek health:
 
 ```bash
-systemctl status whatsar
 curl -s http://127.0.0.1:8080/health
 ```
 
@@ -236,8 +250,11 @@ config/whatsapp.php                 Driver & konfigurasi WhatsApp
 install.sh / update.sh              Wrapper deploy (→ scripts/)
 scripts/install.sh                  Instalasi awal (composer, migrate, build)
 scripts/update.sh                   Update rutin (pull, migrate, optimize)
-scripts/whatsar-install.sh          Install binary Whatsar + systemd
-deploy/whatsar.service              Unit systemd Whatsar
+scripts/whatsar-install.sh          Install binary Whatsar + systemd (Linux)
+scripts/whatsar-install-freebsd.sh  Build native Whatsar + rc.d (FreeBSD)
+deploy/whatsar.service              Unit systemd Whatsar (Linux)
+deploy/whatsar-freebsd              rc.d service Whatsar (FreeBSD)
+deploy/whatsar-wrapper.sh           Launcher (baca .env aplikasi)
 docs/whatsar/                       Roadmap & rencana integrasi
 resources/views/settings/whatsapp/  UI admin session & QR pairing
 app/Console/Commands/               Command scraper

@@ -88,6 +88,10 @@ is_linux() {
     [[ "${OS_FAMILY}" == "linux" ]]
 }
 
+is_freebsd() {
+    [[ "${OS_FAMILY}" == "freebsd" ]]
+}
+
 sed_inplace() {
     local file="$1"
     local expression="$2"
@@ -398,16 +402,25 @@ maybe_install_whatsar() {
         return 0
     fi
     detect_platform
-    if ! is_linux; then
-        log_warn "Whatsar hanya untuk Linux — dilewati di ${OS_FAMILY}/${OS_ID}"
-        return 0
-    fi
     if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-        log_warn "Whatsar install butuh root. Jalankan: sudo bash scripts/whatsar-install.sh"
+        if is_linux; then
+            log_warn "Whatsar install butuh root. Jalankan: sudo bash scripts/whatsar-install.sh"
+        elif is_freebsd; then
+            log_warn "Whatsar install butuh root. Jalankan: sudo bash scripts/whatsar-install-freebsd.sh"
+        else
+            log_warn "Whatsar install butuh root di ${OS_FAMILY}/${OS_ID}"
+        fi
         return 0
     fi
-    log_info "Install/update Whatsar..."
-    bash "${APP_DIR}/scripts/whatsar-install.sh" --app-dir "$APP_DIR"
+    if is_linux; then
+        log_info "Install/update Whatsar (Linux binary)..."
+        bash "${APP_DIR}/scripts/whatsar-install.sh" --app-dir "$APP_DIR"
+    elif is_freebsd; then
+        log_info "Install/update Whatsar (FreeBSD native build)..."
+        bash "${APP_DIR}/scripts/whatsar-install-freebsd.sh" --app-dir "$APP_DIR"
+    else
+        log_warn "Whatsar tidak didukung di ${OS_FAMILY}/${OS_ID} — gunakan WHATSAR_URL remote atau WHATSAPP_DRIVER=log"
+    fi
 }
 
 maybe_restart_whatsar() {
@@ -417,6 +430,8 @@ maybe_restart_whatsar() {
     fi
     if command -v systemctl >/dev/null 2>&1; then
         systemctl restart whatsar 2>/dev/null && log_ok "whatsar.service restarted" || log_warn "Gagal restart whatsar.service"
+    elif is_freebsd && command -v service >/dev/null 2>&1; then
+        service whatsar restart 2>/dev/null && log_ok "whatsar restarted (rc.d)" || log_warn "Gagal restart whatsar (rc.d)"
     fi
 }
 

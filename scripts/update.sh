@@ -33,8 +33,8 @@ Options:
   --dev              composer install dengan dev-deps
   --skip-build       Lewati npm run build
   --skip-migrate     Lewati database migrate
-  --with-whatsar     Update binary Whatsar via whatsar-install.sh (perlu sudo)
-  --restart-whatsar  Restart systemd whatsar setelah update
+  --with-whatsar     Update Whatsar (Linux: binary, FreeBSD: rebuild native; perlu sudo)
+  --restart-whatsar  Restart whatsar setelah update (systemd / rc.d)
   --help, -h         Bantuan
 
 Contoh production:
