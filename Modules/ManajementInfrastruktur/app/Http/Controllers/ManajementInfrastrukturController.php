@@ -132,6 +132,7 @@ class ManajementInfrastrukturController extends Controller
                 'url'          => route('manajementinfrastruktur.persetujuan.index'),
                 'reference_id' => $loanCode,
                 'click_action' => 'redirect',
+                'send_whatsapp' => true,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Notif pengajuan peminjaman gagal: ' . $e->getMessage());
@@ -233,6 +234,7 @@ class ManajementInfrastrukturController extends Controller
                     'reference_id' => $loan->loan_code,
                     'click_action' => 'redirect',
                     'status'       => $request->status == 2 ? 'offline' : 'online',
+                    'send_whatsapp' => true,
                 ]);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Notif balik pengaju peminjaman gagal: ' . $e->getMessage());

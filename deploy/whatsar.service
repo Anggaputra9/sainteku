@@ -1,0 +1,20 @@
+[Unit]
+Description=Whatsar WhatsApp Gateway for Sainteku
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/sainteku
+Environment=WHATSAR_HOST=127.0.0.1
+Environment=WHATSAR_PORT=8080
+Environment=WHATSAR_DB_PATH=/var/www/sainteku/storage/whatsar/whatsar.db
+EnvironmentFile=-/var/www/sainteku/.env
+ExecStart=/usr/local/bin/whatsar
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Services\MailService;
+use App\Services\WhatsappService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,42 +22,77 @@ class ForgotPasswordController extends Controller
     }
 
     /**
-     * Kirim link reset password ke email user
-     * dengan menggunakan EmailSetting aktif (default) yang dikelola admin.
+     * Kirim link reset password ke email user (+ WhatsApp jika ada nomor).
      */
     public function sendResetLinkEmail(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'credential' => ['required', 'string', 'max:255'],
+        ]);
 
-        $user = DB::table('mst_user')->where('email', $request->email)->first();
+        $credential = trim($request->credential);
+        $user = $this->resolveUser($credential);
 
         if (!$user) {
-            return $this->respond($request, false, 'Email tidak ditemukan dalam sistem.');
+            return $this->respond($request, false, __('messages.account_not_found'));
         }
 
-        // Generate token & simpan
+        if (!($user->is_active ?? false)) {
+            return $this->respond($request, false, __('messages.account_inactive'));
+        }
+
+        if (empty($user->email)) {
+            return $this->respond($request, false, 'Akun tidak memiliki email terdaftar. Hubungi administrator.');
+        }
+
         $token = Str::random(60);
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
         DB::table('password_reset_tokens')->insert([
-            'email'      => $request->email,
+            'email'      => $user->email,
             'token'      => $token,
             'created_at' => Carbon::now(),
         ]);
 
-        // Kirim email pakai konfigurasi email aktif di database (EmailSetting default)
         try {
-            $result = MailService::sendPasswordReset($request->email, $token);
+            $result = MailService::sendPasswordReset($user->email, $token);
 
             if (!$result['success']) {
                 Log::warning('Reset password mail gagal: ' . $result['message']);
                 return $this->respond($request, false, 'Gagal mengirim email reset password. ' . $result['message']);
             }
 
-            return $this->respond($request, true, 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.');
+            $waSent = false;
+            if (!empty($user->phone_number)) {
+                try {
+                    $waSent = app(WhatsappService::class)->sendPasswordReset(
+                        $user->phone_number,
+                        $token,
+                        $user->name ?? ''
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('Reset password WA gagal: ' . $e->getMessage());
+                }
+            }
+
+            $message = 'Link reset password telah dikirim ke email Anda. Silakan cek inbox atau folder spam.';
+            if ($waSent) {
+                $message .= ' Link juga telah dikirim ke WhatsApp Anda.';
+            }
+
+            return $this->respond($request, true, $message);
         } catch (\Throwable $e) {
             Log::error('Reset password mail exception: ' . $e->getMessage());
             return $this->respond($request, false, 'Gagal mengirim email. Error: ' . $e->getMessage());
         }
+    }
+
+    private function resolveUser(string $credential): ?object
+    {
+        return DB::table('mst_user')
+            ->where('email', $credential)
+            ->orWhere('id', $credential)
+            ->orWhere('identity_id', $credential)
+            ->first();
     }
 
     private function respond(Request $request, bool $success, string $message)
@@ -68,6 +104,7 @@ class ForgotPasswordController extends Controller
         if ($success) {
             return back()->with('status', $message);
         }
-        return back()->withErrors(['email' => $message]);
+
+        return back()->withErrors(['credential' => $message]);
     }
 }

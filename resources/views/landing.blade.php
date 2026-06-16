@@ -886,11 +886,12 @@
                 @csrf
                 <div class="mb-5">
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">
-                        {{ __('messages.email_label') }}<span class="text-red-500">*</span>
+                        {{ __('messages.forgot_password_credential_label') }}<span class="text-red-500">*</span>
                     </label>
-                    <input type="email"
+                    <input type="text"
                         class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-saintek-primary"
-                        name="email" id="forgot_email" placeholder="nama@email.com" required>
+                        name="credential" id="forgot_credential"
+                        placeholder="{{ __('messages.forgot_password_credential_placeholder') }}" required>
                 </div>
 
                 <div class="flex gap-3">
@@ -1026,7 +1027,7 @@
                                 }, 3000);
                             } else {
                                 forgotAlert.className = 'text-sm rounded-lg px-4 py-3 mb-4 bg-red-50 border border-red-200 text-red-700';
-                                forgotAlert.innerHTML = data.message || '{{ __("messages.email_not_found") }}';
+                                forgotAlert.innerHTML = data.message || '{{ __("messages.account_not_found") }}';
                             }
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;

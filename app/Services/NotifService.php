@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Notifications\GlobalNotification;
 use App\Services\MailService;
+use App\Support\WhatsappMessageBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,8 @@ use Illuminate\Support\Facades\Notification;
  *     'click_action' => 'open_tashih_modal',           // optional
  *     'status'       => 'online' | 'offline',          // optional, indikator UI
  *     'send_email'   => true | false,                  // optional, default true
+ *     'send_whatsapp'=> true | false,                  // optional, default false
+ *     'whatsapp_text'=> '...',                         // optional override pesan WA
  *     'sender_name'  => '...',                         // optional override
  *   ]
  *
@@ -50,6 +53,7 @@ class NotifService
         }
 
         self::dispatchEmails(collect([$user]), $data);
+        self::dispatchWhatsapp(collect([$user]), $data);
     }
 
     /**
@@ -67,6 +71,7 @@ class NotifService
         }
 
         self::dispatchEmails($users, $data);
+        self::dispatchWhatsapp($users, $data);
     }
 
     /**
@@ -87,6 +92,7 @@ class NotifService
         }
 
         self::dispatchEmails($users, $data);
+        self::dispatchWhatsapp($users, $data);
     }
 
     /**
@@ -169,6 +175,7 @@ class NotifService
         }
 
         self::dispatchEmails($users, $data);
+        self::dispatchWhatsapp($users, $data);
     }
 
     /**
@@ -195,6 +202,38 @@ class NotifService
             } catch (\Throwable $e) {
                 // Jangan throw — cukup catat di log
                 Log::warning("NotifService email ke {$user->email} gagal: " . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Kirim WhatsApp ke list user. Default: tidak aktif.
+     * Set 'send_whatsapp' => true di $data untuk mengaktifkan.
+     */
+    private static function dispatchWhatsapp($users, array $data): void
+    {
+        if (!config('whatsapp.enabled', true)) {
+            return;
+        }
+
+        if (!array_key_exists('send_whatsapp', $data) || $data['send_whatsapp'] !== true) {
+            return;
+        }
+
+        $sender = auth()->user()->name ?? ($data['sender_name'] ?? 'Sistem');
+        $payload = array_merge($data, ['sender_name' => $sender]);
+        $whatsapp = app(WhatsappService::class);
+
+        foreach ($users as $user) {
+            if (empty($user->phone_number)) {
+                continue;
+            }
+
+            try {
+                $text = WhatsappMessageBuilder::fromNotificationData($payload, $user->name);
+                $whatsapp->sendMessage($user->phone_number, $text);
+            } catch (\Throwable $e) {
+                Log::warning("NotifService WA ke user {$user->id} gagal: " . $e->getMessage());
             }
         }
     }

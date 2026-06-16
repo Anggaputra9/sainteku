@@ -99,7 +99,9 @@ return [
 
     // Forgot Password Modal
     'forgot_password_title' => 'Forgot Password',
-    'forgot_password_desc' => 'Enter your email and we\'ll send you a link to reset your password.',
+    'forgot_password_desc' => 'Enter your email, employee ID (NIP), or student ID (NIM). The reset link will be sent to your registered email (and WhatsApp if available).',
+    'forgot_password_credential_label' => 'Email / NIP / NIM',
+    'forgot_password_credential_placeholder' => 'email, NIP, or NIM',
     'send_reset_link' => 'Send Reset Link',
     'cancel' => 'Cancel',
     'back_to_dashboard' => 'Back to Dashboard',
@@ -110,6 +112,7 @@ return [
     'account_inactive' => 'Account is inactive',
     'email_sent' => 'Password reset link has been sent to your email',
     'email_not_found' => 'Email not found',
+    'account_not_found' => 'Account not found in the system.',
     'password_reset_success' => 'Password reset successfully',
     'password_reset_failed' => 'Failed to reset password',
 

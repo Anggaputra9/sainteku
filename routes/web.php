@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Admin\EmailSettingController;
 use App\Http\Controllers\Settings\AiSettingController;
+use App\Http\Controllers\Settings\WhatsappSettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 
@@ -103,6 +104,26 @@ Route::middleware(['auth'])->group(function () {
             ->name('ai.test');
         Route::post('ai/{aiSetting}/reset-usage', [AiSettingController::class, 'resetUsage'])
             ->name('ai.reset-usage');
+
+        // Pengaturan WhatsApp (Whatsar)
+        Route::get('whatsapp', [WhatsappSettingController::class, 'index'])
+            ->name('whatsapp.index');
+        Route::get('whatsapp/sessions', [WhatsappSettingController::class, 'listSessionsJson'])
+            ->name('whatsapp.sessions.index');
+        Route::post('whatsapp/sessions', [WhatsappSettingController::class, 'storeSession'])
+            ->name('whatsapp.sessions.store');
+        Route::delete('whatsapp/sessions/{sessionId}', [WhatsappSettingController::class, 'destroySession'])
+            ->name('whatsapp.sessions.destroy');
+        Route::post('whatsapp/sessions/{sessionId}/reconnect', [WhatsappSettingController::class, 'reconnectSession'])
+            ->name('whatsapp.sessions.reconnect');
+        Route::get('whatsapp/sessions/{sessionId}/qr', [WhatsappSettingController::class, 'qr'])
+            ->name('whatsapp.sessions.qr');
+        Route::get('whatsapp/sessions/{sessionId}/status', [WhatsappSettingController::class, 'status'])
+            ->name('whatsapp.sessions.status');
+        Route::get('whatsapp/health', [WhatsappSettingController::class, 'health'])
+            ->name('whatsapp.health');
+        Route::post('whatsapp/test', [WhatsappSettingController::class, 'testSend'])
+            ->name('whatsapp.test');
 
         // Manajemen Menu Aplikasi
         Route::resource('menu', MenuManagementController::class)

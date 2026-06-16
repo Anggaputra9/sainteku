@@ -59,7 +59,8 @@ class ExamReviewController extends Controller
                 'url' => route('monevakademik.tashih.index'),
                 'reference_id' => $proposal->uuid,
                 'click_action' => 'open_tashih_modal',
-                'status' => 'offline' // Bikin titik merah di UI
+                'status' => 'offline',
+                'send_whatsapp' => true,
             ]);
             return redirect()->back()->with('success', 'Pengajuan dikembalikan ke dosen beserta catatan revisi.');
 
@@ -108,7 +109,8 @@ class ExamReviewController extends Controller
                 'url' => route('monevakademik.tashih.index'),
                 'reference_id' => $proposal->uuid,
                 'click_action' => 'open_tashih_modal',
-                'status' => 'online' // Bikin titik hijau di UI
+                'status' => 'online',
+                'send_whatsapp' => true,
             ]);
             return redirect()->route('monevakademik.tashih.index')
                 ->with('success', 'Pengajuan ujian berhasil disetujui!');

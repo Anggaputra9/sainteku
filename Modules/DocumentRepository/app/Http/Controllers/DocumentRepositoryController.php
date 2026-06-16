@@ -260,6 +260,7 @@ class DocumentRepositoryController extends Controller
                 'url' => route('DocumentRepository.index'),
                 'reference_id' => $document->id,
                 'click_action' => 'redirect',
+                'send_whatsapp' => true,
             ]);
 
             return redirect()->route('DocumentRepository.index')
@@ -366,6 +367,7 @@ class DocumentRepositoryController extends Controller
                     'reference_id' => $document->id,
                     'click_action' => 'redirect',
                     'status' => $request->action === 'approve' ? 'online' : 'offline',
+                    'send_whatsapp' => true,
                 ]);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::warning('Notif review dokumen gagal: ' . $e->getMessage());

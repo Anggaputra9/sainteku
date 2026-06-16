@@ -99,7 +99,9 @@ return [
 
     // Forgot Password Modal
     'forgot_password_title' => 'Lupa Password',
-    'forgot_password_desc' => 'Masukkan email Anda, kami akan mengirimkan link untuk reset password.',
+    'forgot_password_desc' => 'Masukkan email, NIP, atau NIM Anda. Link reset akan dikirim ke email terdaftar (dan WhatsApp jika nomor tersedia).',
+    'forgot_password_credential_label' => 'Email / NIP / NIM',
+    'forgot_password_credential_placeholder' => 'email, NIP, atau NIM',
     'send_reset_link' => 'Kirim Link Reset',
     'cancel' => 'Batal',
     'back_to_dashboard' => 'Kembali ke dashboard',
@@ -110,6 +112,7 @@ return [
     'account_inactive' => 'Akun tidak aktif',
     'email_sent' => 'Link reset password telah dikirim ke email Anda',
     'email_not_found' => 'Email tidak ditemukan',
+    'account_not_found' => 'Akun tidak ditemukan dalam sistem.',
     'password_reset_success' => 'Password berhasil direset',
     'password_reset_failed' => 'Gagal mereset password',
 

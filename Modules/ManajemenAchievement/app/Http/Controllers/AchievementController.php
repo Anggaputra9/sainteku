@@ -117,6 +117,7 @@ class AchievementController extends Controller
                 'url'          => route('student.achievements.index'),
                 'reference_id' => $achievement->id,
                 'click_action' => 'redirect',
+                'send_whatsapp' => true,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Notif pengajuan prestasi mahasiswa gagal: ' . $e->getMessage());

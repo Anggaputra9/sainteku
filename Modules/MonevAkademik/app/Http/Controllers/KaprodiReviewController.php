@@ -48,6 +48,7 @@ class KaprodiReviewController extends Controller
                 'reference_id' => $proposal->uuid ?? $proposal->id,
                 'click_action' => 'open_tashih_modal',
                 'status'       => 'online',
+                'send_whatsapp' => true,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Notif Kaprodi approve gagal: ' . $e->getMessage());
@@ -80,6 +81,7 @@ class KaprodiReviewController extends Controller
                 'reference_id' => $proposal->uuid ?? $proposal->id,
                 'click_action' => 'open_tashih_modal',
                 'status'       => 'offline',
+                'send_whatsapp' => true,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Notif Kaprodi revise gagal: ' . $e->getMessage());

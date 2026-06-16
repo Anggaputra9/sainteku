@@ -49,6 +49,7 @@ class MenuSeeder extends Seeder
             // ['id' => 7, 'menu_name' => 'Data Kategori Berkas', 'menu_link' => 'masterdata.categories.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
             ['id' => 8, 'menu_name' => 'Data Infrastruktur', 'menu_link' => 'masterdata.infrastructures.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 5, 'is_active' => 1],
             ['id' => 9, 'menu_name' => 'Data Mata Kuliah', 'menu_link' => 'masterdata.courses.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 6, 'is_active' => 1],
+            ['id' => 14, 'menu_name' => 'Tahun Akademik', 'menu_link' => 'masterdata.periods.index', 'menu_icon' => null, 'parent_id' => 1, 'order_no' => 7, 'is_active' => 1],
 
             /*
             |--------------------------------------------------------------------------
@@ -259,6 +260,20 @@ class MenuSeeder extends Seeder
             ]
         );
 
+        // Pengaturan WhatsApp (Whatsar)
+        DB::table('mst_menu')->updateOrInsert(
+            ['id' => 203],
+            [
+                'menu_name' => 'Pengaturan WhatsApp',
+                'menu_link' => 'settings.whatsapp.index',
+                'menu_icon' => 'fa-brands fa-whatsapp',
+                'parent_id' => 200,
+                'module_id' => null,
+                'order_no' => 3,
+                'is_active' => 1,
+            ]
+        );
+
         // Manajemen Menu: dipasang sebagai sub dari Pengaturan Aplikasi
         DB::table('mst_menu')->updateOrInsert(
             ['id' => 101],
@@ -268,7 +283,7 @@ class MenuSeeder extends Seeder
                 'menu_icon' => 'fa-solid fa-bars-staggered',
                 'parent_id' => 200,
                 'module_id' => null,
-                'order_no' => 3,
+                'order_no' => 4,
                 'is_active' => 1,
             ]
         );

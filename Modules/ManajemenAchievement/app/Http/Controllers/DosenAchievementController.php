@@ -134,6 +134,7 @@ class DosenAchievementController extends Controller
                 'url'          => route('dosen.repository.index'),
                 'reference_id' => $achievement->id,
                 'click_action' => 'redirect',
+                'send_whatsapp' => true,
             ]);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Notif pengajuan prestasi dosen gagal: ' . $e->getMessage());

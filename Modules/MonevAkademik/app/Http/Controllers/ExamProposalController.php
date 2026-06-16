@@ -63,7 +63,6 @@ class ExamProposalController extends Controller
 
         $myCourses = $queryCourse->get();
         // -------------------------------------------------------------
-        $cpmkList = MstCpmk::where('is_active', '1')->get();
 
         $isReviewer = $user->roles()->whereIn('role_name', [
             'Kaprodi',
@@ -83,8 +82,28 @@ class ExamProposalController extends Controller
             'myCourses',
             'isReviewer',
             'reviewQueueCount',
-            'cpmkList',
         ))->with('title', 'Tashih Soal & Pengajuan Review');
+    }
+
+    public function getCpmkForCourse(string $course_id)
+    {
+        if (! Auth::user()->hasPermission($this->moduleId, 'R')) {
+            abort(403, 'Unauthorized');
+        }
+
+        abort_unless(
+            MstCourse::where('id', $course_id)->exists(),
+            404,
+            'Mata kuliah tidak ditemukan.',
+        );
+
+        $cpmks = MstCpmk::forCourse($course_id, true)
+            ->get(['id', 'name', 'is_active']);
+
+        return response()->json($cpmks)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function getMyProposalsData(Request $request)
@@ -258,6 +277,10 @@ class ExamProposalController extends Controller
             return back()->with('error', 'Total bobot harus 100!');
         }
 
+        if (! $this->questionsHaveValidCpmk($request->course_id, $request->questions)) {
+            return back()->with('error', 'Salah satu CPMK tidak valid untuk mata kuliah ini.');
+        }
+
         DB::beginTransaction();
         try {
             $proposal = ExamProposal::create([
@@ -301,7 +324,8 @@ class ExamProposalController extends Controller
                     'type' => 'Tashih Soal',
                     'url' => route('monevakademik.tashih.index'),
                     'reference_id' => $proposal->uuid,
-                    'click_action' => 'open_tashih_modal'
+                    'click_action' => 'open_tashih_modal',
+                    'send_whatsapp' => true,
                 ]
             );
             return redirect()->route('monevakademik.tashih.index')->with('success', 'Berhasil dikirim!');
@@ -363,6 +387,10 @@ class ExamProposalController extends Controller
         DB::beginTransaction();
         try {
             $proposal = ExamProposal::where('uuid', $uuid)->firstOrFail();
+
+            if (! $this->questionsHaveValidCpmk($proposal->course_id, $request->questions)) {
+                return back()->with('error', 'Salah satu CPMK tidak valid untuk mata kuliah ini.');
+            }
 
             if (Auth::id() != $proposal->created_by) {
                 return redirect()->route('monevakademik.tashih.index')->with('error', 'Anda tidak memiliki hak akses untuk mengedit pengajuan ini.');
@@ -745,5 +773,18 @@ class ExamProposalController extends Controller
         exec($command, $output, $exitCode);
 
         return $exitCode === 0 && is_file($destination);
+    }
+
+    private function questionsHaveValidCpmk(string $courseId, array $questions): bool
+    {
+        foreach ($questions as $question) {
+            $cpmkIds = $question['cpmk_id'] ?? [];
+
+            if (! MstCpmk::validateIdsForCourse($courseId, is_array($cpmkIds) ? $cpmkIds : [])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

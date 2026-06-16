@@ -2,78 +2,77 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class WhatsappService
 {
-    protected $apiKey;
-    protected $baseUrl = 'https://api.fonnte.com';
+    protected string $driver;
+    protected bool $enabled;
+    protected ?string $fonnteToken;
+    protected string $fonnteBaseUrl;
+    protected WhatsarClient $whatsar;
 
-    public function __construct()
+    public function __construct(?WhatsarClient $whatsar = null)
     {
-        $this->apiKey = env('FONNTE_TOKEN');
-
-        if (!$this->apiKey) {
-            Log::error('FONNTE_TOKEN tidak ditemukan di .env');
-        }
+        $this->driver = config('whatsapp.driver', 'whatsar');
+        $this->enabled = (bool) config('whatsapp.enabled', true);
+        $this->fonnteToken = config('whatsapp.fonnte.token');
+        $this->fonnteBaseUrl = config('whatsapp.fonnte.base_url', 'https://api.fonnte.com');
+        $this->whatsar = $whatsar ?? new WhatsarClient();
     }
 
-    /**
-     * Kirim pesan WhatsApp biasa
-     */
-    public function sendMessage($target, $message)
+    public function sendMessage($target, $message): bool
     {
-        try {
-            $target = $this->formatPhoneNumber($target);
-
-            Log::info('Mengirim WhatsApp', [
-                'target' => $target,
-                'message' => substr($message, 0, 50) . '...'
-            ]);
-
-            $response = Http::withHeaders([
-                'Authorization' => $this->apiKey
-            ])->withoutVerifying()
-                ->post($this->baseUrl . '/send', [
-                    'target' => $target,
-                    'message' => $message,
-                    'countryCode' => '62',
-                ]);
-
-            if ($response->successful()) {
-                Log::info('WhatsApp sukses', [
-                    'target' => $target,
-                    'response' => $response->json()
-                ]);
-                return true;
-            } else {
-                Log::error('WhatsApp gagal', [
-                    'target' => $target,
-                    'error' => $response->body()
-                ]);
-                return false;
-            }
-        } catch (\Exception $e) {
-            Log::error('WhatsApp exception', [
-                'message' => $e->getMessage()
-            ]);
+        if (!$this->enabled) {
+            Log::info('WhatsApp dinonaktifkan (WHATSAPP_ENABLED=false)');
             return false;
         }
+
+        $target = $this->formatPhoneNumber($target);
+
+        Log::info('Mengirim WhatsApp', [
+            'driver'  => $this->driver,
+            'target'  => $target,
+            'message' => mb_substr($message, 0, 50) . '...',
+        ]);
+
+        return match ($this->driver) {
+            'whatsar' => $this->sendViaWhatsar($target, $message),
+            'fonnte'  => $this->sendViaFonnte($target, $message),
+            'log'     => $this->sendViaLog($target, $message),
+            default   => $this->sendViaWhatsar($target, $message),
+        };
     }
 
-    /**
-     * Kirim notifikasi prestasi disetujui
-     */
-    public function notifyApproved($user, $achievement, $type = 'mahasiswa')
+    public function sendPasswordReset(string $phone, string $token, string $name = ''): bool
+    {
+        if (!$phone) {
+            return false;
+        }
+
+        $resetLink = url('/reset-password/' . $token);
+        $appName = config('app.name', 'Sainteku');
+        $greeting = $name !== '' ? "Yth. *{$name}*" : 'Halo';
+
+        $message = "🔐 *RESET PASSWORD*\n\n";
+        $message .= "{$greeting}\n\n";
+        $message .= "Kami menerima permintaan reset password untuk akun {$appName} Anda.\n\n";
+        $message .= "Klik link berikut (berlaku *60 menit*):\n";
+        $message .= "{$resetLink}\n\n";
+        $message .= "Jika Anda tidak meminta reset password, abaikan pesan ini.\n\n";
+        $message .= "_{$appName}_";
+
+        return $this->sendMessage($phone, $message);
+    }
+
+    public function notifyApproved($user, $achievement, $type = 'mahasiswa'): bool
     {
         if (!$user->phone_number) {
             Log::warning('Nomor WA tidak ada', ['user' => $user->id]);
             return false;
         }
 
-        // Ambil judul, tanggal, dan kategori sesuai tipe
         $judul = ($type == 'dosen') ? $achievement->judul : $achievement->title;
         $kategori = ($type == 'dosen')
             ? ($achievement->kategori->nama ?? 'Prestasi Dosen')
@@ -99,10 +98,7 @@ class WhatsappService
         return $this->sendMessage($user->phone_number, $message);
     }
 
-    /**
-     * Kirim notifikasi prestasi ditolak
-     */
-    public function notifyRejected($user, $achievement, $note, $type = 'mahasiswa')
+    public function notifyRejected($user, $achievement, $note, $type = 'mahasiswa'): bool
     {
         if (!$user->phone_number) {
             Log::warning('Nomor WA tidak ada', ['user' => $user->id]);
@@ -127,20 +123,97 @@ class WhatsappService
         return $this->sendMessage($user->phone_number, $message);
     }
 
-    /**
-     * Format nomor telepon ke 62
-     */
-    private function formatPhoneNumber($number)
+    public function pickSession(): ?string
     {
-        // Hapus semua karakter non-digit
+        $default = config('whatsapp.whatsar.default_session');
+        if ($default) {
+            $status = $this->whatsar->getStatus($default);
+            if ($status && ($status['connected'] ?? false)) {
+                return $default;
+            }
+        }
+
+        $connected = $this->whatsar->connectedSessions();
+        if (empty($connected)) {
+            Log::warning('Whatsar: tidak ada session connected');
+            return null;
+        }
+
+        $picked = $connected[array_rand($connected)];
+
+        return $picked['id'] ?? null;
+    }
+
+    protected function sendViaWhatsar(string $target, string $message): bool
+    {
+        $sessionId = $this->pickSession();
+        if (!$sessionId) {
+            return false;
+        }
+
+        $result = $this->whatsar->sendText($sessionId, $target, $message, true);
+
+        if ($result !== null) {
+            Log::info('WhatsApp sukses (Whatsar)', [
+                'target'     => $target,
+                'session_id' => $sessionId,
+                'response'   => $result,
+            ]);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function sendViaFonnte(string $target, string $message): bool
+    {
+        if (!$this->fonnteToken) {
+            Log::error('FONNTE_TOKEN tidak ditemukan di .env');
+            return false;
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => $this->fonnteToken,
+            ])->withoutVerifying()
+                ->post($this->fonnteBaseUrl . '/send', [
+                    'target'      => $target,
+                    'message'     => $message,
+                    'countryCode' => '62',
+                ]);
+
+            if ($response->successful()) {
+                Log::info('WhatsApp sukses (Fonnte)', [
+                    'target'   => $target,
+                    'response' => $response->json(),
+                ]);
+                return true;
+            }
+
+            Log::error('WhatsApp gagal (Fonnte)', [
+                'target' => $target,
+                'error'  => $response->body(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp exception (Fonnte)', ['message' => $e->getMessage()]);
+        }
+
+        return false;
+    }
+
+    protected function sendViaLog(string $target, string $message): bool
+    {
+        Log::info('WhatsApp (log driver)', ['target' => $target, 'message' => $message]);
+        return true;
+    }
+
+    protected function formatPhoneNumber($number): string
+    {
         $number = preg_replace('/[^0-9]/', '', $number);
 
-        // Jika diawali 0, ganti dengan 62
-        if (substr($number, 0, 1) == '0') {
+        if (str_starts_with($number, '0')) {
             $number = '62' . substr($number, 1);
-        }
-        // Jika tidak diawali 62, tambahkan 62
-        elseif (substr($number, 0, 2) != '62') {
+        } elseif (!str_starts_with($number, '62')) {
             $number = '62' . $number;
         }
 
