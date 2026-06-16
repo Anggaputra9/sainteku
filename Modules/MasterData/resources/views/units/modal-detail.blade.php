@@ -106,20 +106,22 @@
                     </p>
                 </div>
 
-                <div x-show="unitData.type == '3'" class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
+                <div x-show="unitData.type == '3'"
+                    class="cpl-section rounded-xl border shadow-sm"
+                    :class="$store.theme.theme === 'dark' ? 'is-dark' : 'is-light'">
+                    <div class="cpl-section-header px-5 py-3 border-b">
                         <div class="flex items-center justify-between gap-3">
-                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <h4 class="cpl-section-title text-sm font-bold flex items-center gap-2">
                                 <i class="fa-solid fa-graduation-cap text-indigo-500"></i> CPL Program Studi
                             </h4>
                             <button type="button" @click="showCplForm = !showCplForm"
-                                class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition shadow-sm">
+                                class="cpl-btn-add inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition shadow-sm">
                                 <i class="fa-solid fa-plus"></i> Tambah
                             </button>
                         </div>
                     </div>
 
-                    <div class="p-5 space-y-4">
+                    <div class="cpl-section-body p-5 space-y-4">
                         <div x-show="!cplLoading && cplList.length > 0" x-cloak
                             class="cpl-bulk-toolbar flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed px-3 py-2.5"
                             :class="$store.theme.theme === 'dark' ? 'is-dark' : 'is-light'">
@@ -131,11 +133,11 @@
                                 <span>Pilih semua yang dapat dihapus</span>
                             </label>
                             <span x-show="cplSelectedIds.length > 0" x-cloak
-                                class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
+                                class="cpl-badge-count inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold border">
                                 <span x-text="cplSelectedIds.length"></span> terpilih
                             </span>
                             <button type="button" x-show="cplSelectedIds.length > 0" x-cloak @click="requestBulkDeleteCpl()"
-                                class="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800 transition shadow-sm">
+                                class="cpl-btn-delete ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition shadow-sm">
                                 <i class="fa-solid fa-trash-alt"></i>
                                 Hapus Terpilih
                             </button>
@@ -147,20 +149,20 @@
                             <span x-text="cplAlert.message"></span>
                         </div>
 
-                        <div x-show="showCplForm" x-cloak class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                        <div x-show="showCplForm" x-cloak class="cpl-form-panel rounded-xl border p-4">
                             <div class="grid grid-cols-1 gap-3">
                                 <div>
-                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                    <label class="cpl-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">
                                         Deskripsi CPL <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" x-model="cplForm.name" maxlength="255"
-                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600"
+                                        class="cpl-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                                         placeholder="Contoh: Mampu merancang solusi berbasis teknologi informasi">
                                 </div>
                                 <div>
-                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                                    <label class="cpl-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">Status</label>
                                     <select x-model="cplForm.is_active"
-                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                        class="cpl-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10">
                                         <option value="1">Aktif</option>
                                         <option value="0">Nonaktif</option>
                                     </select>
@@ -168,7 +170,7 @@
                             </div>
                             <div class="mt-3 flex items-center justify-end gap-2">
                                 <button type="button" @click="cancelCplForm()"
-                                    class="rounded-lg bg-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                                    class="cpl-btn-cancel rounded-lg px-4 py-2 text-xs font-bold">
                                     Batal
                                 </button>
                                 <button type="button" @click="saveCpl()" :disabled="cplSaving"
@@ -178,22 +180,20 @@
                             </div>
                         </div>
 
-                        <div x-show="cplLoading" class="py-6 text-center text-sm text-gray-500">
+                        <div x-show="cplLoading" class="cpl-loading py-6 text-center text-sm">
                             <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat CPL...
                         </div>
 
-                        <div x-show="!cplLoading && cplList.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
-                            <i class="fa-solid fa-graduation-cap text-2xl text-gray-300 mb-2"></i>
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Belum ada CPL untuk prodi ini.</p>
-                            <p class="text-xs text-gray-400 mt-1">Tambahkan CPL sebagai capaian pembelajaran lulusan prodi.</p>
+                        <div x-show="!cplLoading && cplList.length === 0" class="cpl-empty rounded-xl border border-dashed px-4 py-8 text-center">
+                            <i class="fa-solid fa-graduation-cap text-2xl mb-2"></i>
+                            <p class="cpl-empty-title text-sm font-medium">Belum ada CPL untuk prodi ini.</p>
+                            <p class="cpl-empty-subtitle text-xs mt-1">Tambahkan CPL sebagai capaian pembelajaran lulusan prodi.</p>
                         </div>
 
                         <div x-show="!cplLoading && cplList.length > 0" class="space-y-2">
                             <template x-for="cpl in cplList" :key="cpl.id">
-                                <div class="flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors sm:px-4"
-                                    :class="cplSelectedIds.includes(cpl.id)
-                                        ? 'border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/60 dark:bg-indigo-900/15'
-                                        : 'border-gray-200 bg-slate-50/60 dark:border-gray-700 dark:bg-[#0f172a]/40'">
+                                <div class="cpl-list-item flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors sm:px-4"
+                                    :class="cplSelectedIds.includes(cpl.id) ? 'is-selected' : ''">
                                     <div class="flex shrink-0 items-center pt-1">
                                         <input type="checkbox"
                                             :checked="cplSelectedIds.includes(cpl.id)"
@@ -204,25 +204,25 @@
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2 mb-1">
-                                            <span class="inline-flex rounded-md bg-teal-100 px-2 py-0.5 text-xs font-bold font-mono text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" x-text="cpl.id"></span>
+                                            <span class="cpl-id-badge inline-flex rounded-md px-2 py-0.5 text-xs font-bold font-mono" x-text="cpl.id"></span>
                                             <span x-show="cpl.is_active == '1'"
-                                                class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                                                class="cpl-badge-active inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border">
                                                 <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span> Aktif
                                             </span>
                                             <span x-show="cpl.is_active != '1'"
-                                                class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                                                class="cpl-badge-inactive inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold border">
                                                 <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span> Nonaktif
                                             </span>
                                         </div>
-                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug" x-text="cpl.name"></p>
+                                        <p class="cpl-item-text text-sm leading-snug" x-text="cpl.name"></p>
                                     </div>
                                     <div class="flex shrink-0 items-center gap-0.5 self-center">
                                         <button type="button" @click="editCpl(cpl)"
-                                            class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit">
+                                            class="cpl-btn-icon cpl-btn-icon-edit rounded-lg p-2" title="Edit">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
                                         <button type="button" @click="requestDeleteCpl(cpl)" :disabled="!cpl.can_delete"
-                                            class="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-900/20" title="Hapus">
+                                            class="cpl-btn-icon cpl-btn-icon-delete rounded-lg p-2 disabled:opacity-40" title="Hapus">
                                             <i class="fas fa-trash-alt text-xs"></i>
                                         </button>
                                     </div>
@@ -589,21 +589,344 @@
 </script>
 
 <style>
-    .cpl-bulk-toolbar.is-light {
+    /* CPL section — light */
+    .cpl-section.is-light,
+    html:not(.dark) .cpl-section {
+        background-color: #ffffff;
+        border-color: #e5e7eb;
+    }
+
+    .cpl-section.is-light .cpl-section-header,
+    html:not(.dark) .cpl-section .cpl-section-header {
+        border-color: #f3f4f6;
+    }
+
+    .cpl-section.is-light .cpl-section-title,
+    html:not(.dark) .cpl-section .cpl-section-title {
+        color: #374151;
+    }
+
+    .cpl-section.is-light .cpl-btn-add,
+    html:not(.dark) .cpl-section .cpl-btn-add {
+        background-color: #eef2ff;
+        color: #4338ca;
+        border-color: #c7d2fe;
+    }
+
+    .cpl-section.is-light .cpl-btn-add:hover,
+    html:not(.dark) .cpl-section .cpl-btn-add:hover {
+        background-color: #e0e7ff;
+    }
+
+    .cpl-section.is-light .cpl-badge-count,
+    html:not(.dark) .cpl-section .cpl-badge-count {
+        background-color: #eef2ff;
+        color: #4338ca;
+        border-color: #e0e7ff;
+    }
+
+    .cpl-section.is-light .cpl-btn-delete,
+    html:not(.dark) .cpl-section .cpl-btn-delete {
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .cpl-section.is-light .cpl-btn-delete:hover,
+    html:not(.dark) .cpl-section .cpl-btn-delete:hover {
+        background-color: #fee2e2;
+    }
+
+    .cpl-section.is-light .cpl-form-panel,
+    html:not(.dark) .cpl-section .cpl-form-panel {
+        background-color: rgba(238, 242, 255, 0.4);
+        border-color: #e0e7ff;
+    }
+
+    .cpl-section.is-light .cpl-form-label,
+    html:not(.dark) .cpl-section .cpl-form-label {
+        color: #9ca3af;
+    }
+
+    .cpl-section.is-light .cpl-input,
+    html:not(.dark) .cpl-section .cpl-input {
+        background-color: #ffffff;
+        border-color: #d1d5db;
+        color: #111827;
+    }
+
+    .cpl-section.is-light .cpl-btn-cancel,
+    html:not(.dark) .cpl-section .cpl-btn-cancel {
+        background-color: #e5e7eb;
+        color: #374151;
+    }
+
+    .cpl-section.is-light .cpl-btn-cancel:hover,
+    html:not(.dark) .cpl-section .cpl-btn-cancel:hover {
+        background-color: #d1d5db;
+    }
+
+    .cpl-section.is-light .cpl-loading,
+    html:not(.dark) .cpl-section .cpl-loading {
+        color: #6b7280;
+    }
+
+    .cpl-section.is-light .cpl-empty,
+    html:not(.dark) .cpl-section .cpl-empty {
+        border-color: #e5e7eb;
+    }
+
+    .cpl-section.is-light .cpl-empty .fa-graduation-cap,
+    html:not(.dark) .cpl-section .cpl-empty .fa-graduation-cap {
+        color: #d1d5db;
+    }
+
+    .cpl-section.is-light .cpl-empty-title,
+    html:not(.dark) .cpl-section .cpl-empty-title {
+        color: #6b7280;
+    }
+
+    .cpl-section.is-light .cpl-empty-subtitle,
+    html:not(.dark) .cpl-section .cpl-empty-subtitle {
+        color: #9ca3af;
+    }
+
+    .cpl-section.is-light .cpl-list-item,
+    html:not(.dark) .cpl-section .cpl-list-item {
+        background-color: rgba(248, 250, 252, 0.6);
+        border-color: #e5e7eb;
+    }
+
+    .cpl-section.is-light .cpl-list-item.is-selected,
+    html:not(.dark) .cpl-section .cpl-list-item.is-selected {
+        background-color: rgba(238, 242, 255, 0.6);
+        border-color: #c7d2fe;
+    }
+
+    .cpl-section.is-light .cpl-id-badge,
+    html:not(.dark) .cpl-section .cpl-id-badge {
+        background-color: #ccfbf1;
+        color: #0f766e;
+    }
+
+    .cpl-section.is-light .cpl-badge-active,
+    html:not(.dark) .cpl-section .cpl-badge-active {
+        background-color: #f0fdf4;
+        color: #15803d;
+        border-color: #bbf7d0;
+    }
+
+    .cpl-section.is-light .cpl-badge-inactive,
+    html:not(.dark) .cpl-section .cpl-badge-inactive {
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+
+    .cpl-section.is-light .cpl-item-text,
+    html:not(.dark) .cpl-section .cpl-item-text {
+        color: #374151;
+    }
+
+    .cpl-section.is-light .cpl-btn-icon-edit,
+    html:not(.dark) .cpl-section .cpl-btn-icon-edit {
+        color: #2563eb;
+    }
+
+    .cpl-section.is-light .cpl-btn-icon-edit:hover,
+    html:not(.dark) .cpl-section .cpl-btn-icon-edit:hover {
+        background-color: #eff6ff;
+    }
+
+    .cpl-section.is-light .cpl-btn-icon-delete,
+    html:not(.dark) .cpl-section .cpl-btn-icon-delete {
+        color: #dc2626;
+    }
+
+    .cpl-section.is-light .cpl-btn-icon-delete:hover,
+    html:not(.dark) .cpl-section .cpl-btn-icon-delete:hover {
+        background-color: #fef2f2;
+    }
+
+    /* CPL section — dark */
+    .cpl-section.is-dark,
+    html.dark .cpl-section {
+        background-color: #1e293b;
+        border-color: #374151;
+    }
+
+    .cpl-section.is-dark .cpl-section-header,
+    html.dark .cpl-section .cpl-section-header {
+        border-color: #374151;
+    }
+
+    .cpl-section.is-dark .cpl-section-title,
+    html.dark .cpl-section .cpl-section-title {
+        color: #e5e7eb;
+    }
+
+    .cpl-section.is-dark .cpl-btn-add,
+    html.dark .cpl-section .cpl-btn-add {
+        background-color: rgba(49, 46, 129, 0.3);
+        color: #818cf8;
+        border-color: #3730a3;
+    }
+
+    .cpl-section.is-dark .cpl-btn-add:hover,
+    html.dark .cpl-section .cpl-btn-add:hover {
+        background-color: rgba(49, 46, 129, 0.45);
+    }
+
+    .cpl-section.is-dark .cpl-badge-count,
+    html.dark .cpl-section .cpl-badge-count {
+        background-color: rgba(49, 46, 129, 0.3);
+        color: #a5b4fc;
+        border-color: #3730a3;
+    }
+
+    .cpl-section.is-dark .cpl-btn-delete,
+    html.dark .cpl-section .cpl-btn-delete {
+        background-color: rgba(127, 29, 29, 0.3);
+        color: #f87171;
+        border-color: #991b1b;
+    }
+
+    .cpl-section.is-dark .cpl-btn-delete:hover,
+    html.dark .cpl-section .cpl-btn-delete:hover {
+        background-color: rgba(127, 29, 29, 0.45);
+    }
+
+    .cpl-section.is-dark .cpl-form-panel,
+    html.dark .cpl-section .cpl-form-panel {
+        background-color: rgba(49, 46, 129, 0.1);
+        border-color: rgba(49, 46, 129, 0.4);
+    }
+
+    .cpl-section.is-dark .cpl-form-label,
+    html.dark .cpl-section .cpl-form-label {
+        color: #9ca3af;
+    }
+
+    .cpl-section.is-dark .cpl-input,
+    html.dark .cpl-section .cpl-input {
+        background-color: #0f172a;
+        border-color: #4b5563;
+        color: #ffffff;
+    }
+
+    .cpl-section.is-dark .cpl-btn-cancel,
+    html.dark .cpl-section .cpl-btn-cancel {
+        background-color: #374151;
+        color: #e5e7eb;
+    }
+
+    .cpl-section.is-dark .cpl-btn-cancel:hover,
+    html.dark .cpl-section .cpl-btn-cancel:hover {
+        background-color: #4b5563;
+    }
+
+    .cpl-section.is-dark .cpl-loading,
+    html.dark .cpl-section .cpl-loading {
+        color: #9ca3af;
+    }
+
+    .cpl-section.is-dark .cpl-empty,
+    html.dark .cpl-section .cpl-empty {
+        border-color: #374151;
+    }
+
+    .cpl-section.is-dark .cpl-empty .fa-graduation-cap,
+    html.dark .cpl-section .cpl-empty .fa-graduation-cap {
+        color: #4b5563;
+    }
+
+    .cpl-section.is-dark .cpl-empty-title,
+    html.dark .cpl-section .cpl-empty-title {
+        color: #9ca3af;
+    }
+
+    .cpl-section.is-dark .cpl-empty-subtitle,
+    html.dark .cpl-section .cpl-empty-subtitle {
+        color: #6b7280;
+    }
+
+    .cpl-section.is-dark .cpl-list-item,
+    html.dark .cpl-section .cpl-list-item {
+        background-color: rgba(15, 23, 42, 0.4);
+        border-color: #374151;
+    }
+
+    .cpl-section.is-dark .cpl-list-item.is-selected,
+    html.dark .cpl-section .cpl-list-item.is-selected {
+        background-color: rgba(49, 46, 129, 0.15);
+        border-color: rgba(99, 102, 241, 0.6);
+    }
+
+    .cpl-section.is-dark .cpl-id-badge,
+    html.dark .cpl-section .cpl-id-badge {
+        background-color: rgba(19, 78, 74, 0.4);
+        color: #5eead4;
+    }
+
+    .cpl-section.is-dark .cpl-badge-active,
+    html.dark .cpl-section .cpl-badge-active {
+        background-color: rgba(20, 83, 45, 0.2);
+        color: #4ade80;
+        border-color: #166534;
+    }
+
+    .cpl-section.is-dark .cpl-badge-inactive,
+    html.dark .cpl-section .cpl-badge-inactive {
+        background-color: rgba(127, 29, 29, 0.2);
+        color: #f87171;
+        border-color: #991b1b;
+    }
+
+    .cpl-section.is-dark .cpl-item-text,
+    html.dark .cpl-section .cpl-item-text {
+        color: #d1d5db;
+    }
+
+    .cpl-section.is-dark .cpl-btn-icon-edit,
+    html.dark .cpl-section .cpl-btn-icon-edit {
+        color: #60a5fa;
+    }
+
+    .cpl-section.is-dark .cpl-btn-icon-edit:hover,
+    html.dark .cpl-section .cpl-btn-icon-edit:hover {
+        background-color: rgba(30, 58, 138, 0.2);
+    }
+
+    .cpl-section.is-dark .cpl-btn-icon-delete,
+    html.dark .cpl-section .cpl-btn-icon-delete {
+        color: #f87171;
+    }
+
+    .cpl-section.is-dark .cpl-btn-icon-delete:hover,
+    html.dark .cpl-section .cpl-btn-icon-delete:hover {
+        background-color: rgba(127, 29, 29, 0.2);
+    }
+
+    /* Bulk toolbar */
+    .cpl-bulk-toolbar.is-light,
+    html:not(.dark) .cpl-section .cpl-bulk-toolbar {
         background-color: #f8fafc;
         border-color: #e5e7eb;
     }
 
-    .cpl-bulk-toolbar.is-dark {
+    .cpl-bulk-toolbar.is-dark,
+    html.dark .cpl-section .cpl-bulk-toolbar {
         background-color: #0f172a;
         border-color: #374151;
     }
 
-    .cpl-bulk-toolbar.is-light .cpl-bulk-label {
+    .cpl-bulk-toolbar.is-light .cpl-bulk-label,
+    html:not(.dark) .cpl-section .cpl-bulk-label {
         color: #4b5563;
     }
 
-    .cpl-bulk-toolbar.is-dark .cpl-bulk-label {
+    .cpl-bulk-toolbar.is-dark .cpl-bulk-label,
+    html.dark .cpl-section .cpl-bulk-label {
         color: #e5e7eb;
     }
 
@@ -624,20 +947,20 @@
     }
 
     .cpl-bulk-toolbar.is-dark .cpl-checkbox,
-    html.dark .cpl-checkbox {
+    html.dark .cpl-section .cpl-checkbox {
         color-scheme: dark;
         background-color: #1e293b;
         border-color: #4b5563;
     }
 
     .cpl-bulk-toolbar.is-dark .cpl-checkbox:checked,
-    html.dark .cpl-checkbox:checked {
+    html.dark .cpl-section .cpl-checkbox:checked {
         background-color: #4f46e5;
         border-color: #4f46e5;
     }
 
     .cpl-bulk-toolbar.is-dark .cpl-checkbox:disabled,
-    html.dark .cpl-checkbox:disabled {
+    html.dark .cpl-section .cpl-checkbox:disabled {
         opacity: 0.4;
         background-color: #0f172a;
         border-color: #374151;
