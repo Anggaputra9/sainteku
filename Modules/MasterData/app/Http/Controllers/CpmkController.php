@@ -108,6 +108,13 @@ class CpmkController extends Controller
         ]);
     }
 
+    public function legacyPostDestroy(Request $request, string $courseId, string $cpmkId): JsonResponse
+    {
+        $request->merge(['ids' => [$cpmkId]]);
+
+        return $this->bulkDestroy($request, $courseId);
+    }
+
     public function bulkDestroy(Request $request, string $courseId): JsonResponse
     {
         $this->ensureCourseExists($courseId);

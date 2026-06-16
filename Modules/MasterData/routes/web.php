@@ -28,13 +28,16 @@ Route::middleware([
 
     Route::get('units/api/data', [\Modules\MasterData\Http\Controllers\UnitController::class, 'getUnitsData'])->name('units.api.data');
 
-    // CPL per program studi
+    // CPL per program studi — {cpl} dibatasi CL-XX agar tidak menelan "bulk-delete"
+    $cplIdPattern = 'CL-\d{2}';
+
     Route::get('units/{unit}/cpl/api/data', [CplController::class, 'getCplData'])->name('units.cpl.api.data');
     Route::post('units/{unit}/cpl', [CplController::class, 'store'])->name('units.cpl.store');
     Route::post('units/{unit}/cpl/bulk-delete', [CplController::class, 'bulkDestroy'])->name('units.cpl.bulk.destroy');
-    Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->name('units.cpl.update');
-    Route::post('units/{unit}/cpl/{cpl}/delete', [CplController::class, 'destroy'])->name('units.cpl.delete');
-    Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->name('units.cpl.destroy');
+    Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->where('cpl', $cplIdPattern)->name('units.cpl.update');
+    Route::post('units/{unit}/cpl/{cpl}/delete', [CplController::class, 'destroy'])->where('cpl', $cplIdPattern)->name('units.cpl.delete');
+    Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->where('cpl', $cplIdPattern)->name('units.cpl.destroy');
+    Route::post('units/{unit}/cpl/{cpl}', [CplController::class, 'legacyPostDestroy'])->where('cpl', $cplIdPattern)->name('units.cpl.legacy.destroy');
 
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
 
@@ -79,13 +82,16 @@ Route::middleware([
     Route::post('courses/bulk', [CourseController::class, 'bulkStore'])->name('courses.bulk.store');
     Route::get('courses/bulk/template', [CourseController::class, 'downloadBulkTemplate'])->name('courses.bulk.template');
 
-    // CPMK per mata kuliah
+    // CPMK per mata kuliah — {cpmk} dibatasi CP-XX agar tidak menelan "bulk-delete"
+    $cpmkIdPattern = 'CP-\d{2}';
+
     Route::get('courses/{course}/cpmk/api/data', [CpmkController::class, 'getCpmkData'])->name('courses.cpmk.api.data');
     Route::post('courses/{course}/cpmk', [CpmkController::class, 'store'])->name('courses.cpmk.store');
     Route::post('courses/{course}/cpmk/bulk-delete', [CpmkController::class, 'bulkDestroy'])->name('courses.cpmk.bulk.destroy');
-    Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->name('courses.cpmk.update');
-    Route::post('courses/{course}/cpmk/{cpmk}/delete', [CpmkController::class, 'destroy'])->name('courses.cpmk.delete');
-    Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->name('courses.cpmk.destroy');
+    Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.update');
+    Route::post('courses/{course}/cpmk/{cpmk}/delete', [CpmkController::class, 'destroy'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.delete');
+    Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.destroy');
+    Route::post('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'legacyPostDestroy'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.legacy.destroy');
 
     // Pemetaan CPL ↔ CPMK per mata kuliah
     Route::get('courses/{course}/mapping/api/data', [CplCpmkMappingController::class, 'getMappingData'])->name('courses.mapping.api.data');

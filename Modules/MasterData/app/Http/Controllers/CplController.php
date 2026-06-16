@@ -102,6 +102,13 @@ class CplController extends Controller
         ]);
     }
 
+    public function legacyPostDestroy(Request $request, string $unitId, string $cplId): JsonResponse
+    {
+        $request->merge(['ids' => [$cplId]]);
+
+        return $this->bulkDestroy($request, $unitId);
+    }
+
     public function bulkDestroy(Request $request, string $unitId): JsonResponse
     {
         $this->ensureProdiExists($unitId);
