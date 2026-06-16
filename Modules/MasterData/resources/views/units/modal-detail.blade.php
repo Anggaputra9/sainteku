@@ -134,8 +134,9 @@
                                 <span>Pilih semua yang dapat dihapus</span>
                             </label>
                             <span x-show="cplSelectedIds.length > 0" x-cloak
-                                class="cpl-badge-count inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold border">
-                                <span x-text="cplSelectedIds.length"></span> terpilih
+                                class="cpl-badge-count inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border">
+                                <span x-text="cplSelectedIds.length"></span>
+                                <span>terpilih</span>
                             </span>
                             <button type="button" x-show="cplSelectedIds.length > 0" x-cloak @click="requestBulkDeleteCpl()"
                                 class="cpl-btn-delete ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition shadow-sm">
