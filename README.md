@@ -108,15 +108,46 @@ Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. 
 - Job `ScrapeNewsJob`.
 - Integrasi landing/blog section.
 
-## Instalasi Dev
+## Instalasi Cepat (disarankan)
 
 ```bash
 git clone https://github.com/Anggaputra9/sainteku.git
 cd sainteku
+cp .env.example .env   # edit DB & APP_URL dulu
+bash install.sh        # atau: bash scripts/install.sh
+```
+
+Opsi berguna:
+
+```bash
+bash install.sh --seed --dev              # dev + seeder
+sudo bash install.sh --with-whatsar       # + install Whatsar
+bash install.sh --help                    # semua opsi
+```
+
+## Update Rutin (VPS / production)
+
+Setelah `git pull` atau deploy kode baru:
+
+```bash
+bash update.sh
+# atau branch tertentu:
+bash update.sh --branch ar
+# tanpa git (mis. rsync manual):
+bash update.sh --no-git --restart-whatsar
+```
+
+`update.sh` menjalankan: git pull → composer → migrate → npm build → Laravel optimize.
+
+## Instalasi Dev (manual)
+
+```bash
 composer install
 npm install
 cp .env.example .env
 php artisan key:generate
+php artisan migrate --seed
+php artisan storage:link
 ```
 
 Konfigurasi DB di `.env`:
@@ -128,18 +159,6 @@ DB_PORT=3306
 DB_DATABASE=sainteku
 DB_USERNAME=root
 DB_PASSWORD=
-```
-
-Migrasi dan seeder:
-
-```bash
-php artisan migrate --seed
-```
-
-Storage link:
-
-```bash
-php artisan storage:link
 ```
 
 Jalankan aplikasi:
@@ -208,6 +227,9 @@ app/Services/WhatsarClient.php      HTTP client ke Whatsar API
 app/Services/WhatsappService.php    Kirim pesan WA (Whatsar/Fonnte/log)
 app/Http/Controllers/Settings/      Pengaturan email, AI, WhatsApp
 config/whatsapp.php                 Driver & konfigurasi WhatsApp
+install.sh / update.sh              Wrapper deploy (→ scripts/)
+scripts/install.sh                  Instalasi awal (composer, migrate, build)
+scripts/update.sh                   Update rutin (pull, migrate, optimize)
 scripts/whatsar-install.sh          Install binary Whatsar + systemd
 deploy/whatsar.service              Unit systemd Whatsar
 docs/whatsar/                       Roadmap & rencana integrasi
