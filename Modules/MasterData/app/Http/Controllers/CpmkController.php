@@ -30,10 +30,7 @@ class CpmkController extends Controller
             return $this->formatCpmkForApi($cpmk, $canDelete);
         });
 
-        return response()->json($data)
-            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
+        return response()->json($data);
     }
 
     public function store(Request $request, string $courseId): JsonResponse
@@ -229,7 +226,14 @@ class CpmkController extends Controller
         $used = [];
         $cpmkIdSet = array_flip($cpmkIds);
 
-        foreach (DB::table('trx_questions')->where('course_id', $courseId)->pluck('cpmk_id') as $cpmkJson) {
+        $query = DB::table('trx_questions')->where('course_id', $courseId);
+        $query->where(function ($builder) use ($cpmkIds): void {
+            foreach ($cpmkIds as $cpmkId) {
+                $builder->orWhereRaw('JSON_CONTAINS(cpmk_id, ?)', [json_encode($cpmkId)]);
+            }
+        });
+
+        foreach ($query->pluck('cpmk_id') as $cpmkJson) {
             $ids = json_decode($cpmkJson, true);
 
             if (! is_array($ids)) {
@@ -258,9 +262,9 @@ class CpmkController extends Controller
             'course_id' => $cpmk->course_id,
             'name' => $cpmk->name,
             'is_active' => $cpmk->is_active,
-            'update_url' => route('masterdata.courses.cpmk.update', [$cpmk->course_id, $cpmk->id]),
-            'delete_url' => route('masterdata.courses.cpmk.delete', [$cpmk->course_id, $cpmk->id]),
-            'bulk_destroy_url' => route('masterdata.courses.cpmk.bulk.destroy', $cpmk->course_id),
+            'update_url' => route('masterdata.courses.cpmk.update', [$cpmk->course_id, $cpmk->id], false),
+            'delete_url' => route('masterdata.courses.cpmk.delete', [$cpmk->course_id, $cpmk->id], false),
+            'bulk_destroy_url' => route('masterdata.courses.cpmk.bulk.destroy', $cpmk->course_id, false),
             'can_delete' => $canDelete,
         ];
     }

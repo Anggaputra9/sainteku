@@ -97,6 +97,44 @@
                 return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             },
 
+            normalizeApiUrl(url) {
+                if (!url) {
+                    return '';
+                }
+
+                if (url.startsWith('/')) {
+                    return url;
+                }
+
+                try {
+                    const parsed = new URL(url, window.location.origin);
+                    return parsed.pathname + parsed.search;
+                } catch (error) {
+                    return url;
+                }
+            },
+
+            resolveBulkUrl() {
+                const itemWithUnit = this.items.find(item => item.unit_id);
+                if (itemWithUnit?.unit_id) {
+                    return `/masterdata/units/${itemWithUnit.unit_id}/cpl/bulk-delete`;
+                }
+
+                const candidates = [
+                    this.bulkUrl,
+                    this.deleteUrl?.includes('/bulk-delete') ? this.deleteUrl : this.deleteUrl?.replace(/\/[^/]+\/delete$/, '/bulk-delete'),
+                ];
+
+                for (const candidate of candidates) {
+                    const normalized = this.normalizeApiUrl(candidate);
+                    if (normalized) {
+                        return normalized;
+                    }
+                }
+
+                return '';
+            },
+
             async parseJsonResponse(response) {
                 const text = await response.text();
 
@@ -117,7 +155,9 @@
                     return;
                 }
 
-                if (!this.bulkUrl) {
+                const bulkUrl = this.resolveBulkUrl();
+
+                if (!bulkUrl) {
                     window.dispatchEvent(new CustomEvent('cpl-delete-failed', {
                         bubbles: true,
                         detail: { message: 'URL hapus CPL tidak tersedia. Muat ulang halaman.' },
@@ -128,7 +168,7 @@
                 this.deleting = true;
 
                 try {
-                    const response = await fetch(this.bulkUrl, {
+                    const response = await fetch(bulkUrl, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',

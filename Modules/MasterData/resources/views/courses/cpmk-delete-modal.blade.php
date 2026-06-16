@@ -97,22 +97,39 @@
                 return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             },
 
-            resolveBulkUrl() {
-                if (this.bulkUrl) {
-                    return this.bulkUrl;
+            normalizeApiUrl(url) {
+                if (!url) {
+                    return '';
                 }
 
+                if (url.startsWith('/')) {
+                    return url;
+                }
+
+                try {
+                    const parsed = new URL(url, window.location.origin);
+                    return parsed.pathname + parsed.search;
+                } catch (error) {
+                    return url;
+                }
+            },
+
+            resolveBulkUrl() {
                 const itemWithCourse = this.items.find(item => item.course_id);
                 if (itemWithCourse?.course_id) {
                     return `/masterdata/courses/${itemWithCourse.course_id}/cpmk/bulk-delete`;
                 }
 
-                if (this.deleteUrl) {
-                    if (this.deleteUrl.includes('/bulk-delete')) {
-                        return this.deleteUrl;
-                    }
+                const candidates = [
+                    this.bulkUrl,
+                    this.deleteUrl?.includes('/bulk-delete') ? this.deleteUrl : this.deleteUrl?.replace(/\/[^/]+\/delete$/, '/bulk-delete'),
+                ];
 
-                    return this.deleteUrl.replace(/\/[^/]+\/delete$/, '/bulk-delete');
+                for (const candidate of candidates) {
+                    const normalized = this.normalizeApiUrl(candidate);
+                    if (normalized) {
+                        return normalized;
+                    }
                 }
 
                 return '';

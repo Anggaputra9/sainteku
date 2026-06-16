@@ -457,31 +457,42 @@
                 }
             },
 
-            resolveCpmkBulkDestroyUrl(cpmk = null) {
-                if (cpmk?.bulk_destroy_url) {
-                    return cpmk.bulk_destroy_url;
+            normalizeApiUrl(url) {
+                if (!url) {
+                    return '';
                 }
 
+                if (url.startsWith('/')) {
+                    return url;
+                }
+
+                try {
+                    const parsed = new URL(url, window.location.origin);
+                    return parsed.pathname + parsed.search;
+                } catch (error) {
+                    return url;
+                }
+            },
+
+            resolveCpmkBulkDestroyUrl(cpmk = null) {
                 const courseId = cpmk?.course_id || this.courseData?.id;
                 if (courseId) {
                     return `/masterdata/courses/${courseId}/cpmk/bulk-delete`;
                 }
 
-                if (cpmk?.delete_url) {
-                    return cpmk.delete_url.replace(/\/[^/]+\/delete$/, '/bulk-delete');
-                }
+                const candidates = [
+                    cpmk?.bulk_destroy_url,
+                    cpmk?.delete_url?.replace(/\/[^/]+\/delete$/, '/bulk-delete'),
+                    this.cpmkList.find(item => item.bulk_destroy_url)?.bulk_destroy_url,
+                    this.courseData?.cpmk_bulk_destroy_url,
+                    this.courseData?.cpmk_api_url?.replace(/\/api\/data\/?$/, '/bulk-delete'),
+                ];
 
-                const fromList = this.cpmkList.find(item => item.bulk_destroy_url)?.bulk_destroy_url;
-                if (fromList) {
-                    return fromList;
-                }
-
-                if (this.courseData?.cpmk_bulk_destroy_url) {
-                    return this.courseData.cpmk_bulk_destroy_url;
-                }
-
-                if (this.courseData?.cpmk_api_url) {
-                    return this.courseData.cpmk_api_url.replace(/\/api\/data\/?$/, '/bulk-delete');
+                for (const candidate of candidates) {
+                    const normalized = this.normalizeApiUrl(candidate);
+                    if (normalized) {
+                        return normalized;
+                    }
                 }
 
                 return '';
@@ -523,14 +534,21 @@
                 this.courseName = event.detail.courseName;
                 this.canDelete = event.detail.canDelete ?? false;
                 this.editSnapshot = null;
-                this.courseData = { ...event.detail.courseData };
+                const rawCourseData = event.detail.courseData || {};
+                this.courseData = {
+                    ...rawCourseData,
+                    cpmk_api_url: this.normalizeApiUrl(rawCourseData.cpmk_api_url),
+                    cpmk_store_url: this.normalizeApiUrl(rawCourseData.cpmk_store_url),
+                    cpmk_bulk_destroy_url: this.normalizeApiUrl(rawCourseData.cpmk_bulk_destroy_url),
+                    mapping_api_url: this.normalizeApiUrl(rawCourseData.mapping_api_url),
+                    mapping_sync_url: this.normalizeApiUrl(rawCourseData.mapping_sync_url),
+                };
                 this.editFakultas = this.courseData.fakultas_id || '';
                 this.editActive = this.courseData.active ? '1' : '0';
                 this.resetCpmkForm();
                 this.mappingAlert = { type: '', message: '' };
                 this.loadEditProdis(true);
                 this.fetchCpmkList();
-                this.fetchMappingData();
             },
 
             async fetchCpmkList() {
@@ -546,9 +564,24 @@
                     });
 
                     if (response.ok) {
-                        this.cpmkList = await response.json();
+                        const rows = await response.json();
+                        this.cpmkList = rows.map((row) => ({
+                            ...row,
+                            update_url: this.normalizeApiUrl(row.update_url),
+                            delete_url: this.normalizeApiUrl(row.delete_url),
+                            bulk_destroy_url: this.normalizeApiUrl(row.bulk_destroy_url),
+                        }));
                         this.courseData.cpmk_count = this.cpmkList.length;
                         this.cpmkSelectedIds = this.cpmkSelectedIds.filter(id => this.cpmkList.some(cpmk => cpmk.id === id));
+
+                        if (this.cpmkList.length > 0) {
+                            this.fetchMappingData();
+                        } else {
+                            this.mappingCpmks = [];
+                            this.mappingCpls = [];
+                            this.mappingState = {};
+                            this.mappingLoading = false;
+                        }
                     }
                 } catch (error) {
                     console.error('Gagal memuat CPMK', error);
@@ -690,8 +723,6 @@
                 }
 
                 this.flashCpmk('success', event.detail?.message || 'CPMK berhasil dihapus.');
-                await this.fetchCpmkList();
-                await this.fetchMappingData();
             },
 
             handleCpmkDeleteFailed(event) {

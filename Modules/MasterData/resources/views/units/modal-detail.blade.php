@@ -387,22 +387,42 @@
                 }
             },
 
-            resolveCplBulkDestroyUrl() {
-                const fromList = this.cplList.find(cpl => cpl.bulk_destroy_url)?.bulk_destroy_url;
-                if (fromList) {
-                    return fromList;
+            normalizeApiUrl(url) {
+                if (!url) {
+                    return '';
                 }
 
-                if (this.unitData.cpl_bulk_destroy_url) {
-                    return this.unitData.cpl_bulk_destroy_url;
+                if (url.startsWith('/')) {
+                    return url;
                 }
 
-                if (this.unitData.cpl_api_url) {
-                    return this.unitData.cpl_api_url.replace(/\/api\/data\/?$/, '/bulk-delete');
+                try {
+                    const parsed = new URL(url, window.location.origin);
+                    return parsed.pathname + parsed.search;
+                } catch (error) {
+                    return url;
+                }
+            },
+
+            resolveCplBulkDestroyUrl(cpl = null) {
+                const unitId = cpl?.unit_id || this.unitData?.id;
+                if (unitId) {
+                    return `/masterdata/units/${unitId}/cpl/bulk-delete`;
                 }
 
-                if (this.unitData.id && String(this.unitData.type) === '3') {
-                    return `/masterdata/units/${this.unitData.id}/cpl/bulk-delete`;
+                const candidates = [
+                    cpl?.bulk_destroy_url,
+                    cpl?.delete_url?.replace(/\/[^/]+\/delete$/, '/bulk-delete'),
+                    this.cplList.find(item => item.bulk_destroy_url)?.bulk_destroy_url,
+                    this.unitData?.cpl_bulk_destroy_url,
+                    this.unitData?.cpl_api_url?.replace(/\/api\/data\/?$/, '/bulk-delete'),
+                ];
+
+                for (const candidate of candidates) {
+                    const normalized = this.normalizeApiUrl(candidate);
+                    if (normalized) {
+                        return normalized;
+                    }
                 }
 
                 return '';
@@ -417,7 +437,13 @@
                 this.unitName = event.detail.unitName;
                 this.canDelete = event.detail.canDelete ?? false;
                 this.editSnapshot = null;
-                this.unitData = { ...event.detail.unitData };
+                const rawUnitData = event.detail.unitData || {};
+                this.unitData = {
+                    ...rawUnitData,
+                    cpl_api_url: this.normalizeApiUrl(rawUnitData.cpl_api_url),
+                    cpl_store_url: this.normalizeApiUrl(rawUnitData.cpl_store_url),
+                    cpl_bulk_destroy_url: this.normalizeApiUrl(rawUnitData.cpl_bulk_destroy_url),
+                };
                 this.resetCplForm();
                 this.cplSelectedIds = [];
                 if (this.unitData.type == '3') {
@@ -438,7 +464,13 @@
                     });
 
                     if (response.ok) {
-                        this.cplList = await response.json();
+                        const rows = await response.json();
+                        this.cplList = rows.map((row) => ({
+                            ...row,
+                            update_url: this.normalizeApiUrl(row.update_url),
+                            delete_url: this.normalizeApiUrl(row.delete_url),
+                            bulk_destroy_url: this.normalizeApiUrl(row.bulk_destroy_url),
+                        }));
                         this.unitData.cpl_count = this.cplList.length;
                         this.cplSelectedIds = this.cplSelectedIds.filter(id => this.cplList.some(cpl => cpl.id === id));
                     }
@@ -547,19 +579,16 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCplBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpl('error', 'URL hapus CPL tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
+                const unitId = cpl.unit_id || this.unitData?.id || '';
+                const bulkUrl = this.resolveCplBulkDestroyUrl(cpl);
 
                 window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
-                        items: [{ id: cpl.id, name: cpl.name }],
+                        items: [{ id: cpl.id, name: cpl.name, unit_id: unitId }],
                         bulkUrl,
+                        deleteUrl: cpl.delete_url || '',
                     },
                 }));
             },
@@ -571,19 +600,18 @@
 
                 const items = this.cplList
                     .filter(cpl => this.cplSelectedIds.includes(cpl.id) && cpl.can_delete)
-                    .map(cpl => ({ id: cpl.id, name: cpl.name }));
+                    .map(cpl => ({
+                        id: cpl.id,
+                        name: cpl.name,
+                        unit_id: cpl.unit_id || this.unitData?.id || '',
+                    }));
 
                 if (items.length === 0) {
                     this.flashCpl('error', 'Tidak ada CPL terpilih yang dapat dihapus.');
                     return;
                 }
 
-                const bulkUrl = this.resolveCplBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpl('error', 'URL hapus bulk CPL tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
+                const bulkUrl = this.resolveCplBulkDestroyUrl(items[0]);
 
                 window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
                     bubbles: true,
@@ -607,7 +635,6 @@
                 }
 
                 this.flashCpl('success', event.detail?.message || 'CPL berhasil dihapus.');
-                await this.fetchCplList();
             },
 
             handleCplDeleteFailed(event) {

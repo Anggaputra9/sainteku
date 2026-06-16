@@ -134,11 +134,11 @@ class UnitController extends Controller
             'child_count' => $childCount,
             'user_count' => $userCount,
             'cpl_count' => $cplCount,
-            'cpl_api_url' => $isProdi ? route('masterdata.units.cpl.api.data', $unit->id) : null,
-            'cpl_store_url' => $isProdi ? route('masterdata.units.cpl.store', $unit->id) : null,
-            'cpl_bulk_destroy_url' => $isProdi ? route('masterdata.units.cpl.bulk.destroy', $unit->id) : null,
-            'update_url' => route('masterdata.units.update', $unit->id),
-            'delete_url' => route('masterdata.units.destroy', $unit->id),
+            'cpl_api_url' => $isProdi ? route('masterdata.units.cpl.api.data', $unit->id, false) : null,
+            'cpl_store_url' => $isProdi ? route('masterdata.units.cpl.store', $unit->id, false) : null,
+            'cpl_bulk_destroy_url' => $isProdi ? route('masterdata.units.cpl.bulk.destroy', $unit->id, false) : null,
+            'update_url' => route('masterdata.units.update', $unit->id, false),
+            'delete_url' => route('masterdata.units.destroy', $unit->id, false),
             'can_delete' => $childCount === 0 && $userCount === 0,
         ];
     }
