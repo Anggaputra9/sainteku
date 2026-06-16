@@ -107,38 +107,38 @@
                 </div>
 
                 <div x-show="unitData.type == '3'" class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
-                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 space-y-2">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
                         <div class="flex items-center justify-between gap-3">
                             <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                                 <i class="fa-solid fa-graduation-cap text-indigo-500"></i> CPL Program Studi
                             </h4>
-                            <div class="flex items-center gap-2">
-                                <button type="button" x-show="cplSelectedIds.length > 0" x-cloak @click="requestBulkDeleteCpl()"
-                                    class="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800 transition">
-                                    <i class="fa-solid fa-trash-alt"></i>
-                                    Hapus Terpilih (<span x-text="cplSelectedIds.length"></span>)
-                                </button>
-                                <button type="button" @click="showCplForm = !showCplForm"
-                                    class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition">
-                                    <i class="fa-solid fa-plus"></i> Tambah
-                                </button>
-                            </div>
-                        </div>
-                        <div x-show="!cplLoading && cplList.length > 0" x-cloak
-                            class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-[#0f172a]/60">
-                            <label class="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                                <input type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-[#0f172a]"
-                                    :checked="allDeletableCplSelected()"
-                                    @change="toggleSelectAllCpl($event.target.checked)">
-                                Pilih semua yang dapat dihapus
-                            </label>
-                            <span class="text-[11px] font-medium text-gray-400" x-show="cplSelectedIds.length > 0">
-                                <span x-text="cplSelectedIds.length"></span> terpilih
-                            </span>
+                            <button type="button" @click="showCplForm = !showCplForm"
+                                class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition shadow-sm">
+                                <i class="fa-solid fa-plus"></i> Tambah
+                            </button>
                         </div>
                     </div>
 
                     <div class="p-5 space-y-4">
+                        <div x-show="!cplLoading && cplList.length > 0" x-cloak
+                            class="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed border-gray-200 bg-slate-50/80 px-3 py-2.5 dark:border-gray-600 dark:bg-[#0f172a]/40">
+                            <label class="inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                <input type="checkbox"
+                                    class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 accent-indigo-600 dark:border-gray-500 dark:bg-gray-800"
+                                    :checked="allDeletableCplSelected()"
+                                    @change="toggleSelectAllCpl($event.target.checked)">
+                                <span>Pilih semua</span>
+                            </label>
+                            <span x-show="cplSelectedIds.length > 0" x-cloak
+                                class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
+                                <span x-text="cplSelectedIds.length"></span> terpilih
+                            </span>
+                            <button type="button" x-show="cplSelectedIds.length > 0" x-cloak @click="requestBulkDeleteCpl()"
+                                class="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 border border-red-200 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800 transition shadow-sm">
+                                <i class="fa-solid fa-trash-alt"></i>
+                                Hapus Terpilih
+                            </button>
+                        </div>
                         <div x-show="cplAlert.message" x-cloak
                             class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
                             :class="cplAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
@@ -189,27 +189,33 @@
 
                         <div x-show="!cplLoading && cplList.length > 0" class="space-y-2">
                             <template x-for="cpl in cplList" :key="cpl.id">
-                                <div class="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 dark:border-gray-700 dark:bg-[#0f172a]/40"
-                                    :class="cplSelectedIds.includes(cpl.id) ? 'ring-2 ring-indigo-200 dark:ring-indigo-800' : ''">
-                                    <div class="flex shrink-0 items-start pt-0.5">
+                                <div class="flex items-start gap-3 rounded-xl border px-3 py-3 transition-colors sm:px-4"
+                                    :class="cplSelectedIds.includes(cpl.id)
+                                        ? 'border-indigo-200 bg-indigo-50/60 dark:border-indigo-800/60 dark:bg-indigo-900/15'
+                                        : 'border-gray-200 bg-slate-50/60 dark:border-gray-700 dark:bg-[#0f172a]/40'">
+                                    <div class="flex shrink-0 items-center pt-1">
                                         <input type="checkbox"
                                             :checked="cplSelectedIds.includes(cpl.id)"
                                             @change="toggleCplSelection(cpl.id, $event.target.checked)"
                                             :disabled="!cpl.can_delete"
-                                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-40 dark:border-gray-600 dark:bg-[#0f172a]"
+                                            class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 accent-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-500 dark:bg-gray-800"
                                             :title="cpl.can_delete ? 'Pilih CPL' : 'CPL masih dipetakan ke CPMK'">
                                     </div>
                                     <div class="min-w-0 flex-1">
                                         <div class="flex flex-wrap items-center gap-2 mb-1">
                                             <span class="inline-flex rounded-md bg-teal-100 px-2 py-0.5 text-xs font-bold font-mono text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" x-text="cpl.id"></span>
                                             <span x-show="cpl.is_active == '1'"
-                                                class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200">Aktif</span>
+                                                class="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span> Aktif
+                                            </span>
                                             <span x-show="cpl.is_active != '1'"
-                                                class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200">Nonaktif</span>
+                                                class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-red-600"></span> Nonaktif
+                                            </span>
                                         </div>
                                         <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug" x-text="cpl.name"></p>
                                     </div>
-                                    <div class="flex shrink-0 items-center gap-1">
+                                    <div class="flex shrink-0 items-center gap-0.5 self-center">
                                         <button type="button" @click="editCpl(cpl)"
                                             class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit">
                                             <i class="fas fa-edit text-xs"></i>
@@ -580,3 +586,18 @@
         }));
     });
 </script>
+
+<style>
+    .cpl-checkbox {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .cpl-checkbox:focus,
+    .cpl-checkbox:focus-visible,
+    .cpl-checkbox:active {
+        outline: none;
+        box-shadow: none;
+        --tw-ring-shadow: 0 0 #0000;
+    }
+</style>

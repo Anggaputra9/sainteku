@@ -19,13 +19,16 @@
             </div>
 
             <div class="p-6 space-y-4 bg-slate-50 dark:bg-[#0f172a]">
-                <p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line" x-text="message"></p>
+                <p class="text-sm leading-relaxed text-gray-600 dark:text-gray-300" x-text="message"></p>
 
-                <div x-show="mode === 'bulk' && items.length > 0" class="max-h-32 overflow-y-auto rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-[#1e293b] custom-scrollbar">
-                    <template x-for="item in items" :key="item.id">
-                        <div class="py-1 text-xs text-gray-600 dark:text-gray-300">
-                            <span class="font-bold font-mono text-teal-700 dark:text-teal-300" x-text="item.id"></span>
-                            <span x-show="item.name"> — <span x-text="item.name"></span></span>
+                <div x-show="mode === 'bulk' && items.length > 0" class="max-h-36 overflow-y-auto rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-[#1e293b] custom-scrollbar">
+                    <template x-for="(item, index) in items" :key="item.id">
+                        <div class="flex items-start gap-3 border-b border-gray-100 px-3 py-2.5 last:border-b-0 dark:border-gray-700/60">
+                            <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400" x-text="index + 1"></span>
+                            <div class="min-w-0 flex-1">
+                                <span class="font-bold font-mono text-xs text-teal-700 dark:text-teal-300" x-text="item.id"></span>
+                                <p x-show="item.name" class="mt-0.5 text-xs leading-snug text-gray-600 dark:text-gray-400" x-text="item.name"></p>
+                            </div>
                         </div>
                     </template>
                 </div>
