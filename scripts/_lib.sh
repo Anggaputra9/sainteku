@@ -95,7 +95,8 @@ is_freebsd() {
 sed_inplace() {
     local file="$1"
     local expression="$2"
-    if [[ "${OS_FAMILY}" == "darwin" ]]; then
+    # BSD sed (macOS, FreeBSD) requires '' after -i; GNU sed (Linux) does not.
+    if [[ "${OS_FAMILY}" == "darwin" || "${OS_FAMILY}" == "freebsd" ]]; then
         sed -i '' "$expression" "$file"
     else
         sed -i "$expression" "$file"
