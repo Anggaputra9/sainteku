@@ -218,6 +218,7 @@ class CplController extends Controller
             'is_active' => $cpl->is_active,
             'update_url' => route('masterdata.units.cpl.update', [$cpl->unit_id, $cpl->id]),
             'delete_url' => route('masterdata.units.cpl.delete', [$cpl->unit_id, $cpl->id]),
+            'bulk_destroy_url' => route('masterdata.units.cpl.bulk.destroy', $cpl->unit_id),
             'can_delete' => $canDelete,
         ];
     }

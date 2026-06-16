@@ -1,8 +1,7 @@
 <template x-teleport="#modal-root">
 <div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpmk-deleted.window="handleCpmkDeleted($event)" @cpmk-delete-failed.window="handleCpmkDeleteFailed($event)"
-    @confirm-modal-opened.window="confirmModalOpen = true"
-    @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
+    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
     x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
@@ -12,7 +11,7 @@
     <div @click.away="closeDetailIfAllowed()"
         class="course-detail-modal relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl transition-all overflow-hidden">
 
-        {{-- HEADER --}}
+        
         <div class="shrink-0 flex items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-8 py-3 sm:py-4 z-20 dark:bg-[#1e293b] dark:border-gray-700 shadow-sm sticky top-0">
             <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
                 <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
@@ -27,7 +26,7 @@
             <div class="shrink-0 w-8 sm:w-9"></div>
         </div>
 
-        {{-- MODE LIHAT --}}
+        
         <div x-show="!editMode" class="flex flex-col flex-1 overflow-hidden">
             <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
                 <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
@@ -321,10 +320,10 @@
             </div>
         </div>
 
-        {{-- MODE EDIT --}}
+        
         <form x-show="editMode" :action="url" method="POST" class="flex flex-col flex-1 overflow-hidden m-0">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
             <div class="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a] custom-scrollbar">
                 <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
                     <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
@@ -352,9 +351,9 @@
                             <select x-model="editFakultas" @change="loadEditProdis()" required
                                 class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
                                 <option value="">-- Pilih Fakultas --</option>
-                                @foreach($faculties as $fak)
-                                    <option value="{{ $fak->id }}">{{ $fak->unit_name }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $faculties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fak): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($fak->id); ?>"><?php echo e($fak->unit_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div>
@@ -404,7 +403,6 @@
         return {
             openDetail: false,
             confirmModalOpen: false,
-            suppressDetailCloseUntil: 0,
             editMode: false,
             canDelete: false,
             url: '',
@@ -448,34 +446,9 @@
             mappingAlert: { type: '', message: '' },
 
             closeDetailIfAllowed() {
-                if (Date.now() < this.suppressDetailCloseUntil) {
-                    return;
-                }
-
                 if (!this.confirmModalOpen) {
                     this.openDetail = false;
                 }
-            },
-
-            resolveCpmkBulkDestroyUrl() {
-                const fromList = this.cpmkList.find(cpmk => cpmk.bulk_destroy_url)?.bulk_destroy_url;
-                if (fromList) {
-                    return fromList;
-                }
-
-                if (this.courseData.cpmk_bulk_destroy_url) {
-                    return this.courseData.cpmk_bulk_destroy_url;
-                }
-
-                if (this.courseData.cpmk_api_url) {
-                    return this.courseData.cpmk_api_url.replace(/\/api\/data\/?$/, '/bulk-delete');
-                }
-
-                if (this.courseData.id) {
-                    return `/masterdata/courses/${this.courseData.id}/cpmk/bulk-delete`;
-                }
-
-                return '';
             },
 
             allDeletableCpmkSelected() {
@@ -530,6 +503,8 @@
                 }
 
                 this.cpmkLoading = true;
+                this.cpmkList = [];
+                this.cpmkSelectedIds = [];
 
                 try {
                     const response = await fetch(this.courseData.cpmk_api_url, {
@@ -625,19 +600,12 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpmk('error', 'URL hapus CPMK tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
-
                 window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
                         items: [{ id: cpmk.id, name: cpmk.name }],
-                        bulkUrl,
+                        deleteUrl: cpmk.delete_url,
                     },
                 }));
             },
@@ -656,9 +624,7 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl();
-
-                if (!bulkUrl) {
+                if (!this.courseData.cpmk_bulk_destroy_url) {
                     this.flashCpmk('error', 'URL hapus bulk CPMK tidak tersedia. Muat ulang halaman.');
                     return;
                 }
@@ -668,23 +634,14 @@
                     detail: {
                         mode: 'bulk',
                         items,
-                        bulkUrl,
+                        bulkUrl: this.courseData.cpmk_bulk_destroy_url,
                     },
                 }));
             },
 
             async handleCpmkDeleted(event) {
-                const deletedIds = event.detail?.deletedIds || [];
-
-                if (deletedIds.length > 0) {
-                    this.cpmkList = this.cpmkList.filter(cpmk => !deletedIds.includes(cpmk.id));
-                    this.courseData.cpmk_count = this.cpmkList.length;
-                    this.cpmkSelectedIds = this.cpmkSelectedIds.filter(id => !deletedIds.includes(id));
-                } else {
-                    this.cpmkSelectedIds = [];
-                }
-
                 this.flashCpmk('success', event.detail?.message || 'CPMK berhasil dihapus.');
+                this.cpmkSelectedIds = [];
                 await this.fetchCpmkList();
                 await this.fetchMappingData();
             },
@@ -807,7 +764,7 @@
                 }
 
                 try {
-                    const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.editFakultas}`, {
+                    const response = await fetch(`<?php echo e(route('masterdata.courses.api.prodis')); ?>?fakultas_id=${this.editFakultas}`, {
                         headers: { 'Accept': 'application/json' },
                     });
                     if (response.ok) {
@@ -848,4 +805,4 @@
             },
         };
     }
-</script>
+</script><?php /**PATH /mnt/volume_sgp1_1781186006004/projects/sainteku/Modules/MasterData/resources/views/courses/modal-detail.blade.php ENDPATH**/ ?>

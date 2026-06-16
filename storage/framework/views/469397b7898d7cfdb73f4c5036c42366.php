@@ -1,8 +1,7 @@
 <template x-teleport="#modal-root">
 <div x-data="unitDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpl-deleted.window="handleCplDeleted($event)" @cpl-delete-failed.window="handleCplDeleteFailed($event)"
-    @confirm-modal-opened.window="confirmModalOpen = true"
-    @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
+    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
     x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
@@ -12,7 +11,7 @@
     <div @click.away="closeDetailIfAllowed()"
         class="unit-detail-modal relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl transition-all overflow-hidden">
 
-        {{-- HEADER --}}
+        
         <div class="unit-detail-modal__header shrink-0 flex items-center justify-between border-b px-4 sm:px-8 py-3 sm:py-4 z-20 sticky top-0">
             <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3 pr-4">
                 <div class="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl border border-blue-100 bg-blue-50 dark:border-blue-800/50 dark:bg-blue-900/30">
@@ -27,7 +26,7 @@
             <div class="shrink-0 w-8 sm:w-9"></div>
         </div>
 
-        {{-- MODE LIHAT --}}
+        
         <div x-show="!editMode" class="flex flex-col flex-1 overflow-hidden">
             <div class="unit-detail-modal__scroll flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 custom-scrollbar">
                 <div class="unit-detail-modal__card rounded-xl border">
@@ -256,10 +255,10 @@
             </div>
         </div>
 
-        {{-- MODE EDIT --}}
+        
         <form x-show="editMode" :action="url" method="POST" class="flex flex-col flex-1 overflow-hidden m-0">
-            @csrf
-            @method('PUT')
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
             <div class="unit-detail-modal__scroll flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 space-y-5 custom-scrollbar">
                 <div class="unit-detail-modal__card rounded-xl border">
                     <div class="unit-detail-modal__card-header px-5 py-3 border-b">
@@ -288,9 +287,9 @@
                             <select name="unit_type_id" x-model="unitData.type" required
                                 class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
                                 <option value="">-- Pilih Level Unit --</option>
-                                @foreach($unitTypes as $type)
-                                    <option value="{{ $type->id }}">{{ $type->description ?? 'Tipe ' . $type->id }}</option>
-                                @endforeach
+                                <?php $__currentLoopData = $unitTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($type->id); ?>"><?php echo e($type->description ?? 'Tipe ' . $type->id); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div>
@@ -298,11 +297,12 @@
                             <select name="unit_parent" x-model="unitData.parent"
                                 class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
                                 <option value="">-- Tidak Ada (Sebagai Induk Tertinggi) --</option>
-                                @foreach($parentUnits as $parent)
-                                    <option value="{{ $parent->id }}" x-bind:disabled="'{{ $parent->id }}' === unitData.id">
-                                        {{ $parent->id }} - {{ $parent->unit_name }}
+                                <?php $__currentLoopData = $parentUnits; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $parent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($parent->id); ?>" x-bind:disabled="'<?php echo e($parent->id); ?>' === unitData.id">
+                                        <?php echo e($parent->id); ?> - <?php echo e($parent->unit_name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div class="md:col-span-2">
@@ -337,7 +337,6 @@
         Alpine.data('unitDetailModal', () => ({
             openDetail: false,
             confirmModalOpen: false,
-            suppressDetailCloseUntil: 0,
             editMode: false,
             canDelete: false,
             url: '',
@@ -378,34 +377,9 @@
             },
 
             closeDetailIfAllowed() {
-                if (Date.now() < this.suppressDetailCloseUntil) {
-                    return;
-                }
-
                 if (!this.confirmModalOpen) {
                     this.openDetail = false;
                 }
-            },
-
-            resolveCplBulkDestroyUrl() {
-                const fromList = this.cplList.find(cpl => cpl.bulk_destroy_url)?.bulk_destroy_url;
-                if (fromList) {
-                    return fromList;
-                }
-
-                if (this.unitData.cpl_bulk_destroy_url) {
-                    return this.unitData.cpl_bulk_destroy_url;
-                }
-
-                if (this.unitData.cpl_api_url) {
-                    return this.unitData.cpl_api_url.replace(/\/api\/data\/?$/, '/bulk-delete');
-                }
-
-                if (this.unitData.id && String(this.unitData.type) === '3') {
-                    return `/masterdata/units/${this.unitData.id}/cpl/bulk-delete`;
-                }
-
-                return '';
             },
 
             handleOpenDetail(event) {
@@ -431,6 +405,8 @@
                 }
 
                 this.cplLoading = true;
+                this.cplList = [];
+                this.cplSelectedIds = [];
 
                 try {
                     const response = await fetch(this.unitData.cpl_api_url, {
@@ -547,19 +523,12 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCplBulkDestroyUrl();
-
-                if (!bulkUrl) {
-                    this.flashCpl('error', 'URL hapus CPL tidak tersedia. Muat ulang halaman.');
-                    return;
-                }
-
                 window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
                         items: [{ id: cpl.id, name: cpl.name }],
-                        bulkUrl,
+                        deleteUrl: cpl.delete_url,
                     },
                 }));
             },
@@ -578,9 +547,7 @@
                     return;
                 }
 
-                const bulkUrl = this.resolveCplBulkDestroyUrl();
-
-                if (!bulkUrl) {
+                if (!this.unitData.cpl_bulk_destroy_url) {
                     this.flashCpl('error', 'URL hapus bulk CPL tidak tersedia. Muat ulang halaman.');
                     return;
                 }
@@ -590,23 +557,14 @@
                     detail: {
                         mode: 'bulk',
                         items,
-                        bulkUrl,
+                        bulkUrl: this.unitData.cpl_bulk_destroy_url,
                     },
                 }));
             },
 
             async handleCplDeleted(event) {
-                const deletedIds = event.detail?.deletedIds || [];
-
-                if (deletedIds.length > 0) {
-                    this.cplList = this.cplList.filter(cpl => !deletedIds.includes(cpl.id));
-                    this.unitData.cpl_count = this.cplList.length;
-                    this.cplSelectedIds = this.cplSelectedIds.filter(id => !deletedIds.includes(id));
-                } else {
-                    this.cplSelectedIds = [];
-                }
-
                 this.flashCpl('success', event.detail?.message || 'CPL berhasil dihapus.');
+                this.cplSelectedIds = [];
                 await this.fetchCplList();
             },
 
@@ -638,4 +596,4 @@
             },
         }));
     });
-</script>
+</script><?php /**PATH /mnt/volume_sgp1_1781186006004/projects/sainteku/Modules/MasterData/resources/views/units/modal-detail.blade.php ENDPATH**/ ?>
