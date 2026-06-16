@@ -155,6 +155,7 @@
 
         @include('masterdata::units.modal-create')
         @include('masterdata::units.modal-detail')
+        @include('masterdata::units.cpl-delete-modal')
         @include('masterdata::units.delete-modal')
 
         {{-- FAB Filter --}}
