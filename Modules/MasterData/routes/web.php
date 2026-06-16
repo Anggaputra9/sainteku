@@ -34,6 +34,7 @@ Route::middleware([
     Route::get('units/{unit}/cpl/api/data', [CplController::class, 'getCplData'])->name('units.cpl.api.data');
     Route::post('units/{unit}/cpl', [CplController::class, 'store'])->name('units.cpl.store');
     Route::post('units/{unit}/cpl/bulk-delete', [CplController::class, 'bulkDestroy'])->name('units.cpl.bulk.destroy');
+    Route::post('units/{unit}/cpl/{cpl}/update', [CplController::class, 'update'])->where('cpl', $cplIdPattern)->name('units.cpl.update.post');
     Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->where('cpl', $cplIdPattern)->name('units.cpl.update');
     Route::post('units/{unit}/cpl/{cpl}/delete', [CplController::class, 'destroy'])->where('cpl', $cplIdPattern)->name('units.cpl.delete');
     Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->where('cpl', $cplIdPattern)->name('units.cpl.destroy');
@@ -88,6 +89,7 @@ Route::middleware([
     Route::get('courses/{course}/cpmk/api/data', [CpmkController::class, 'getCpmkData'])->name('courses.cpmk.api.data');
     Route::post('courses/{course}/cpmk', [CpmkController::class, 'store'])->name('courses.cpmk.store');
     Route::post('courses/{course}/cpmk/bulk-delete', [CpmkController::class, 'bulkDestroy'])->name('courses.cpmk.bulk.destroy');
+    Route::post('courses/{course}/cpmk/{cpmk}/update', [CpmkController::class, 'update'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.update.post');
     Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.update');
     Route::post('courses/{course}/cpmk/{cpmk}/delete', [CpmkController::class, 'destroy'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.delete');
     Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->where('cpmk', $cpmkIdPattern)->name('courses.cpmk.destroy');
@@ -95,6 +97,7 @@ Route::middleware([
 
     // Pemetaan CPL ↔ CPMK per mata kuliah
     Route::get('courses/{course}/mapping/api/data', [CplCpmkMappingController::class, 'getMappingData'])->name('courses.mapping.api.data');
+    Route::post('courses/{course}/mapping/sync', [CplCpmkMappingController::class, 'sync'])->name('courses.mapping.sync.post');
     Route::put('courses/{course}/mapping', [CplCpmkMappingController::class, 'sync'])->name('courses.mapping.sync');
 
     // Route Resource ditaruh di BAWAH API

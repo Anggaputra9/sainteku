@@ -459,6 +459,30 @@
                 }
             },
 
+            cpmkPostUpdateUrl(url) {
+                const normalized = this.normalizeApiUrl(url);
+                if (!normalized) {
+                    return '';
+                }
+
+                return normalized.endsWith('/update') ? normalized : `${normalized.replace(/\/$/, '')}/update`;
+            },
+
+            mappingPostSyncUrl(url) {
+                const normalized = this.normalizeApiUrl(url);
+                if (!normalized) {
+                    return '';
+                }
+
+                if (normalized.endsWith('/sync')) {
+                    return normalized;
+                }
+
+                return normalized.endsWith('/mapping')
+                    ? `${normalized}/sync`
+                    : normalized.replace(/\/mapping\/?$/, '/mapping/sync');
+            },
+
             normalizeApiUrl(url) {
                 if (!url) {
                     return '';
@@ -631,8 +655,8 @@
 
                 this.cpmkSaving = true;
                 const isEdit = this.cpmkFormMode === 'edit';
-                const url = isEdit ? this.cpmkForm.update_url : this.courseData.cpmk_store_url;
-                const method = isEdit ? 'PUT' : 'POST';
+                const url = isEdit ? this.cpmkPostUpdateUrl(this.cpmkForm.update_url) : this.courseData.cpmk_store_url;
+                const method = 'POST';
 
                 try {
                     const response = await fetch(url, {
@@ -824,8 +848,8 @@
                 }));
 
                 try {
-                    const response = await fetch(this.courseData.mapping_sync_url, {
-                        method: 'PUT',
+                    const response = await fetch(this.mappingPostSyncUrl(this.courseData.mapping_sync_url), {
+                        method: 'POST',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',

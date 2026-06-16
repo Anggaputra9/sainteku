@@ -269,7 +269,7 @@ class CpmkController extends Controller
             'course_id' => $cpmk->course_id,
             'name' => $cpmk->name,
             'is_active' => $cpmk->is_active,
-            'update_url' => route('masterdata.courses.cpmk.update', [$cpmk->course_id, $cpmk->id], false),
+            'update_url' => route('masterdata.courses.cpmk.update.post', [$cpmk->course_id, $cpmk->id], false),
             'delete_url' => route('masterdata.courses.cpmk.delete', [$cpmk->course_id, $cpmk->id], false),
             'bulk_destroy_url' => route('masterdata.courses.cpmk.bulk.destroy', $cpmk->course_id, false),
             'can_delete' => $canDelete,

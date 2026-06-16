@@ -166,7 +166,7 @@ class CourseController extends Controller
             'cpmk_store_url' => route('masterdata.courses.cpmk.store', $course->id, false),
             'cpmk_bulk_destroy_url' => route('masterdata.courses.cpmk.bulk.destroy', $course->id, false),
             'mapping_api_url' => route('masterdata.courses.mapping.api.data', $course->id, false),
-            'mapping_sync_url' => route('masterdata.courses.mapping.sync', $course->id, false),
+            'mapping_sync_url' => route('masterdata.courses.mapping.sync.post', $course->id, false),
             'update_url' => route('masterdata.courses.update', $course->id, false),
             'delete_url' => route('masterdata.courses.destroy', $course->id, false),
             'can_delete' => $proposalCount === 0 && $questionCount === 0,

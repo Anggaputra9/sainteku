@@ -387,6 +387,15 @@
                 }
             },
 
+            cplPostUpdateUrl(url) {
+                const normalized = this.normalizeApiUrl(url);
+                if (!normalized) {
+                    return '';
+                }
+
+                return normalized.endsWith('/update') ? normalized : `${normalized.replace(/\/$/, '')}/update`;
+            },
+
             normalizeApiUrl(url) {
                 if (!url) {
                     return '';
@@ -542,8 +551,8 @@
 
                 this.cplSaving = true;
                 const isEdit = this.cplFormMode === 'edit';
-                const url = isEdit ? this.cplForm.update_url : this.unitData.cpl_store_url;
-                const method = isEdit ? 'PUT' : 'POST';
+                const url = isEdit ? this.cplPostUpdateUrl(this.cplForm.update_url) : this.unitData.cpl_store_url;
+                const method = 'POST';
 
                 try {
                     const response = await fetch(url, {
