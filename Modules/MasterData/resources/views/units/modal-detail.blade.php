@@ -121,13 +121,13 @@
 
                     <div class="p-5 space-y-4">
                         <div x-show="!cplLoading && cplList.length > 0" x-cloak
-                            class="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed border-gray-200 bg-slate-50/80 px-3 py-2.5 dark:border-gray-600 dark:bg-[#0f172a]/40">
-                            <label class="inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                            class="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed border-gray-200 bg-slate-50/60 px-3 py-2.5 dark:border-gray-700 dark:bg-[#0f172a]/40">
+                            <label class="inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold text-gray-600 dark:text-gray-200">
                                 <input type="checkbox"
-                                    class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 accent-indigo-600 dark:border-gray-500 dark:bg-gray-800"
+                                    class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 bg-white text-indigo-600 accent-indigo-600 dark:border-gray-600 dark:bg-[#1e293b] dark:checked:bg-indigo-600"
                                     :checked="allDeletableCplSelected()"
                                     @change="toggleSelectAllCpl($event.target.checked)">
-                                <span>Pilih semua</span>
+                                <span>Pilih semua yang dapat dihapus</span>
                             </label>
                             <span x-show="cplSelectedIds.length > 0" x-cloak
                                 class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800">
@@ -198,7 +198,7 @@
                                             :checked="cplSelectedIds.includes(cpl.id)"
                                             @change="toggleCplSelection(cpl.id, $event.target.checked)"
                                             :disabled="!cpl.can_delete"
-                                            class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 text-indigo-600 accent-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-500 dark:bg-gray-800"
+                                            class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 bg-white text-indigo-600 accent-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-[#1e293b] dark:checked:bg-indigo-600"
                                             :title="cpl.can_delete ? 'Pilih CPL' : 'CPL masih dipetakan ke CPMK'">
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -591,6 +591,7 @@
     .cpl-checkbox {
         outline: none;
         box-shadow: none;
+        color-scheme: light;
     }
 
     .cpl-checkbox:focus,
@@ -599,5 +600,22 @@
         outline: none;
         box-shadow: none;
         --tw-ring-shadow: 0 0 #0000;
+    }
+
+    .dark .cpl-checkbox {
+        color-scheme: dark;
+        background-color: #1e293b;
+        border-color: #4b5563;
+    }
+
+    .dark .cpl-checkbox:checked {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+    }
+
+    .dark .cpl-checkbox:disabled {
+        opacity: 0.4;
+        background-color: #0f172a;
+        border-color: #374151;
     }
 </style>
