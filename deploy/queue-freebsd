@@ -1,0 +1,62 @@
+#!/bin/sh
+# PROVIDE: sainteku_queue
+# REQUIRE: NETWORKING DAEMON
+# KEYWORD: shutdown
+#
+# Sainteku Laravel queue worker (rc.d)
+#
+# /etc/rc.conf:
+#   sainteku_queue_enable="YES"
+#   sainteku_queue_user="www"
+#   sainteku_app_dir="/usr/local/www/saintekku"
+
+. /etc/rc.subr
+
+name="sainteku_queue"
+rcvar="sainteku_queue_enable"
+
+: "${sainteku_queue_enable:="NO"}"
+: "${sainteku_queue_user:="www"}"
+: "${sainteku_app_dir:="/usr/local/www/saintekku"}"
+
+pidfile="/var/run/sainteku-queue.pid"
+command="/usr/local/sbin/queue-wrapper.sh"
+command_args="${sainteku_app_dir}"
+
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+status_cmd="${name}_status"
+
+sainteku_queue_start()
+{
+    if [ ! -x "${command}" ]; then
+        echo "${command} tidak executable"
+        return 1
+    fi
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "sainteku queue sudah berjalan (pid $(cat "${pidfile}"))"
+        return 1
+    fi
+    /usr/sbin/daemon -u "${sainteku_queue_user}" -p "${pidfile}" "${command}" "${sainteku_app_dir}"
+}
+
+sainteku_queue_stop()
+{
+    if [ -f "${pidfile}" ]; then
+        kill "$(cat "${pidfile}")" 2>/dev/null || true
+        rm -f "${pidfile}"
+    fi
+}
+
+sainteku_queue_status()
+{
+    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        echo "sainteku queue is running as pid $(cat "${pidfile}")"
+        return 0
+    fi
+    echo "sainteku queue is not running"
+    return 1
+}
+
+load_rc_config "${name}"
+run_rc_command "$1"
