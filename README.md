@@ -16,17 +16,27 @@ Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. 
 - Prism.js 1.30.0
 - Signature Pad 5.1.3
 - DomPDF 3.1 (PDF generation)
+- [Whatsar](https://github.com/arifianilhamnrr/whatsar) 0.1 (WhatsApp gateway self-hosted, proses terpisah)
 
 ## Fitur Utama
 
 ### Core
 - Landing page fakultas.
 - Berita kampus hasil scraping via command/job.
-- Auth, reset password, profil pengguna.
+- Auth, reset password (email + WhatsApp), profil pengguna.
+- Lupa password dari landing: lookup **email / NIP / NIM**, link reset ke email terdaftar + WA (jika `phone_number` ada).
 - Dashboard role-based.
 - Sidebar/menu modular berbasis `mst_menu`.
 - Role/permission berbasis modul (`mst_role`, `mst_module`, `ref_permission`, `trx_role_permission`).
 - Notifikasi internal untuk workflow approval.
+- Notifikasi WhatsApp opsional via `NotifService` (`send_whatsapp => true`).
+
+### WhatsApp Gateway (Whatsar)
+- Self-hosted WhatsApp API (bind `127.0.0.1:8080`), dikelola dari panel admin Sainteku.
+- Halaman **Pengaturan Aplikasi → WhatsApp**: kelola session, scan QR, status live, kirim pesan uji.
+- Driver `WHATSAPP_DRIVER=whatsar|fonnte|log` untuk rollback/dev.
+- Modul dengan notif WA aktif: Monev Akademik, Prestasi, Document Repository, Infrastruktur.
+- Detail teknis: [`docs/whatsar/PLAN.md`](docs/whatsar/PLAN.md), [`docs/whatsar/ROADMAP.md`](docs/whatsar/ROADMAP.md).
 
 ### Master Data
 - User/admin CRUD, status aktif, unit, tipe user, assign role.
@@ -147,6 +157,32 @@ composer dev
 
 Akses: http://127.0.0.1:8000
 
+### Whatsar (opsional, untuk notif & reset password via WA)
+
+Setelah `.env` dikonfigurasi, install binary + systemd:
+
+```bash
+sudo bash scripts/whatsar-install.sh
+```
+
+Variabel penting di `.env`:
+
+```env
+WHATSAPP_DRIVER=whatsar
+WHATSAPP_ENABLED=true
+WHATSAR_URL=http://127.0.0.1:8080
+WHATSAR_API_KEY=<api-key-dari-install-script>
+```
+
+Cek service:
+
+```bash
+systemctl status whatsar
+curl -s http://127.0.0.1:8080/health
+```
+
+Pairing session WA: login sebagai admin → **Pengaturan Aplikasi → WhatsApp** → Tambah Session → scan QR.
+
 ## Build Production
 
 ```bash
@@ -168,6 +204,14 @@ chmod -R 775 storage bootstrap/cache
 
 ```text
 app/                                Core app, auth, dashboard, news, notification
+app/Services/WhatsarClient.php      HTTP client ke Whatsar API
+app/Services/WhatsappService.php    Kirim pesan WA (Whatsar/Fonnte/log)
+app/Http/Controllers/Settings/      Pengaturan email, AI, WhatsApp
+config/whatsapp.php                 Driver & konfigurasi WhatsApp
+scripts/whatsar-install.sh          Install binary Whatsar + systemd
+deploy/whatsar.service              Unit systemd Whatsar
+docs/whatsar/                       Roadmap & rencana integrasi
+resources/views/settings/whatsapp/  UI admin session & QR pairing
 app/Console/Commands/               Command scraper
 app/Jobs/                           Queue job scraper
 Modules/MasterData/                 User, role, unit, course, infrastructure
@@ -185,6 +229,11 @@ routes/web.php                      Route utama
 ```
 
 ## Route Penting
+
+### Pengaturan Aplikasi
+- `/settings/email`
+- `/settings/ai`
+- `/settings/whatsapp` — kelola session WhatsApp (admin)
 
 ### Master Data
 - `/masterdata/admin/users`
@@ -247,6 +296,9 @@ Seeder membuat akun awal (lihat `database/seeders/DatabaseSeeder.php`):
 
 ## Catatan Dev
 
+- WhatsApp butuh session **connected** di `/settings/whatsapp` dan user punya `phone_number` di profil agar notif/reset password via WA terkirim.
+- Gagal kirim WA tidak membatalkan notif in-app/email (graceful fail + log).
+- Whatsar data disimpan di `storage/whatsar/` (di-ignore git).
 - Gunakan `php artisan module:list` untuk cek module aktif.
 - Upload infrastruktur memakai disk `public`; wajib `php artisan storage:link`.
 - Mata kuliah memakai ID otomatis format `MK001` dst.
@@ -297,6 +349,12 @@ Project ini dikembangkan oleh tim Fakultas Sains dan Teknologi UIN Prof. K.H. Sa
   - GitHub: [@genzabis](https://github.com/genzabis)
 
 ## Changelog
+
+### 2026-06
+- Integrasi Whatsar sebagai WhatsApp gateway self-hosted
+- Halaman admin `/settings/whatsapp` (session, QR pairing, polling live)
+- Notifikasi WA di Monev Akademik, Prestasi, Document Repository, Infrastruktur
+- Reset password via email + WhatsApp; lupa password pakai email/NIP/NIM
 
 ### 2026-05
 - Update UI masterdata users
