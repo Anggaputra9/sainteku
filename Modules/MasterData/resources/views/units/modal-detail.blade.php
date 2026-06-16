@@ -121,10 +121,11 @@
 
                     <div class="p-5 space-y-4">
                         <div x-show="!cplLoading && cplList.length > 0" x-cloak
-                            class="flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed border-gray-200 bg-slate-50/60 px-3 py-2.5 dark:border-gray-700 dark:bg-[#0f172a]/40">
-                            <label class="inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold text-gray-600 dark:text-gray-200">
+                            class="cpl-bulk-toolbar flex flex-wrap items-center gap-2 sm:gap-3 rounded-xl border border-dashed px-3 py-2.5"
+                            :class="$store.theme.theme === 'dark' ? 'is-dark' : 'is-light'">
+                            <label class="cpl-bulk-label inline-flex cursor-pointer items-center gap-2.5 text-xs font-semibold">
                                 <input type="checkbox"
-                                    class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 bg-white text-indigo-600 accent-indigo-600 dark:border-gray-600 dark:bg-[#1e293b] dark:checked:bg-indigo-600"
+                                    class="cpl-checkbox h-4 w-4 shrink-0 rounded"
                                     :checked="allDeletableCplSelected()"
                                     @change="toggleSelectAllCpl($event.target.checked)">
                                 <span>Pilih semua yang dapat dihapus</span>
@@ -198,7 +199,7 @@
                                             :checked="cplSelectedIds.includes(cpl.id)"
                                             @change="toggleCplSelection(cpl.id, $event.target.checked)"
                                             :disabled="!cpl.can_delete"
-                                            class="cpl-checkbox h-4 w-4 shrink-0 rounded border-gray-300 bg-white text-indigo-600 accent-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-[#1e293b] dark:checked:bg-indigo-600"
+                                            class="cpl-checkbox h-4 w-4 shrink-0 rounded disabled:opacity-40 disabled:cursor-not-allowed"
                                             :title="cpl.can_delete ? 'Pilih CPL' : 'CPL masih dipetakan ke CPMK'">
                                     </div>
                                     <div class="min-w-0 flex-1">
@@ -588,10 +589,31 @@
 </script>
 
 <style>
+    .cpl-bulk-toolbar.is-light {
+        background-color: #f8fafc;
+        border-color: #e5e7eb;
+    }
+
+    .cpl-bulk-toolbar.is-dark {
+        background-color: #0f172a;
+        border-color: #374151;
+    }
+
+    .cpl-bulk-toolbar.is-light .cpl-bulk-label {
+        color: #4b5563;
+    }
+
+    .cpl-bulk-toolbar.is-dark .cpl-bulk-label {
+        color: #e5e7eb;
+    }
+
     .cpl-checkbox {
         outline: none;
         box-shadow: none;
-        color-scheme: light;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+        color: #4f46e5;
+        accent-color: #4f46e5;
     }
 
     .cpl-checkbox:focus,
@@ -599,21 +621,23 @@
     .cpl-checkbox:active {
         outline: none;
         box-shadow: none;
-        --tw-ring-shadow: 0 0 #0000;
     }
 
-    .dark .cpl-checkbox {
+    .cpl-bulk-toolbar.is-dark .cpl-checkbox,
+    html.dark .cpl-checkbox {
         color-scheme: dark;
         background-color: #1e293b;
         border-color: #4b5563;
     }
 
-    .dark .cpl-checkbox:checked {
+    .cpl-bulk-toolbar.is-dark .cpl-checkbox:checked,
+    html.dark .cpl-checkbox:checked {
         background-color: #4f46e5;
         border-color: #4f46e5;
     }
 
-    .dark .cpl-checkbox:disabled {
+    .cpl-bulk-toolbar.is-dark .cpl-checkbox:disabled,
+    html.dark .cpl-checkbox:disabled {
         opacity: 0.4;
         background-color: #0f172a;
         border-color: #374151;
