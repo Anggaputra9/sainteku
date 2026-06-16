@@ -429,10 +429,53 @@ maybe_restart_whatsar() {
     if [[ "$restart" != "true" ]]; then
         return 0
     fi
+    restart_whatsar_service
+}
+
+restart_whatsar_service() {
     if command -v systemctl >/dev/null 2>&1; then
         systemctl restart whatsar 2>/dev/null && log_ok "whatsar.service restarted" || log_warn "Gagal restart whatsar.service"
     elif is_freebsd && command -v service >/dev/null 2>&1; then
-        service whatsar restart 2>/dev/null && log_ok "whatsar restarted (rc.d)" || log_warn "Gagal restart whatsar (rc.d)"
+        service whatsar restart 2>/dev/null && log_ok "whatsar restarted (rc.d)" || service whatsar start 2>/dev/null && log_ok "whatsar started (rc.d)" || log_warn "Gagal start/restart whatsar (rc.d)"
+    fi
+}
+
+whatsar_health_ok() {
+    local port url
+    port="$(env_get WHATSAR_PORT)"
+    port="${port:-8080}"
+    url="http://127.0.0.1:${port}/health"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsS "$url" >/dev/null 2>&1
+    elif command -v fetch >/dev/null 2>&1; then
+        fetch -q -o /dev/null "$url" 2>/dev/null
+    else
+        return 1
+    fi
+}
+
+ensure_whatsar_running() {
+    if [[ "$(env_get WHATSAPP_ENABLED 2>/dev/null || true)" != "true" ]]; then
+        return 0
+    fi
+    if [[ "$(env_get WHATSAPP_DRIVER 2>/dev/null || true)" != "whatsar" ]]; then
+        return 0
+    fi
+    if whatsar_health_ok; then
+        log_ok "Whatsar online"
+        return 0
+    fi
+    log_warn "Whatsar offline — mencoba start ulang..."
+    if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
+        log_warn "Butuh root untuk start whatsar: doas service whatsar start"
+        return 0
+    fi
+    restart_whatsar_service
+    sleep 2
+    if whatsar_health_ok; then
+        log_ok "Whatsar online setelah restart"
+    else
+        log_warn "Whatsar masih offline — cek: service whatsar status"
     fi
 }
 

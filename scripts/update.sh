@@ -92,5 +92,9 @@ else
 fi
 
 maybe_install_whatsar "$WITH_WHATSAR"
-maybe_restart_whatsar "$RESTART_WHATSAR"
+if [[ "$RESTART_WHATSAR" == "true" ]]; then
+    maybe_restart_whatsar "true"
+else
+    ensure_whatsar_running
+fi
 print_done "update"
