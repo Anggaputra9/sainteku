@@ -97,6 +97,66 @@ class CplController extends Controller
         ]);
     }
 
+    public function bulkDestroy(Request $request, string $unitId): JsonResponse
+    {
+        $this->ensureProdiExists($unitId);
+
+        $validated = $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'required|string|max:5',
+        ]);
+
+        $deleted = [];
+        $skipped = [];
+
+        foreach ($validated['ids'] as $cplId) {
+            $exists = MstCpl::query()
+                ->where('unit_id', $unitId)
+                ->where('id', $cplId)
+                ->exists();
+
+            if (! $exists) {
+                $skipped[] = ['id' => $cplId, 'reason' => 'CPL tidak ditemukan.'];
+                continue;
+            }
+
+            if ($this->isCplUsedInMapping($unitId, $cplId)) {
+                $skipped[] = ['id' => $cplId, 'reason' => 'Masih dipetakan ke CPMK mata kuliah.'];
+                continue;
+            }
+
+            MstCpl::query()
+                ->where('unit_id', $unitId)
+                ->where('id', $cplId)
+                ->delete();
+
+            $deleted[] = $cplId;
+        }
+
+        if (count($deleted) === 0) {
+            return response()->json([
+                'message' => 'Tidak ada CPL yang dapat dihapus.',
+                'deleted_count' => 0,
+                'skipped' => $skipped,
+            ], 422);
+        }
+
+        $message = count($deleted) === 1
+            ? 'CPL berhasil dihapus.'
+            : count($deleted).' CPL berhasil dihapus.';
+
+        if (count($skipped) > 0) {
+            $message .= ' '.count($skipped).' CPL dilewati.';
+        }
+
+        return response()->json([
+            'message' => $message,
+            'deleted_count' => count($deleted),
+            'deleted_ids' => $deleted,
+            'skipped' => $skipped,
+        ]);
+    }
+
     private function ensureProdiExists(string $unitId): void
     {
         $unit = DB::table('mst_unit')->where('id', $unitId)->first();

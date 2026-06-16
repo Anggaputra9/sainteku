@@ -347,6 +347,7 @@
                                 cpl_count: unit.cpl_count,
                                 cpl_api_url: unit.cpl_api_url,
                                 cpl_store_url: unit.cpl_store_url,
+                                cpl_bulk_destroy_url: unit.cpl_bulk_destroy_url,
                             },
                         },
                     }));

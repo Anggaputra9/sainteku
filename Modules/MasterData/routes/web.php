@@ -31,6 +31,7 @@ Route::middleware([
     // CPL per program studi
     Route::get('units/{unit}/cpl/api/data', [CplController::class, 'getCplData'])->name('units.cpl.api.data');
     Route::post('units/{unit}/cpl', [CplController::class, 'store'])->name('units.cpl.store');
+    Route::delete('units/{unit}/cpl/bulk', [CplController::class, 'bulkDestroy'])->name('units.cpl.bulk.destroy');
     Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->name('units.cpl.update');
     Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->name('units.cpl.destroy');
 

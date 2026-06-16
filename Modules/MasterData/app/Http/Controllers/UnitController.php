@@ -136,6 +136,7 @@ class UnitController extends Controller
             'cpl_count' => $cplCount,
             'cpl_api_url' => $isProdi ? route('masterdata.units.cpl.api.data', $unit->id) : null,
             'cpl_store_url' => $isProdi ? route('masterdata.units.cpl.store', $unit->id) : null,
+            'cpl_bulk_destroy_url' => $isProdi ? route('masterdata.units.cpl.bulk.destroy', $unit->id) : null,
             'update_url' => route('masterdata.units.update', $unit->id),
             'delete_url' => route('masterdata.units.destroy', $unit->id),
             'can_delete' => $childCount === 0 && $userCount === 0,
