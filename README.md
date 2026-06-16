@@ -143,6 +143,8 @@ bash update.sh --no-git --restart-whatsar
 
 `update.sh` menjalankan: git pull → composer → migrate → npm build → Laravel optimize.
 
+Script install/update mendeteksi OS otomatis (Ubuntu/Debian, RHEL/Alpine, macOS, FreeBSD): user web (`www-data` / `nginx` / `www`), `sed` portabel, dan binary Whatsar sesuai arsitektur CPU (amd64/arm64/arm). Whatsar hanya di Linux.
+
 ## Instalasi Dev (manual)
 
 ```bash

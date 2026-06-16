@@ -41,6 +41,12 @@ if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
     die "Jalankan sebagai root: sudo bash scripts/whatsar-install.sh"
 fi
 
+detect_platform
+if ! is_linux; then
+    die "Whatsar installer hanya mendukung Linux (terdeteksi: ${OS_FAMILY}/${OS_ID})"
+fi
+log_info "Platform Linux: ${OS_ID} · arch $(uname -m) · web user ${WEB_USER}"
+
 ENV_FILE="${APP_DIR}/.env"
 PORT="${PORT:-$(env_get WHATSAR_PORT)}"
 PORT="${PORT:-8080}"
@@ -59,11 +65,17 @@ esac
 
 DATA_DIR="${APP_DIR}/storage/whatsar"
 mkdir -p "$DATA_DIR"
-chown -R www-data:www-data "$DATA_DIR" 2>/dev/null || true
+if id -u "${WEB_USER}" >/dev/null 2>&1; then
+    chown -R "${WEB_USER}:${WEB_USER}" "$DATA_DIR" 2>/dev/null || true
+fi
 
 log_info "Download Whatsar release (${GOARCH})..."
 RELEASE_JSON="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest")"
-TAG="$(echo "$RELEASE_JSON" | grep -oP '"tag_name":\s*"\K[^"]+' | head -1)"
+if command -v jq >/dev/null 2>&1; then
+    TAG="$(echo "$RELEASE_JSON" | jq -r '.tag_name')"
+else
+    TAG="$(echo "$RELEASE_JSON" | sed -n 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' | head -1)"
+fi
 VER="${TAG#v}"
 
 case "$GOARCH" in
@@ -107,6 +119,8 @@ if [[ "$SKIP_SYSTEMD" == "false" ]] && command -v systemctl >/dev/null 2>&1; the
     UNIT_DST="/etc/systemd/system/whatsar.service"
     sed \
         -e "s|/var/www/sainteku|${APP_DIR}|g" \
+        -e "s|User=www-data|User=${WEB_USER}|g" \
+        -e "s|Group=www-data|Group=${WEB_USER}|g" \
         "${APP_DIR}/deploy/whatsar.service" > "$UNIT_DST"
     systemctl daemon-reload
     systemctl enable whatsar

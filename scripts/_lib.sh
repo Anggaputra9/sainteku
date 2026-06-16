@@ -5,6 +5,11 @@ set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}")/.." && pwd)"
 
+OS_FAMILY=""
+OS_ID=""
+WEB_USER="www-data"
+PKG_MGR=""
+
 log_info()  { echo "[INFO] $*"; }
 log_ok()    { echo "[OK]   $*"; }
 log_warn()  { echo "[WARN] $*" >&2; }
@@ -32,6 +37,72 @@ require_cmds() {
     if ((${#missing[@]} > 0)); then
         die "Perintah tidak ditemukan: ${missing[*]}"
     fi
+}
+
+detect_platform() {
+    local uname_s
+    uname_s="$(uname -s)"
+
+    case "$uname_s" in
+        Linux) OS_FAMILY="linux" ;;
+        Darwin) OS_FAMILY="darwin" ;;
+        FreeBSD) OS_FAMILY="freebsd" ;;
+        *) OS_FAMILY="unknown" ;;
+    esac
+
+    if [[ -f /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        OS_ID="${ID:-linux}"
+    elif [[ "$OS_FAMILY" == "darwin" ]]; then
+        OS_ID="macos"
+    elif [[ "$OS_FAMILY" == "freebsd" ]]; then
+        OS_ID="freebsd"
+    else
+        OS_ID="unknown"
+    fi
+
+    WEB_USER="www-data"
+    case "$OS_ID" in
+        ubuntu|debian) WEB_USER="www-data" ;;
+        rhel|centos|fedora|rocky|almalinux|amzn|alpine) WEB_USER="nginx" ;;
+        freebsd) WEB_USER="www" ;;
+        macos) WEB_USER="_www" ;;
+    esac
+
+    PKG_MGR=""
+    if [[ "$OS_FAMILY" == "linux" ]]; then
+        if command -v apt-get >/dev/null 2>&1; then
+            PKG_MGR="apt"
+        elif command -v dnf >/dev/null 2>&1; then
+            PKG_MGR="dnf"
+        elif command -v yum >/dev/null 2>&1; then
+            PKG_MGR="yum"
+        elif command -v apk >/dev/null 2>&1; then
+            PKG_MGR="apk"
+        fi
+    fi
+}
+
+is_linux() {
+    [[ "${OS_FAMILY}" == "linux" ]]
+}
+
+sed_inplace() {
+    local file="$1"
+    local expression="$2"
+    if [[ "${OS_FAMILY}" == "darwin" ]]; then
+        sed -i '' "$expression" "$file"
+    else
+        sed -i "$expression" "$file"
+    fi
+}
+
+log_platform() {
+    detect_platform
+    local arch
+    arch="$(uname -m)"
+    log_info "OS: ${OS_ID} (${OS_FAMILY}, ${arch}) · web user: ${WEB_USER} · pkg: ${PKG_MGR:-manual}"
 }
 
 require_php() {
@@ -81,7 +152,7 @@ upsert_env() {
         touch "${ENV_FILE}"
     fi
     if grep -q "^${key}=" "${ENV_FILE}" 2>/dev/null; then
-        sed -i "s|^${key}=.*|${key}=${escaped}|" "${ENV_FILE}"
+        sed_inplace "${ENV_FILE}" "s|^${key}=.*|${key}=${escaped}|"
     else
         printf '%s=%s\n' "$key" "$value" >> "${ENV_FILE}"
     fi
@@ -286,10 +357,15 @@ fix_permissions() {
     if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
         return 0
     fi
-    log_info "Set permission storage & bootstrap/cache..."
-    chown -R www-data:www-data "${APP_DIR}/storage" "${APP_DIR}/bootstrap/cache" 2>/dev/null || true
+    detect_platform
+    log_info "Set permission storage & bootstrap/cache (${WEB_USER})..."
+    if id -u "${WEB_USER}" >/dev/null 2>&1; then
+        chown -R "${WEB_USER}:${WEB_USER}" "${APP_DIR}/storage" "${APP_DIR}/bootstrap/cache" 2>/dev/null || true
+    else
+        log_warn "User ${WEB_USER} tidak ada — skip chown"
+    fi
     chmod -R 775 "${APP_DIR}/storage" "${APP_DIR}/bootstrap/cache" 2>/dev/null || true
-    log_ok "Permission diperbarui (www-data)"
+    log_ok "Permission diperbarui"
 }
 
 optimize_laravel() {
@@ -319,6 +395,11 @@ git_pull_latest() {
 maybe_install_whatsar() {
     local with_whatsar="$1"
     if [[ "$with_whatsar" != "true" ]]; then
+        return 0
+    fi
+    detect_platform
+    if ! is_linux; then
+        log_warn "Whatsar hanya untuk Linux — dilewati di ${OS_FAMILY}/${OS_ID}"
         return 0
     fi
     if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then

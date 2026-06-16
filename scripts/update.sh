@@ -61,6 +61,7 @@ done
 
 cd "$APP_DIR"
 log_info "Update Sainteku di ${APP_DIR}"
+log_platform
 
 require_php
 require_cmds composer
