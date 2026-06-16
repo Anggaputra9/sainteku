@@ -97,44 +97,59 @@
                 return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             },
 
+            async parseJsonResponse(response) {
+                const text = await response.text();
+
+                if (!text) {
+                    return {};
+                }
+
+                try {
+                    return JSON.parse(text);
+                } catch (error) {
+                    console.error('Respons hapus CPL bukan JSON', text.slice(0, 200));
+                    return {};
+                }
+            },
+
             async confirmDelete() {
                 if (this.deleting) {
+                    return;
+                }
+
+                const targetUrl = this.bulkUrl || this.deleteUrl;
+
+                if (!targetUrl) {
+                    window.dispatchEvent(new CustomEvent('cpl-delete-failed', {
+                        bubbles: true,
+                        detail: { message: 'URL hapus CPL tidak tersedia. Muat ulang halaman.' },
+                    }));
                     return;
                 }
 
                 this.deleting = true;
 
                 try {
-                    let response;
+                    const response = await fetch(targetUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.csrfToken(),
+                        },
+                        body: JSON.stringify({
+                            ids: this.items.map(item => item.id),
+                        }),
+                    });
 
-                    if (this.mode === 'bulk') {
-                        response = await fetch(this.bulkUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': this.csrfToken(),
-                            },
-                            body: JSON.stringify({
-                                ids: this.items.map(item => item.id),
-                            }),
-                        });
-                    } else {
-                        response = await fetch(this.deleteUrl, {
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': this.csrfToken(),
-                            },
-                        });
-                    }
-
-                    const result = await response.json();
+                    const result = await this.parseJsonResponse(response);
 
                     if (!response.ok) {
                         window.dispatchEvent(new CustomEvent('cpl-delete-failed', {
                             bubbles: true,
-                            detail: { message: result.message || 'Gagal menghapus CPL.' },
+                            detail: {
+                                message: result.message || `Gagal menghapus CPL (HTTP ${response.status}).`,
+                            },
                         }));
                         return;
                     }
@@ -145,13 +160,16 @@
                     });
                     window.dispatchEvent(new CustomEvent('cpl-deleted', {
                         bubbles: true,
-                        detail: { message: result.message || 'CPL berhasil dihapus.' },
+                        detail: {
+                            message: result.message || 'CPL berhasil dihapus.',
+                            deletedIds: result.deleted_ids || this.items.map(item => item.id),
+                        },
                     }));
                 } catch (error) {
                     console.error('Gagal menghapus CPL', error);
                     window.dispatchEvent(new CustomEvent('cpl-delete-failed', {
                         bubbles: true,
-                        detail: { message: 'Terjadi kesalahan saat menghapus CPL.' },
+                        detail: { message: 'Terjadi kesalahan jaringan saat menghapus CPL.' },
                     }));
                 } finally {
                     this.deleting = false;

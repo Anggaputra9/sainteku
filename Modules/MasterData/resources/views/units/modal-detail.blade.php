@@ -528,6 +528,7 @@
                         mode: 'single',
                         items: [{ id: cpl.id, name: cpl.name }],
                         deleteUrl: cpl.delete_url,
+                        bulkUrl: this.unitData.cpl_bulk_destroy_url,
                     },
                 }));
             },
@@ -562,8 +563,17 @@
             },
 
             async handleCplDeleted(event) {
+                const deletedIds = event.detail?.deletedIds || [];
+
+                if (deletedIds.length > 0) {
+                    this.cplList = this.cplList.filter(cpl => !deletedIds.includes(cpl.id));
+                    this.unitData.cpl_count = this.cplList.length;
+                    this.cplSelectedIds = this.cplSelectedIds.filter(id => !deletedIds.includes(id));
+                } else {
+                    this.cplSelectedIds = [];
+                }
+
                 this.flashCpl('success', event.detail?.message || 'CPL berhasil dihapus.');
-                this.cplSelectedIds = [];
                 await this.fetchCplList();
             },
 

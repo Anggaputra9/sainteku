@@ -606,6 +606,7 @@
                         mode: 'single',
                         items: [{ id: cpmk.id, name: cpmk.name }],
                         deleteUrl: cpmk.delete_url,
+                        bulkUrl: this.courseData.cpmk_bulk_destroy_url,
                     },
                 }));
             },
@@ -640,8 +641,17 @@
             },
 
             async handleCpmkDeleted(event) {
+                const deletedIds = event.detail?.deletedIds || [];
+
+                if (deletedIds.length > 0) {
+                    this.cpmkList = this.cpmkList.filter(cpmk => !deletedIds.includes(cpmk.id));
+                    this.courseData.cpmk_count = this.cpmkList.length;
+                    this.cpmkSelectedIds = this.cpmkSelectedIds.filter(id => !deletedIds.includes(id));
+                } else {
+                    this.cpmkSelectedIds = [];
+                }
+
                 this.flashCpmk('success', event.detail?.message || 'CPMK berhasil dihapus.');
-                this.cpmkSelectedIds = [];
                 await this.fetchCpmkList();
                 await this.fetchMappingData();
             },
