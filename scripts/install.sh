@@ -21,6 +21,7 @@ SKIP_MIGRATE=false
 WITH_WHATSAR=true
 SKIP_WHATSAR=false
 SKIP_OPTIMIZE=false
+NON_INTERACTIVE=false
 
 usage() {
     usage_header
@@ -37,10 +38,10 @@ Options:
   --skip-optimize  Lewati config/route/view cache
   --skip-whatsar   Lewati install Whatsar (default: aktif di mode production)
   --with-whatsar   Paksa install Whatsar (berguna di --dev)
+  --non-interactive  Lewati wizard input .env (CI/script)
   --help, -h       Bantuan
 
-Contoh production (Laravel + Whatsar):
-  cp .env.example .env   # edit DB dulu
+Contoh production (wizard interaktif + Whatsar):
   sudo bash install.sh
 
 Contoh staging + seeder:
@@ -57,6 +58,7 @@ while [[ $# -gt 0 ]]; do
         --skip-optimize) SKIP_OPTIMIZE=true; shift ;;
         --skip-whatsar) SKIP_WHATSAR=true; shift ;;
         --with-whatsar) WITH_WHATSAR=true; shift ;;
+        --non-interactive) NON_INTERACTIVE=true; shift ;;
         --help|-h) usage; exit 0 ;;
         *) log_warn "Opsi tidak dikenal: $1"; shift ;;
     esac
@@ -79,6 +81,13 @@ require_php
 require_cmds composer
 
 ensure_env_file
+
+if [[ "$NON_INTERACTIVE" != "true" ]]; then
+    run_interactive_env_setup "$WITH_WHATSAR" "$DEV_MODE"
+else
+    log_info "Wizard .env dilewati (--non-interactive)"
+fi
+
 ensure_app_key
 
 composer_install "$DEV_MODE"

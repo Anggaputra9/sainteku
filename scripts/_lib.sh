@@ -46,15 +46,184 @@ require_php() {
     fi
 }
 
+ENV_FILE="${APP_DIR}/.env"
+
 ensure_env_file() {
-    if [[ ! -f "${APP_DIR}/.env" ]]; then
+    if [[ ! -f "${ENV_FILE}" ]]; then
         if [[ -f "${APP_DIR}/.env.example" ]]; then
-            cp "${APP_DIR}/.env.example" "${APP_DIR}/.env"
+            cp "${APP_DIR}/.env.example" "${ENV_FILE}"
             log_ok ".env dibuat dari .env.example"
         else
             die "File .env tidak ada dan .env.example tidak ditemukan"
         fi
     fi
+}
+
+env_get() {
+    local key="$1"
+    [[ -f "${ENV_FILE}" ]] || return 0
+    if grep -q "^${key}=" "${ENV_FILE}" 2>/dev/null; then
+        grep -m1 "^${key}=" "${ENV_FILE}" | cut -d= -f2-
+    fi
+}
+
+escape_sed_replacement() {
+    printf '%s' "$1" | sed -e 's/[\/&|]/\\&/g'
+}
+
+upsert_env() {
+    local key="$1"
+    local value="$2"
+    local escaped
+    escaped="$(escape_sed_replacement "$value")"
+
+    if [[ ! -f "${ENV_FILE}" ]]; then
+        touch "${ENV_FILE}"
+    fi
+    if grep -q "^${key}=" "${ENV_FILE}" 2>/dev/null; then
+        sed -i "s|^${key}=.*|${key}=${escaped}|" "${ENV_FILE}"
+    else
+        printf '%s=%s\n' "$key" "$value" >> "${ENV_FILE}"
+    fi
+}
+
+generate_secret() {
+    if command -v openssl >/dev/null 2>&1; then
+        openssl rand -hex 32
+    else
+        tr -dc 'a-zA-Z0-9' </dev/urandom | head -c 48
+    fi
+}
+
+is_interactive_shell() {
+    [[ -t 0 ]] && [[ -t 1 ]]
+}
+
+prompt_line() {
+    local label="$1"
+    local default="$2"
+    local input=""
+    read -rp "${label} [${default}]: " input
+    if [[ -z "$input" ]]; then
+        echo "$default"
+    else
+        echo "$input"
+    fi
+}
+
+prompt_secret() {
+    local label="$1"
+    local env_key="$2"
+    local required="${3:-false}"
+    local current=""
+    local input=""
+
+    while true; do
+        current="$(env_get "$env_key")"
+        input=""
+        if [[ -n "$current" ]]; then
+            read -rsp "${label} (Enter = tetap, isi baru untuk ganti): " input
+        else
+            read -rsp "${label}: " input
+        fi
+        echo ""
+
+        if [[ -z "$input" && -n "$current" ]]; then
+            echo "$current"
+            return 0
+        fi
+        if [[ -z "$input" && "$required" != "true" ]]; then
+            echo ""
+            return 0
+        fi
+        if [[ -z "$input" && "$required" == "true" ]]; then
+            log_warn "${label} wajib diisi."
+            continue
+        fi
+        echo "$input"
+        return 0
+    done
+}
+
+run_interactive_env_setup() {
+    local with_whatsar="$1"
+    local dev_mode="${2:-false}"
+
+    if ! is_interactive_shell; then
+        log_info "Mode non-interaktif (bukan TTY) — pakai nilai .env yang ada"
+        return 0
+    fi
+
+    echo ""
+    echo "══════════════════════════════════════════════"
+    echo "  Setup .env Sainteku (Enter = pakai default)"
+    echo "══════════════════════════════════════════════"
+    echo ""
+
+    local app_url app_env app_debug
+    app_url="$(prompt_line "APP_URL" "$(env_get APP_URL || echo http://localhost)")"
+    if [[ "$dev_mode" == "true" ]]; then
+        app_env="local"
+        app_debug="true"
+    else
+        app_env="$(prompt_line "APP_ENV" "$(env_get APP_ENV || echo production)")"
+        app_debug="$(prompt_line "APP_DEBUG (true/false)" "$(env_get APP_DEBUG || echo false)")"
+    fi
+
+    echo ""
+    echo "--- Database ---"
+    local db_host db_port db_name db_user db_pass
+    db_host="$(prompt_line "DB_HOST" "$(env_get DB_HOST || echo 127.0.0.1)")"
+    db_port="$(prompt_line "DB_PORT" "$(env_get DB_PORT || echo 3306)")"
+    db_name="$(prompt_line "DB_DATABASE" "$(env_get DB_DATABASE || echo sainteku)")"
+    db_user="$(prompt_line "DB_USERNAME" "$(env_get DB_USERNAME || echo root)")"
+    db_pass="$(prompt_secret "DB_PASSWORD" "DB_PASSWORD" "true")"
+
+    upsert_env "APP_URL" "$app_url"
+    upsert_env "APP_ENV" "$app_env"
+    upsert_env "APP_DEBUG" "$app_debug"
+    upsert_env "DB_CONNECTION" "mysql"
+    upsert_env "DB_HOST" "$db_host"
+    upsert_env "DB_PORT" "$db_port"
+    upsert_env "DB_DATABASE" "$db_name"
+    upsert_env "DB_USERNAME" "$db_user"
+    upsert_env "DB_PASSWORD" "$db_pass"
+
+    if [[ "$with_whatsar" == "true" ]]; then
+        echo ""
+        echo "--- WhatsApp / Whatsar ---"
+        local wa_port wa_admin wa_api data_dir
+        wa_port="$(prompt_line "WHATSAR_PORT" "$(env_get WHATSAR_PORT || echo 8080)")"
+        wa_admin="$(prompt_secret "WHATSAR_ADMIN_PASSWORD (login /admin Whatsar)" "WHATSAR_ADMIN_PASSWORD" "true")"
+        wa_api="$(env_get WHATSAR_API_KEY)"
+        if [[ -z "$wa_api" ]]; then
+            read -rp "WHATSAR_API_KEY (Enter = auto-generate): " wa_api
+            if [[ -z "$wa_api" ]]; then
+                wa_api="$(generate_secret)"
+                log_info "API key Whatsar di-generate otomatis"
+            fi
+        else
+            read -rp "WHATSAR_API_KEY (Enter = tetap pakai yang ada): " input_api
+            if [[ -n "${input_api:-}" ]]; then
+                wa_api="$input_api"
+            fi
+        fi
+
+        data_dir="${APP_DIR}/storage/whatsar"
+        upsert_env "WHATSAPP_DRIVER" "whatsar"
+        upsert_env "WHATSAPP_ENABLED" "true"
+        upsert_env "WHATSAR_HOST" "127.0.0.1"
+        upsert_env "WHATSAR_PORT" "$wa_port"
+        upsert_env "WHATSAR_URL" "http://127.0.0.1:${wa_port}"
+        upsert_env "WHATSAR_API_KEY" "$wa_api"
+        upsert_env "WHATSAR_ADMIN_PASSWORD" "$wa_admin"
+        upsert_env "WHATSAR_DATA_DIR" "$data_dir"
+        upsert_env "WHATSAR_DB_PATH" "${data_dir}/whatsar.db"
+        upsert_env "WHATSAR_MAX_SESSIONS" "$(env_get WHATSAR_MAX_SESSIONS || echo 5)"
+    fi
+
+    echo ""
+    log_ok "Konfigurasi .env disimpan"
 }
 
 ensure_app_key() {
@@ -177,4 +346,7 @@ print_done() {
     echo "  App dir : ${APP_DIR}"
     echo "  Health  : php artisan about"
     echo "  WhatsApp: /settings/whatsapp (setelah pairing QR)"
+    if [[ -n "$(env_get WHATSAR_PORT 2>/dev/null || true)" ]]; then
+        echo "  Whatsar : http://127.0.0.1:$(env_get WHATSAR_PORT)/admin (password admin dari .env)"
+    fi
 }
