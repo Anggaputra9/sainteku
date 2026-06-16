@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\models\User; // Pastikan namespace Model User benar
 use App\Models\Unit; // Pastikan namespace Model Unit benar
 use App\Models\Role; // Sesuaikan dengan nama model Role kamu
+use App\Models\Period;
 // use Modules\MasterData\Models\Curriculum; // Aktifkan jika model Kurikulum sudah ada
 
 class MasterDataController extends Controller
@@ -27,14 +28,13 @@ class MasterDataController extends Controller
         $totalRoles = Role::count();
         $totalUnits = Unit::count();
 
-        // Contoh untuk Kurikulum (Pastikan modelnya sudah dibuat/di-import)
-        $totalCurricula = 0; // Ganti dengan Curriculum::count() jika sudah ada
+        $totalPeriods = Period::count();
 
         return view('masterdata::index', compact(
             'totalUsers',
             'totalRoles',
             'totalUnits',
-            'totalCurricula'
+            'totalPeriods'
         ))->with('title', 'Dashboard Master Data');
     }
 }

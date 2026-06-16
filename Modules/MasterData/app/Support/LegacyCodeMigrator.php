@@ -168,6 +168,14 @@ class LegacyCodeMigrator
         }
 
         DB::table('mst_unit')->where('unit_parent', $oldId)->update(['unit_parent' => $newId]);
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('mst_cpl')) {
+            DB::table('mst_cpl')->where('unit_id', $oldId)->update(['unit_id' => $newId]);
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('trx_cpl_cpmk_mapping')) {
+            DB::table('trx_cpl_cpmk_mapping')->where('unit_id', $oldId)->update(['unit_id' => $newId]);
+        }
     }
 
     private function applyCourseMap(array $courseMap): void
@@ -180,6 +188,9 @@ class LegacyCodeMigrator
             DB::table('trx_exam_proposals')->where('course_id', $oldId)->update(['course_id' => $newId]);
             DB::table('trx_questions')->where('course_id', $oldId)->update(['course_id' => $newId]);
             DB::table('trx_cpl_cpmk_mapping')->where('course_id', $oldId)->update(['course_id' => $newId]);
+            if (\Illuminate\Support\Facades\Schema::hasTable('mst_cpmk')) {
+                DB::table('mst_cpmk')->where('course_id', $oldId)->update(['course_id' => $newId]);
+            }
         }
 
         foreach ($courseMap as $oldId => $newId) {

@@ -47,6 +47,11 @@ class UnitController extends Controller
             ->groupBy('unit_id')
             ->pluck('cnt', 'unit_id');
 
+        $cplCounts = DB::table('mst_cpl')
+            ->select('unit_id', DB::raw('count(*) as cnt'))
+            ->groupBy('unit_id')
+            ->pluck('cnt', 'unit_id');
+
         $units = $this->buildUnitsQuery($request)
             ->paginate($perPage)
             ->through(fn (Unit $unit): array => $this->formatUnitForApi(
@@ -56,6 +61,7 @@ class UnitController extends Controller
                 $childCounts,
                 $userCounts,
                 $pivotUserCounts,
+                $cplCounts,
             ));
 
         return response()->json($units)
@@ -107,9 +113,12 @@ class UnitController extends Controller
         $childCounts,
         $userCounts,
         $pivotUserCounts,
+        $cplCounts,
     ): array {
         $childCount = (int) ($childCounts[$unit->id] ?? 0);
         $userCount = (int) ($userCounts[$unit->id] ?? 0) + (int) ($pivotUserCounts[$unit->id] ?? 0);
+        $cplCount = (int) ($cplCounts[$unit->id] ?? 0);
+        $isProdi = (int) $unit->unit_type_id === 3;
 
         return [
             'id' => $unit->id,
@@ -124,6 +133,9 @@ class UnitController extends Controller
             'initial' => mb_strtoupper(mb_substr($unit->id, 0, 1)),
             'child_count' => $childCount,
             'user_count' => $userCount,
+            'cpl_count' => $cplCount,
+            'cpl_api_url' => $isProdi ? route('masterdata.units.cpl.api.data', $unit->id) : null,
+            'cpl_store_url' => $isProdi ? route('masterdata.units.cpl.store', $unit->id) : null,
             'update_url' => route('masterdata.units.update', $unit->id),
             'delete_url' => route('masterdata.units.destroy', $unit->id),
             'can_delete' => $childCount === 0 && $userCount === 0,

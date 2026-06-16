@@ -93,10 +93,105 @@
                                 <span x-text="unitData.user_count"></span> user
                             </div>
                         </div>
+                        <div x-show="unitData.type == '3'">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">CPL</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                <span x-text="unitData.cpl_count"></span> data
+                            </div>
+                        </div>
                     </div>
                     <p class="px-5 pb-5 text-xs text-gray-500 dark:text-gray-400" x-show="!canDelete">
                         Unit tidak dapat dihapus karena masih memiliki unit turunan atau pengguna terkait.
                     </p>
+                </div>
+
+                <div x-show="unitData.type == '3'" class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-graduation-cap text-indigo-500"></i> CPL Program Studi
+                        </h4>
+                        <button type="button" @click="showCplForm = !showCplForm"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition">
+                            <i class="fa-solid fa-plus"></i> Tambah
+                        </button>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <div x-show="cplAlert.message" x-cloak
+                            class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
+                            :class="cplAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
+                            <i class="fa-solid" :class="cplAlert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                            <span x-text="cplAlert.message"></span>
+                        </div>
+
+                        <div x-show="showCplForm" x-cloak class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                        Deskripsi CPL <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" x-model="cplForm.name" maxlength="100"
+                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600"
+                                        placeholder="Contoh: Mampu merancang solusi berbasis teknologi informasi">
+                                </div>
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                                    <select x-model="cplForm.is_active"
+                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                        <option value="1">Aktif</option>
+                                        <option value="0">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center justify-end gap-2">
+                                <button type="button" @click="cancelCplForm()"
+                                    class="rounded-lg bg-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                                    Batal
+                                </button>
+                                <button type="button" @click="saveCpl()" :disabled="cplSaving"
+                                    class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
+                                    <span x-text="cplSaving ? 'Menyimpan...' : (cplFormMode === 'edit' ? 'Simpan Perubahan' : 'Simpan CPL')"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div x-show="cplLoading" class="py-6 text-center text-sm text-gray-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat CPL...
+                        </div>
+
+                        <div x-show="!cplLoading && cplList.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
+                            <i class="fa-solid fa-graduation-cap text-2xl text-gray-300 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Belum ada CPL untuk prodi ini.</p>
+                            <p class="text-xs text-gray-400 mt-1">Tambahkan CPL sebagai capaian pembelajaran lulusan prodi.</p>
+                        </div>
+
+                        <div x-show="!cplLoading && cplList.length > 0" class="space-y-2">
+                            <template x-for="cpl in cplList" :key="cpl.id">
+                                <div class="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 dark:border-gray-700 dark:bg-[#0f172a]/40">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                                            <span class="inline-flex rounded-md bg-teal-100 px-2 py-0.5 text-xs font-bold font-mono text-teal-700 dark:bg-teal-900/40 dark:text-teal-300" x-text="cpl.id"></span>
+                                            <span x-show="cpl.is_active == '1'"
+                                                class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200">Aktif</span>
+                                            <span x-show="cpl.is_active != '1'"
+                                                class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200">Nonaktif</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug" x-text="cpl.name"></p>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-1">
+                                        <button type="button" @click="editCpl(cpl)"
+                                            class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+                                        <button type="button" @click="deleteCpl(cpl)" :disabled="!cpl.can_delete"
+                                            class="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-900/20" title="Hapus">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -216,7 +311,17 @@
                 parent_name: null,
                 child_count: 0,
                 user_count: 0,
+                cpl_count: 0,
+                cpl_api_url: '',
+                cpl_store_url: '',
             },
+            cplList: [],
+            cplLoading: false,
+            cplSaving: false,
+            showCplForm: false,
+            cplFormMode: 'create',
+            cplForm: { id: '', name: '', is_active: '1', update_url: '' },
+            cplAlert: { type: '', message: '' },
 
             handleOpenDetail(event) {
                 this.openDetail = true;
@@ -227,6 +332,138 @@
                 this.canDelete = event.detail.canDelete ?? false;
                 this.editSnapshot = null;
                 this.unitData = { ...event.detail.unitData };
+                this.resetCplForm();
+                if (this.unitData.type == '3') {
+                    this.fetchCplList();
+                }
+            },
+
+            async fetchCplList() {
+                if (!this.unitData.cpl_api_url) {
+                    return;
+                }
+
+                this.cplLoading = true;
+                this.cplList = [];
+
+                try {
+                    const response = await fetch(this.unitData.cpl_api_url, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (response.ok) {
+                        this.cplList = await response.json();
+                        this.unitData.cpl_count = this.cplList.length;
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat CPL', error);
+                } finally {
+                    this.cplLoading = false;
+                }
+            },
+
+            resetCplForm() {
+                this.showCplForm = false;
+                this.cplFormMode = 'create';
+                this.cplForm = { id: '', name: '', is_active: '1', update_url: '' };
+                this.cplAlert = { type: '', message: '' };
+            },
+
+            cancelCplForm() {
+                this.resetCplForm();
+            },
+
+            editCpl(cpl) {
+                this.cplFormMode = 'edit';
+                this.showCplForm = true;
+                this.cplForm = {
+                    id: cpl.id,
+                    name: cpl.name,
+                    is_active: cpl.is_active,
+                    update_url: cpl.update_url,
+                };
+            },
+
+            flashCpl(type, message) {
+                this.cplAlert = { type, message };
+                setTimeout(() => { this.cplAlert.message = ''; }, 3500);
+            },
+
+            async saveCpl() {
+                if (!this.cplForm.name.trim()) {
+                    this.flashCpl('error', 'Deskripsi CPL wajib diisi.');
+                    return;
+                }
+
+                this.cplSaving = true;
+                const isEdit = this.cplFormMode === 'edit';
+                const url = isEdit ? this.cplForm.update_url : this.unitData.cpl_store_url;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                try {
+                    const response = await fetch(url, {
+                        method,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({
+                            name: this.cplForm.name.trim(),
+                            is_active: this.cplForm.is_active,
+                        }),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashCpl('error', result.message || 'Gagal menyimpan CPL.');
+                        return;
+                    }
+
+                    this.flashCpl('success', result.message || 'CPL berhasil disimpan.');
+                    this.resetCplForm();
+                    await this.fetchCplList();
+                } catch (error) {
+                    console.error('Gagal menyimpan CPL', error);
+                    this.flashCpl('error', 'Terjadi kesalahan saat menyimpan CPL.');
+                } finally {
+                    this.cplSaving = false;
+                }
+            },
+
+            async deleteCpl(cpl) {
+                if (!cpl.can_delete) {
+                    this.flashCpl('error', 'CPL tidak dapat dihapus karena masih dipetakan ke CPMK.');
+                    return;
+                }
+
+                if (!confirm(`Hapus CPL ${cpl.id}?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(cpl.delete_url, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashCpl('error', result.message || 'Gagal menghapus CPL.');
+                        return;
+                    }
+
+                    this.flashCpl('success', result.message || 'CPL berhasil dihapus.');
+                    await this.fetchCplList();
+                } catch (error) {
+                    console.error('Gagal menghapus CPL', error);
+                    this.flashCpl('error', 'Terjadi kesalahan saat menghapus CPL.');
+                }
             },
 
             enterEditMode() {

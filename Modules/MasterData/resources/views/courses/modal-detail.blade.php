@@ -70,7 +70,7 @@
                             <i class="fa-solid fa-link text-indigo-500"></i> Relasi Data
                         </h4>
                     </div>
-                    <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="p-5 grid grid-cols-2 md:grid-cols-4 gap-5">
                         <div>
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Pengajuan Soal</div>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
@@ -84,15 +84,170 @@
                             </div>
                         </div>
                         <div>
-                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Mapping CPL/CPMK</div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">CPMK</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                <span x-text="courseData.cpmk_count"></span> data
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Pemetaan CPL</div>
                             <div class="text-sm font-medium text-gray-900 dark:text-white">
                                 <span x-text="courseData.mapping_count"></span> data
                             </div>
                         </div>
                     </div>
                     <p class="px-5 pb-5 text-xs text-gray-500 dark:text-gray-400" x-show="!canDelete">
-                        Mata kuliah tidak dapat dihapus karena masih terhubung dengan pengajuan soal, bank soal, atau mapping CPL/CPMK.
+                        Mata kuliah tidak dapat dihapus karena masih terhubung dengan pengajuan soal atau bank soal.
                     </p>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-indigo-500"></i> CPMK Mata Kuliah
+                        </h4>
+                        <button type="button" @click="showCpmkForm = !showCpmkForm"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-700 border border-indigo-200 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 transition">
+                            <i class="fa-solid fa-plus"></i> Tambah
+                        </button>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <div x-show="cpmkAlert.message" x-cloak
+                            class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
+                            :class="cpmkAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
+                            <i class="fa-solid" :class="cpmkAlert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                            <span x-text="cpmkAlert.message"></span>
+                        </div>
+
+                        <div x-show="showCpmkForm" x-cloak class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 dark:border-indigo-900/40 dark:bg-indigo-900/10">
+                            <div class="grid grid-cols-1 gap-3">
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                                        Deskripsi CPMK <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" x-model="cpmkForm.name" maxlength="100"
+                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600"
+                                        placeholder="Contoh: Memahami konsep dasar jaringan komputer">
+                                </div>
+                                <div>
+                                    <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
+                                    <select x-model="cpmkForm.is_active"
+                                        class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600">
+                                        <option value="1">Aktif</option>
+                                        <option value="0">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex items-center justify-end gap-2">
+                                <button type="button" @click="cancelCpmkForm()"
+                                    class="rounded-lg bg-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                                    Batal
+                                </button>
+                                <button type="button" @click="saveCpmk()" :disabled="cpmkSaving"
+                                    class="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60">
+                                    <span x-text="cpmkSaving ? 'Menyimpan...' : (cpmkFormMode === 'edit' ? 'Simpan Perubahan' : 'Simpan CPMK')"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div x-show="cpmkLoading" class="py-6 text-center text-sm text-gray-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat CPMK...
+                        </div>
+
+                        <div x-show="!cpmkLoading && cpmkList.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
+                            <i class="fa-solid fa-bullseye text-2xl text-gray-300 mb-2"></i>
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Belum ada CPMK untuk mata kuliah ini.</p>
+                            <p class="text-xs text-gray-400 mt-1">Tambahkan CPMK agar dosen bisa memetakan butir soal.</p>
+                        </div>
+
+                        <div x-show="!cpmkLoading && cpmkList.length > 0" class="space-y-2">
+                            <template x-for="cpmk in cpmkList" :key="cpmk.id">
+                                <div class="flex items-start justify-between gap-3 rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 dark:border-gray-700 dark:bg-[#0f172a]/40">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                                            <span class="inline-flex rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold font-mono text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" x-text="cpmk.id"></span>
+                                            <span x-show="cpmk.is_active == '1'"
+                                                class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700 border border-green-200">Aktif</span>
+                                            <span x-show="cpmk.is_active != '1'"
+                                                class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200">Nonaktif</span>
+                                        </div>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300 leading-snug" x-text="cpmk.name"></p>
+                                    </div>
+                                    <div class="flex shrink-0 items-center gap-1">
+                                        <button type="button" @click="editCpmk(cpmk)"
+                                            class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </button>
+                                        <button type="button" @click="deleteCpmk(cpmk)" :disabled="!cpmk.can_delete"
+                                            class="rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-900/20" title="Hapus">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-[#1e293b]">
+                    <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3">
+                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-diagram-project text-indigo-500"></i> Pemetaan CPL ↔ CPMK
+                        </h4>
+                        <button type="button" @click="saveMapping()" :disabled="mappingSaving || mappingLoading"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-60 transition">
+                            <i class="fa-solid fa-save"></i>
+                            <span x-text="mappingSaving ? 'Menyimpan...' : 'Simpan Pemetaan'"></span>
+                        </button>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <div x-show="mappingAlert.message" x-cloak
+                            class="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
+                            :class="mappingAlert.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'">
+                            <i class="fa-solid" :class="mappingAlert.type === 'error' ? 'fa-circle-xmark' : 'fa-check-circle'"></i>
+                            <span x-text="mappingAlert.message"></span>
+                        </div>
+
+                        <div x-show="mappingLoading" class="py-6 text-center text-sm text-gray-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-indigo-600"></i> Memuat pemetaan...
+                        </div>
+
+                        <div x-show="!mappingLoading && mappingCpmks.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center dark:border-gray-700">
+                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tambahkan CPMK terlebih dahulu sebelum memetakan ke CPL.</p>
+                        </div>
+
+                        <div x-show="!mappingLoading && mappingCpmks.length > 0 && mappingCpls.length === 0" class="rounded-xl border border-dashed border-amber-200 bg-amber-50/50 px-4 py-6 text-center dark:border-amber-900/40 dark:bg-amber-900/10">
+                            <p class="text-sm font-medium text-amber-800 dark:text-amber-300">Belum ada CPL di prodi <span class="font-bold" x-text="courseData.prodi_name"></span>.</p>
+                            <p class="text-xs text-amber-700/80 dark:text-amber-400 mt-1">Kelola CPL lewat Master Data → Unit → Detail Prodi.</p>
+                        </div>
+
+                        <div x-show="!mappingLoading && mappingCpmks.length > 0 && mappingCpls.length > 0" class="space-y-3">
+                            <template x-for="cpmk in mappingCpmks" :key="cpmk.id">
+                                <div class="rounded-xl border border-gray-200 bg-slate-50/60 p-4 dark:border-gray-700 dark:bg-[#0f172a]/40">
+                                    <div class="mb-3">
+                                        <span class="inline-flex rounded-md bg-indigo-100 px-2 py-0.5 text-xs font-bold font-mono text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300" x-text="cpmk.id"></span>
+                                        <p class="mt-1 text-sm text-gray-700 dark:text-gray-300" x-text="cpmk.name"></p>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <template x-for="cpl in mappingCpls" :key="cpmk.id + '-' + cpl.id">
+                                            <label class="flex items-start gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 cursor-pointer hover:border-indigo-200 dark:border-gray-600 dark:bg-[#1e293b]">
+                                                <input type="checkbox"
+                                                    :checked="isCplMapped(cpmk.id, cpl.id)"
+                                                    @change="toggleCplMapping(cpmk.id, cpl.id, $event.target.checked)"
+                                                    class="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-0 dark:border-gray-600">
+                                                <span class="text-xs leading-snug text-gray-600 dark:text-gray-300">
+                                                    <span class="font-bold font-mono text-teal-700 dark:text-teal-300" x-text="cpl.id"></span>
+                                                    — <span x-text="cpl.name"></span>
+                                                </span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -217,8 +372,26 @@
                 fakultas_name: '',
                 proposal_count: 0,
                 question_count: 0,
+                cpmk_count: 0,
                 mapping_count: 0,
+                cpmk_api_url: '',
+                cpmk_store_url: '',
+                mapping_api_url: '',
+                mapping_sync_url: '',
             },
+            cpmkList: [],
+            cpmkLoading: false,
+            cpmkSaving: false,
+            showCpmkForm: false,
+            cpmkFormMode: 'create',
+            cpmkForm: { id: '', name: '', is_active: '1', update_url: '' },
+            cpmkAlert: { type: '', message: '' },
+            mappingCpmks: [],
+            mappingCpls: [],
+            mappingState: {},
+            mappingLoading: false,
+            mappingSaving: false,
+            mappingAlert: { type: '', message: '' },
 
             handleOpenDetail(event) {
                 this.openDetail = true;
@@ -231,7 +404,244 @@
                 this.courseData = { ...event.detail.courseData };
                 this.editFakultas = this.courseData.fakultas_id || '';
                 this.editActive = this.courseData.active ? '1' : '0';
+                this.resetCpmkForm();
+                this.mappingAlert = { type: '', message: '' };
                 this.loadEditProdis(true);
+                this.fetchCpmkList();
+                this.fetchMappingData();
+            },
+
+            async fetchCpmkList() {
+                if (!this.courseData.cpmk_api_url) {
+                    return;
+                }
+
+                this.cpmkLoading = true;
+                this.cpmkList = [];
+
+                try {
+                    const response = await fetch(this.courseData.cpmk_api_url, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (response.ok) {
+                        this.cpmkList = await response.json();
+                        this.courseData.cpmk_count = this.cpmkList.length;
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat CPMK', error);
+                } finally {
+                    this.cpmkLoading = false;
+                }
+            },
+
+            resetCpmkForm() {
+                this.showCpmkForm = false;
+                this.cpmkFormMode = 'create';
+                this.cpmkForm = { id: '', name: '', is_active: '1', update_url: '' };
+                this.cpmkAlert = { type: '', message: '' };
+            },
+
+            cancelCpmkForm() {
+                this.resetCpmkForm();
+            },
+
+            editCpmk(cpmk) {
+                this.cpmkFormMode = 'edit';
+                this.showCpmkForm = true;
+                this.cpmkForm = {
+                    id: cpmk.id,
+                    name: cpmk.name,
+                    is_active: cpmk.is_active,
+                    update_url: cpmk.update_url,
+                };
+            },
+
+            flashCpmk(type, message) {
+                this.cpmkAlert = { type, message };
+                setTimeout(() => { this.cpmkAlert.message = ''; }, 3500);
+            },
+
+            async saveCpmk() {
+                if (!this.cpmkForm.name.trim()) {
+                    this.flashCpmk('error', 'Deskripsi CPMK wajib diisi.');
+                    return;
+                }
+
+                this.cpmkSaving = true;
+                const isEdit = this.cpmkFormMode === 'edit';
+                const url = isEdit ? this.cpmkForm.update_url : this.courseData.cpmk_store_url;
+                const method = isEdit ? 'PUT' : 'POST';
+
+                try {
+                    const response = await fetch(url, {
+                        method,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({
+                            name: this.cpmkForm.name.trim(),
+                            is_active: this.cpmkForm.is_active,
+                        }),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashCpmk('error', result.message || 'Gagal menyimpan CPMK.');
+                        return;
+                    }
+
+                    this.flashCpmk('success', result.message || 'CPMK berhasil disimpan.');
+                    this.resetCpmkForm();
+                    await this.fetchCpmkList();
+                    await this.fetchMappingData();
+                } catch (error) {
+                    console.error('Gagal menyimpan CPMK', error);
+                    this.flashCpmk('error', 'Terjadi kesalahan saat menyimpan CPMK.');
+                } finally {
+                    this.cpmkSaving = false;
+                }
+            },
+
+            async deleteCpmk(cpmk) {
+                if (!cpmk.can_delete) {
+                    this.flashCpmk('error', 'CPMK tidak dapat dihapus karena masih digunakan di soal.');
+                    return;
+                }
+
+                if (!confirm(`Hapus CPMK ${cpmk.id}?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(cpmk.delete_url, {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashCpmk('error', result.message || 'Gagal menghapus CPMK.');
+                        return;
+                    }
+
+                    this.flashCpmk('success', result.message || 'CPMK berhasil dihapus.');
+                    await this.fetchCpmkList();
+                    await this.fetchMappingData();
+                } catch (error) {
+                    console.error('Gagal menghapus CPMK', error);
+                    this.flashCpmk('error', 'Terjadi kesalahan saat menghapus CPMK.');
+                }
+            },
+
+            async fetchMappingData() {
+                if (!this.courseData.mapping_api_url) {
+                    return;
+                }
+
+                this.mappingLoading = true;
+                this.mappingCpmks = [];
+                this.mappingCpls = [];
+                this.mappingState = {};
+
+                try {
+                    const response = await fetch(this.courseData.mapping_api_url, {
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.mappingCpmks = result.cpmks || [];
+                        this.mappingCpls = result.cpls || [];
+                        this.courseData.mapping_count = result.mapping_count || 0;
+
+                        const state = {};
+                        (result.cpmks || []).forEach((cpmk) => {
+                            state[cpmk.id] = [...(cpmk.cpl_ids || [])];
+                        });
+                        this.mappingState = state;
+                    }
+                } catch (error) {
+                    console.error('Gagal memuat pemetaan', error);
+                } finally {
+                    this.mappingLoading = false;
+                }
+            },
+
+            isCplMapped(cpmkId, cplId) {
+                return (this.mappingState[cpmkId] || []).includes(cplId);
+            },
+
+            toggleCplMapping(cpmkId, cplId, checked) {
+                const current = [...(this.mappingState[cpmkId] || [])];
+
+                if (checked) {
+                    if (!current.includes(cplId)) {
+                        current.push(cplId);
+                    }
+                } else {
+                    const index = current.indexOf(cplId);
+                    if (index >= 0) {
+                        current.splice(index, 1);
+                    }
+                }
+
+                this.mappingState = {
+                    ...this.mappingState,
+                    [cpmkId]: current,
+                };
+            },
+
+            flashMapping(type, message) {
+                this.mappingAlert = { type, message };
+                setTimeout(() => { this.mappingAlert.message = ''; }, 3500);
+            },
+
+            async saveMapping() {
+                if (!this.courseData.mapping_sync_url) {
+                    return;
+                }
+
+                this.mappingSaving = true;
+
+                const mappings = Object.keys(this.mappingState).map((cpmkId) => ({
+                    cpmk_id: cpmkId,
+                    cpl_ids: this.mappingState[cpmkId] || [],
+                }));
+
+                try {
+                    const response = await fetch(this.courseData.mapping_sync_url, {
+                        method: 'PUT',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        },
+                        body: JSON.stringify({ mappings }),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        this.flashMapping('error', result.message || 'Gagal menyimpan pemetaan.');
+                        return;
+                    }
+
+                    this.flashMapping('success', result.message || 'Pemetaan berhasil disimpan.');
+                    await this.fetchMappingData();
+                } catch (error) {
+                    console.error('Gagal menyimpan pemetaan', error);
+                    this.flashMapping('error', 'Terjadi kesalahan saat menyimpan pemetaan.');
+                } finally {
+                    this.mappingSaving = false;
+                }
             },
 
             async loadEditProdis(keepUnit = false) {

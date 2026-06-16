@@ -1,19 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="space-y-6" x-data="coursesApp()" x-init="initData()"
-        @courses-bulk-imported.window="handleBulkImported($event)" x-cloak>
+    <div class="space-y-6" x-data="periodsApp()" x-init="initData()" x-cloak>
 
         {{-- HEADER --}}
         <div class="flex flex-col gap-4 pb-4 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
             <div>
                 <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-white">
-                    <i class="fa-solid fa-book-open text-indigo-500"></i> Manajemen Mata Kuliah
+                    <i class="fa-solid fa-calendar-days text-indigo-500"></i> Manajemen Tahun Akademik
                 </h2>
                 <nav>
                     <ol class="flex items-center gap-2 mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">
                         <li>Master Data /</li>
-                        <li class="text-indigo-600 dark:text-indigo-400">Mata Kuliah</li>
+                        <li class="text-indigo-600 dark:text-indigo-400">Tahun Akademik</li>
                     </ol>
                 </nav>
             </div>
@@ -37,13 +36,13 @@
             <div class="flex flex-nowrap items-center gap-3">
                 <div class="relative min-w-0 flex-1">
                     <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchCourses()"
-                        placeholder="Cari kode, nama matkul, fakultas, atau prodi..."
+                    <input type="text" x-model="searchQuery" @input.debounce.400ms="fetchPeriods()"
+                        placeholder="Cari tahun akademik atau semester..."
                         class="w-full rounded-xl border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                 </div>
                 <div class="flex shrink-0 items-center gap-2">
                     <span class="hidden text-xs font-semibold text-gray-500 dark:text-gray-400 sm:inline">Tampilkan</span>
-                    <select x-model="perPageFilter" @change="fetchCourses(1)" title="Jumlah data per halaman"
+                    <select x-model="perPageFilter" @change="fetchPeriods(1)" title="Jumlah data per halaman"
                         class="w-24 rounded-xl border-gray-300 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -62,56 +61,60 @@
                 <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
                     <thead class="text-xs uppercase bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300">
                         <tr>
-                            <th class="px-6 py-4 font-semibold">Info Mata Kuliah</th>
-                            <th class="px-6 py-4 font-semibold min-w-[150px]">Prodi Pengampu</th>
+                            <th class="px-6 py-4 font-semibold">Periode Akademik</th>
+                            <th class="px-6 py-4 font-semibold">Semester</th>
+                            <th class="px-6 py-4 font-semibold text-center">Pengajuan Ujian</th>
                             <th class="px-6 py-4 font-semibold">Status</th>
                             <th class="px-6 py-4 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         <tr x-show="isLoading">
-                            <td colspan="4" class="px-6 py-16 text-center text-gray-500">
+                            <td colspan="5" class="px-6 py-16 text-center text-gray-500">
                                 <i class="fa-solid fa-circle-notch fa-spin text-3xl mb-2 text-indigo-600"></i>
                                 <p class="text-sm font-semibold text-indigo-800 dark:text-indigo-400">Memuat data...</p>
                             </td>
                         </tr>
 
-                        <tr x-show="coursesList.length === 0 && !isLoading">
-                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                                <i class="mb-3 text-3xl opacity-50 fa-solid fa-book-open"></i><br>
-                                Mata kuliah tidak ditemukan.
+                        <tr x-show="periodsList.length === 0 && !isLoading">
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <i class="mb-3 text-3xl opacity-50 fa-solid fa-calendar-days"></i><br>
+                                Tahun akademik tidak ditemukan.
                             </td>
                         </tr>
 
-                        <template x-for="course in coursesList" :key="course.id">
+                        <template x-for="period in periodsList" :key="period.id">
                             <tr class="transition hover:bg-gray-50 dark:hover:bg-gray-700/30">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-indigo-600 bg-indigo-100 rounded-full dark:bg-indigo-900/40 dark:text-indigo-400"
-                                            x-text="course.initial"></div>
+                                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 font-bold text-sky-600 bg-sky-100 rounded-full dark:bg-sky-900/40 dark:text-sky-400"
+                                            x-text="period.initial"></div>
                                         <div>
-                                            <div class="font-medium text-gray-900 dark:text-white" x-text="course.course_name"></div>
-                                            <div class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="course.id"></div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="course.fakultas_name || '-'"></div>
+                                            <div class="font-medium text-gray-900 dark:text-white" x-text="period.name"></div>
+                                            <div class="text-xs font-mono text-gray-500 dark:text-gray-400">ID: <span x-text="period.id"></span></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex rounded-md bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800"
-                                        x-text="course.prodi_name || 'UNIVERSAL'"></span>
+                                    <span class="inline-flex rounded-md bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800"
+                                        x-text="period.semester"></span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                        x-text="period.proposal_count"></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span x-show="course.is_active == '1'"
+                                    <span x-show="period.is_active == '1'"
                                         class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
                                         <span class="w-1.5 h-1.5 bg-green-600 rounded-full dark:bg-green-400"></span> Aktif
                                     </span>
-                                    <span x-show="course.is_active != '1'"
+                                    <span x-show="period.is_active != '1'"
                                         class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
                                         <span class="w-1.5 h-1.5 bg-red-600 rounded-full dark:bg-red-400"></span> Nonaktif
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
-                                    <button type="button" @click="openDetail(course)"
+                                    <button type="button" @click="openDetail(period)"
                                         class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
                                         <i class="fa-solid fa-eye"></i> Detail
                                     </button>
@@ -143,9 +146,9 @@
             </div>
         </div>
 
-        @include('masterdata::courses.modal-create')
-        @include('masterdata::courses.modal-detail')
-        @include('masterdata::courses.delete-modal')
+        @include('masterdata::periods.modal-create')
+        @include('masterdata::periods.modal-detail')
+        @include('masterdata::periods.delete-modal')
 
         {{-- FAB Filter --}}
         <template x-teleport="body">
@@ -174,42 +177,29 @@
                 <div class="space-y-4">
                     <div>
                         <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Urutkan</label>
-                        <select x-model="sortFilter" @change="fetchCourses(1)"
+                        <select x-model="sortFilter" @change="fetchPeriods(1)"
                             class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="name_asc">Nama A-Z</option>
-                            <option value="name_desc">Nama Z-A</option>
-                            <option value="code_asc">Kode A-Z</option>
-                            <option value="code_desc">Kode Z-A</option>
                             <option value="newest">Terbaru</option>
                             <option value="oldest">Terlama</option>
+                            <option value="name_asc">Tahun A-Z</option>
+                            <option value="name_desc">Tahun Z-A</option>
+                            <option value="semester_asc">Semester A-Z</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Fakultas</label>
-                        <select x-model="fakultasFilter" @change="onFakultasFilterChange()"
+                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Semester</label>
+                        <select x-model="semesterFilter" @change="fetchPeriods(1)"
                             class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua fakultas</option>
-                            @foreach ($faculties as $fak)
-                                <option value="{{ $fak->id }}">{{ $fak->unit_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Program Studi</label>
-                        <select x-model="prodiFilter" @change="fetchCourses(1)" :disabled="!fakultasFilter"
-                            class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-60 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
-                            <option value="">Semua prodi</option>
-                            <template x-for="prodi in prodiOptions" :key="prodi.id">
-                                <option :value="prodi.id" x-text="prodi.unit_name"></option>
-                            </template>
+                            <option value="">Semua</option>
+                            <option value="Gasal">Gasal</option>
+                            <option value="Genap">Genap</option>
                         </select>
                     </div>
 
                     <div>
                         <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</label>
-                        <select x-model="statusFilter" @change="fetchCourses(1)"
+                        <select x-model="statusFilter" @change="fetchPeriods(1)"
                             class="w-full rounded-xl border-gray-300 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:border-gray-600 dark:text-white">
                             <option value="">Semua</option>
                             <option value="1">Aktif</option>
@@ -239,25 +229,22 @@
 
     <script>
         document.addEventListener('alpine:init', () => {
-            Alpine.data('coursesApp', () => ({
+            Alpine.data('periodsApp', () => ({
                 searchQuery: '',
                 perPageFilter: '50',
-                sortFilter: 'name_asc',
-                fakultasFilter: '',
-                prodiFilter: '',
+                sortFilter: 'newest',
+                semesterFilter: '',
                 statusFilter: '',
-                prodiOptions: [],
                 filterFabOpen: false,
-                coursesList: [],
+                periodsList: [],
                 isLoading: false,
                 pagination: {},
                 alert: { type: '', message: '' },
 
                 get activeFilterCount() {
                     let count = 0;
-                    if (this.sortFilter !== 'name_asc') count++;
-                    if (this.fakultasFilter !== '') count++;
-                    if (this.prodiFilter !== '') count++;
+                    if (this.sortFilter !== 'newest') count++;
+                    if (this.semesterFilter !== '') count++;
                     if (this.statusFilter !== '') count++;
                     return count;
                 },
@@ -269,7 +256,7 @@
                     @if(session('error'))
                         this.flash('error', @js(session('error')));
                     @endif
-                    this.fetchCourses();
+                    this.fetchPeriods();
                 },
 
                 flash(type, message) {
@@ -277,48 +264,21 @@
                     setTimeout(() => { this.alert.message = ''; }, 4000);
                 },
 
-                async onFakultasFilterChange() {
-                    this.prodiFilter = '';
-                    this.prodiOptions = [];
-
-                    if (!this.fakultasFilter) {
-                        this.fetchCourses(1);
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.prodis') }}?fakultas_id=${this.fakultasFilter}`, {
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json',
-                            },
-                        });
-                        if (response.ok) {
-                            this.prodiOptions = await response.json();
-                        }
-                    } catch (error) {
-                        console.error('Gagal memuat prodi', error);
-                    }
-
-                    this.fetchCourses(1);
-                },
-
-                async fetchCourses(page = 1) {
+                async fetchPeriods(page = 1) {
                     this.isLoading = true;
-                    this.coursesList = [];
+                    this.periodsList = [];
 
                     const params = new URLSearchParams({
                         page: page,
                         per_page: this.perPageFilter,
                         search: this.searchQuery,
                         sort: this.sortFilter,
-                        fakultas_id: this.fakultasFilter,
-                        prodi_id: this.prodiFilter,
+                        semester: this.semesterFilter,
                         status: this.statusFilter,
                     });
 
                     try {
-                        const response = await fetch(`{{ route('masterdata.courses.api.data') }}?${params.toString()}`, {
+                        const response = await fetch(`{{ route('masterdata.periods.api.data') }}?${params.toString()}`, {
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                                 'Accept': 'application/json',
@@ -328,7 +288,7 @@
                         if (!response.ok) throw new Error('Network response was not ok');
 
                         const result = await response.json();
-                        this.coursesList = result.data || [];
+                        this.periodsList = result.data || [];
                         this.pagination = {
                             current_page: result.current_page,
                             from: result.from || 0,
@@ -338,7 +298,7 @@
                             next_page_url: result.next_page_url,
                         };
                     } catch (error) {
-                        console.error('Gagal memuat mata kuliah', error);
+                        console.error('Gagal memuat tahun akademik', error);
                         this.pagination = { total: 0, from: 0, to: 0 };
                     } finally {
                         this.isLoading = false;
@@ -346,52 +306,31 @@
                 },
 
                 changePage(page) {
-                    this.fetchCourses(page);
+                    this.fetchPeriods(page);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
                 resetFilters() {
-                    this.sortFilter = 'name_asc';
-                    this.fakultasFilter = '';
-                    this.prodiFilter = '';
+                    this.sortFilter = 'newest';
+                    this.semesterFilter = '';
                     this.statusFilter = '';
-                    this.prodiOptions = [];
-                    this.fetchCourses(1);
+                    this.fetchPeriods(1);
                 },
 
-                handleBulkImported(event) {
-                    const result = event.detail || {};
-                    const type = result.success_count > 0 ? 'success' : 'error';
-                    this.flash(type, result.message || 'Import bulk selesai.');
-                    if (result.success_count > 0) {
-                        this.fetchCourses();
-                    }
-                },
-
-                openDetail(course) {
+                openDetail(period) {
                     window.dispatchEvent(new CustomEvent('open-detail-modal', {
                         bubbles: true,
                         detail: {
-                            url: course.update_url,
-                            deleteUrl: course.delete_url,
-                            courseName: course.course_name,
-                            canDelete: course.can_delete,
-                            courseData: {
-                                id: course.id,
-                                name: course.course_name,
-                                unit_id: course.unit_id,
-                                fakultas_id: course.fakultas_id || '',
-                                active: course.is_active == '1',
-                                prodi_name: course.prodi_name,
-                                fakultas_name: course.fakultas_name,
-                                proposal_count: course.proposal_count,
-                                question_count: course.question_count,
-                                cpmk_count: course.cpmk_count,
-                                mapping_count: course.mapping_count,
-                                cpmk_api_url: course.cpmk_api_url,
-                                cpmk_store_url: course.cpmk_store_url,
-                                mapping_api_url: course.mapping_api_url,
-                                mapping_sync_url: course.mapping_sync_url,
+                            url: period.update_url,
+                            deleteUrl: period.delete_url,
+                            periodLabel: period.label,
+                            canDelete: period.can_delete,
+                            periodData: {
+                                id: period.id,
+                                name: period.name,
+                                semester: period.semester,
+                                active: period.is_active == '1',
+                                proposal_count: period.proposal_count,
                             },
                         },
                     }));

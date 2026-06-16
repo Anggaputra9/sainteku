@@ -71,12 +71,12 @@
 
                 <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
                     <div class="flex items-center">
-                        <div class="rounded-full bg-yellow-100 p-3 dark:bg-yellow-900">
-                            <i class="fas fa-book text-yellow-600 dark:text-yellow-300 text-xl"></i>
+                        <div class="rounded-full bg-sky-100 p-3 dark:bg-sky-900">
+                            <i class="fas fa-calendar-days text-sky-600 dark:text-sky-300 text-xl"></i>
                         </div>
                         <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Kurikulum</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalCurricula) }}</p>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Tahun Akademik</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ number_format($totalPeriods) }}</p>
                         </div>
                     </div>
                 </div>
@@ -192,6 +192,38 @@
                             <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
                                 </path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+                {{-- Card: Tahun Akademik --}}
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg hover:border-sky-300 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-sky-600">
+                <div class="p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tahun Akademik</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola periode akademik Gasal dan Genap</p>
+                            <div class="mt-4">
+                                <span
+                                    class="inline-flex items-center rounded-full bg-sky-50 px-2 py-1 text-xs font-medium text-sky-700 dark:bg-sky-900 dark:text-sky-300">Digunakan modul Ujian & Monev</span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg bg-sky-50 p-3 dark:bg-sky-900">
+                            <svg class="h-6 w-6 text-sky-600 dark:text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <a href="{{ route('masterdata.periods.index') }}"
+                            class="inline-flex items-center text-sm font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400">
+                            Kelola Tahun Akademik
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                             </svg>
                         </a>
                     </div>
@@ -345,6 +377,10 @@
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
                         <span>Masukkan data <strong>Infrastruktur</strong> jika institusi perlu melacak aset ruangan dan barang.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>
+                        <span>Atur <strong>Tahun Akademik</strong> aktif sebelum pengajuan ujian dan monev</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-circle-check mt-0.5 text-blue-500 text-xs"></i>

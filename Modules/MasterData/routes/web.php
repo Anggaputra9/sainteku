@@ -8,6 +8,10 @@ use Modules\MasterData\Http\Controllers\CurriculaController;
 use Modules\MasterData\Http\Controllers\CategoriesController;
 use Modules\MasterData\app\Http\Controllers\InfrastructureController;
 use Modules\MasterData\app\Http\Controllers\CourseController;
+use Modules\MasterData\Http\Controllers\PeriodController;
+use Modules\MasterData\Http\Controllers\CpmkController;
+use Modules\MasterData\Http\Controllers\CplController;
+use Modules\MasterData\Http\Controllers\CplCpmkMappingController;
 
 // =========================================================================
 // 🛡️ GEMBOK BRUTAL: Panggil class middleware lengkap langsung di sini
@@ -23,6 +27,13 @@ Route::middleware([
     Route::resource('masterdatas', MasterDataController::class);
 
     Route::get('units/api/data', [\Modules\MasterData\Http\Controllers\UnitController::class, 'getUnitsData'])->name('units.api.data');
+
+    // CPL per program studi
+    Route::get('units/{unit}/cpl/api/data', [CplController::class, 'getCplData'])->name('units.cpl.api.data');
+    Route::post('units/{unit}/cpl', [CplController::class, 'store'])->name('units.cpl.store');
+    Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->name('units.cpl.update');
+    Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->name('units.cpl.destroy');
+
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
 
     // Role management
@@ -66,6 +77,20 @@ Route::middleware([
     Route::post('courses/bulk', [CourseController::class, 'bulkStore'])->name('courses.bulk.store');
     Route::get('courses/bulk/template', [CourseController::class, 'downloadBulkTemplate'])->name('courses.bulk.template');
 
+    // CPMK per mata kuliah
+    Route::get('courses/{course}/cpmk/api/data', [CpmkController::class, 'getCpmkData'])->name('courses.cpmk.api.data');
+    Route::post('courses/{course}/cpmk', [CpmkController::class, 'store'])->name('courses.cpmk.store');
+    Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->name('courses.cpmk.update');
+    Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->name('courses.cpmk.destroy');
+
+    // Pemetaan CPL ↔ CPMK per mata kuliah
+    Route::get('courses/{course}/mapping/api/data', [CplCpmkMappingController::class, 'getMappingData'])->name('courses.mapping.api.data');
+    Route::put('courses/{course}/mapping', [CplCpmkMappingController::class, 'sync'])->name('courses.mapping.sync');
+
     // Route Resource ditaruh di BAWAH API
     Route::resource('courses', CourseController::class);
+
+    // Tahun akademik / periode
+    Route::get('periods/api/data', [PeriodController::class, 'getPeriodsData'])->name('periods.api.data');
+    Route::resource('periods', PeriodController::class)->except(['create', 'edit', 'show']);
 });

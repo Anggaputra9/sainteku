@@ -61,6 +61,11 @@ class CourseController extends Controller
             ->groupBy('course_id')
             ->pluck('cnt', 'course_id');
 
+        $cpmkCounts = DB::table('mst_cpmk')
+            ->select('course_id', DB::raw('count(*) as cnt'))
+            ->groupBy('course_id')
+            ->pluck('cnt', 'course_id');
+
         $mappingCounts = DB::table('trx_cpl_cpmk_mapping')
             ->select('course_id', DB::raw('count(*) as cnt'))
             ->groupBy('course_id')
@@ -72,6 +77,7 @@ class CourseController extends Controller
                 $course,
                 $proposalCounts,
                 $questionCounts,
+                $cpmkCounts,
                 $mappingCounts,
             ));
 
@@ -135,10 +141,12 @@ class CourseController extends Controller
         object $course,
         $proposalCounts,
         $questionCounts,
+        $cpmkCounts,
         $mappingCounts,
     ): array {
         $proposalCount = (int) ($proposalCounts[$course->id] ?? 0);
         $questionCount = (int) ($questionCounts[$course->id] ?? 0);
+        $cpmkCount = (int) ($cpmkCounts[$course->id] ?? 0);
         $mappingCount = (int) ($mappingCounts[$course->id] ?? 0);
 
         return [
@@ -152,10 +160,15 @@ class CourseController extends Controller
             'initial' => mb_strtoupper(mb_substr($course->course_name, 0, 1)),
             'proposal_count' => $proposalCount,
             'question_count' => $questionCount,
+            'cpmk_count' => $cpmkCount,
             'mapping_count' => $mappingCount,
+            'cpmk_api_url' => route('masterdata.courses.cpmk.api.data', $course->id),
+            'cpmk_store_url' => route('masterdata.courses.cpmk.store', $course->id),
+            'mapping_api_url' => route('masterdata.courses.mapping.api.data', $course->id),
+            'mapping_sync_url' => route('masterdata.courses.mapping.sync', $course->id),
             'update_url' => route('masterdata.courses.update', $course->id),
             'delete_url' => route('masterdata.courses.destroy', $course->id),
-            'can_delete' => $proposalCount === 0 && $questionCount === 0 && $mappingCount === 0,
+            'can_delete' => $proposalCount === 0 && $questionCount === 0,
         ];
     }
 
@@ -254,11 +267,10 @@ class CourseController extends Controller
     {
         $proposalCount = DB::table('trx_exam_proposals')->where('course_id', $id)->count();
         $questionCount = DB::table('trx_questions')->where('course_id', $id)->count();
-        $mappingCount = DB::table('trx_cpl_cpmk_mapping')->where('course_id', $id)->count();
 
-        if ($proposalCount > 0 || $questionCount > 0 || $mappingCount > 0) {
+        if ($proposalCount > 0 || $questionCount > 0) {
             return redirect()->route('masterdata.courses.index')
-                ->with('error', 'Mata kuliah tidak dapat dihapus karena masih terhubung dengan pengajuan soal, bank soal, atau mapping CPL/CPMK.');
+                ->with('error', 'Mata kuliah tidak dapat dihapus karena masih terhubung dengan pengajuan soal atau bank soal.');
         }
 
         try {
