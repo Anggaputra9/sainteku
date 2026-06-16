@@ -130,7 +130,7 @@
                                     <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">
                                         Deskripsi CPL <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" x-model="cplForm.name" maxlength="100"
+                                    <input type="text" x-model="cplForm.name" maxlength="255"
                                         class="w-full rounded-xl border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:bg-[#0f172a] dark:text-white dark:border-gray-600"
                                         placeholder="Contoh: Mampu merancang solusi berbasis teknologi informasi">
                                 </div>

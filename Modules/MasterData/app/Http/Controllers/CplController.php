@@ -32,7 +32,7 @@ class CplController extends Controller
         $this->ensureProdiExists($unitId);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
             'is_active' => 'required|in:0,1',
         ]);
 
@@ -59,7 +59,7 @@ class CplController extends Controller
         $this->findCplOrFail($unitId, $cplId);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:255',
             'is_active' => 'required|in:0,1',
         ]);
 
