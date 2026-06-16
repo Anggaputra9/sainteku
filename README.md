@@ -114,14 +114,14 @@ Sainteku adalah Sistem Informasi Terpadu Fakultas Sains dan Teknologi UIN Prof. 
 git clone https://github.com/Anggaputra9/sainteku.git
 cd sainteku
 cp .env.example .env   # edit DB & APP_URL dulu
-bash install.sh        # atau: bash scripts/install.sh
+sudo bash install.sh   # production: Laravel + Whatsar (disarankan di VPS)
 ```
 
 Opsi berguna:
 
 ```bash
-bash install.sh --seed --dev              # dev + seeder
-sudo bash install.sh --with-whatsar       # + install Whatsar
+bash install.sh --seed --dev              # dev + seeder (tanpa Whatsar)
+bash install.sh --skip-whatsar            # production tanpa Whatsar
 bash install.sh --help                    # semua opsi
 ```
 

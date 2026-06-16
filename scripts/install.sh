@@ -4,7 +4,9 @@
 # Usage:
 #   bash scripts/install.sh
 #   bash scripts/install.sh --seed --dev
-#   sudo bash scripts/install.sh --with-whatsar
+#   bash scripts/install.sh              # production: Whatsar otomatis (butuh sudo)
+#   bash scripts/install.sh --dev        # dev: tanpa Whatsar
+#   bash scripts/install.sh --skip-whatsar
 
 set -euo pipefail
 
@@ -16,7 +18,8 @@ DEV_MODE=false
 WITH_SEED=false
 SKIP_BUILD=false
 SKIP_MIGRATE=false
-WITH_WHATSAR=false
+WITH_WHATSAR=true
+SKIP_WHATSAR=false
 SKIP_OPTIMIZE=false
 
 usage() {
@@ -32,15 +35,16 @@ Options:
   --skip-build     Lewati npm run build
   --skip-migrate   Lewati database migrate
   --skip-optimize  Lewati config/route/view cache
-  --with-whatsar   Install Whatsar + systemd (perlu sudo)
+  --skip-whatsar   Lewati install Whatsar (default: aktif di mode production)
+  --with-whatsar   Paksa install Whatsar (berguna di --dev)
   --help, -h       Bantuan
 
-Contoh production:
+Contoh production (Laravel + Whatsar):
   cp .env.example .env   # edit DB dulu
-  bash scripts/install.sh
+  sudo bash install.sh
 
 Contoh staging + seeder:
-  bash scripts/install.sh --seed --dev
+  bash install.sh --seed --dev
 HELP
 }
 
@@ -51,11 +55,22 @@ while [[ $# -gt 0 ]]; do
         --skip-build) SKIP_BUILD=true; shift ;;
         --skip-migrate) SKIP_MIGRATE=true; shift ;;
         --skip-optimize) SKIP_OPTIMIZE=true; shift ;;
+        --skip-whatsar) SKIP_WHATSAR=true; shift ;;
         --with-whatsar) WITH_WHATSAR=true; shift ;;
         --help|-h) usage; exit 0 ;;
         *) log_warn "Opsi tidak dikenal: $1"; shift ;;
     esac
 done
+
+if [[ "$DEV_MODE" == "true" && "$WITH_WHATSAR" == "true" ]]; then
+    : # --with-whatsar eksplisit di dev → tetap install
+elif [[ "$DEV_MODE" == "true" ]]; then
+    WITH_WHATSAR=false
+fi
+
+if [[ "$SKIP_WHATSAR" == "true" ]]; then
+    WITH_WHATSAR=false
+fi
 
 cd "$APP_DIR"
 log_info "Instalasi Sainteku di ${APP_DIR}"
