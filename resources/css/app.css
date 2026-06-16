@@ -897,3 +897,286 @@ pre[class*='language-'] {
 .app-modal-overlay {
   z-index: 10000000 !important;
 }
+
+/* CPL Program Studi — dark mode (html.dark, works in teleported #modal-root) */
+html:not(.dark) #modal-root .cpl-section {
+  background-color: #ffffff;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .cpl-section {
+  background-color: #1e293b !important;
+  border-color: #374151 !important;
+  box-shadow: none;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-section-header {
+  border-color: #f3f4f6;
+}
+
+html.dark #modal-root .cpl-section .cpl-section-header {
+  border-color: #374151;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-section-title {
+  color: #374151;
+}
+
+html.dark #modal-root .cpl-section .cpl-section-title {
+  color: #e5e7eb;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-btn-add {
+  background-color: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+
+html.dark #modal-root .cpl-section .cpl-btn-add {
+  background-color: rgba(49, 46, 129, 0.3);
+  color: #818cf8;
+  border-color: #3730a3;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-badge-count {
+  background-color: #eef2ff;
+  color: #4338ca;
+  border-color: #e0e7ff;
+}
+
+html.dark #modal-root .cpl-section .cpl-badge-count {
+  background-color: rgba(49, 46, 129, 0.3);
+  color: #a5b4fc;
+  border-color: #3730a3;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-btn-delete {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+html.dark #modal-root .cpl-section .cpl-btn-delete {
+  background-color: rgba(127, 29, 29, 0.3);
+  color: #f87171;
+  border-color: #991b1b;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-form-panel {
+  background-color: rgba(238, 242, 255, 0.4);
+  border-color: #e0e7ff;
+}
+
+html.dark #modal-root .cpl-section .cpl-form-panel {
+  background-color: rgba(49, 46, 129, 0.1) !important;
+  border-color: rgba(49, 46, 129, 0.4) !important;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-form-label {
+  color: #9ca3af;
+}
+
+html.dark #modal-root .cpl-section .cpl-form-label {
+  color: #9ca3af;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-input {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+html.dark #modal-root .cpl-section .cpl-input {
+  background-color: #0f172a !important;
+  border-color: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-btn-cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+html.dark #modal-root .cpl-section .cpl-btn-cancel {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-loading {
+  color: #6b7280;
+}
+
+html.dark #modal-root .cpl-section .cpl-loading {
+  color: #9ca3af;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-empty {
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .cpl-section .cpl-empty {
+  border-color: #374151;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-empty .fa-graduation-cap {
+  color: #d1d5db;
+}
+
+html.dark #modal-root .cpl-section .cpl-empty .fa-graduation-cap {
+  color: #4b5563;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-empty-title {
+  color: #6b7280;
+}
+
+html.dark #modal-root .cpl-section .cpl-empty-title {
+  color: #9ca3af;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-empty-subtitle {
+  color: #9ca3af;
+}
+
+html.dark #modal-root .cpl-section .cpl-empty-subtitle {
+  color: #6b7280;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-list-item {
+  background-color: rgba(248, 250, 252, 0.6);
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .cpl-section .cpl-list-item {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-list-item.is-selected {
+  background-color: rgba(238, 242, 255, 0.6);
+  border-color: #c7d2fe;
+}
+
+html.dark #modal-root .cpl-section .cpl-list-item.is-selected {
+  background-color: rgba(49, 46, 129, 0.15) !important;
+  border-color: rgba(99, 102, 241, 0.6) !important;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-id-badge {
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+
+html.dark #modal-root .cpl-section .cpl-id-badge {
+  background-color: rgba(19, 78, 74, 0.4);
+  color: #5eead4;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-badge-active {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+html.dark #modal-root .cpl-section .cpl-badge-active {
+  background-color: rgba(20, 83, 45, 0.2);
+  color: #4ade80;
+  border-color: #166534;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-badge-inactive {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+html.dark #modal-root .cpl-section .cpl-badge-inactive {
+  background-color: rgba(127, 29, 29, 0.2);
+  color: #f87171;
+  border-color: #991b1b;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-item-text {
+  color: #374151;
+}
+
+html.dark #modal-root .cpl-section .cpl-item-text {
+  color: #d1d5db;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-btn-icon-edit {
+  color: #2563eb;
+}
+
+html.dark #modal-root .cpl-section .cpl-btn-icon-edit {
+  color: #60a5fa;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-btn-icon-delete {
+  color: #dc2626;
+}
+
+html.dark #modal-root .cpl-section .cpl-btn-icon-delete {
+  color: #f87171;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-bulk-toolbar {
+  background-color: #f8fafc;
+  border-color: #e5e7eb;
+}
+
+html.dark #modal-root .cpl-section .cpl-bulk-toolbar {
+  background-color: #0f172a !important;
+  border-color: #374151 !important;
+}
+
+html:not(.dark) #modal-root .cpl-section .cpl-bulk-label {
+  color: #4b5563;
+}
+
+html.dark #modal-root .cpl-section .cpl-bulk-label {
+  color: #e5e7eb;
+}
+
+#modal-root .cpl-checkbox {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  accent-color: #4f46e5;
+}
+
+#modal-root .cpl-checkbox:focus,
+#modal-root .cpl-checkbox:focus-visible,
+#modal-root .cpl-checkbox:active {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+html.dark #modal-root .cpl-checkbox {
+  color-scheme: dark;
+  background-color: #1e293b;
+  border-color: #4b5563;
+}
+
+html.dark #modal-root .cpl-checkbox:checked {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+html.dark #modal-root .cpl-checkbox:disabled {
+  opacity: 0.4;
+  background-color: #0f172a;
+  border-color: #374151;
+}
+
+#modal-root .cpl-input:focus,
+#modal-root .cpl-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
