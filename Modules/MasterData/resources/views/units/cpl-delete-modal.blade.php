@@ -121,7 +121,7 @@
                         });
                     } else {
                         response = await fetch(this.deleteUrl, {
-                            method: 'DELETE',
+                            method: 'POST',
                             headers: {
                                 'Accept': 'application/json',
                                 'X-CSRF-TOKEN': this.csrfToken(),

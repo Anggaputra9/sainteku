@@ -33,6 +33,7 @@ Route::middleware([
     Route::post('units/{unit}/cpl', [CplController::class, 'store'])->name('units.cpl.store');
     Route::post('units/{unit}/cpl/bulk-delete', [CplController::class, 'bulkDestroy'])->name('units.cpl.bulk.destroy');
     Route::put('units/{unit}/cpl/{cpl}', [CplController::class, 'update'])->name('units.cpl.update');
+    Route::post('units/{unit}/cpl/{cpl}/delete', [CplController::class, 'destroy'])->name('units.cpl.delete');
     Route::delete('units/{unit}/cpl/{cpl}', [CplController::class, 'destroy'])->name('units.cpl.destroy');
 
     Route::resource('units', \Modules\MasterData\Http\Controllers\UnitController::class)->except(['create', 'edit']);
@@ -83,6 +84,7 @@ Route::middleware([
     Route::post('courses/{course}/cpmk', [CpmkController::class, 'store'])->name('courses.cpmk.store');
     Route::post('courses/{course}/cpmk/bulk-delete', [CpmkController::class, 'bulkDestroy'])->name('courses.cpmk.bulk.destroy');
     Route::put('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'update'])->name('courses.cpmk.update');
+    Route::post('courses/{course}/cpmk/{cpmk}/delete', [CpmkController::class, 'destroy'])->name('courses.cpmk.delete');
     Route::delete('courses/{course}/cpmk/{cpmk}', [CpmkController::class, 'destroy'])->name('courses.cpmk.destroy');
 
     // Pemetaan CPL ↔ CPMK per mata kuliah
