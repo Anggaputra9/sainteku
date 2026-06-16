@@ -1,12 +1,14 @@
 <template x-teleport="#modal-root">
 <div x-data="unitDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
-    @cpl-deleted.window="handleCplDeleted($event)" @cpl-delete-failed.window="handleCplDeleteFailed($event)" x-show="openDetail"
+    @cpl-deleted.window="handleCplDeleted($event)" @cpl-delete-failed.window="handleCplDeleteFailed($event)"
+    @confirm-modal-opened.window="confirmModalOpen = true" @confirm-modal-closed.window="confirmModalOpen = false"
+    x-show="openDetail"
     class="app-modal-overlay fixed inset-0 flex items-center justify-center overflow-y-auto backdrop-blur-sm bg-gray-900/40 p-3 sm:p-6"
     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
     x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" x-cloak>
 
-    <div @click.away="openDetail = false"
+    <div @click.away="closeDetailIfAllowed()"
         class="unit-detail-modal relative w-full max-w-2xl flex flex-col max-h-[90dvh] sm:max-h-[95vh] transform rounded-2xl transition-all overflow-hidden">
 
         {{-- HEADER --}}
@@ -332,6 +334,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('unitDetailModal', () => ({
             openDetail: false,
+            confirmModalOpen: false,
             editMode: false,
             canDelete: false,
             url: '',
@@ -371,8 +374,15 @@
                 return ids.length > 0 && ids.every(id => this.cplSelectedIds.includes(id));
             },
 
+            closeDetailIfAllowed() {
+                if (!this.confirmModalOpen) {
+                    this.openDetail = false;
+                }
+            },
+
             handleOpenDetail(event) {
                 this.openDetail = true;
+                this.confirmModalOpen = false;
                 this.editMode = false;
                 this.url = event.detail.url;
                 this.deleteUrl = event.detail.deleteUrl;
@@ -581,7 +591,6 @@
                         name: this.unitName,
                     },
                 }));
-                this.openDetail = false;
             },
         }));
     });

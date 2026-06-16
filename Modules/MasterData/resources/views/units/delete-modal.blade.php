@@ -1,12 +1,12 @@
 <template x-teleport="#modal-root">
     <div x-data="{ openDelete: false, url: '', unitName: '' }"
-        @open-delete-modal.window="openDelete = true; url = $event.detail.url; unitName = $event.detail.name"
+        @open-delete-modal.window="openDelete = true; url = $event.detail.url; unitName = $event.detail.name; $dispatch('confirm-modal-opened')"
         x-show="openDelete"
-        class="app-modal-overlay fixed inset-0 flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
+        @click.self="openDelete = false; $nextTick(() => $dispatch('confirm-modal-closed'))"
+        class="app-modal-overlay fixed inset-0 z-[10000002] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
         x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
-        <div @click.away="openDelete = false"
-            class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
+        <div class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
 
             <div class="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:bg-[#1e293b] dark:border-gray-700">
                 <div class="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -26,7 +26,7 @@
                 </p>
 
                 <div class="flex flex-row flex-nowrap items-center justify-end gap-2 pt-2">
-                    <button type="button" @click="openDelete = false"
+                    <button type="button" @click="openDelete = false; $nextTick(() => $dispatch('confirm-modal-closed'))"
                         class="inline-flex shrink-0 items-center justify-center rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-5 sm:py-2.5 sm:text-sm transition">
                         Batal
                     </button>

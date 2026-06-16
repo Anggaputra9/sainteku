@@ -1,10 +1,10 @@
 <template x-teleport="#modal-root">
     <div x-data="cplDeleteModal()" @open-cpl-delete-modal.window="handleOpen($event)" x-show="open"
+        @click.self="close()"
         class="app-modal-overlay fixed inset-0 z-[10000002] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/50"
         x-transition:enter="transition ease-out duration-300" x-transition:opacity x-cloak>
 
-        <div @click.away="close()"
-            class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
+        <div class="relative w-full max-w-md rounded-2xl bg-white shadow-2xl ring-1 ring-gray-900/5 dark:bg-[#0f172a] dark:ring-gray-700 overflow-hidden">
 
             <div class="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4 dark:bg-[#1e293b] dark:border-gray-700">
                 <div class="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -64,6 +64,7 @@
             handleOpen(event) {
                 const detail = event.detail || {};
                 this.open = true;
+                window.dispatchEvent(new CustomEvent('confirm-modal-opened', { bubbles: true }));
                 this.mode = detail.mode || 'single';
                 this.items = detail.items || [];
                 this.deleteUrl = detail.deleteUrl || '';
@@ -87,6 +88,9 @@
                 }
 
                 this.open = false;
+                this.$nextTick(() => {
+                    window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
+                });
             },
 
             csrfToken() {
@@ -136,6 +140,9 @@
                     }
 
                     this.open = false;
+                    this.$nextTick(() => {
+                        window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
+                    });
                     window.dispatchEvent(new CustomEvent('cpl-deleted', {
                         bubbles: true,
                         detail: { message: result.message || 'CPL berhasil dihapus.' },
