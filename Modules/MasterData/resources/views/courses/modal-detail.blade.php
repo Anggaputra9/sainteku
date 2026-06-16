@@ -604,12 +604,16 @@
                     return;
                 }
 
+                if (!this.courseData.cpmk_bulk_destroy_url) {
+                    this.flashCpmk('error', 'URL hapus CPMK tidak tersedia. Muat ulang halaman.');
+                    return;
+                }
+
                 window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
                         items: [{ id: cpmk.id, name: cpmk.name }],
-                        deleteUrl: cpmk.delete_url,
                         bulkUrl: this.courseData.cpmk_bulk_destroy_url,
                     },
                 }));

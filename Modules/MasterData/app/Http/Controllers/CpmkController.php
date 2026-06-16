@@ -18,10 +18,19 @@ class CpmkController extends Controller
         $cpmks = MstCpmk::query()
             ->where('course_id', $courseId)
             ->orderBy('id')
-            ->get()
-            ->map(fn (MstCpmk $cpmk): array => $this->formatCpmkForApi($cpmk));
+            ->get();
 
-        return response()->json($cpmks)
+        $cpmkIds = $cpmks->pluck('id')->all();
+        $usedInMapping = array_flip($this->cpmkIdsUsedInMapping($courseId, $cpmkIds));
+        $usedInQuestions = array_flip($this->cpmkIdsUsedInQuestions($courseId, $cpmkIds));
+
+        $data = $cpmks->map(function (MstCpmk $cpmk) use ($usedInMapping, $usedInQuestions): array {
+            $canDelete = ! isset($usedInMapping[$cpmk->id]) && ! isset($usedInQuestions[$cpmk->id]);
+
+            return $this->formatCpmkForApi($cpmk, $canDelete);
+        });
+
+        return response()->json($data)
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -197,8 +206,53 @@ class CpmkController extends Controller
             ->exists();
     }
 
-    private function formatCpmkForApi(MstCpmk $cpmk): array
+    private function cpmkIdsUsedInMapping(string $courseId, array $cpmkIds): array
     {
+        if ($cpmkIds === []) {
+            return [];
+        }
+
+        return DB::table('trx_cpl_cpmk_mapping')
+            ->where('course_id', $courseId)
+            ->whereIn('cpmk_id', $cpmkIds)
+            ->distinct()
+            ->pluck('cpmk_id')
+            ->all();
+    }
+
+    private function cpmkIdsUsedInQuestions(string $courseId, array $cpmkIds): array
+    {
+        if ($cpmkIds === []) {
+            return [];
+        }
+
+        $used = [];
+        $cpmkIdSet = array_flip($cpmkIds);
+
+        foreach (DB::table('trx_questions')->where('course_id', $courseId)->pluck('cpmk_id') as $cpmkJson) {
+            $ids = json_decode($cpmkJson, true);
+
+            if (! is_array($ids)) {
+                continue;
+            }
+
+            foreach ($ids as $id) {
+                if (isset($cpmkIdSet[$id])) {
+                    $used[$id] = true;
+                }
+            }
+        }
+
+        return array_keys($used);
+    }
+
+    private function formatCpmkForApi(MstCpmk $cpmk, ?bool $canDelete = null): array
+    {
+        if ($canDelete === null) {
+            $canDelete = ! $this->isCpmkUsedInQuestions($cpmk->course_id, $cpmk->id)
+                && ! $this->isCpmkUsedInMapping($cpmk->course_id, $cpmk->id);
+        }
+
         return [
             'id' => $cpmk->id,
             'course_id' => $cpmk->course_id,
@@ -206,8 +260,7 @@ class CpmkController extends Controller
             'is_active' => $cpmk->is_active,
             'update_url' => route('masterdata.courses.cpmk.update', [$cpmk->course_id, $cpmk->id]),
             'delete_url' => route('masterdata.courses.cpmk.delete', [$cpmk->course_id, $cpmk->id]),
-            'can_delete' => ! $this->isCpmkUsedInQuestions($cpmk->course_id, $cpmk->id)
-                && ! $this->isCpmkUsedInMapping($cpmk->course_id, $cpmk->id),
+            'can_delete' => $canDelete,
         ];
     }
 }

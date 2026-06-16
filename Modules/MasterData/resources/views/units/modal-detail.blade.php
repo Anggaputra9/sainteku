@@ -526,12 +526,16 @@
                     return;
                 }
 
+                if (!this.unitData.cpl_bulk_destroy_url) {
+                    this.flashCpl('error', 'URL hapus CPL tidak tersedia. Muat ulang halaman.');
+                    return;
+                }
+
                 window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
                     bubbles: true,
                     detail: {
                         mode: 'single',
                         items: [{ id: cpl.id, name: cpl.name }],
-                        deleteUrl: cpl.delete_url,
                         bulkUrl: this.unitData.cpl_bulk_destroy_url,
                     },
                 }));

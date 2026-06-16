@@ -18,10 +18,18 @@ class CplController extends Controller
         $cpls = MstCpl::query()
             ->where('unit_id', $unitId)
             ->orderBy('id')
-            ->get()
-            ->map(fn (MstCpl $cpl): array => $this->formatCplForApi($cpl));
+            ->get();
 
-        return response()->json($cpls)
+        $cplIds = $cpls->pluck('id')->all();
+        $usedInMapping = array_flip($this->cplIdsUsedInMapping($unitId, $cplIds));
+
+        $data = $cpls->map(function (MstCpl $cpl) use ($usedInMapping): array {
+            $canDelete = ! isset($usedInMapping[$cpl->id]);
+
+            return $this->formatCplForApi($cpl, $canDelete);
+        });
+
+        return response()->json($data)
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -183,8 +191,26 @@ class CplController extends Controller
             ->exists();
     }
 
-    private function formatCplForApi(MstCpl $cpl): array
+    private function cplIdsUsedInMapping(string $unitId, array $cplIds): array
     {
+        if ($cplIds === []) {
+            return [];
+        }
+
+        return DB::table('trx_cpl_cpmk_mapping')
+            ->where('unit_id', $unitId)
+            ->whereIn('cpl_id', $cplIds)
+            ->distinct()
+            ->pluck('cpl_id')
+            ->all();
+    }
+
+    private function formatCplForApi(MstCpl $cpl, ?bool $canDelete = null): array
+    {
+        if ($canDelete === null) {
+            $canDelete = ! $this->isCplUsedInMapping($cpl->unit_id, $cpl->id);
+        }
+
         return [
             'id' => $cpl->id,
             'unit_id' => $cpl->unit_id,
@@ -192,7 +218,7 @@ class CplController extends Controller
             'is_active' => $cpl->is_active,
             'update_url' => route('masterdata.units.cpl.update', [$cpl->unit_id, $cpl->id]),
             'delete_url' => route('masterdata.units.cpl.delete', [$cpl->unit_id, $cpl->id]),
-            'can_delete' => ! $this->isCplUsedInMapping($cpl->unit_id, $cpl->id),
+            'can_delete' => $canDelete,
         ];
     }
 }

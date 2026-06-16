@@ -117,9 +117,7 @@
                     return;
                 }
 
-                const targetUrl = this.bulkUrl || this.deleteUrl;
-
-                if (!targetUrl) {
+                if (!this.bulkUrl) {
                     window.dispatchEvent(new CustomEvent('cpl-delete-failed', {
                         bubbles: true,
                         detail: { message: 'URL hapus CPL tidak tersedia. Muat ulang halaman.' },
@@ -130,7 +128,7 @@
                 this.deleting = true;
 
                 try {
-                    const response = await fetch(targetUrl, {
+                    const response = await fetch(this.bulkUrl, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
