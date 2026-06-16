@@ -1,5 +1,5 @@
 <template x-teleport="#modal-root">
-<div x-data="courseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
+<div x-data="openCourseDetailModal()" @open-detail-modal.window="handleOpenDetail($event)"
     @cpmk-deleted.window="handleCpmkDeleted($event)" @cpmk-delete-failed.window="handleCpmkDeleteFailed($event)"
     @confirm-modal-opened.window="confirmModalOpen = true"
     @confirm-modal-closed.window="confirmModalOpen = false; suppressDetailCloseUntil = Date.now() + 400"
@@ -217,7 +217,9 @@
                                             class="cpmk-btn-icon cpmk-btn-icon-edit rounded-lg p-2" title="Edit">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <button type="button" @click="requestDeleteCpmk(cpmk)" :disabled="!cpmk.can_delete"
+                                        <button type="button"
+                                            @click="openCpmkDeleteConfirm(cpmk)"
+                                            :disabled="!cpmk.can_delete"
                                             class="cpmk-btn-icon cpmk-btn-icon-delete rounded-lg p-2 disabled:opacity-40" title="Hapus">
                                             <i class="fas fa-trash-alt text-xs"></i>
                                         </button>
@@ -526,6 +528,10 @@
             },
 
             handleOpenDetail(event) {
+                if (!event.detail?.courseData?.id) {
+                    return;
+                }
+
                 this.openDetail = true;
                 this.confirmModalOpen = false;
                 this.editMode = false;
@@ -661,24 +667,46 @@
                 }
             },
 
-            requestDeleteCpmk(cpmk) {
+            cpmkBulkDeleteUrl(courseId) {
+                const id = String(courseId || this.courseData?.id || '').trim();
+                return id ? `/masterdata/courses/${id}/cpmk/bulk-delete` : '';
+            },
+
+            dispatchCpmkDeleteModal({ mode, items, courseId }) {
+                const resolvedCourseId = String(courseId || this.courseData?.id || '').trim();
+
+                if (!resolvedCourseId) {
+                    this.flashCpmk('error', 'Kode mata kuliah tidak tersedia. Tutup modal lalu buka detail lagi.');
+                    return;
+                }
+
+                const bulkUrl = this.cpmkBulkDeleteUrl(resolvedCourseId);
+
+                window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
+                    bubbles: true,
+                    detail: {
+                        mode,
+                        courseId: resolvedCourseId,
+                        items: items.map((item) => ({
+                            ...item,
+                            course_id: resolvedCourseId,
+                        })),
+                        bulkUrl,
+                    },
+                }));
+            },
+
+            openCpmkDeleteConfirm(cpmk) {
                 if (!cpmk.can_delete) {
                     this.flashCpmk('error', 'CPMK tidak dapat dihapus karena masih digunakan di soal atau pemetaan CPL.');
                     return;
                 }
 
-                const courseId = cpmk.course_id || this.courseData?.id || '';
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl(cpmk);
-
-                window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
-                    bubbles: true,
-                    detail: {
-                        mode: 'single',
-                        items: [{ id: cpmk.id, name: cpmk.name, course_id: courseId }],
-                        bulkUrl,
-                        deleteUrl: cpmk.delete_url || '',
-                    },
-                }));
+                this.dispatchCpmkDeleteModal({
+                    mode: 'single',
+                    courseId: this.courseData.id,
+                    items: [{ id: cpmk.id, name: cpmk.name }],
+                });
             },
 
             requestBulkDeleteCpmk() {
@@ -688,27 +716,18 @@
 
                 const items = this.cpmkList
                     .filter(cpmk => this.cpmkSelectedIds.includes(cpmk.id) && cpmk.can_delete)
-                    .map(cpmk => ({
-                        id: cpmk.id,
-                        name: cpmk.name,
-                        course_id: cpmk.course_id || this.courseData?.id || '',
-                    }));
+                    .map(cpmk => ({ id: cpmk.id, name: cpmk.name }));
 
                 if (items.length === 0) {
                     this.flashCpmk('error', 'Tidak ada CPMK terpilih yang dapat dihapus.');
                     return;
                 }
 
-                const bulkUrl = this.resolveCpmkBulkDestroyUrl(items[0]);
-
-                window.dispatchEvent(new CustomEvent('open-cpmk-delete-modal', {
-                    bubbles: true,
-                    detail: {
-                        mode: 'bulk',
-                        items,
-                        bulkUrl,
-                    },
-                }));
+                this.dispatchCpmkDeleteModal({
+                    mode: 'bulk',
+                    courseId: this.courseData.id,
+                    items,
+                });
             },
 
             async handleCpmkDeleted(event) {
@@ -884,8 +903,4 @@
             },
         };
     }
-
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('courseDetailModal', openCourseDetailModal);
-    });
 </script>

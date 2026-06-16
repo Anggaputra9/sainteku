@@ -50,12 +50,12 @@
 </template>
 
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('cpmkDeleteModal', () => ({
+    function cpmkDeleteModal() {
+        return {
             open: false,
             mode: 'single',
             items: [],
-            deleteUrl: '',
+            courseId: '',
             bulkUrl: '',
             subtitle: '',
             message: '',
@@ -67,8 +67,8 @@
                 window.dispatchEvent(new CustomEvent('confirm-modal-opened', { bubbles: true }));
                 this.mode = detail.mode || 'single';
                 this.items = detail.items || [];
-                this.deleteUrl = detail.deleteUrl || '';
-                this.bulkUrl = detail.bulkUrl || '';
+                this.courseId = String(detail.courseId || detail.items?.[0]?.course_id || '').trim();
+                this.bulkUrl = detail.bulkUrl || (this.courseId ? `/masterdata/courses/${this.courseId}/cpmk/bulk-delete` : '');
                 this.deleting = false;
 
                 if (this.mode === 'bulk') {
@@ -88,51 +88,24 @@
                 }
 
                 this.open = false;
-                this.$nextTick(() => {
-                    window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
-                });
+                window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
             },
 
             csrfToken() {
                 return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             },
 
-            normalizeApiUrl(url) {
-                if (!url) {
-                    return '';
-                }
-
-                if (url.startsWith('/')) {
-                    return url;
-                }
-
-                try {
-                    const parsed = new URL(url, window.location.origin);
-                    return parsed.pathname + parsed.search;
-                } catch (error) {
-                    return url;
-                }
-            },
-
             resolveBulkUrl() {
-                const itemWithCourse = this.items.find(item => item.course_id);
-                if (itemWithCourse?.course_id) {
-                    return `/masterdata/courses/${itemWithCourse.course_id}/cpmk/bulk-delete`;
+                if (this.bulkUrl) {
+                    return this.bulkUrl;
                 }
 
-                const candidates = [
-                    this.bulkUrl,
-                    this.deleteUrl?.includes('/bulk-delete') ? this.deleteUrl : this.deleteUrl?.replace(/\/[^/]+\/delete$/, '/bulk-delete'),
-                ];
-
-                for (const candidate of candidates) {
-                    const normalized = this.normalizeApiUrl(candidate);
-                    if (normalized) {
-                        return normalized;
-                    }
+                if (this.courseId) {
+                    return `/masterdata/courses/${this.courseId}/cpmk/bulk-delete`;
                 }
 
-                return '';
+                const courseId = String(this.items?.[0]?.course_id || '').trim();
+                return courseId ? `/masterdata/courses/${courseId}/cpmk/bulk-delete` : '';
             },
 
             async parseJsonResponse(response) {
@@ -193,9 +166,7 @@
                     }
 
                     this.open = false;
-                    this.$nextTick(() => {
-                        window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
-                    });
+                    window.dispatchEvent(new CustomEvent('confirm-modal-closed', { bubbles: true }));
                     window.dispatchEvent(new CustomEvent('cpmk-deleted', {
                         bubbles: true,
                         detail: {
@@ -213,6 +184,6 @@
                     this.deleting = false;
                 }
             },
-        }));
-    });
+        };
+    }
 </script>

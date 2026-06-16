@@ -224,7 +224,7 @@
                                             class="cpl-btn-icon cpl-btn-icon-edit rounded-lg p-2" title="Edit">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
-                                        <button type="button" @click="requestDeleteCpl(cpl)" :disabled="!cpl.can_delete"
+                                        <button type="button" @click="openCplDeleteConfirm(cpl)" :disabled="!cpl.can_delete"
                                             class="cpl-btn-icon cpl-btn-icon-delete rounded-lg p-2 disabled:opacity-40" title="Hapus">
                                             <i class="fas fa-trash-alt text-xs"></i>
                                         </button>
@@ -429,6 +429,10 @@
             },
 
             handleOpenDetail(event) {
+                if (!event.detail?.unitData?.id) {
+                    return;
+                }
+
                 this.openDetail = true;
                 this.confirmModalOpen = false;
                 this.editMode = false;
@@ -573,24 +577,46 @@
                 }
             },
 
-            requestDeleteCpl(cpl) {
+            cplBulkDeleteUrl(unitId) {
+                const id = String(unitId || this.unitData?.id || '').trim();
+                return id ? `/masterdata/units/${id}/cpl/bulk-delete` : '';
+            },
+
+            dispatchCplDeleteModal({ mode, items, unitId }) {
+                const resolvedUnitId = String(unitId || this.unitData?.id || '').trim();
+
+                if (!resolvedUnitId) {
+                    this.flashCpl('error', 'Kode unit tidak tersedia. Tutup modal lalu buka detail lagi.');
+                    return;
+                }
+
+                const bulkUrl = this.cplBulkDeleteUrl(resolvedUnitId);
+
+                window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
+                    bubbles: true,
+                    detail: {
+                        mode,
+                        unitId: resolvedUnitId,
+                        items: items.map((item) => ({
+                            ...item,
+                            unit_id: resolvedUnitId,
+                        })),
+                        bulkUrl,
+                    },
+                }));
+            },
+
+            openCplDeleteConfirm(cpl) {
                 if (!cpl.can_delete) {
                     this.flashCpl('error', 'CPL tidak dapat dihapus karena masih dipetakan ke CPMK.');
                     return;
                 }
 
-                const unitId = cpl.unit_id || this.unitData?.id || '';
-                const bulkUrl = this.resolveCplBulkDestroyUrl(cpl);
-
-                window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
-                    bubbles: true,
-                    detail: {
-                        mode: 'single',
-                        items: [{ id: cpl.id, name: cpl.name, unit_id: unitId }],
-                        bulkUrl,
-                        deleteUrl: cpl.delete_url || '',
-                    },
-                }));
+                this.dispatchCplDeleteModal({
+                    mode: 'single',
+                    unitId: this.unitData.id,
+                    items: [{ id: cpl.id, name: cpl.name }],
+                });
             },
 
             requestBulkDeleteCpl() {
@@ -600,27 +626,18 @@
 
                 const items = this.cplList
                     .filter(cpl => this.cplSelectedIds.includes(cpl.id) && cpl.can_delete)
-                    .map(cpl => ({
-                        id: cpl.id,
-                        name: cpl.name,
-                        unit_id: cpl.unit_id || this.unitData?.id || '',
-                    }));
+                    .map(cpl => ({ id: cpl.id, name: cpl.name }));
 
                 if (items.length === 0) {
                     this.flashCpl('error', 'Tidak ada CPL terpilih yang dapat dihapus.');
                     return;
                 }
 
-                const bulkUrl = this.resolveCplBulkDestroyUrl(items[0]);
-
-                window.dispatchEvent(new CustomEvent('open-cpl-delete-modal', {
-                    bubbles: true,
-                    detail: {
-                        mode: 'bulk',
-                        items,
-                        bulkUrl,
-                    },
-                }));
+                this.dispatchCplDeleteModal({
+                    mode: 'bulk',
+                    unitId: this.unitData.id,
+                    items,
+                });
             },
 
             async handleCplDeleted(event) {

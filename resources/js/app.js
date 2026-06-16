@@ -5,4 +5,9 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-Alpine.start();
+// Inline script blade (modal) jalan saat parse; modul vite jalan setelahnya
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => Alpine.start());
+} else {
+    Alpine.start();
+}
