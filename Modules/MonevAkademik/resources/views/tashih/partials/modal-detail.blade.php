@@ -381,11 +381,12 @@
 </div>
 
 @if(empty(Auth::user()->signature))
-    {{-- MODAL BUAT TANDA TANGAN --}}
+    {{-- MODAL BUAT TANDA TANGAN (di atas modal detail) --}}
+    <template x-teleport="#modal-root">
     <div x-data="{ openSignature: false }"
         @open-signature.window="openSignature = true; setTimeout(() => { initAlpineCanvas(); }, 300);"
         x-show="openSignature"
-        class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-gray-900/60"
+        class="app-modal-overlay fixed inset-0 z-[10000001] flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-gray-900/60"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
@@ -438,6 +439,7 @@
             </div>
         </div>
     </div>
+    </template>
 @endif
 {{-- SCRIPT FUNGSI SUBMIT (Global) --}}
 <script>
