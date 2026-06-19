@@ -8,7 +8,12 @@
 
                     signatureOpen: false,
                     signatureData: '{{ $user->signature ?? '' }}',
-                    sigMode: 'draw'
+                    sigMode: 'draw',
+                    alert: { type: '', message: '' },
+                    flash(type, message) {
+                        this.alert = { type, message };
+                        setTimeout(() => { this.alert.message = ''; }, 4000);
+                    }
                  }"
                  x-init="
                     if (window.location.hash === '#tanda-tangan') {
@@ -17,7 +22,8 @@
                             signatureOpen = true;
                         });
                     }
-                 " x-cloak>
+                 "
+                 @profile-flash.window="flash($event.detail.type, $event.detail.message)" x-cloak>
 
         {{-- BREADCRUMB --}}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -37,12 +43,38 @@
             </button>
         </div>
 
+        {{-- FLASH NOTIF --}}
+        <template x-if="alert.message">
+            <div class="mb-6 flex items-center gap-3 p-4 border-l-4 rounded-r-lg shadow-sm"
+                :class="{
+                    'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400': alert.type === 'error',
+                    'border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400': alert.type === 'warning',
+                    'border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400': alert.type === 'success'
+                }">
+                <i class="fa-solid text-lg shrink-0"
+                    :class="{
+                        'fa-circle-xmark': alert.type === 'error',
+                        'fa-triangle-exclamation': alert.type === 'warning',
+                        'fa-check-circle': alert.type === 'success'
+                    }"></i>
+                <span class="text-sm font-bold" x-text="alert.message"></span>
+            </div>
+        </template>
+
         {{-- ALERT SUCCESS --}}
         @if (session('status') === 'profile-updated' || session('status') === 'password-updated')
             <div
                 class="mb-6 flex items-center w-full border-l-4 border-green-500 bg-green-50 p-4 shadow-sm dark:bg-gray-800 dark:border-green-400 rounded-r-lg">
                 <i class="fa-solid fa-check-circle text-green-500 text-xl mr-3"></i>
                 <p class="text-sm font-bold text-green-700 dark:text-green-400">Pembaruan berhasil disimpan!</p>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div
+                class="mb-6 flex items-center w-full border-l-4 border-red-500 bg-red-50 p-4 shadow-sm dark:bg-gray-800 dark:border-red-400 rounded-r-lg">
+                <i class="fa-solid fa-circle-xmark text-red-500 text-xl mr-3"></i>
+                <p class="text-sm font-bold text-red-700 dark:text-red-400">{{ session('error') }}</p>
             </div>
         @endif
 
@@ -297,38 +329,39 @@
                                             signatureData = this.$refs.sigCanvas.toDataURL('image/png');
                                         }
                                     }" @resize.window="initCanvas"
-                    x-init="$watch('signatureOpen', value => { if(value && sigMode === 'draw') setTimeout(() => initCanvas(), 100) })">
+                    x-init="$watch('$root.signatureOpen', value => { if(value && $root.sigMode === 'draw') setTimeout(() => initCanvas(), 100) })">
 
                     <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Perbarui Tanda Tangan</h3>
-                        <button @click="signatureOpen = false" class="text-gray-400 hover:text-red-500"><i
+                        <button @click="$root.signatureOpen = false" class="text-gray-400 hover:text-red-500"><i
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <form action="{{ route('profile.signature.store') }}" method="POST" enctype="multipart/form-data"
                         @submit.prevent="
-                            if (sigMode === 'draw' && !hasDrawn) {
-                                if (typeof toastr !== 'undefined') {
-                                    toastr.warning('Gambar tanda tangan di kanvas terlebih dahulu.');
-                                } else {
-                                    alert('Gambar tanda tangan di kanvas terlebih dahulu.');
-                                }
+                            if ($root.sigMode === 'draw' && !hasDrawn) {
+                                $root.signatureOpen = false;
+                                $root.flash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
                                 return;
                             }
-                            submitProfileSignature($event.target, sigMode);
+                            if ($root.sigMode === 'upload' && !$refs.profileSignatureFile?.files?.length) {
+                                $root.flash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
+                                return;
+                            }
+                            submitProfileSignature($event.target, $root.sigMode);
                         ">
                         @csrf
 
                         <div class="mb-4 flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
-                            <button type="button" @click="sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
-                                :class="sigMode === 'draw' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
+                            <button type="button" @click="$root.sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
+                                :class="$root.sigMode === 'draw' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                                 class="w-1/2 rounded-md py-1.5 text-sm font-semibold transition">Gambar Langsung</button>
-                            <button type="button" @click="sigMode = 'upload'"
-                                :class="sigMode === 'upload' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
+                            <button type="button" @click="$root.sigMode = 'upload'"
+                                :class="$root.sigMode === 'upload' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                                 class="w-1/2 rounded-md py-1.5 text-sm font-semibold transition">Upload File PNG</button>
                         </div>
 
-                        <div x-show="sigMode === 'draw'">
+                        <div x-show="$root.sigMode === 'draw'">
                             <div
                                 class="mb-3 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden dark:bg-gray-200">
                                 <canvas x-ref="sigCanvas" width="450" height="200"
@@ -342,15 +375,20 @@
                                 Bersihkan Kanvas</button>
                         </div>
 
-                        <div x-show="sigMode === 'upload'" class="py-6" x-cloak>
-                            <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Pilih File TTD
-                                (Format: PNG transparan)</label>
+                        <div x-show="$root.sigMode === 'upload'" class="py-2" x-cloak>
+                            <label for="profileSignatureFile"
+                                class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
+                                Pilih File TTD <span class="text-red-500">*</span>
+                                <span class="font-normal text-gray-500 dark:text-gray-400">(PNG atau JPEG)</span>
+                            </label>
+                            <input type="file" name="signature_file" id="profileSignatureFile" x-ref="profileSignatureFile"
+                                accept="image/png,image/jpeg"
+                                :required="$root.sigMode === 'upload'"
+                                class="w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600">
                         </div>
-                        <input type="file" name="signature_file" id="profileSignatureFile" accept="image/png,image/jpeg"
-                            :class="sigMode === 'upload' ? 'w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600' : 'hidden'">
 
                         <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <button type="button" @click="signatureOpen = false"
+                            <button type="button" @click="$root.signatureOpen = false"
                                 class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
                             <button type="submit"
                                 class="rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 transition">Simpan
@@ -435,6 +473,12 @@
 
     @push('scripts')
     <script>
+        function profileFlash(type, message) {
+            window.dispatchEvent(new CustomEvent('profile-flash', {
+                detail: { type, message },
+            }));
+        }
+
         function isCanvasBlank(canvas) {
             const ctx = canvas.getContext('2d');
             const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -454,18 +498,13 @@
                 if (!canvas) return;
 
                 if (isCanvasBlank(canvas)) {
-                    const msg = 'Gambar tanda tangan di kanvas terlebih dahulu.';
-                    if (typeof toastr !== 'undefined') {
-                        toastr.warning(msg);
-                    } else {
-                        alert(msg);
-                    }
+                    profileFlash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
                     return;
                 }
 
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 if (!blob) {
-                    alert('Gambar tanda tangan kosong.');
+                    profileFlash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
                     return;
                 }
                 const dt = new DataTransfer();
@@ -473,8 +512,8 @@
                 fileInput.files = dt.files;
             }
 
-            if (!fileInput || !fileInput.files.length) {
-                alert('Pilih atau gambar tanda tangan terlebih dahulu.');
+            if (sigMode === 'upload' && (!fileInput || !fileInput.files.length)) {
+                profileFlash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
                 return;
             }
 
