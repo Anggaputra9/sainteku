@@ -356,6 +356,22 @@
                     return count;
                 },
 
+                get isOwnProposal() {
+                    return this.selectedProposal && this.userId == this.selectedProposal.created_by;
+                },
+
+                get canManageOwnProposal() {
+                    return this.isOwnProposal
+                        && ['SUBMITTED', 'REVISED'].includes(this.selectedProposal?.status);
+                },
+
+                get canReviewProposal() {
+                    return this.isReviewer
+                        && this.selectedProposal
+                        && this.selectedProposal.status === 'SUBMITTED'
+                        && this.userId != this.selectedProposal.created_by;
+                },
+
 
 
                 initData() {

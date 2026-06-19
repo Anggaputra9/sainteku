@@ -182,7 +182,7 @@
                                     </template>
 
                                     {{-- FORM INPUT KOMENTAR PER-SOAL --}}
-                                    <template x-if="isReviewer && selectedProposal.status === 'SUBMITTED'">
+                                    <template x-if="canReviewProposal">
                                         <div
                                             class="mt-5 sm:mt-6 rounded-xl bg-amber-50/50 p-4 sm:p-5 border border-amber-200 dark:bg-amber-900/10 dark:border-amber-500/20">
                                             <label
@@ -199,7 +199,7 @@
                         </div>
 
                         {{-- PANEL REVIEWER KEPUTUSAN KAPRODI --}}
-                        <template x-if="isReviewer && selectedProposal.status === 'SUBMITTED'">
+                        <template x-if="canReviewProposal">
                             <div
                                 class="mt-8 sm:mt-10 rounded-2xl border border-indigo-100 bg-white shadow-md overflow-hidden dark:bg-[#1e293b] dark:border-indigo-900/30">
                                 <div
@@ -264,68 +264,65 @@
 
             {{-- Footer Modal: Tombol Aksi --}}
             <div
-                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
-                <div class="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
+                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-3 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
+                <div class="flex flex-wrap items-center justify-between gap-2">
 
-                    <div class="w-full sm:w-auto flex justify-start">
+                    <div class="flex flex-wrap items-center gap-2">
                         <button type="button" @click="openDetail = false"
-                            class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-gray-200 px-5 sm:px-6 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all">
-                            <i class="fas fa-times"></i> Batal
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gray-200 px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-2 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all">
+                            <i class="fas fa-times text-xs"></i> Batal
                         </button>
 
                         <template x-if="selectedProposal && selectedProposal.status === 'APPROVED'">
-                            <div class="w-full sm:w-auto sm:ml-3 mt-2 sm:mt-0">
-                                @if(Auth::user()->hasPermission(3, 'E'))
-                                    <a :href="'{{ url('monev-akademik/tashih/print') }}/' + selectedProposal.uuid"
-                                        target="_blank"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-emerald-600 px-5 sm:px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-lg focus:ring-4 focus:ring-emerald-500/30 transition-all">
-                                        <i class="fas fa-print"></i> Cetak Kertas Ujian
-                                    </a>
-                                @endif
-                            </div>
+                            @if(Auth::user()->hasPermission(3, 'E'))
+                                <a :href="'{{ url('monev-akademik/tashih/print') }}/' + selectedProposal.uuid"
+                                    target="_blank"
+                                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500/30 transition-all">
+                                    <i class="fas fa-print text-xs"></i> Cetak
+                                </a>
+                            @endif
                         </template>
                     </div>
 
-                    <div class="w-full sm:w-auto flex flex-col sm:flex-row gap-2.5 sm:gap-3 sm:justify-end">
-                        <template
-                            x-if="selectedProposal && userId == selectedProposal.created_by && ['SUBMITTED', 'REVISED'].includes(selectedProposal.status)">
-                            <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full">
+                    <div class="flex flex-wrap items-center justify-end gap-2">
+                        <template x-if="canManageOwnProposal">
+                            <div class="flex flex-wrap items-center gap-2">
                                 @if(Auth::user()->hasPermission(3, 'D'))
                                     <button type="button"
                                         @click="openDetail = false; setTimeout(() => { openDelete = true }, 300);"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-red-600 text-white px-5 sm:px-6 py-2.5 text-sm font-bold shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg focus:ring-4 focus:ring-red-500/30 transition-all">
-                                        <i class="fas fa-trash-alt"></i> Hapus
+                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-red-600 text-white px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all">
+                                        <i class="fas fa-trash-alt text-xs"></i> Hapus
                                     </button>
                                 @endif
 
                                 @if(Auth::user()->hasPermission(3, 'U'))
                                     <button type="button" @click="openEditModal()"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-edit"></i> Edit
+                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
+                                        <i class="fas fa-edit text-xs"></i> Edit
                                     </button>
                                 @endif
                             </div>
                         </template>
 
-                        <template x-if="isReviewer && selectedProposal && selectedProposal.status === 'SUBMITTED'">
-                            <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full">
+                        <template x-if="canReviewProposal">
+                            <div class="flex flex-wrap items-center gap-2">
                                 <button type="button"
                                     @click="submitToRevise(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                    class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-amber-500 text-white px-5 sm:px-6 py-2.5 text-sm font-bold shadow-md shadow-amber-500/20 hover:bg-amber-600 hover:shadow-lg focus:ring-4 focus:ring-amber-500/30 transition-all">
-                                    <i class="fas fa-rotate-left"></i> Kembalikan (Revisi)
+                                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-amber-500 text-white px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-amber-600 focus:ring-2 focus:ring-amber-500/30 transition-all">
+                                    <i class="fas fa-rotate-left text-xs"></i> Revisi
                                 </button>
 
                                 @if(empty(Auth::user()->signature))
                                     <button type="button"
                                         @click="openSignature = true; setTimeout(() => { initAlpineCanvas(); }, 300);"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-file-signature"></i> Setujui & Sahkan
+                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
+                                        <i class="fas fa-file-signature text-xs"></i> Setujui
                                     </button>
                                 @else
                                     <button type="button"
                                         @click="submitToApprove(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                        class="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-8 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-file-signature"></i> Setujui & Sahkan
+                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
+                                        <i class="fas fa-file-signature text-xs"></i> Setujui
                                     </button>
                                 @endif
                             </div>
