@@ -274,10 +274,8 @@
                 <div @click.away="editProfileOpen = false"
                     class="relative w-full max-w-4xl transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
 
-                    <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+                    <div class="mb-6 border-b border-gray-100 pb-4 dark:border-gray-700">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white">Edit Informasi Profil</h3>
-                        <button @click="editProfileOpen = false" class="text-gray-400 hover:text-red-500 transition"><i
-                                class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <form action="{{ route('profile.update.post') }}" method="POST" enctype="multipart/form-data"
@@ -342,12 +340,15 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700 mt-6">
+                        <div class="flex flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-6">
                             <button type="button" @click="editProfileOpen = false"
-                                class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
                             <button type="submit"
-                                class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-blue-700 transition">Simpan
-                                Perubahan</button>
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-blue-700 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-save"></i> Simpan
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -425,14 +426,14 @@
                                 class="w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600">
                         </div>
 
-                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                             <button type="button" @click="closeSignatureModal()"
-                                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-100 px-5 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
-                                <i class="fas fa-times text-xs"></i> Batal
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-times"></i> Batal
                             </button>
                             <button type="submit"
-                                class="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 focus:ring-2 focus:ring-teal-500/40 transition">
-                                <i class="fas fa-save text-xs"></i> Simpan Tanda Tangan
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-teal-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-teal-700 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-save"></i> Simpan
                             </button>
                         </div>
                     </form>
@@ -452,11 +453,9 @@
                 <div @click.away="changePasswordOpen = false" x-data="{ showPassword: false }"
                     class="relative w-full max-w-lg transform rounded-2xl bg-white p-8 shadow-2xl ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700 transition-all">
 
-                    <div class="mb-6 flex items-center justify-between border-b border-gray-100 pb-4 dark:border-gray-700">
+                    <div class="mb-6 border-b border-gray-100 pb-4 dark:border-gray-700">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white"><i
                                 class="fas fa-shield-alt text-red-500 mr-2"></i> Keamanan Akun</h3>
-                        <button @click="changePasswordOpen = false" class="text-gray-400 hover:text-red-500 transition"><i
-                                class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <form action="{{ route('profile.password.update.post') }}" method="POST" class="space-y-5">
@@ -498,12 +497,15 @@
                             </label>
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700 mt-6">
+                        <div class="flex flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-6">
                             <button type="button" @click="changePasswordOpen = false"
-                                class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 sm:px-6 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-times"></i> Batal
+                            </button>
                             <button type="submit"
-                                class="rounded-lg bg-red-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-red-700 transition">Ubah
-                                Password</button>
+                                class="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-md hover:bg-red-700 sm:px-8 sm:py-2.5 sm:text-sm transition-all">
+                                <i class="fas fa-key"></i> Ubah Password
+                            </button>
                         </div>
                     </form>
                 </div>
