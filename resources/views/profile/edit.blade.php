@@ -254,14 +254,17 @@
 
                 <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800" x-data="{
                                         isDrawing: false,
+                                        hasDrawn: false,
                                         ctx: null,
                                         initCanvas() {
                                             const canvas = this.$refs.sigCanvas;
                                             this.ctx = canvas.getContext('2d');
+                                            this.ctx.clearRect(0, 0, canvas.width, canvas.height);
                                             this.ctx.lineWidth = 3;
                                             this.ctx.lineCap = 'round';
                                             this.ctx.lineJoin = 'round';
                                             this.ctx.strokeStyle = '#000000';
+                                            this.hasDrawn = false;
                                         },
                                         startDraw(e) {
                                             this.isDrawing = true;
@@ -278,6 +281,7 @@
                                             this.ctx.stroke();
                                             this.ctx.beginPath();
                                             this.ctx.moveTo(x, y);
+                                            this.hasDrawn = true;
                                             e.preventDefault();
                                         },
                                         stopDraw() {
@@ -286,6 +290,7 @@
                                         },
                                         clearPad() {
                                             this.ctx.clearRect(0, 0, this.$refs.sigCanvas.width, this.$refs.sigCanvas.height);
+                                            this.hasDrawn = false;
                                             signatureData = '';
                                         },
                                         savePad() {
@@ -301,7 +306,17 @@
                     </div>
 
                     <form action="{{ route('profile.signature.store') }}" method="POST" enctype="multipart/form-data"
-                        @submit.prevent="submitProfileSignature($event.target, sigMode)">
+                        @submit.prevent="
+                            if (sigMode === 'draw' && !hasDrawn) {
+                                if (typeof toastr !== 'undefined') {
+                                    toastr.warning('Gambar tanda tangan di kanvas terlebih dahulu.');
+                                } else {
+                                    alert('Gambar tanda tangan di kanvas terlebih dahulu.');
+                                }
+                                return;
+                            }
+                            submitProfileSignature($event.target, sigMode);
+                        ">
                         @csrf
 
                         <div class="mb-4 flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
@@ -420,12 +435,34 @@
 
     @push('scripts')
     <script>
+        function isCanvasBlank(canvas) {
+            const ctx = canvas.getContext('2d');
+            const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            for (let i = 3; i < data.length; i += 4) {
+                if (data[i] > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         async function submitProfileSignature(form, sigMode) {
             const fileInput = form.querySelector('#profileSignatureFile');
 
             if (sigMode === 'draw') {
                 const canvas = form.querySelector('canvas');
                 if (!canvas) return;
+
+                if (isCanvasBlank(canvas)) {
+                    const msg = 'Gambar tanda tangan di kanvas terlebih dahulu.';
+                    if (typeof toastr !== 'undefined') {
+                        toastr.warning(msg);
+                    } else {
+                        alert(msg);
+                    }
+                    return;
+                }
+
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 if (!blob) {
                     alert('Gambar tanda tangan kosong.');
