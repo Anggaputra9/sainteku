@@ -425,12 +425,15 @@
                                 class="w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600">
                         </div>
 
-                        <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                             <button type="button" @click="closeSignatureModal()"
-                                class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
+                                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-100 px-5 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition">
+                                <i class="fas fa-times text-xs"></i> Batal
+                            </button>
                             <button type="submit"
-                                class="rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 transition">Simpan
-                                Tanda Tangan</button>
+                                class="inline-flex items-center gap-2 rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 focus:ring-2 focus:ring-teal-500/40 transition">
+                                <i class="fas fa-save text-xs"></i> Simpan Tanda Tangan
+                            </button>
                         </div>
                     </form>
                 </div>
