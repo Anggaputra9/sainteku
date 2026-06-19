@@ -222,7 +222,6 @@
         @include('monevakademik::tashih.partials.modal-create-workspace')
         @include('monevakademik::tashih.partials.modal-bank-soal')
         @include('monevakademik::tashih.partials.modal-detail')
-        @include('monevakademik::tashih.partials.modal-signature')
 
         {{-- FAB FILTER --}}
         <template x-teleport="body">

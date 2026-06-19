@@ -61,8 +61,10 @@ Route::middleware(['auth'])->group(function () {
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // POST alias — Apache/WAF production memblokir method spoof PATCH
+    // POST alias — Apache/WAF/Cloudflare memblokir PATCH spoof & cache HTML lama ke /profile
+    Route::post('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update.post');
+    Route::post('/profile/signature', [ProfileController::class, 'storeSignature'])->name('profile.signature.store');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Email Verification (untuk user yang sudah login, kirim ulang link)

@@ -77,12 +77,15 @@ class ExamProposalController extends Controller
                 ->count();
         }
 
-        return view('monevakademik::tashih.index', compact(
-            'periods',
-            'myCourses',
-            'isReviewer',
-            'reviewQueueCount',
-        ))->with('title', 'Tashih Soal & Pengajuan Review');
+        return response()
+            ->view('monevakademik::tashih.index', compact(
+                'periods',
+                'myCourses',
+                'isReviewer',
+                'reviewQueueCount',
+            ))
+            ->with('title', 'Tashih Soal & Pengajuan Review')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function getCpmkForCourse(string $course_id)

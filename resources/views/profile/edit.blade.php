@@ -292,11 +292,9 @@
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
-                    <form action="{{ route('profile.update.post') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('profile.signature.store') }}" method="POST" enctype="multipart/form-data"
+                        @submit.prevent="submitProfileSignature($event.target, sigMode)">
                         @csrf
-                        <input type="hidden" name="name" value="{{ $user->name }}">
-                        <input type="hidden" name="email" value="{{ $user->email }}">
-                        <input type="hidden" name="signature" x-model="signatureData">
 
                         <div class="mb-4 flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
                             <button type="button" @click="sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
@@ -324,14 +322,14 @@
                         <div x-show="sigMode === 'upload'" class="py-6" x-cloak>
                             <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Pilih File TTD
                                 (Format: PNG transparan)</label>
-                            <input type="file" name="signature_file" accept="image/png,image/jpeg"
-                                class="w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600">
                         </div>
+                        <input type="file" name="signature_file" id="profileSignatureFile" accept="image/png,image/jpeg"
+                            :class="sigMode === 'upload' ? 'w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600' : 'hidden'">
 
                         <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
                             <button type="button" @click="signatureOpen = false"
                                 class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
-                            <button type="submit" @click="if(sigMode === 'draw') savePad()"
+                            <button type="submit"
                                 class="rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 transition">Simpan
                                 Tanda Tangan</button>
                         </div>
@@ -411,4 +409,32 @@
         </template>
 
     </div>
+
+    @push('scripts')
+    <script>
+        async function submitProfileSignature(form, sigMode) {
+            const fileInput = form.querySelector('#profileSignatureFile');
+
+            if (sigMode === 'draw') {
+                const canvas = form.querySelector('canvas');
+                if (!canvas) return;
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                if (!blob) {
+                    alert('Gambar tanda tangan kosong.');
+                    return;
+                }
+                const dt = new DataTransfer();
+                dt.items.add(new File([blob], 'signature.png', { type: 'image/png' }));
+                fileInput.files = dt.files;
+            }
+
+            if (!fileInput || !fileInput.files.length) {
+                alert('Pilih atau gambar tanda tangan terlebih dahulu.');
+                return;
+            }
+
+            form.submit();
+        }
+    </script>
+    @endpush
 @endsection

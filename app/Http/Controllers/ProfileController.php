@@ -8,17 +8,20 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
-    public function edit(Request $request): View
+    public function edit(Request $request): Response
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
-        ]);
+        return response()
+            ->view('profile.edit', [
+                'user' => $request->user(),
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function updatePassword(Request $request)
@@ -35,6 +38,22 @@ class ProfileController extends Controller
         $user->save();
 
         return back()->with('status', 'password-updated');
+    }
+
+    public function storeSignature(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'signature_file' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+        $file = $request->file('signature_file');
+        $fileData = base64_encode(file_get_contents($file->getRealPath()));
+        $mimeType = $file->getMimeType();
+        $user->signature = 'data:'.$mimeType.';base64,'.$fileData;
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     public function update(Request $request): RedirectResponse
