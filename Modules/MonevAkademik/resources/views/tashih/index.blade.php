@@ -368,8 +368,7 @@
                 get canReviewProposal() {
                     return this.isReviewer
                         && this.selectedProposal
-                        && this.selectedProposal.status === 'SUBMITTED'
-                        && this.userId != this.selectedProposal.created_by;
+                        && this.selectedProposal.status === 'SUBMITTED';
                 },
 
 

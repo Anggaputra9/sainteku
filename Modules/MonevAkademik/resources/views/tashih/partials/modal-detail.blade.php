@@ -264,69 +264,61 @@
 
             {{-- Footer Modal: Tombol Aksi --}}
             <div
-                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-3 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
-                <div class="flex flex-wrap items-center justify-between gap-2">
+                class="shrink-0 border-t border-gray-200 bg-white/95 px-4 sm:px-6 py-4 z-20 dark:bg-[#1e293b]/95 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] sticky bottom-0 backdrop-blur">
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                         <button type="button" @click="openDetail = false"
-                            class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gray-200 px-3.5 py-2 text-xs sm:text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-2 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all">
-                            <i class="fas fa-times text-xs"></i> Batal
+                            class="inline-flex items-center gap-2 rounded-xl bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all">
+                            <i class="fas fa-times"></i> Batal
                         </button>
 
                         <template x-if="selectedProposal && selectedProposal.status === 'APPROVED'">
                             @if(Auth::user()->hasPermission(3, 'E'))
                                 <a :href="'{{ url('monev-akademik/tashih/print') }}/' + selectedProposal.uuid"
                                     target="_blank"
-                                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500/30 transition-all">
-                                    <i class="fas fa-print text-xs"></i> Cetak
+                                    class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-lg focus:ring-4 focus:ring-emerald-500/30 transition-all">
+                                    <i class="fas fa-print"></i> Cetak Kertas Ujian
                                 </a>
                             @endif
                         </template>
                     </div>
 
-                    <div class="flex flex-wrap items-center justify-end gap-2">
-                        <template x-if="canManageOwnProposal">
-                            <div class="flex flex-wrap items-center gap-2">
-                                @if(Auth::user()->hasPermission(3, 'D'))
-                                    <button type="button"
-                                        @click="openDetail = false; setTimeout(() => { openDelete = true }, 300);"
-                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-red-600 text-white px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500/30 transition-all">
-                                        <i class="fas fa-trash-alt text-xs"></i> Hapus
-                                    </button>
-                                @endif
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-3 sm:justify-end">
+                        @if(Auth::user()->hasPermission(3, 'D'))
+                            <button type="button" x-show="canManageOwnProposal" x-cloak
+                                @click="openDetail = false; setTimeout(() => { openDelete = true }, 300);"
+                                class="inline-flex items-center gap-2 rounded-xl bg-red-600 text-white px-5 py-2.5 text-sm font-bold shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg focus:ring-4 focus:ring-red-500/30 transition-all">
+                                <i class="fas fa-trash-alt"></i> Hapus
+                            </button>
+                        @endif
 
-                                @if(Auth::user()->hasPermission(3, 'U'))
-                                    <button type="button" @click="openEditModal()"
-                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-edit text-xs"></i> Edit
-                                    </button>
-                                @endif
-                            </div>
-                        </template>
+                        @if(Auth::user()->hasPermission(3, 'U'))
+                            <button type="button" x-show="canManageOwnProposal" x-cloak @click="openEditModal()"
+                                class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 hover:shadow-lg focus:ring-4 focus:ring-indigo-500/30 transition-all">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        @endif
 
-                        <template x-if="canReviewProposal">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button type="button"
-                                    @click="submitToRevise(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                    class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-amber-500 text-white px-3.5 py-2 text-xs sm:text-sm font-semibold shadow-sm hover:bg-amber-600 focus:ring-2 focus:ring-amber-500/30 transition-all">
-                                    <i class="fas fa-rotate-left text-xs"></i> Revisi
-                                </button>
+                        <button type="button" x-show="canReviewProposal" x-cloak
+                            @click="submitToRevise(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
+                            class="inline-flex items-center gap-2 rounded-xl bg-amber-500 text-white px-5 py-2.5 text-sm font-bold shadow-md shadow-amber-500/20 hover:bg-amber-600 hover:shadow-lg focus:ring-4 focus:ring-amber-500/30 transition-all">
+                            <i class="fas fa-rotate-left"></i> Kembalikan (Revisi)
+                        </button>
 
-                                @if(empty(Auth::user()->signature))
-                                    <button type="button"
-                                        @click="openSignature = true; setTimeout(() => { initAlpineCanvas(); }, 300);"
-                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-file-signature text-xs"></i> Setujui
-                                    </button>
-                                @else
-                                    <button type="button"
-                                        @click="submitToApprove(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
-                                        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500/30 transition-all">
-                                        <i class="fas fa-file-signature text-xs"></i> Setujui
-                                    </button>
-                                @endif
-                            </div>
-                        </template>
+                        @if(empty(Auth::user()->signature))
+                            <button type="button" x-show="canReviewProposal" x-cloak
+                                @click="openSignature = true; setTimeout(() => { initAlpineCanvas(); }, 300);"
+                                class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
+                                <i class="fas fa-file-signature"></i> Setujui & Sahkan
+                            </button>
+                        @else
+                            <button type="button" x-show="canReviewProposal" x-cloak
+                                @click="submitToApprove(selectedProposal.uuid, '{{ url('monev-akademik/tashih') }}')"
+                                class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 transition-all">
+                                <i class="fas fa-file-signature"></i> Setujui & Sahkan
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
