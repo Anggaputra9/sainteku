@@ -30,6 +30,10 @@
             z-index: 10000000 !important;
         }
 
+        .app-modal-overlay.app-modal-overlay--stacked {
+            z-index: 10000001 !important;
+        }
+
         /* Sidebar flyout — selalu di atas konten & footer */
         #sidebar-flyout-portal {
             position: fixed;

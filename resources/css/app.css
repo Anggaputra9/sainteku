@@ -898,6 +898,10 @@ pre[class*='language-'] {
   z-index: 10000000 !important;
 }
 
+.app-modal-overlay.app-modal-overlay--stacked {
+  z-index: 10000001 !important;
+}
+
 /* Unit detail modal — dark mode via html.dark (teleported #modal-root) */
 html:not(.dark) #modal-root .unit-detail-modal {
   background-color: #f8fafc;
