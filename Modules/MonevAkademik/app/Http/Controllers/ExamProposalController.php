@@ -78,13 +78,10 @@ class ExamProposalController extends Controller
         }
 
         return response()
-            ->view('monevakademik::tashih.index', compact(
-                'periods',
-                'myCourses',
-                'isReviewer',
-                'reviewQueueCount',
-            ))
-            ->with('title', 'Tashih Soal & Pengajuan Review')
+            ->view('monevakademik::tashih.index', [
+                ...compact('periods', 'myCourses', 'isReviewer', 'reviewQueueCount'),
+                'title' => 'Tashih Soal & Pengajuan Review',
+            ])
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
