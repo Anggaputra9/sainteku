@@ -8,7 +8,6 @@
 
                     signatureOpen: false,
                     signatureData: '{{ $user->signature ?? '' }}',
-                    sigMode: 'draw',
                     alert: { type: '', message: '' },
                     flash(type, message) {
                         this.alert = { type, message };
@@ -285,11 +284,13 @@
                 x-transition x-cloak>
 
                 <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800" x-data="{
+                                        sigMode: 'draw',
                                         isDrawing: false,
                                         hasDrawn: false,
                                         ctx: null,
                                         initCanvas() {
                                             const canvas = this.$refs.sigCanvas;
+                                            if (!canvas) return;
                                             this.ctx = canvas.getContext('2d');
                                             this.ctx.clearRect(0, 0, canvas.width, canvas.height);
                                             this.ctx.lineWidth = 3;
@@ -323,45 +324,45 @@
                                         clearPad() {
                                             this.ctx.clearRect(0, 0, this.$refs.sigCanvas.width, this.$refs.sigCanvas.height);
                                             this.hasDrawn = false;
-                                            signatureData = '';
+                                            $parent.signatureData = '';
                                         },
                                         savePad() {
-                                            signatureData = this.$refs.sigCanvas.toDataURL('image/png');
+                                            $parent.signatureData = this.$refs.sigCanvas.toDataURL('image/png');
                                         }
-                                    }" @resize.window="initCanvas"
-                    x-init="$watch('$root.signatureOpen', value => { if(value && $root.sigMode === 'draw') setTimeout(() => initCanvas(), 100) })">
+                                    }" @resize.window="if (sigMode === 'draw') initCanvas()"
+                    x-init="$watch(() => $parent.signatureOpen, value => { if (value && sigMode === 'draw') setTimeout(() => initCanvas(), 100) })">
 
                     <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Perbarui Tanda Tangan</h3>
-                        <button @click="$root.signatureOpen = false" class="text-gray-400 hover:text-red-500"><i
+                        <button @click="$parent.signatureOpen = false" class="text-gray-400 hover:text-red-500"><i
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <form action="{{ route('profile.signature.store') }}" method="POST" enctype="multipart/form-data"
                         @submit.prevent="
-                            if ($root.sigMode === 'draw' && !hasDrawn) {
-                                $root.signatureOpen = false;
-                                $root.flash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
+                            if (sigMode === 'draw' && !hasDrawn) {
+                                $parent.signatureOpen = false;
+                                $parent.flash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
                                 return;
                             }
-                            if ($root.sigMode === 'upload' && !$refs.profileSignatureFile?.files?.length) {
-                                $root.flash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
+                            if (sigMode === 'upload' && !$refs.profileSignatureFile?.files?.length) {
+                                $parent.flash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
                                 return;
                             }
-                            submitProfileSignature($event.target, $root.sigMode);
+                            submitProfileSignature($event.target, sigMode);
                         ">
                         @csrf
 
                         <div class="mb-4 flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
-                            <button type="button" @click="$root.sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
-                                :class="$root.sigMode === 'draw' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
+                            <button type="button" @click="sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
+                                :class="sigMode === 'draw' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                                 class="w-1/2 rounded-md py-1.5 text-sm font-semibold transition">Gambar Langsung</button>
-                            <button type="button" @click="$root.sigMode = 'upload'"
-                                :class="$root.sigMode === 'upload' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
+                            <button type="button" @click="sigMode = 'upload'"
+                                :class="sigMode === 'upload' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                                 class="w-1/2 rounded-md py-1.5 text-sm font-semibold transition">Upload File PNG</button>
                         </div>
 
-                        <div x-show="$root.sigMode === 'draw'">
+                        <div x-show="sigMode === 'draw'">
                             <div
                                 class="mb-3 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden dark:bg-gray-200">
                                 <canvas x-ref="sigCanvas" width="450" height="200"
@@ -375,7 +376,7 @@
                                 Bersihkan Kanvas</button>
                         </div>
 
-                        <div x-show="$root.sigMode === 'upload'" class="py-2" x-cloak>
+                        <div x-show="sigMode === 'upload'" class="py-2" x-cloak>
                             <label for="profileSignatureFile"
                                 class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">
                                 Pilih File TTD <span class="text-red-500">*</span>
@@ -383,12 +384,12 @@
                             </label>
                             <input type="file" name="signature_file" id="profileSignatureFile" x-ref="profileSignatureFile"
                                 accept="image/png,image/jpeg"
-                                :required="$root.sigMode === 'upload'"
+                                :required="sigMode === 'upload'"
                                 class="w-full rounded-lg border-0 bg-gray-50 py-2 px-3 text-sm ring-1 ring-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:py-1 file:px-4 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-600">
                         </div>
 
                         <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <button type="button" @click="$root.signatureOpen = false"
+                            <button type="button" @click="$parent.signatureOpen = false"
                                 class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
                             <button type="submit"
                                 class="rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 transition">Simpan
