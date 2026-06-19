@@ -8,13 +8,78 @@
 
                     signatureOpen: false,
                     signatureData: '{{ $user->signature ?? '' }}',
+                    sigMode: 'draw',
+                    sigIsDrawing: false,
+                    sigHasDrawn: false,
+                    sigCtx: null,
                     alert: { type: '', message: '' },
                     flash(type, message) {
                         this.alert = { type, message };
                         setTimeout(() => { this.alert.message = ''; }, 4000);
+                    },
+                    initSigCanvas() {
+                        const canvas = this.$refs.sigCanvas;
+                        if (!canvas) return;
+                        this.sigCtx = canvas.getContext('2d');
+                        this.sigCtx.clearRect(0, 0, canvas.width, canvas.height);
+                        this.sigCtx.lineWidth = 3;
+                        this.sigCtx.lineCap = 'round';
+                        this.sigCtx.lineJoin = 'round';
+                        this.sigCtx.strokeStyle = '#000000';
+                        this.sigHasDrawn = false;
+                    },
+                    startSigDraw(e) {
+                        this.sigIsDrawing = true;
+                        this.sigDraw(e);
+                    },
+                    sigDraw(e) {
+                        if (!this.sigIsDrawing || !this.sigCtx) return;
+                        const canvas = this.$refs.sigCanvas;
+                        const rect = canvas.getBoundingClientRect();
+                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const x = clientX - rect.left;
+                        const y = clientY - rect.top;
+                        this.sigCtx.lineTo(x, y);
+                        this.sigCtx.stroke();
+                        this.sigCtx.beginPath();
+                        this.sigCtx.moveTo(x, y);
+                        this.sigHasDrawn = true;
+                        e.preventDefault();
+                    },
+                    stopSigDraw() {
+                        this.sigIsDrawing = false;
+                        if (this.sigCtx) this.sigCtx.beginPath();
+                    },
+                    clearSigPad() {
+                        const canvas = this.$refs.sigCanvas;
+                        if (!canvas || !this.sigCtx) return;
+                        this.sigCtx.clearRect(0, 0, canvas.width, canvas.height);
+                        this.sigHasDrawn = false;
+                        this.signatureData = '';
+                    },
+                    closeSignatureModal() {
+                        this.signatureOpen = false;
+                    },
+                    submitSignatureForm(form) {
+                        if (this.sigMode === 'draw' && !this.sigHasDrawn) {
+                            this.signatureOpen = false;
+                            this.flash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
+                            return;
+                        }
+                        if (this.sigMode === 'upload' && !this.$refs.profileSignatureFile?.files?.length) {
+                            this.flash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
+                            return;
+                        }
+                        submitProfileSignature(form, this.sigMode);
                     }
                  }"
                  x-init="
+                    $watch('signatureOpen', value => {
+                        if (value && sigMode === 'draw') {
+                            setTimeout(() => initSigCanvas(), 100);
+                        }
+                    });
                     if (window.location.hash === '#tanda-tangan') {
                         $nextTick(() => {
                             document.getElementById('tanda-tangan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -22,7 +87,8 @@
                         });
                     }
                  "
-                 @profile-flash.window="flash($event.detail.type, $event.detail.message)" x-cloak>
+                 @profile-flash.window="flash($event.detail.type, $event.detail.message)"
+                 @resize.window="if (signatureOpen && sigMode === 'draw') initSigCanvas()" x-cloak>
 
         {{-- BREADCRUMB --}}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -283,78 +349,19 @@
                 class="app-modal-overlay fixed inset-0 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
                 x-transition x-cloak>
 
-                <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800" x-data="{
-                                        sigMode: 'draw',
-                                        isDrawing: false,
-                                        hasDrawn: false,
-                                        ctx: null,
-                                        initCanvas() {
-                                            const canvas = this.$refs.sigCanvas;
-                                            if (!canvas) return;
-                                            this.ctx = canvas.getContext('2d');
-                                            this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                            this.ctx.lineWidth = 3;
-                                            this.ctx.lineCap = 'round';
-                                            this.ctx.lineJoin = 'round';
-                                            this.ctx.strokeStyle = '#000000';
-                                            this.hasDrawn = false;
-                                        },
-                                        startDraw(e) {
-                                            this.isDrawing = true;
-                                            this.draw(e);
-                                        },
-                                        draw(e) {
-                                            if (!this.isDrawing) return;
-                                            const rect = this.$refs.sigCanvas.getBoundingClientRect();
-                                            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                                            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                                            const x = clientX - rect.left;
-                                            const y = clientY - rect.top;
-                                            this.ctx.lineTo(x, y);
-                                            this.ctx.stroke();
-                                            this.ctx.beginPath();
-                                            this.ctx.moveTo(x, y);
-                                            this.hasDrawn = true;
-                                            e.preventDefault();
-                                        },
-                                        stopDraw() {
-                                            this.isDrawing = false;
-                                            this.ctx.beginPath();
-                                        },
-                                        clearPad() {
-                                            this.ctx.clearRect(0, 0, this.$refs.sigCanvas.width, this.$refs.sigCanvas.height);
-                                            this.hasDrawn = false;
-                                            $parent.signatureData = '';
-                                        },
-                                        savePad() {
-                                            $parent.signatureData = this.$refs.sigCanvas.toDataURL('image/png');
-                                        }
-                                    }" @resize.window="if (sigMode === 'draw') initCanvas()"
-                    x-init="$watch(() => $parent.signatureOpen, value => { if (value && sigMode === 'draw') setTimeout(() => initCanvas(), 100) })">
+                <div @click.away="closeSignatureModal()"
+                    class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
 
-                    <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-700">
+                    <div class="mb-4 border-b border-gray-100 pb-3 dark:border-gray-700">
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white">Perbarui Tanda Tangan</h3>
-                        <button @click="$parent.signatureOpen = false" class="text-gray-400 hover:text-red-500"><i
-                                class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <form action="{{ route('profile.signature.store') }}" method="POST" enctype="multipart/form-data"
-                        @submit.prevent="
-                            if (sigMode === 'draw' && !hasDrawn) {
-                                $parent.signatureOpen = false;
-                                $parent.flash('warning', 'Gambar tanda tangan di kanvas terlebih dahulu.');
-                                return;
-                            }
-                            if (sigMode === 'upload' && !$refs.profileSignatureFile?.files?.length) {
-                                $parent.flash('warning', 'Pilih file gambar tanda tangan terlebih dahulu.');
-                                return;
-                            }
-                            submitProfileSignature($event.target, sigMode);
-                        ">
+                        @submit.prevent="submitSignatureForm($event.target)">
                         @csrf
 
                         <div class="mb-4 flex gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-900">
-                            <button type="button" @click="sigMode = 'draw'; setTimeout(() => initCanvas(), 50)"
+                            <button type="button" @click="sigMode = 'draw'; setTimeout(() => initSigCanvas(), 50)"
                                 :class="sigMode === 'draw' ? 'bg-white shadow-sm dark:bg-gray-700 text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'"
                                 class="w-1/2 rounded-md py-1.5 text-sm font-semibold transition">Gambar Langsung</button>
                             <button type="button" @click="sigMode = 'upload'"
@@ -366,11 +373,11 @@
                             <div
                                 class="mb-3 rounded-xl border-2 border-dashed border-gray-300 bg-white overflow-hidden dark:bg-gray-200">
                                 <canvas x-ref="sigCanvas" width="450" height="200"
-                                    class="w-full cursor-crosshair touch-none" @mousedown="startDraw" @mousemove="draw"
-                                    @mouseup="stopDraw" @mouseleave="stopDraw" @touchstart="startDraw" @touchmove="draw"
-                                    @touchend="stopDraw"></canvas>
+                                    class="w-full cursor-crosshair touch-none" @mousedown="startSigDraw" @mousemove="sigDraw"
+                                    @mouseup="stopSigDraw" @mouseleave="stopSigDraw" @touchstart="startSigDraw" @touchmove="sigDraw"
+                                    @touchend="stopSigDraw"></canvas>
                             </div>
-                            <button type="button" @click="clearPad"
+                            <button type="button" @click="clearSigPad()"
                                 class="text-sm font-semibold text-red-500 hover:text-red-600 mb-4"><i
                                     class="fas fa-eraser"></i>
                                 Bersihkan Kanvas</button>
@@ -389,7 +396,7 @@
                         </div>
 
                         <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
-                            <button type="button" @click="$parent.signatureOpen = false"
+                            <button type="button" @click="closeSignatureModal()"
                                 class="mr-3 rounded-lg px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 transition">Batal</button>
                             <button type="submit"
                                 class="rounded-lg bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 transition">Simpan
