@@ -374,9 +374,19 @@ fix_permissions() {
 }
 
 optimize_laravel() {
+    detect_platform
     log_info "Laravel optimize (config/route/view cache)..."
-    (cd "$APP_DIR" && php artisan config:clear && php artisan route:clear && php artisan view:clear)
-    (cd "$APP_DIR" && php artisan config:cache && php artisan route:cache && php artisan view:cache)
+
+    local artisan_php=(php)
+    if id -u "${WEB_USER}" >/dev/null 2>&1; then
+        if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+            artisan_php=(sudo -u "${WEB_USER}" php)
+        fi
+    fi
+
+    (cd "$APP_DIR" && "${artisan_php[@]}" artisan config:clear && "${artisan_php[@]}" artisan route:clear && "${artisan_php[@]}" artisan view:clear)
+    (cd "$APP_DIR" && "${artisan_php[@]}" artisan config:cache && "${artisan_php[@]}" artisan route:cache && "${artisan_php[@]}" artisan view:cache)
+    fix_permissions
     log_ok "Optimize selesai"
 }
 
