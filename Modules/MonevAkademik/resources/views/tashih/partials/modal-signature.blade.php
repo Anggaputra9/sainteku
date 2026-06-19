@@ -1,9 +1,9 @@
 @if(empty(Auth::user()->signature))
-    {{-- Modal TTD di atas semua modal lain (teleport terakhir + z-index stacked) --}}
-    <template x-teleport="#modal-root">
+    {{-- Teleport ke body + z-index maksimum agar selalu di atas modal detail --}}
+    <template x-teleport="body">
         <div x-show="openSignature"
-            class="app-modal-overlay app-modal-overlay--stacked fixed inset-0 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-gray-900/60"
-            style="z-index: 10000001 !important;"
+            class="app-modal-overlay app-modal-overlay--topmost fixed inset-0 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-gray-900/60"
+            style="z-index: 2147483646 !important;"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>

@@ -34,6 +34,14 @@
             z-index: 10000001 !important;
         }
 
+        .app-modal-overlay.app-modal-overlay--dimmed {
+            z-index: 9999990 !important;
+        }
+
+        .app-modal-overlay.app-modal-overlay--topmost {
+            z-index: 2147483646 !important;
+        }
+
         /* Sidebar flyout — selalu di atas konten & footer */
         #sidebar-flyout-portal {
             position: fixed;

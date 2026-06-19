@@ -34,6 +34,7 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
 Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update.post');
 
 // Email Verification (token public, klik dari email user)
 Route::get('email/verify/{token}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
@@ -60,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // POST alias — Apache/WAF production memblokir method spoof PATCH
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update.post');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Email Verification (untuk user yang sudah login, kirim ulang link)

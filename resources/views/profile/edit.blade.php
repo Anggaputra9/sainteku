@@ -162,10 +162,9 @@
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
-                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data"
+                    <form action="{{ route('profile.update.post') }}" method="POST" enctype="multipart/form-data"
                         class="space-y-6">
                         @csrf
-                        @method('patch')
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -293,9 +292,8 @@
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
-                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('profile.update.post') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-                        @method('patch')
                         <input type="hidden" name="name" value="{{ $user->name }}">
                         <input type="hidden" name="email" value="{{ $user->email }}">
                         <input type="hidden" name="signature" x-model="signatureData">
@@ -361,9 +359,8 @@
                                 class="fas fa-times text-xl"></i></button>
                     </div>
 
-                    <form action="{{ route('profile.password.update') }}" method="POST" class="space-y-5">
+                    <form action="{{ route('profile.password.update.post') }}" method="POST" class="space-y-5">
                         @csrf
-                        @method('put')
 
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-gray-900 dark:text-white">Password Saat
