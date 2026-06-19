@@ -323,7 +323,6 @@
                 openApprove: false,
                 openRevise: false,
                 openDelete: false,
-                openSignature: false,
 
                 courseId: '',
                 courseName: '',

@@ -9,7 +9,15 @@
                     signatureOpen: false,
                     signatureData: '{{ $user->signature ?? '' }}',
                     sigMode: 'draw'
-                 }" x-cloak>
+                 }"
+                 x-init="
+                    if (window.location.hash === '#tanda-tangan') {
+                        $nextTick(() => {
+                            document.getElementById('tanda-tangan')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            signatureOpen = true;
+                        });
+                    }
+                 " x-cloak>
 
         {{-- BREADCRUMB --}}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -107,8 +115,8 @@
         </div>
 
         {{-- CARD 2: ALAMAT & TANDA TANGAN --}}
-        <div
-            class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 relative">
+        <div id="tanda-tangan"
+            class="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 relative scroll-mt-24">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Informasi Tambahan & Tanda Tangan</h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
