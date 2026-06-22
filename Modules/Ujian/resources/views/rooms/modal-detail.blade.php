@@ -376,7 +376,7 @@
         </div>
 
         {{-- MODE EDIT --}}
-        <form x-show="editMode" @submit.prevent="submitEdit()" class="flex flex-col flex-1 overflow-hidden" x-cloak>
+        <form x-show="editMode" novalidate @submit.prevent="submitEdit()" class="flex flex-col flex-1 overflow-hidden" x-cloak>
             <div class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-6 lg:p-8 space-y-5 bg-slate-50 dark:bg-[#0f172a]">
 
                 {{-- Section: Paket Soal --}}
@@ -425,7 +425,7 @@
                                     <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                                         Fakultas <span class="text-red-500">*</span>
                                     </label>
-                                    <select x-model="filterFakultas" @change="onFakultasChange()" x-ref="fakultasSelect" required
+                                    <select x-model="filterFakultas" @change="onFakultasChange()" x-ref="fakultasSelect" :required="changingPackage"
                                         class="{{ $inputClass }}">
                                         <option value="">— Pilih fakultas —</option>
                                         @foreach($uniqueFakultas as $p)
@@ -437,7 +437,7 @@
                                     <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                                         Program Studi <span class="text-red-500">*</span>
                                     </label>
-                                    <select x-model="filterProdi" @change="onProdiChange()" x-ref="prodiSelect" :disabled="!filterFakultas" required
+                                    <select x-model="filterProdi" @change="onProdiChange()" x-ref="prodiSelect" :disabled="!filterFakultas" :required="changingPackage && !!filterFakultas"
                                         class="{{ $inputClass }} disabled:cursor-not-allowed disabled:opacity-60">
                                         <option value="">— Pilih program studi —</option>
                                         @foreach($uniqueProdis as $p)
@@ -449,7 +449,7 @@
                                     <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                                         Mata Kuliah <span class="text-red-500">*</span>
                                     </label>
-                                    <select x-model="filterCourse" @change="onCourseChange()" x-ref="courseSelect" :disabled="!filterProdi" required
+                                    <select x-model="filterCourse" @change="onCourseChange()" x-ref="courseSelect" :disabled="!filterProdi" :required="changingPackage && !!filterProdi"
                                         class="{{ $inputClass }} disabled:cursor-not-allowed disabled:opacity-60">
                                         <option value="">— Pilih mata kuliah —</option>
                                         @foreach($uniqueCourses as $p)
@@ -462,7 +462,7 @@
                                 <label class="mb-2 block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                                     Paket Soal (Approved) <span class="text-red-500">*</span>
                                 </label>
-                                <select x-model="form.proposal_id" x-ref="proposalSelect" :disabled="!filterCourse" required
+                                <select x-model="form.proposal_id" x-ref="proposalSelect" :disabled="!filterCourse" :required="changingPackage && !!filterCourse"
                                     class="{{ $inputClass }} disabled:cursor-not-allowed disabled:opacity-60">
                                     <option value="">— Pilih paket soal —</option>
                                     @foreach($proposals as $p)
@@ -1265,7 +1265,9 @@
                     proposal_id: this.form.proposal_id || this.editProposalContext?.id || this.detail.room?.proposal_id,
                 };
                 if (!payload.proposal_id) {
-                    this.formError = 'Paket soal tidak ditemukan. Muat ulang halaman lalu coba lagi.';
+                    this.formError = this.changingPackage
+                        ? 'Lengkapi fakultas, prodi, mata kuliah, dan paket soal terlebih dahulu.'
+                        : 'Paket soal tidak ditemukan. Muat ulang halaman lalu coba lagi.';
                     this.submitting = false;
                     return;
                 }
