@@ -62,7 +62,7 @@
 
                 try {
                     const res = await fetch(this.deleteUrl, {
-                        method: 'DELETE',
+                        method: 'POST',
                         headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': this.csrf },
                     });
                     const data = await res.json().catch(() => ({}));

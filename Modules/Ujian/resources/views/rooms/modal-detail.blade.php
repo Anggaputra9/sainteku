@@ -1270,8 +1270,8 @@
                     return;
                 }
                 try {
-                    const res = await fetch(`{{ url('ujian/rooms') }}/${this.roomUuid}`, {
-                        method: 'PUT',
+                    const res = await fetch(`{{ url('ujian/rooms') }}/${this.roomUuid}/update`, {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
@@ -1454,8 +1454,8 @@
                     if (action === 'start' || action === 'close') {
                         url = `{{ url('ujian/rooms') }}/${uuid}/${action}`;
                     } else if (action === 'delete-attempt') {
-                        url = `{{ url('ujian/rooms') }}/${uuid}/attempts/${attempt.uuid}`;
-                        method = 'DELETE';
+                        url = `{{ url('ujian/rooms') }}/${uuid}/attempts/${attempt.uuid}/delete`;
+                        method = 'POST';
                     } else if (action === 'reset-violation') {
                         url = `{{ url('ujian/rooms') }}/${uuid}/attempts/${attempt.uuid}/reset-violation`;
                     } else {

@@ -871,8 +871,8 @@ class RoomController extends Controller
             'attempts_finished_count'  => (int) $room->attempts_finished_count,
             'status'                   => $room->status,
             'show_url'                 => route('ujian.rooms.show', $room->uuid),
-            'update_url'               => route('ujian.rooms.update', $room->uuid),
-            'delete_url'               => route('ujian.rooms.destroy', $room->uuid),
+            'update_url'               => route('ujian.rooms.update.post', $room->uuid),
+            'delete_url'               => route('ujian.rooms.destroy.post', $room->uuid),
             'can_delete'               => (int) $room->attempts_count === 0,
         ];
     }

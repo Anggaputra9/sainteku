@@ -34,8 +34,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('{room:uuid}',             [RoomController::class, 'show'])->name('show');
         Route::put('{room:uuid}',             [RoomController::class, 'update'])->name('update');
+        // POST alias — WAF/Cloudflare prod memblokir PUT/DELETE dari fetch JSON
+        Route::post('{room:uuid}/update',      [RoomController::class, 'update'])->name('update.post');
         Route::delete('{room:uuid}',          [RoomController::class, 'destroy'])->name('destroy');
+        Route::post('{room:uuid}/delete',      [RoomController::class, 'destroy'])->name('destroy.post');
         Route::delete('{room:uuid}/attempts/{attempt:uuid}', [RoomController::class, 'destroyAttempt'])->name('attempts.destroy');
+        Route::post('{room:uuid}/attempts/{attempt:uuid}/delete', [RoomController::class, 'destroyAttempt'])->name('attempts.destroy.post');
 
         Route::post('{room:uuid}/start',      [RoomController::class, 'start'])->name('start');
         Route::post('{room:uuid}/close',      [RoomController::class, 'close'])->name('close');
