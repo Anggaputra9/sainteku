@@ -337,12 +337,12 @@
                         </button>
                     </div>
                     <div class="flex shrink-0 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
-                        <template x-if="!detail.room?.auto_grading_enabled && hasUngradedAttempts()">
+                        <template x-if="hasUngradedAttempts()">
                             <button type="button" @click="startBatchGrading(false)" class="{{ $btnPurple }}">
                                 <i class="fas fa-robot"></i> Koreksi AI
                             </button>
                         </template>
-                        <template x-if="!detail.room?.auto_grading_enabled && hasAllGraded()">
+                        <template x-if="hasAllGraded()">
                             <button type="button" @click="startBatchGrading(true)" class="{{ $btnPurple }}">
                                 <i class="fas fa-rotate"></i> Koreksi Ulang
                             </button>
