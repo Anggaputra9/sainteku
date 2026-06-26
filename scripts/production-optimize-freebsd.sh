@@ -97,16 +97,22 @@ install_queue_service() {
         "${APP_DIR}/deploy/queue-wrapper.sh" > /usr/local/sbin/queue-wrapper.sh
     chmod 755 /usr/local/sbin/queue-wrapper.sh
 
+    cp "${APP_DIR}/deploy/queue-watchdog.sh" /usr/local/sbin/queue-watchdog.sh
+    chmod 755 /usr/local/sbin/queue-watchdog.sh
+
     sed \
         -e "s|/usr/local/www/saintekku|${APP_DIR}|g" \
         -e "s|sainteku_queue_user=\"www\"|sainteku_queue_user=\"${WEB_USER}\"|g" \
         "${APP_DIR}/deploy/queue-freebsd" > /usr/local/etc/rc.d/sainteku_queue
     chmod 755 /usr/local/etc/rc.d/sainteku_queue
 
+    local queue_workers="${SAINTEKKU_QUEUE_WORKERS:-4}"
+
     if command -v sysrc >/dev/null 2>&1; then
         sysrc sainteku_queue_enable="YES" >/dev/null 2>&1 || true
         sysrc sainteku_app_dir="${APP_DIR}" >/dev/null 2>&1 || true
         sysrc sainteku_queue_user="${WEB_USER}" >/dev/null 2>&1 || true
+        sysrc sainteku_queue_workers="${queue_workers}" >/dev/null 2>&1 || true
     elif [[ -f /etc/rc.conf ]]; then
         grep -q '^sainteku_queue_enable=' /etc/rc.conf 2>/dev/null \
             || echo 'sainteku_queue_enable="YES"' >> /etc/rc.conf
@@ -114,10 +120,29 @@ install_queue_service() {
             || echo "sainteku_app_dir=\"${APP_DIR}\"" >> /etc/rc.conf
         grep -q '^sainteku_queue_user=' /etc/rc.conf 2>/dev/null \
             || echo "sainteku_queue_user=\"${WEB_USER}\"" >> /etc/rc.conf
+        grep -q '^sainteku_queue_workers=' /etc/rc.conf 2>/dev/null \
+            || echo "sainteku_queue_workers=\"${queue_workers}\"" >> /etc/rc.conf
     fi
 
     service sainteku_queue restart 2>/dev/null || service sainteku_queue start
-    log_ok "Queue worker: service sainteku_queue"
+    log_ok "Queue workers: service sainteku_queue (${queue_workers} worker)"
+
+    local root_cron="/var/cron/tabs/root"
+    local watchdog_line="*/5 * * * * /usr/local/sbin/queue-watchdog.sh >> /var/log/sainteku-queue-watchdog.log 2>&1"
+    install -d "$(dirname "${root_cron}")"
+    if [[ -f "${root_cron}" ]] && grep -Fq "queue-watchdog.sh" "${root_cron}"; then
+        log_ok "Queue watchdog cron sudah ada (root)"
+    else
+        if [[ -f "${root_cron}" ]]; then
+            printf '\n%s\n' "${watchdog_line}" >> "${root_cron}"
+        else
+            printf '%s\n' "${watchdog_line}" > "${root_cron}"
+        fi
+        chmod 600 "${root_cron}"
+        log_ok "Queue watchdog cron ditambahkan (root, tiap 5 menit)"
+    fi
+
+    touch /var/log/sainteku-queue-watchdog.log
 
     local cron_file="/var/cron/tabs/${WEB_USER}"
     local schedule_line="* * * * * cd ${APP_DIR} && /usr/local/bin/php artisan schedule:run >> /var/log/sainteku-schedule.log 2>&1"
@@ -190,6 +215,6 @@ reload_cron
 echo ""
 log_ok "Optimasi production FreeBSD selesai"
 echo "  OPcache   : php -i | grep opcache.enable"
-echo "  Queue     : service sainteku_queue status"
+echo "  Queue     : service sainteku_queue status  (${SAINTEKKU_QUEUE_WORKERS:-4} worker)"
 echo "  Scheduler : crontab -u ${WEB_USER} -l"
 echo "  Backup WA : ls ${APP_DIR}/storage/whatsar/backups/"

@@ -3,11 +3,12 @@
 # REQUIRE: NETWORKING DAEMON
 # KEYWORD: shutdown
 #
-# Sainteku Laravel queue worker (rc.d)
+# Sainteku Laravel queue workers (rc.d) — multi-worker
 #
 # /etc/rc.conf:
 #   sainteku_queue_enable="YES"
 #   sainteku_queue_user="www"
+#   sainteku_queue_workers="4"
 #   sainteku_app_dir="/usr/local/www/saintekku"
 
 . /etc/rc.subr
@@ -17,15 +18,54 @@ rcvar="sainteku_queue_enable"
 
 : "${sainteku_queue_enable:="NO"}"
 : "${sainteku_queue_user:="www"}"
+: "${sainteku_queue_workers:="4"}"
 : "${sainteku_app_dir:="/usr/local/www/saintekku"}"
 
-pidfile="/var/run/sainteku-queue.pid"
 command="/usr/local/sbin/queue-wrapper.sh"
-command_args="${sainteku_app_dir}"
+pidfile_base="/var/run/sainteku-queue"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
 status_cmd="${name}_status"
+restart_cmd="${name}_restart"
+
+worker_pidfile()
+{
+    echo "${pidfile_base}-$1.pid"
+}
+
+worker_running()
+{
+    _pidfile="$(worker_pidfile "$1")"
+    [ -f "${_pidfile}" ] && kill -0 "$(cat "${_pidfile}")" 2>/dev/null
+}
+
+start_worker()
+{
+    _id="$1"
+    _pidfile="$(worker_pidfile "${_id}")"
+
+    if worker_running "${_id}"; then
+        echo "worker ${_id} sudah berjalan (pid $(cat "${_pidfile}"))"
+        return 0
+    fi
+
+    rm -f "${_pidfile}"
+    /usr/sbin/daemon -u "${sainteku_queue_user}" -p "${_pidfile}" \
+        "${command}" "${sainteku_app_dir}" "${_id}"
+    echo "worker ${_id} started (pid $(cat "${_pidfile}"))"
+}
+
+stop_worker()
+{
+    _id="$1"
+    _pidfile="$(worker_pidfile "${_id}")"
+
+    if [ -f "${_pidfile}" ]; then
+        kill "$(cat "${_pidfile}")" 2>/dev/null || true
+        rm -f "${_pidfile}"
+    fi
+}
 
 sainteku_queue_start()
 {
@@ -33,28 +73,69 @@ sainteku_queue_start()
         echo "${command} tidak executable"
         return 1
     fi
-    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
-        echo "sainteku queue sudah berjalan (pid $(cat "${pidfile}"))"
-        return 1
+
+    _started=0
+    _id=1
+    while [ "${_id}" -le "${sainteku_queue_workers}" ]; do
+        if ! worker_running "${_id}"; then
+            start_worker "${_id}"
+            _started=$((_started + 1))
+        fi
+        _id=$((_id + 1))
+    done
+
+    if [ "${_started}" -eq 0 ]; then
+        echo "semua ${sainteku_queue_workers} queue worker sudah berjalan"
+    else
+        echo "${_started} queue worker dimulai (total target: ${sainteku_queue_workers})"
     fi
-    /usr/sbin/daemon -u "${sainteku_queue_user}" -p "${pidfile}" "${command}" "${sainteku_app_dir}"
 }
 
 sainteku_queue_stop()
 {
-    if [ -f "${pidfile}" ]; then
-        kill "$(cat "${pidfile}")" 2>/dev/null || true
-        rm -f "${pidfile}"
+    _id=1
+    while [ "${_id}" -le "${sainteku_queue_workers}" ]; do
+        stop_worker "${_id}"
+        _id=$((_id + 1))
+    done
+
+    # Legacy single-worker pidfile (upgrade dari versi lama)
+    if [ -f "/var/run/sainteku-queue.pid" ]; then
+        kill "$(cat /var/run/sainteku-queue.pid)" 2>/dev/null || true
+        rm -f /var/run/sainteku-queue.pid
     fi
+
+    echo "queue workers dihentikan"
+}
+
+sainteku_queue_restart()
+{
+    sainteku_queue_stop
+    sleep 1
+    sainteku_queue_start
 }
 
 sainteku_queue_status()
 {
-    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
-        echo "sainteku queue is running as pid $(cat "${pidfile}")"
+    _running=0
+    _id=1
+
+    while [ "${_id}" -le "${sainteku_queue_workers}" ]; do
+        if worker_running "${_id}"; then
+            echo "worker ${_id}: running (pid $(cat "$(worker_pidfile "${_id}")"))"
+            _running=$((_running + 1))
+        else
+            echo "worker ${_id}: not running"
+        fi
+        _id=$((_id + 1))
+    done
+
+    echo "queue workers: ${_running}/${sainteku_queue_workers} aktif"
+
+    if [ "${_running}" -eq "${sainteku_queue_workers}" ]; then
         return 0
     fi
-    echo "sainteku queue is not running"
+
     return 1
 }
 
