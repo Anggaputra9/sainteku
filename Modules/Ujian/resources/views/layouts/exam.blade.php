@@ -13,6 +13,20 @@
     <style>
         [x-cloak] { display: none !important; }
         body { overscroll-behavior: contain; }
+
+        #modal-root {
+            position: relative;
+            z-index: 10000000;
+            pointer-events: none;
+        }
+
+        #modal-root > * {
+            pointer-events: auto;
+        }
+
+        .app-modal-overlay {
+            z-index: 10000000 !important;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -35,6 +49,8 @@
         fokus ke soal & tidak gampang berpindah halaman.
     --}}
     @yield('content')
+
+    <div id="modal-root"></div>
 
     @stack('scripts')
 </body>
