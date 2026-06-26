@@ -14,6 +14,7 @@ use Modules\MonevAkademik\app\Models\ExamProposal;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 use Modules\Ujian\Models\ExamAttemptEvent;
+use Modules\Ujian\Jobs\GradeAttemptJob;
 use Modules\Ujian\Models\ExamRoom;
 
 /**
@@ -521,16 +522,14 @@ class RoomController extends Controller
             ], 422);
         }
 
-        $room->load('proposal.examQuestions.question');
         $totalAttempts = $attempts->count();
         $totalQuestions = $room->proposal->examQuestions->count();
         $cacheKey = "room_{$room->uuid}_grading_progress";
         $cancelKey = "room_{$room->uuid}_grading_cancel";
+        $attemptIds = $attempts->pluck('id')->all();
 
-        // Reset cancel flag
         Cache::forget($cancelKey);
 
-        // Inisialisasi progress
         Cache::put($cacheKey, [
             'status' => 'processing',
             'current_attempt' => 0,
@@ -539,129 +538,17 @@ class RoomController extends Controller
             'current_question' => 0,
             'total_questions' => $totalQuestions,
             'failed' => [],
-            'message' => 'Memulai koreksi...',
+            'attempt_ids' => $attemptIds,
+            'message' => "Memasukkan {$totalAttempts} peserta ke antrian koreksi AI...",
         ], now()->addHours(2));
 
-        $gradingService = app(\App\Services\AiGradingService::class);
-        $failedAttempts = [];
-        $processedCount = 0;
-
-        foreach ($attempts as $index => $attempt) {
-            // Cek cancel flag
-            if (Cache::get($cancelKey)) {
-                Cache::put($cacheKey, [
-                    'status' => 'cancelled',
-                    'current_attempt' => $processedCount,
-                    'total_attempts' => $totalAttempts,
-                    'current_student' => '',
-                    'current_question' => 0,
-                    'total_questions' => $totalQuestions,
-                    'failed' => $failedAttempts,
-                    'message' => 'Proses dibatalkan oleh pengguna.',
-                ], now()->addMinutes(10));
-
-                return response()->json([
-                    'message' => 'Proses koreksi dibatalkan.',
-                    'processed' => $processedCount,
-                    'failed' => count($failedAttempts),
-                ]);
-            }
-
-            $studentName = $attempt->user?->name ?? 'Unknown';
-            $processedCount++;
-
-            try {
-                DB::beginTransaction();
-
-                foreach ($room->proposal->examQuestions as $qIndex => $examQuestion) {
-                    // Update progress
-                    Cache::put($cacheKey, [
-                        'status' => 'processing',
-                        'current_attempt' => $processedCount,
-                        'total_attempts' => $totalAttempts,
-                        'current_student' => $studentName,
-                        'current_question' => $qIndex + 1,
-                        'total_questions' => $totalQuestions,
-                        'failed' => $failedAttempts,
-                        'message' => "Mengoreksi {$studentName} - Soal " . ($qIndex + 1) . " dari {$totalQuestions} (Peserta {$processedCount} dari {$totalAttempts})",
-                    ], now()->addHours(2));
-
-                    $answer = $attempt->answers->firstWhere('question_id', $examQuestion->question_id);
-
-                    // Jika tidak ada jawaban atau kosong, beri nilai 0
-                    if (!$answer || trim($answer->answer_text ?? '') === '') {
-                        if (!$answer) {
-                            $answer = ExamAttemptAnswer::create([
-                                'attempt_id' => $attempt->id,
-                                'question_id' => $examQuestion->question_id,
-                                'answer_text' => null,
-                                'is_answered' => false,
-                            ]);
-                        }
-
-                        $answer->update([
-                            'score' => 0,
-                            'grading_method' => 'ai',
-                            'ai_feedback' => 'Tidak dijawab - nilai otomatis 0',
-                            'graded_by' => Auth::id(),
-                            'graded_at' => now(),
-                        ]);
-                        continue;
-                    }
-
-                    $result = $gradingService->gradeQuestionText(
-                        $examQuestion->question->question_text,
-                        $answer->answer_text,
-                        $examQuestion->question->key_answer ?? null,
-                    );
-
-                    if (!$result['success']) {
-                        throw new \RuntimeException($result['error'] ?? 'AI grading gagal.');
-                    }
-
-                    $answer->update([
-                        'score' => $result['score'],
-                        'grading_method' => 'ai',
-                        'ai_feedback' => $result['feedback'],
-                        'graded_by' => Auth::id(),
-                        'graded_at' => now(),
-                    ]);
-                }
-
-                $attempt->recalculateScore();
-                $attempt->update([
-                    'grader_note' => 'Dikoreksi otomatis dengan AI pada ' . now()->translatedFormat('d M Y H:i'),
-                ]);
-
-                DB::commit();
-
-            } catch (\Exception $e) {
-                DB::rollBack();
-                $failedAttempts[] = [
-                    'uuid' => $attempt->uuid,
-                    'student' => $studentName,
-                    'error' => $e->getMessage(),
-                ];
-            }
+        foreach ($attempts as $attempt) {
+            GradeAttemptJob::dispatch($attempt);
         }
 
-        // Selesai
-        Cache::put($cacheKey, [
-            'status' => 'completed',
-            'current_attempt' => $totalAttempts,
-            'total_attempts' => $totalAttempts,
-            'current_student' => '',
-            'current_question' => 0,
-            'total_questions' => $totalQuestions,
-            'failed' => $failedAttempts,
-            'message' => 'Koreksi selesai!',
-        ], now()->addMinutes(10));
-
         return response()->json([
-            'message' => 'Koreksi selesai.',
-            'processed' => $processedCount,
-            'failed' => count($failedAttempts),
-            'failed_details' => $failedAttempts,
+            'message' => "{$totalAttempts} peserta masuk antrian koreksi AI. Pastikan queue worker aktif.",
+            'queued' => $totalAttempts,
         ]);
     }
 
@@ -681,6 +568,22 @@ class RoomController extends Controller
                 'status' => 'idle',
                 'message' => 'Tidak ada proses koreksi yang sedang berjalan.',
             ]);
+        }
+
+        if (($progress['status'] ?? '') === 'processing' && !empty($progress['attempt_ids'])) {
+            $attemptIds = $progress['attempt_ids'];
+            $gradedCount = ExamAttempt::whereIn('id', $attemptIds)->whereNotNull('score')->count();
+            $totalAttempts = (int) ($progress['total_attempts'] ?? count($attemptIds));
+            $progress['current_attempt'] = $gradedCount;
+
+            if ($gradedCount >= $totalAttempts) {
+                $progress['status'] = 'completed';
+                $progress['message'] = 'Koreksi selesai!';
+                Cache::put($cacheKey, $progress, now()->addMinutes(10));
+            } else {
+                $progress['message'] = "Mengoreksi {$gradedCount} dari {$totalAttempts} peserta...";
+                Cache::put($cacheKey, $progress, now()->addHours(2));
+            }
         }
 
         return response()->json($progress);

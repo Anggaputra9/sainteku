@@ -493,18 +493,10 @@ class AttemptController extends Controller
                 'occurred_at' => now(),
             ]);
 
-            // Koreksi AI otomatis di background (setelah respons submit dikirim ke mahasiswa)
+            // Koreksi AI otomatis via queue (setelah respons submit dikirim ke mahasiswa)
             $room = $attempt->room;
             if ($room && $room->auto_grading_enabled) {
-                $attemptId = $attempt->id;
-                dispatch(function () use ($attemptId) {
-                    $freshAttempt = ExamAttempt::find($attemptId);
-                    if (!$freshAttempt) {
-                        return;
-                    }
-
-                    (new GradeAttemptJob($freshAttempt))->handle(app(\App\Services\AiGradingService::class));
-                })->afterResponse();
+                GradeAttemptJob::dispatch($attempt)->afterResponse();
             }
         });
     }

@@ -3,16 +3,22 @@
 namespace Modules\Ujian\Jobs;
 
 use App\Services\AiGradingService;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
 
-class GradeAttemptJob
+class GradeAttemptJob implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SerializesModels;
+
+    public int $timeout = 300;
+
+    public int $tries = 2;
 
     public $attempt;
 
