@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class AiSetting extends Model
 {
@@ -192,18 +193,32 @@ class AiSetting extends Model
 
     /**
      * Tambah counter setelah AI request berhasil.
+     * Pakai atomic SQL increment agar aman untuk multi queue worker.
      */
     public function incrementUsage(int $count = 1, float $cost = 0): void
     {
         $today = now()->toDateString();
-        if ($this->last_reset_date?->toDateString() !== $today) {
-            $this->daily_used = 0;
-            $this->last_reset_date = $today;
-        }
-        $this->daily_used += $count;
-        $this->total_cost += $cost;
-        $this->last_used_at = now();
-        $this->save();
+        $now = now();
+
+        static::where('id', $this->id)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('last_reset_date')
+                    ->orWhereDate('last_reset_date', '!=', $today);
+            })
+            ->update([
+                'daily_used' => 0,
+                'last_reset_date' => $today,
+                'updated_at' => $now,
+            ]);
+
+        static::where('id', $this->id)->update([
+            'daily_used' => DB::raw('daily_used + ' . (int) $count),
+            'total_cost' => DB::raw('total_cost + ' . sprintf('%.6f', $cost)),
+            'last_used_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $this->refresh();
     }
 
     /**
