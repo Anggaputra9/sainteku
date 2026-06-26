@@ -12,6 +12,6 @@ cd "${APP_DIR}" || exit 1
 exec "${PHP_BIN}" artisan queue:work database \
     --sleep=3 \
     --tries=3 \
-    --timeout=120 \
+    --timeout=300 \
     --max-time=3600 \
     --no-interaction

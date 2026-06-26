@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\Ujian\Models\ExamAttempt;
 use Modules\Ujian\Models\ExamAttemptAnswer;
@@ -47,14 +46,11 @@ class GradeAttemptJob implements ShouldQueue
             $room = $attempt->room;
             $room->load('proposal.examQuestions.question');
 
-            DB::beginTransaction();
-
             foreach ($room->proposal->examQuestions as $examQuestion) {
                 $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
                     ->where('question_id', $examQuestion->question_id)
                     ->first();
 
-                // Jika tidak ada jawaban atau kosong, beri nilai 0
                 if (!$answer || trim($answer->answer_text ?? '') === '') {
                     if (!$answer) {
                         $answer = ExamAttemptAnswer::create([
@@ -75,6 +71,7 @@ class GradeAttemptJob implements ShouldQueue
                     continue;
                 }
 
+                // Panggilan AI di luar transaksi DB — hindari lock wait timeout di ai_settings
                 $result = $gradingService->gradeQuestionText(
                     $examQuestion->question->question_text,
                     $answer->answer_text,
@@ -99,15 +96,12 @@ class GradeAttemptJob implements ShouldQueue
                 'grader_note' => 'Dikoreksi otomatis dengan AI pada ' . now()->translatedFormat('d M Y H:i'),
             ]);
 
-            DB::commit();
-
             Log::info("Auto-grading completed for attempt {$attempt->uuid}", [
                 'student' => $attempt->user?->name,
                 'score' => $finalScore,
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error("Auto-grading failed for attempt {$attempt->uuid}", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
