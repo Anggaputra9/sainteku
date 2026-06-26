@@ -167,10 +167,16 @@
                                 <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
                             </span>
                         </h4>
-                        <div class="flex items-center gap-2 text-[11px] text-gray-500">
+                        <div class="flex flex-wrap items-center justify-end gap-2 text-[11px] text-gray-500">
                             <span x-show="lastLiveUpdate">Update <span x-text="lastLiveUpdate"></span></span>
                             <button type="button" @click="reloadDetail()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                 <i class="fa-solid fa-arrows-rotate" :class="liveUpdating && 'fa-spin'"></i> Refresh
+                            </button>
+                            <button type="button" @click="startBatchGrading(false)" class="{{ $btnPurple }} !text-xs">
+                                <i class="fas fa-robot"></i> Koreksi AI
+                            </button>
+                            <button type="button" @click="startBatchGrading(true)" class="{{ $btnPurple }} !text-xs">
+                                <i class="fas fa-rotate"></i> Koreksi Ulang
                             </button>
                         </div>
                     </div>
@@ -218,13 +224,11 @@
                         </h4>
                         <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
                             <button type="button"
-                                x-show="(detail.summary?.grading_pending || 0) > 0"
                                 @click="startBatchGrading(false)"
                                 class="{{ $btnPurple }}">
                                 <i class="fas fa-robot"></i> Koreksi AI
                             </button>
                             <button type="button"
-                                x-show="(detail.summary?.graded || 0) > 0 && (detail.summary?.grading_pending || 0) === 0"
                                 @click="startBatchGrading(true)"
                                 class="{{ $btnPurple }}">
                                 <i class="fas fa-rotate"></i> Koreksi Ulang
