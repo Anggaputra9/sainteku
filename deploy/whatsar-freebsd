@@ -20,6 +20,7 @@ rcvar="whatsar_enable"
 : "${whatsar_app_dir:="/usr/local/www/saintekku"}"
 
 pidfile="/var/run/whatsar.pid"
+lockfile="${whatsar_app_dir}/storage/whatsar/.whatsar.lock"
 command="/usr/local/sbin/whatsar-wrapper.sh"
 command_args="${whatsar_app_dir}"
 
@@ -27,31 +28,79 @@ start_cmd="${name}_start"
 stop_cmd="${name}_stop"
 status_cmd="${name}_status"
 
+whatsar_pid()
+{
+    if [ -f "${lockfile}" ]; then
+        cat "${lockfile}" 2>/dev/null
+        return 0
+    fi
+    if [ -f "${pidfile}" ]; then
+        cat "${pidfile}" 2>/dev/null
+    fi
+}
+
+whatsar_running()
+{
+    _pid="$(whatsar_pid)"
+    [ -n "${_pid}" ] && kill -0 "${_pid}" 2>/dev/null
+}
+
+whatsar_cleanup_stale()
+{
+    if [ -f "${pidfile}" ] && ! kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
+        rm -f "${pidfile}"
+    fi
+    if [ -f "${lockfile}" ]; then
+        lock_pid="$(cat "${lockfile}" 2>/dev/null)"
+        if [ -z "${lock_pid}" ] || ! kill -0 "${lock_pid}" 2>/dev/null; then
+            rm -f "${lockfile}"
+        fi
+    fi
+}
+
 whatsar_start()
 {
+    whatsar_cleanup_stale
     if [ ! -x "${command}" ]; then
         echo "${command} tidak executable"
         return 1
     fi
-    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
-        echo "whatsar sudah berjalan (pid $(cat "${pidfile}"))"
+    if whatsar_running; then
+        echo "whatsar sudah berjalan (pid $(whatsar_pid))"
         return 1
     fi
-    /usr/sbin/daemon -u "${whatsar_user}" -p "${pidfile}" "${command}" "${whatsar_app_dir}"
+    # Jangan pakai /usr/sbin/daemon: whatsar fork ulang dan proses mati ~10–20 detik.
+    su -m "${whatsar_user}" -c "${command} ${whatsar_app_dir}" >/dev/null 2>&1 &
+    _i=0
+    while [ "${_i}" -lt 15 ]; do
+        if whatsar_running; then
+            whatsar_pid > "${pidfile}"
+            return 0
+        fi
+        sleep 1
+        _i=$((_i + 1))
+    done
+    echo "whatsar gagal start (lockfile tidak muncul)"
+    return 1
 }
 
 whatsar_stop()
 {
-    if [ -f "${pidfile}" ]; then
-        kill "$(cat "${pidfile}")" 2>/dev/null || true
-        rm -f "${pidfile}"
+    if whatsar_running; then
+        kill "$(whatsar_pid)" 2>/dev/null || true
+        sleep 1
+        if whatsar_running; then
+            kill -9 "$(whatsar_pid)" 2>/dev/null || true
+        fi
     fi
+    rm -f "${pidfile}" "${lockfile}"
 }
 
 whatsar_status()
 {
-    if [ -f "${pidfile}" ] && kill -0 "$(cat "${pidfile}")" 2>/dev/null; then
-        echo "whatsar is running as pid $(cat "${pidfile}")"
+    whatsar_cleanup_stale
+    if whatsar_running; then
+        echo "whatsar is running as pid $(whatsar_pid)"
         return 0
     fi
     echo "whatsar is not running"
