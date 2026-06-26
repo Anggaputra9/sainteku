@@ -65,7 +65,7 @@ class AiGradingService
 
         return [
             'success' => true,
-            'score' => (float) $parsed['score'],
+            'score' => $this->applyLenientScore((float) $parsed['score'], $answerText),
             'feedback' => $parsed['feedback'],
             'error' => null,
         ];
@@ -77,16 +77,29 @@ class AiGradingService
         $answer = $this->normalizeForGrading(trim((string) $answerText));
         $answer = $answer !== '' ? $answer : '(Tidak dijawab)';
 
-        $prompt = "Anda adalah dosen pengoreksi ujian essay. Nilai jawaban mahasiswa secara objektif.\n\n";
+        $prompt = "Anda adalah dosen pengoreksi ujian essay yang adil, konstruktif, dan cukup toleran.\n";
+        $prompt .= "Utamakan penilaian berimbang: beri apresiasi pada pemahaman yang sudah benar, jangan terlalu keras pada kekurangan kecil.\n\n";
         $prompt .= "SOAL:\n{$question}\n\n";
 
         if (!empty($keyAnswer)) {
-            $prompt .= "KUNCI JAWABAN (referensi):\n" . $this->normalizeForGrading(strip_tags($keyAnswer)) . "\n\n";
+            $prompt .= "KUNCI JAWABAN (referensi, bukan harus sama persis):\n" . $this->normalizeForGrading(strip_tags($keyAnswer)) . "\n\n";
         }
 
         $prompt .= "JAWABAN MAHASISWA:\n{$answer}\n\n";
-        $prompt .= "INSTRUKSI:\n";
-        $prompt .= "- Beri nilai 0-100 berdasarkan ketepatan, kelengkapan, struktur, dan relevansi.\n";
+        $prompt .= "INSTRUKSI PENILAIAN:\n";
+        $prompt .= "- Skala 0-100. Fokus pada pemahaman konsep, relevansi, dan kebenaran substansi.\n";
+        $prompt .= "- Beri nilai parsial (partial credit) bila jawaban benar sebagian.\n";
+        $prompt .= "- Sinonim, parafrase, atau urutan berbeda tetap boleh dinilai baik bila maknanya sesuai.\n";
+        $prompt .= "- Jangan menurunkan nilai banyak hanya karena ejaan, tata bahasa, atau format penulisan.\n";
+        $prompt .= "- Gunakan benefit of the doubt bila jawaban ambigu tetapi masih relevan dengan soal.\n";
+        $prompt .= "- Rubrik toleran:\n";
+        $prompt .= "  * 85-100: konsep utama benar dan cukup lengkap.\n";
+        $prompt .= "  * 70-84: konsep utama benar, ada detail yang kurang.\n";
+        $prompt .= "  * 55-69: sebagian besar benar atau pemahaman cukup meski belum lengkap.\n";
+        $prompt .= "  * 40-54: ada pemahaman terbatas, beberapa poin relevan.\n";
+        $prompt .= "  * 20-39: minim relevan, tetapi masih ada usaha jawaban.\n";
+        $prompt .= "  * 0: tidak dijawab, kosong, atau sama sekali tidak relevan.\n";
+        $prompt .= "- Hindari memberi nilai di bawah 40 jika jawaban jelas relevan dan menunjukkan pemahaman dasar.\n";
         $prompt .= "- FEEDBACK wajib Bahasa Indonesia formal yang jelas dan mudah dibaca.\n";
         $prompt .= "- FEEDBACK 2-3 kalimat utuh. Tanpa LaTeX, tanpa simbol rumus, tanpa kata acak.\n";
         $prompt .= "- Jangan ulang atau mengutip jawaban mahasiswa di FEEDBACK.\n";
@@ -201,6 +214,27 @@ class AiGradingService
         }
 
         return AiSetting::getActiveDefault();
+    }
+
+    /**
+     * Koreksi ringan agar jawaban substantif yang relevan tidak mendapat skor terlalu rendah.
+     */
+    private function applyLenientScore(float $score, ?string $answerText): float
+    {
+        $answer = trim((string) $answerText);
+        if ($answer === '' || $answer === '(Tidak dijawab)') {
+            return 0;
+        }
+
+        $wordCount = count(preg_split('/\s+/u', $answer, -1, PREG_SPLIT_NO_EMPTY) ?: []);
+
+        if ($wordCount >= 15 && $score > 0 && $score < 40) {
+            $score = 40;
+        } elseif ($wordCount >= 8 && $score > 0 && $score < 30) {
+            $score = 30;
+        }
+
+        return min(100, round($score, 2));
     }
 
     private function normalizeForGrading(string $text): string
