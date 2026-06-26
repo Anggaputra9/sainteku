@@ -269,8 +269,12 @@
                                         @endif
                                         @if ($isLecturer)
                                             @if ($ans && $ans->score !== null)
-                                                <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
-                                                    Skor {{ $ans->score }}
+                                                @php
+                                                    $weightedScore = round((float) $ans->score * (float) $eq->weight / 100, 2);
+                                                @endphp
+                                                <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800"
+                                                    title="Nilai soal {{ number_format((float) $ans->score, 2) }} × bobot {{ $eq->weight }}%">
+                                                    Skor {{ number_format($weightedScore, 2) }}
                                                 </span>
                                             @elseif ($hasAnswer)
                                                 <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
