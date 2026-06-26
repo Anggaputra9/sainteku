@@ -135,9 +135,11 @@
                                             @click="startRoomGrading(room, true)"
                                             :disabled="Number(room.attempts_finished_count) < 1"
                                             :class="Number(room.attempts_finished_count) > 0
-                                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                                                ? 'hover:bg-purple-700 text-white'
                                                 : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'"
-                                            class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition">
+                                            :style="Number(room.attempts_finished_count) > 0 ? 'background-color:#9333ea' : ''"
+                                            class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition"
+                                            title="Koreksi ulang semua peserta dengan AI">
                                             <i class="fas fa-rotate"></i> Koreksi Ulang
                                         </button>
                                     </div>
@@ -172,6 +174,28 @@
         @include('ujian::rooms.modal-create')
         @include('ujian::rooms.modal-detail')
         @include('ujian::rooms.delete-modal')
+
+        {{-- Bar koreksi AI — di luar modal teleport, selalu tampil saat detail ruang terbuka --}}
+        <template x-teleport="body">
+            <div
+                x-data
+                x-show="$store.ujianDetail.open && $store.ujianDetail.roomUuid"
+                x-cloak
+                style="position:fixed;left:50%;transform:translateX(-50%);bottom:5.5rem;z-index:2147483647;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.625rem;padding:0.75rem 1rem;background:#0f172a;border:2px solid #9333ea;border-radius:1rem;box-shadow:0 12px 40px rgba(0,0,0,0.55);max-width:calc(100vw - 2rem);pointer-events:auto;">
+                <span style="color:#e2e8f0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-right:0.25rem;"
+                    x-text="$store.ujianDetail.roomTitle ? $store.ujianDetail.roomTitle : 'Ruang Ujian'"></span>
+                <button type="button"
+                    style="display:inline-flex;align-items:center;gap:0.5rem;min-height:2.5rem;padding:0.625rem 1.25rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:700;color:#ffffff;background-color:#6366f1;border:2px solid #4f46e5;box-shadow:0 2px 8px rgba(99,102,241,0.45);cursor:pointer;"
+                    @click="window.dispatchEvent(new CustomEvent('open-batch-grading', { bubbles: true, detail: { uuid: $store.ujianDetail.roomUuid, forceRegrade: false } }))">
+                    <i class="fas fa-robot"></i> Koreksi AI
+                </button>
+                <button type="button"
+                    style="display:inline-flex;align-items:center;gap:0.5rem;min-height:2.5rem;padding:0.625rem 1.25rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:700;color:#ffffff;background-color:#9333ea;border:2px solid #7e22ce;box-shadow:0 2px 8px rgba(147,51,234,0.45);cursor:pointer;"
+                    @click="window.dispatchEvent(new CustomEvent('open-batch-grading', { bubbles: true, detail: { uuid: $store.ujianDetail.roomUuid, forceRegrade: true } }))">
+                    <i class="fas fa-rotate"></i> Koreksi Ulang
+                </button>
+            </div>
+        </template>
 
         {{-- FAB Filter --}}
         <template x-teleport="body">
@@ -241,6 +265,12 @@
 
     <script>
         document.addEventListener('alpine:init', () => {
+            Alpine.store('ujianDetail', {
+                open: false,
+                roomUuid: null,
+                roomTitle: null,
+            });
+
             Alpine.data('examRoomsApp', () => ({
                 searchQuery: '',
                 perPageFilter: '50',

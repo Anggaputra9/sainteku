@@ -11,7 +11,8 @@
     $btnGray = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-gray-200 px-3 py-2 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
     $btnRed = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-red-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-red-600/20 hover:bg-red-700 hover:shadow-lg focus:ring-4 focus:ring-red-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
     $btnBlue = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-blue-600/20 hover:bg-blue-700 hover:shadow-lg focus:ring-4 focus:ring-blue-500/30 sm:gap-2 sm:px-8 sm:py-2.5 sm:text-sm transition-all';
-    $btnPurple = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-purple-600/20 hover:bg-purple-700 hover:shadow-lg focus:ring-4 focus:ring-purple-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
+    $btnPurple = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-md hover:opacity-90 focus:ring-4 focus:ring-purple-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
+    $btnPurpleStyle = 'background-color:#9333ea;box-shadow:0 4px 6px -1px rgba(147,51,234,.25)';
     $btnEmerald = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 hover:shadow-lg focus:ring-4 focus:ring-emerald-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
     $btnAmber = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-amber-500 px-3 py-2 text-xs font-bold text-white shadow-md shadow-amber-500/20 hover:bg-amber-600 hover:shadow-lg focus:ring-4 focus:ring-amber-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
     $btnGreen = 'inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-green-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-green-600/20 hover:bg-green-700 hover:shadow-lg focus:ring-4 focus:ring-green-500/30 sm:gap-2 sm:px-6 sm:py-2.5 sm:text-sm transition-all';
@@ -172,12 +173,6 @@
                             <button type="button" @click="reloadDetail()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                 <i class="fa-solid fa-arrows-rotate" :class="liveUpdating && 'fa-spin'"></i> Refresh
                             </button>
-                            <button type="button" @click="startBatchGrading(false)" class="{{ $btnPurple }} !text-xs">
-                                <i class="fas fa-robot"></i> Koreksi AI
-                            </button>
-                            <button type="button" @click="startBatchGrading(true)" class="{{ $btnPurple }} !text-xs">
-                                <i class="fas fa-rotate"></i> Koreksi Ulang
-                            </button>
                         </div>
                     </div>
 
@@ -215,23 +210,29 @@
                         </div>
                     </div>
 
-                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
-                        <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                            <i class="fa-solid fa-users text-indigo-500"></i>
-                            Daftar Peserta
-                            <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
-                                x-text="detail.attempts?.length || 0"></span>
-                        </h4>
-                        <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                    <div class="ujian-grade-toolbar px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                                <i class="fa-solid fa-users text-indigo-500"></i>
+                                Daftar Peserta
+                                <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                                    x-text="detail.attempts?.length || 0"></span>
+                            </h4>
+                        </div>
+                        <div class="ujian-grade-toolbar__actions" style="display:flex;flex-wrap:wrap;gap:0.625rem;width:100%;margin-top:0.75rem;">
                             <button type="button"
                                 @click="startBatchGrading(false)"
-                                class="{{ $btnPurple }}">
-                                <i class="fas fa-robot"></i> Koreksi AI
+                                title="Koreksi peserta yang belum dinilai dengan AI"
+                                style="display:inline-flex;align-items:center;gap:0.5rem;min-height:2.5rem;padding:0.625rem 1.25rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:700;color:#ffffff;background-color:#6366f1;border:2px solid #4f46e5;box-shadow:0 2px 8px rgba(99,102,241,0.45);cursor:pointer;">
+                                <i class="fas fa-robot" aria-hidden="true"></i>
+                                <span>Koreksi AI</span>
                             </button>
                             <button type="button"
                                 @click="startBatchGrading(true)"
-                                class="{{ $btnPurple }}">
-                                <i class="fas fa-rotate"></i> Koreksi Ulang
+                                title="Koreksi ulang semua peserta selesai — nilai lama ditimpa"
+                                style="display:inline-flex;align-items:center;gap:0.5rem;min-height:2.5rem;padding:0.625rem 1.25rem;border-radius:0.75rem;font-size:0.8125rem;font-weight:700;color:#ffffff;background-color:#9333ea;border:2px solid #7e22ce;box-shadow:0 2px 8px rgba(147,51,234,0.45);cursor:pointer;">
+                                <i class="fas fa-rotate" aria-hidden="true"></i>
+                                <span>Koreksi Ulang</span>
                             </button>
                         </div>
                     </div>
@@ -354,7 +355,7 @@
                             <i class="fas fa-trash-alt"></i> Hapus
                         </button>
                     </div>
-                    <div class="flex shrink-0 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
+                    <div class="flex shrink-0 flex-row flex-wrap items-center justify-end gap-2 sm:gap-3">
                         <template x-if="detail.room?.status === 'CLOSED'">
                             <a :href="`{{ url('ujian/rooms') }}/${roomUuid}/export-pdf`" class="{{ $btnGreen }}">
                                 <i class="fas fa-file-pdf"></i> Export PDF
@@ -803,6 +804,73 @@
     .dark .participant-table tbody tr.participant-row:nth-child(even) {
         background-color: rgba(15, 23, 42, 0.3);
     }
+
+    /* Toolbar koreksi — baris penuh, tidak ikut terpotong overflow modal */
+    #modal-root .ujian-grade-toolbar,
+    .ujian-grade-toolbar {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        box-sizing: border-box;
+    }
+    #modal-root .ujian-grade-toolbar__actions,
+    .ujian-grade-toolbar__actions {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 0.625rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 0.75rem !important;
+        overflow: visible !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    #modal-root .ujian-grade-btn,
+    .ujian-grade-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        min-height: 2.5rem !important;
+        padding: 0.625rem 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-size: 0.8125rem !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        color: #ffffff !important;
+        background-color: #9333ea !important;
+        border: 2px solid #7e22ce !important;
+        box-shadow: 0 2px 8px rgba(147, 51, 234, 0.35) !important;
+        cursor: pointer !important;
+        white-space: nowrap !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    #modal-root .ujian-grade-btn:hover,
+    .ujian-grade-btn:hover {
+        background-color: #7e22ce !important;
+    }
+    #modal-root .ujian-grade-btn--ai,
+    .ujian-grade-btn--ai {
+        background-color: #6366f1 !important;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35) !important;
+    }
+    #modal-root .ujian-grade-btn--ai:hover,
+    .ujian-grade-btn--ai:hover {
+        background-color: #4f46e5 !important;
+    }
+    #modal-root .ujian-grade-btn--regrade,
+    .ujian-grade-btn--regrade {
+        background-color: #9333ea !important;
+        border-color: #7e22ce !important;
+    }
 </style>
 
 <script>
@@ -1062,6 +1130,14 @@
                 this.form.proposal_id = String(p.id);
             },
 
+            syncUjianDetailStore(open = this.openDetail) {
+                const store = Alpine.store('ujianDetail');
+                if (!store) return;
+                store.open = !!open;
+                store.roomUuid = open ? (this.roomUuid || null) : null;
+                store.roomTitle = open ? (this.roomTitle || null) : null;
+            },
+
             async handleOpenDetail(event) {
                 this.roomUuid = event.detail?.uuid || '';
                 this.roomTitle = event.detail?.title || '';
@@ -1073,6 +1149,7 @@
                 this.editProposalContext = null;
                 this.detail = { room: null, attempts: [], proposal_context: null, summary: null };
                 this.openDetail = true;
+                this.syncUjianDetailStore(true);
                 await this.reloadDetail();
                 this.startLivePolling();
             },
@@ -1100,6 +1177,7 @@
                         detail: { type: 'error', message: e.message },
                     }));
                     this.openDetail = false;
+                    this.syncUjianDetailStore(false);
                 }
             },
 
@@ -1243,6 +1321,7 @@
             closeDetail() {
                 this.stopLivePolling();
                 this.openDetail = false;
+                this.syncUjianDetailStore(false);
             },
 
             enterEditMode() {

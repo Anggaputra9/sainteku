@@ -373,6 +373,36 @@ fix_permissions() {
     log_ok "Permission diperbarui"
 }
 
+flush_opcache() {
+    detect_platform
+    log_info "Flush OPcache (wajib setelah rsync blade/PHP di FreeBSD production)..."
+
+    local artisan_php=(php)
+    if id -u "${WEB_USER}" >/dev/null 2>&1; then
+        if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+            artisan_php=(sudo -u "${WEB_USER}" php)
+        elif command -v doas >/dev/null 2>&1; then
+            artisan_php=(doas -u "${WEB_USER}" php)
+        fi
+    fi
+
+    (cd "$APP_DIR" && "${artisan_php[@]}" -r "if (function_exists('opcache_reset')) { opcache_reset(); echo 'opcache_reset OK'; } else { echo 'opcache_reset tidak tersedia (CLI)'; }") || true
+
+    if [[ "$OS_FAMILY" == "freebsd" ]] && [[ "${EUID:-$(id -u)}" -eq 0 || -x "$(command -v doas)" ]]; then
+        local restart_cmd=()
+        if command -v doas >/dev/null 2>&1 && [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
+            restart_cmd=(doas)
+        fi
+        if service apache24 status >/dev/null 2>&1; then
+            "${restart_cmd[@]}" service apache24 restart >/dev/null 2>&1 && log_ok "apache24 restarted (OPcache web flush)" || log_warn "Gagal restart apache24 — jalankan manual: doas service apache24 restart"
+        elif service php_fpm status >/dev/null 2>&1; then
+            "${restart_cmd[@]}" service php_fpm restart >/dev/null 2>&1 && log_ok "php_fpm restarted (OPcache web flush)" || log_warn "Gagal restart php_fpm"
+        else
+            log_warn "apache24/php_fpm tidak ditemukan — restart web server manual agar OPcache ikut refresh"
+        fi
+    fi
+}
+
 optimize_laravel() {
     detect_platform
     log_info "Laravel optimize (config/route/view cache)..."
@@ -381,11 +411,14 @@ optimize_laravel() {
     if id -u "${WEB_USER}" >/dev/null 2>&1; then
         if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
             artisan_php=(sudo -u "${WEB_USER}" php)
+        elif command -v doas >/dev/null 2>&1; then
+            artisan_php=(doas -u "${WEB_USER}" php)
         fi
     fi
 
     (cd "$APP_DIR" && "${artisan_php[@]}" artisan config:clear && "${artisan_php[@]}" artisan route:clear && "${artisan_php[@]}" artisan view:clear)
     (cd "$APP_DIR" && "${artisan_php[@]}" artisan config:cache && "${artisan_php[@]}" artisan route:cache && "${artisan_php[@]}" artisan view:cache)
+    flush_opcache
     fix_permissions
     log_ok "Optimize selesai"
 }
@@ -393,6 +426,7 @@ optimize_laravel() {
 clear_laravel_caches() {
     log_info "Clear Laravel cache..."
     (cd "$APP_DIR" && php artisan optimize:clear)
+    flush_opcache
     log_ok "Cache dibersihkan"
 }
 
