@@ -58,7 +58,7 @@ class ExportController extends Controller
 
         $filename = 'Hasil_Ujian_' . str_replace(' ', '_', $room->title) . '_' . now()->format('YmdHis') . '.pdf';
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 
     private function guardLecturer(): void

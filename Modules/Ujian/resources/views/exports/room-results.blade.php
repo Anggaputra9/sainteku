@@ -16,13 +16,14 @@
     <title>Hasil Ujian - {{ $room->title }}</title>
     <style>
         @page {
-            size: A4 portrait;
-            margin-top: 4cm;
-            margin-right: 3cm;
-            margin-bottom: 3cm;
-            margin-left: 4cm;
+            size: A4;
+            margin: 2cm;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, div, p, table, thead, tbody, tr, td, th {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Times New Roman', Times, serif;
             font-size: 11pt;
