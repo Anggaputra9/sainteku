@@ -209,13 +209,27 @@
                         </div>
                     </div>
 
-                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between gap-2">
+                    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex flex-wrap items-center justify-between gap-2">
                         <h4 class="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                             <i class="fa-solid fa-users text-indigo-500"></i>
                             Daftar Peserta
                             <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
                                 x-text="detail.attempts?.length || 0"></span>
                         </h4>
+                        <div class="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                            <button type="button"
+                                x-show="(detail.summary?.grading_pending || 0) > 0"
+                                @click="startBatchGrading(false)"
+                                class="{{ $btnPurple }}">
+                                <i class="fas fa-robot"></i> Koreksi AI
+                            </button>
+                            <button type="button"
+                                x-show="(detail.summary?.graded || 0) > 0 && (detail.summary?.grading_pending || 0) === 0"
+                                @click="startBatchGrading(true)"
+                                class="{{ $btnPurple }}">
+                                <i class="fas fa-rotate"></i> Koreksi Ulang
+                            </button>
+                        </div>
                     </div>
 
                     <template x-if="!detail.attempts || detail.attempts.length === 0">
@@ -337,12 +351,6 @@
                         </button>
                     </div>
                     <div class="flex shrink-0 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
-                        <button type="button" x-show="canBatchGrade" x-cloak @click="startBatchGrading(false)" class="{{ $btnPurple }}">
-                            <i class="fas fa-robot"></i> Koreksi AI
-                        </button>
-                        <button type="button" x-show="canRegrade" x-cloak @click="startBatchGrading(true)" class="{{ $btnPurple }}">
-                            <i class="fas fa-rotate"></i> Koreksi Ulang
-                        </button>
                         <template x-if="detail.room?.status === 'CLOSED'">
                             <a :href="`{{ url('ujian/rooms') }}/${roomUuid}/export-pdf`" class="{{ $btnGreen }}">
                                 <i class="fas fa-file-pdf"></i> Export PDF
@@ -831,32 +839,6 @@
                 const code = (this.detail.room?.room_code || '').trim();
                 if (!code) return '';
                 return `${window.location.origin}{{ route('ujian.attempt.scan', [], false) }}?code=${encodeURIComponent(code)}`;
-            },
-
-            get canBatchGrade() {
-                const pending = Number(this.detail.summary?.grading_pending ?? 0);
-                if (pending > 0) {
-                    return true;
-                }
-
-                return (this.detail.attempts || []).some((a) =>
-                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status) &&
-                    (a.score === null || a.score === undefined)
-                );
-            },
-
-            get canRegrade() {
-                const finished = Number(this.detail.summary?.finished ?? 0);
-                const pending = Number(this.detail.summary?.grading_pending ?? 0);
-                if (finished > 0 && pending === 0) {
-                    return true;
-                }
-
-                const done = (this.detail.attempts || []).filter((a) =>
-                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status)
-                );
-
-                return done.length > 0 && done.every((a) => a.score !== null && a.score !== undefined);
             },
 
             statusLabel(status) {
