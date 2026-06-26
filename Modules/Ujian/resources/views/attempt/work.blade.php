@@ -53,8 +53,7 @@
         initialCount: {{ (int) $attempt->tab_switch_count }},
         questions: @js($questionsData),
     })"
-    x-init="init()"
-    x-cloak>
+    x-init="init()">
 
     {{-- ============================================================
          HEADER MINIMAL: branding ujian + timer + status save + submit
@@ -270,9 +269,7 @@
         @csrf
     </form>
 
-    <template x-teleport="#modal-root">
-
-        <div x-show="confirmOpen"
+    <div x-show="confirmOpen"
         class="app-modal-overlay fixed inset-0 z-[999991] flex items-center justify-center p-3 sm:p-6 overflow-y-auto backdrop-blur-sm bg-gray-900/40"
         x-transition x-cloak>
         <div @click.away="!confirmSubmitting && (confirmOpen = false)"
@@ -293,8 +290,6 @@
             </div>
         </div>
     </div>
-
-    </template>
 </div>
 
 <script>

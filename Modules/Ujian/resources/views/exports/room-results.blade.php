@@ -17,7 +17,7 @@
     <style>
         @page {
             size: A4;
-            margin: 2cm;
+            margin: 0;
         }
         body, div, p, table, thead, tbody, tr, td, th {
             margin: 0;
@@ -29,6 +29,14 @@
             font-size: 11pt;
             line-height: 1.45;
             color: #111;
+        }
+        .page-wrap {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .page-wrap > tbody > tr > td {
+            padding: 2cm;
+            vertical-align: top;
         }
         .kop-surat {
             width: 100%;
@@ -186,6 +194,8 @@
     </style>
 </head>
 <body>
+    <table class="page-wrap" cellpadding="0" cellspacing="0">
+    <tr><td>
     <div class="kop-surat">
         <div class="kop-inner">
             <div class="logo">
@@ -304,5 +314,7 @@
         <p>Dokumen ini dihasilkan secara otomatis oleh sistem ujian Sainteku.</p>
         <p>Dicetak oleh: {{ $exportBy }} pada {{ $exportDate }}</p>
     </div>
+    </td></tr>
+    </table>
 </body>
 </html>
