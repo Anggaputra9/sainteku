@@ -337,16 +337,12 @@
                         </button>
                     </div>
                     <div class="flex shrink-0 flex-row flex-nowrap items-center justify-end gap-2 sm:gap-3">
-                        <template x-if="hasUngradedAttempts()">
-                            <button type="button" @click="startBatchGrading(false)" class="{{ $btnPurple }}">
-                                <i class="fas fa-robot"></i> Koreksi AI
-                            </button>
-                        </template>
-                        <template x-if="hasAllGraded()">
-                            <button type="button" @click="startBatchGrading(true)" class="{{ $btnPurple }}">
-                                <i class="fas fa-rotate"></i> Koreksi Ulang
-                            </button>
-                        </template>
+                        <button type="button" x-show="canBatchGrade" x-cloak @click="startBatchGrading(false)" class="{{ $btnPurple }}">
+                            <i class="fas fa-robot"></i> Koreksi AI
+                        </button>
+                        <button type="button" x-show="canRegrade" x-cloak @click="startBatchGrading(true)" class="{{ $btnPurple }}">
+                            <i class="fas fa-rotate"></i> Koreksi Ulang
+                        </button>
                         <template x-if="detail.room?.status === 'CLOSED'">
                             <a :href="`{{ url('ujian/rooms') }}/${roomUuid}/export-pdf`" class="{{ $btnGreen }}">
                                 <i class="fas fa-file-pdf"></i> Export PDF
@@ -835,6 +831,32 @@
                 const code = (this.detail.room?.room_code || '').trim();
                 if (!code) return '';
                 return `${window.location.origin}{{ route('ujian.attempt.scan', [], false) }}?code=${encodeURIComponent(code)}`;
+            },
+
+            get canBatchGrade() {
+                const pending = Number(this.detail.summary?.grading_pending ?? 0);
+                if (pending > 0) {
+                    return true;
+                }
+
+                return (this.detail.attempts || []).some((a) =>
+                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status) &&
+                    (a.score === null || a.score === undefined)
+                );
+            },
+
+            get canRegrade() {
+                const finished = Number(this.detail.summary?.finished ?? 0);
+                const pending = Number(this.detail.summary?.grading_pending ?? 0);
+                if (finished > 0 && pending === 0) {
+                    return true;
+                }
+
+                const done = (this.detail.attempts || []).filter((a) =>
+                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status)
+                );
+
+                return done.length > 0 && done.every((a) => a.score !== null && a.score !== undefined);
             },
 
             statusLabel(status) {
@@ -1353,20 +1375,6 @@
                         attempt,
                     },
                 }));
-            },
-
-            hasUngradedAttempts() {
-                return (this.detail.attempts || []).some(a =>
-                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status) &&
-                    (a.score === null || a.score === undefined)
-                );
-            },
-
-            hasAllGraded() {
-                const finished = (this.detail.attempts || []).filter(a =>
-                    ['SUBMITTED', 'AUTO_SUBMITTED_TIME', 'AUTO_SUBMITTED_VIOLATION'].includes(a.status)
-                );
-                return finished.length > 0 && finished.every(a => a.score !== null && a.score !== undefined);
             },
 
             startBatchGrading(forceRegrade = false) {
