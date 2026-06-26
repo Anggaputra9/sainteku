@@ -126,10 +126,21 @@
                                         x-text="statusLabel(room.status)"></span>
                                 </td>
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
-                                    <button type="button" @click="openDetail(room)"
-                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
-                                        <i class="fa-solid fa-eye"></i> Detail
-                                    </button>
+                                    <div class="inline-flex flex-wrap items-center justify-center gap-1.5">
+                                        <button type="button" @click="openDetail(room)"
+                                            class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700 border border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-800/50 transition shadow-sm">
+                                            <i class="fa-solid fa-eye"></i> Detail
+                                        </button>
+                                        <button type="button"
+                                            @click="startRoomGrading(room, true)"
+                                            :disabled="Number(room.attempts_finished_count) < 1"
+                                            :class="Number(room.attempts_finished_count) > 0
+                                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                                                : 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500'"
+                                            class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold shadow-sm transition">
+                                            <i class="fas fa-rotate"></i> Koreksi Ulang
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </template>
@@ -335,6 +346,16 @@
                             title: room.title,
                             deleteUrl: room.delete_url,
                             canDelete: room.can_delete,
+                        },
+                    }));
+                },
+
+                startRoomGrading(room, forceRegrade = false) {
+                    window.dispatchEvent(new CustomEvent('open-batch-grading', {
+                        bubbles: true,
+                        detail: {
+                            uuid: room.uuid,
+                            forceRegrade,
                         },
                     }));
                 },
