@@ -11,6 +11,7 @@ return [
     'contact' => 'Kontak',
     'login' => 'Masuk',
     'logout' => 'Keluar',
+    'language' => 'Bahasa',
 
     // Hero Section
     'faculty_name' => 'Fakultas Sains & Teknologi',
@@ -109,6 +110,9 @@ return [
     // Alerts
     'login_success' => 'Login berhasil!',
     'login_failed' => 'Email/ID atau password salah',
+    'login_throttle' => 'Terlalu banyak percobaan login. Coba lagi dalam :minutes menit.',
+    'login_ip_throttle' => 'Terlalu banyak percobaan login dari jaringan ini. Coba lagi dalam :minutes menit.',
+    'forgot_password_throttle' => 'Terlalu banyak permintaan reset password. Coba lagi dalam :minutes menit.',
     'account_inactive' => 'Akun tidak aktif',
     'email_sent' => 'Link reset password telah dikirim ke email Anda',
     'email_not_found' => 'Email tidak ditemukan',

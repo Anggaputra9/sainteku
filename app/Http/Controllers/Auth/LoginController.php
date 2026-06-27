@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Support\AuthRateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
@@ -14,17 +15,29 @@ class LoginController extends Controller
     {
         $request->validate([
             'credential' => 'required|string',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->credential)
-            ->orWhere('id', $request->credential)
-            ->first();
+        $credential = trim($request->credential);
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if ($lockout = AuthRateLimiter::ensureLoginAllowed($request, $credential)) {
             return response()->json([
                 'success' => false,
-                'message' => __('messages.login_failed') // GANTI
+                'message' => $lockout['message'],
+                'retry_after' => $lockout['retry_after'],
+            ], $lockout['status']);
+        }
+
+        $user = User::where('email', $credential)
+            ->orWhere('id', $credential)
+            ->first();
+
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            AuthRateLimiter::recordLoginFailure($request, $credential);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('messages.login_failed'),
             ], 401);
         }
 
@@ -35,6 +48,7 @@ class LoginController extends Controller
             ], 403);
         }
 
+        AuthRateLimiter::clearLoginSuccess($request, $credential);
         Auth::login($user, $request->boolean('remember'));
 
         return response()->json([

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8" />
@@ -209,20 +209,20 @@
                     <button id="langToggle" onclick="document.getElementById('langMenu').classList.toggle('hidden')"
                         class="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 border border-gray-300 rounded bg-white hover:bg-gray-50 transition-colors">
                         <i class="ri-global-line text-base"></i>
-                        <span>{{ session('locale') == 'en' ? 'English' : 'Indonesia' }}</span>
+                        <span>{{ app()->getLocale() === 'en' ? 'English' : 'Indonesia' }}</span>
                         <i class="ri-arrow-down-s-line text-base"></i>
                     </button>
                     <ul id="langMenu"
                         class="hidden absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-md py-1 z-50">
                         <li>
                             <a href="{{ route('language.switch', 'id') }}"
-                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ session('locale') == 'id' ? 'font-semibold bg-gray-100' : '' }}">
+                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ app()->getLocale() === 'id' ? 'font-semibold bg-gray-100' : '' }}">
                                 <span>🇮🇩</span> Indonesia
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('language.switch', 'en') }}"
-                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ session('locale') == 'en' ? 'font-semibold bg-gray-100' : '' }}">
+                                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ app()->getLocale() === 'en' ? 'font-semibold bg-gray-100' : '' }}">
                                 <span>🇬🇧</span> English
                             </a>
                         </li>
@@ -293,14 +293,14 @@
 
             {{-- Language --}}
             <div class="bg-slate-50 rounded-2xl p-4">
-                <p class="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wide">Language</p>
+                <p class="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wide">{{ __('messages.language') }}</p>
                 <div class="space-y-1">
                     <a href="{{ route('language.switch', 'id') }}"
-                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-yellow-50 hover:text-saintek-text transition-all {{ session('locale') == 'id' ? 'bg-white shadow-sm font-semibold' : '' }}">
+                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-yellow-50 hover:text-saintek-text transition-all {{ app()->getLocale() === 'id' ? 'bg-white shadow-sm font-semibold' : '' }}">
                         <span>🇮🇩</span> Indonesia
                     </a>
                     <a href="{{ route('language.switch', 'en') }}"
-                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-yellow-50 hover:text-saintek-text transition-all {{ session('locale') == 'en' ? 'bg-white shadow-sm font-semibold' : '' }}">
+                        class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-yellow-50 hover:text-saintek-text transition-all {{ app()->getLocale() === 'en' ? 'bg-white shadow-sm font-semibold' : '' }}">
                         <span>🇬🇧</span> English
                     </a>
                 </div>
@@ -797,6 +797,8 @@
                         <p class="text-sm text-slate-500">{{ __('messages.enter_credentials') }}</p>
                     </div>
 
+                    <div id="loginFormAlert" class="hidden text-sm rounded-lg px-4 py-3 mb-4" role="alert"></div>
+
                     <form method="POST" action="/login" id="loginForm">
                         @csrf
                         @if($errors->any())
@@ -956,6 +958,20 @@
                 });
             }
 
+            function showLoginFormAlert(type, message) {
+                const alert = document.getElementById('loginFormAlert');
+                if (!alert) return;
+
+                alert.classList.remove('hidden');
+                alert.textContent = message;
+
+                if (type === 'success') {
+                    alert.className = 'text-sm rounded-lg px-4 py-3 mb-4 bg-green-50 border border-green-200 text-green-700';
+                } else {
+                    alert.className = 'text-sm rounded-lg px-4 py-3 mb-4 bg-red-50 border border-red-200 text-red-700';
+                }
+            }
+
             // Login form AJAX
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -971,22 +987,44 @@
                         body: new FormData(this),
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                         }
                     })
-                        .then(r => r.json())
-                        .then(data => {
+                        .then(async r => {
+                            let data = {};
+                            try {
+                                data = await r.json();
+                            } catch (error) {
+                                showLoginFormAlert('error', '{{ __("messages.error_occurred") }}');
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalText;
+                                return;
+                            }
+
                             if (data.success) {
+                                showLoginFormAlert('success', data.message);
                                 showAlert('success', data.message);
                                 setTimeout(() => { window.location.href = data.redirect || '/dashboard'; }, 1500);
+                                return;
+                            }
+
+                            const message = data.message || '{{ __("messages.login_failed") }}';
+                            showLoginFormAlert('error', message);
+                            showAlert('error', message);
+
+                            if (r.status === 429) {
+                                submitBtn.disabled = true;
+                                submitBtn.innerHTML = originalText;
                             } else {
-                                showAlert('error', data.message || '{{ __("messages.login_failed") }}');
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalText;
                             }
                         })
                         .catch(() => {
-                            showAlert('error', '{{ __("messages.error_occurred") }}');
+                            const message = '{{ __("messages.error_occurred") }}';
+                            showLoginFormAlert('error', message);
+                            showAlert('error', message);
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
                         });
@@ -1013,8 +1051,8 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
                         }
                     })
-                        .then(r => r.json())
-                        .then(data => {
+                        .then(async r => {
+                            const data = await r.json();
                             if (!forgotAlert) return;
                             forgotAlert.classList.remove('hidden');
                             if (data.success) {
@@ -1029,8 +1067,8 @@
                                 forgotAlert.className = 'text-sm rounded-lg px-4 py-3 mb-4 bg-red-50 border border-red-200 text-red-700';
                                 forgotAlert.innerHTML = data.message || '{{ __("messages.account_not_found") }}';
                             }
-                            submitBtn.disabled = false;
                             submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = r.status === 429;
                         })
                         .catch(() => {
                             if (!forgotAlert) return;

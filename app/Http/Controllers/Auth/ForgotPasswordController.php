@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Support\AuthRateLimiter;
 use App\Services\MailService;
 use App\Services\WhatsappService;
 use Carbon\Carbon;
@@ -31,6 +32,19 @@ class ForgotPasswordController extends Controller
         ]);
 
         $credential = trim($request->credential);
+
+        if ($lockout = AuthRateLimiter::ensureForgotPasswordAllowed($request, $credential)) {
+            return $this->respond(
+                $request,
+                false,
+                $lockout['message'],
+                $lockout['status'],
+                $lockout['retry_after'],
+            );
+        }
+
+        AuthRateLimiter::recordForgotPasswordAttempt($request, $credential);
+
         $user = $this->resolveUser($credential);
 
         if (!$user) {
@@ -95,10 +109,20 @@ class ForgotPasswordController extends Controller
             ->first();
     }
 
-    private function respond(Request $request, bool $success, string $message)
-    {
+    private function respond(
+        Request $request,
+        bool $success,
+        string $message,
+        int $status = 422,
+        ?int $retryAfter = null,
+    ) {
         if ($request->ajax() || $request->expectsJson()) {
-            return response()->json(['success' => $success, 'message' => $message], $success ? 200 : 422);
+            $payload = ['success' => $success, 'message' => $message];
+            if ($retryAfter !== null) {
+                $payload['retry_after'] = $retryAfter;
+            }
+
+            return response()->json($payload, $success ? 200 : $status);
         }
 
         if ($success) {

@@ -11,6 +11,7 @@ return [
     'contact' => 'Contact',
     'login' => 'Login',
     'logout' => 'Logout',
+    'language' => 'Language',
 
     // Hero Section
     'faculty_name' => 'Faculty of Science & Technology',
@@ -109,6 +110,9 @@ return [
     // Alerts
     'login_success' => 'Login successful!',
     'login_failed' => 'Invalid email/ID or password',
+    'login_throttle' => 'Too many login attempts. Please try again in :minutes minutes.',
+    'login_ip_throttle' => 'Too many login attempts from this network. Please try again in :minutes minutes.',
+    'forgot_password_throttle' => 'Too many password reset requests. Please try again in :minutes minutes.',
     'account_inactive' => 'Account is inactive',
     'email_sent' => 'Password reset link has been sent to your email',
     'email_not_found' => 'Email not found',
