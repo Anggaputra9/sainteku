@@ -110,6 +110,38 @@ class ExamAttempt extends Model
     }
 
     /**
+     * Label durasi pengerjaan, mis. "1 jam 5 menit", "5 menit 30 detik", "45 detik".
+     */
+    public function workingDurationLabel(): string
+    {
+        if (! $this->started_at || ! $this->submitted_at) {
+            return '—';
+        }
+
+        $totalSeconds = (int) $this->started_at->diffInSeconds($this->submitted_at);
+        if ($totalSeconds <= 0) {
+            return '0 detik';
+        }
+
+        $hours = intdiv($totalSeconds, 3600);
+        $minutes = intdiv($totalSeconds % 3600, 60);
+        $seconds = $totalSeconds % 60;
+
+        $parts = [];
+        if ($hours > 0) {
+            $parts[] = $hours.' jam';
+        }
+        if ($minutes > 0) {
+            $parts[] = $minutes.' menit';
+        }
+        if ($seconds > 0 || $parts === []) {
+            $parts[] = $seconds.' detik';
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
      * Konversi skor persentase (0–100) dari AI ke skor berbobot (0–bobot soal).
      */
     public static function weightedScoreFromPercentage(float $percentage, float $weight): float

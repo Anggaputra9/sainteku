@@ -9,13 +9,7 @@
         $gradedCount = $attempt->answers->whereNotNull('score')->count();
         $allGraded = $totalQuestions > 0 && $gradedCount === $totalQuestions;
 
-        $durationLabel = '—';
-        if ($attempt->started_at && $attempt->submitted_at) {
-            $mins = $attempt->started_at->diffInMinutes($attempt->submitted_at);
-            $durationLabel = $mins < 1
-                ? $attempt->started_at->diffInSeconds($attempt->submitted_at) . ' detik'
-                : $mins . ' menit';
-        }
+        $durationLabel = $attempt->workingDurationLabel();
 
         $statusConfig = match ($attempt->status) {
             'SUBMITTED' => [
