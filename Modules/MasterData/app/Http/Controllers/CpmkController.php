@@ -38,7 +38,7 @@ class CpmkController extends Controller
         $this->ensureCourseExists($courseId);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string',
             'is_active' => 'required|in:0,1',
         ]);
 
@@ -68,7 +68,7 @@ class CpmkController extends Controller
         $cpmk = $this->findCpmkOrFail($courseId, $cpmkId);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string',
             'is_active' => 'required|in:0,1',
         ]);
 

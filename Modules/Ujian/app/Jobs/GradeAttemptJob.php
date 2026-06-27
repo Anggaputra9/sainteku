@@ -82,8 +82,11 @@ class GradeAttemptJob implements ShouldQueue
                     throw new \RuntimeException($result['error'] ?? 'AI grading gagal.');
                 }
 
+                $weight = (float) ($examQuestion->weight ?? 0);
+                $weightedScore = ExamAttempt::weightedScoreFromPercentage($result['score'], $weight);
+
                 $answer->update([
-                    'score' => $result['score'],
+                    'score' => $weightedScore,
                     'grading_method' => 'ai',
                     'ai_feedback' => $result['feedback'],
                     'graded_by' => null,

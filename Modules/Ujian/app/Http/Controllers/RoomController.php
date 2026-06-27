@@ -407,12 +407,29 @@ class RoomController extends Controller
             'Hanya peserta yang sudah selesai ujian yang bisa dinilai.'
         );
 
+        $attempt->load('room.proposal.examQuestions');
+        $weightsByQuestion = $attempt->room->proposal->examQuestions->keyBy('question_id');
+
         $data = $request->validate([
             'scores' => 'required|array',
             'scores.*.answer_id' => 'nullable|integer',
-            'scores.*.score' => 'required|numeric|min:0|max:100',
+            'scores.*.score' => 'required|numeric|min:0',
             'scores.*.grader_note' => 'nullable|string|max:500',
         ]);
+
+        foreach ($data['scores'] as $questionId => $scoreData) {
+            $weight = (float) ($weightsByQuestion->get((int) $questionId)?->weight ?? 0);
+            abort_if(
+                $weight <= 0,
+                422,
+                "Bobot soal #{$questionId} tidak valid."
+            );
+            abort_if(
+                (float) $scoreData['score'] > $weight,
+                422,
+                'Skor soal #' . $questionId . ' melebihi bobot maksimal (' . $weight . ').'
+            );
+        }
 
         DB::transaction(function () use ($attempt, $data) {
             // Update score untuk setiap jawaban

@@ -110,8 +110,20 @@ class ExamAttempt extends Model
     }
 
     /**
-     * Hitung ulang total skor attempt berdasarkan bobot tiap soal.
-     * Rumus: sum(nilai_soal × bobot_soal / 100)
+     * Konversi skor persentase (0–100) dari AI ke skor berbobot (0–bobot soal).
+     */
+    public static function weightedScoreFromPercentage(float $percentage, float $weight): float
+    {
+        if ($weight <= 0) {
+            return 0;
+        }
+
+        return round(min(max($percentage, 0), 100) * $weight / 100, 2);
+    }
+
+    /**
+     * Hitung ulang total skor attempt.
+     * Nilai per soal disimpan dalam skala bobot (0–bobot%), total = jumlah semua nilai soal.
      */
     public function recalculateScore(): float
     {
@@ -124,18 +136,17 @@ class ExamAttempt extends Model
 
         $answersByQuestion = $this->answers->keyBy('question_id');
         $totalScore = 0;
-        $totalWeight = 0;
+        $hasGradedAnswer = false;
 
         foreach ($proposal->examQuestions as $examQuestion) {
             $answer = $answersByQuestion->get($examQuestion->question_id);
             if ($answer && $answer->score !== null) {
-                $weight = (float) ($examQuestion->weight ?? 0);
-                $totalScore += ((float) $answer->score * $weight / 100);
-                $totalWeight += $weight;
+                $totalScore += (float) $answer->score;
+                $hasGradedAnswer = true;
             }
         }
 
-        $finalScore = $totalWeight > 0 ? $totalScore : 0;
+        $finalScore = $hasGradedAnswer ? round($totalScore, 2) : 0;
         $this->update(['score' => $finalScore]);
 
         return (float) $finalScore;

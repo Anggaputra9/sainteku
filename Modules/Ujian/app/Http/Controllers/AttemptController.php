@@ -527,8 +527,11 @@ class AttemptController extends Controller
                 return response()->json(['message' => 'AI grading gagal: ' . $result['error']], 500);
             }
 
+            $weight = $this->questionWeightForAnswer($answer);
+            $weightedScore = ExamAttempt::weightedScoreFromPercentage($result['score'], $weight);
+
             $answer->update([
-                'score' => $result['score'],
+                'score' => $weightedScore,
                 'grader_note' => null,
                 'grading_method' => 'ai',
                 'ai_feedback' => $result['feedback'],
@@ -540,8 +543,8 @@ class AttemptController extends Controller
             $totalScore = $attempt->recalculateScore();
 
             return response()->json([
-                'message' => 'Jawaban berhasil dikoreksi dengan AI. Score: ' . $result['score'],
-                'score' => $result['score'],
+                'message' => 'Jawaban berhasil dikoreksi dengan AI. Skor: ' . number_format($weightedScore, 2),
+                'score' => $weightedScore,
                 'feedback' => $result['feedback'],
                 'total_score' => $totalScore,
             ]);
@@ -604,8 +607,11 @@ class AttemptController extends Controller
                     $result = $grading->gradeAnswer($answer);
 
                     if ($result['success']) {
+                        $weight = (float) ($examQuestion->weight ?? 0);
+                        $weightedScore = ExamAttempt::weightedScoreFromPercentage($result['score'], $weight);
+
                         $answer->update([
-                            'score' => $result['score'],
+                            'score' => $weightedScore,
                             'grader_note' => null,
                             'grading_method' => 'ai',
                             'ai_feedback' => $result['feedback'],
@@ -635,6 +641,16 @@ class AttemptController extends Controller
             'graded_count' => $gradedCount,
             'errors' => $errors,
         ]);
+    }
+
+    private function questionWeightForAnswer(ExamAttemptAnswer $answer): float
+    {
+        $answer->loadMissing('attempt.room.proposal.examQuestions');
+
+        $examQuestion = $answer->attempt?->room?->proposal?->examQuestions
+            ?->firstWhere('question_id', $answer->question_id);
+
+        return (float) ($examQuestion?->weight ?? 0);
     }
 
     /**

@@ -151,9 +151,9 @@
                                     <label class="cpmk-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">
                                         Deskripsi CPMK <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" x-model="cpmkForm.name" maxlength="100"
-                                        class="cpmk-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
-                                        placeholder="Contoh: Memahami konsep dasar jaringan komputer">
+                                    <textarea rows="3" x-model="cpmkForm.name"
+                                        class="cpmk-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 resize-y"
+                                        placeholder="Contoh: Memahami konsep dasar jaringan komputer"></textarea>
                                 </div>
                                 <div>
                                     <label class="cpmk-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">Status</label>

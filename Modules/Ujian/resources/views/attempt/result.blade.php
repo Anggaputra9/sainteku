@@ -269,12 +269,9 @@
                                         @endif
                                         @if ($isLecturer)
                                             @if ($ans && $ans->score !== null)
-                                                @php
-                                                    $weightedScore = round((float) $ans->score * (float) $eq->weight / 100, 2);
-                                                @endphp
                                                 <span class="inline-flex rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800"
-                                                    title="Nilai soal {{ number_format((float) $ans->score, 2) }} × bobot {{ $eq->weight }}%">
-                                                    Skor {{ number_format($weightedScore, 2) }}
+                                                    title="Bobot soal {{ $eq->weight }}%, maksimal {{ $eq->weight }}">
+                                                    Skor {{ number_format((float) $ans->score, 2) }}
                                                 </span>
                                             @elseif ($hasAnswer)
                                                 <span class="inline-flex rounded-md bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-500 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">
@@ -303,11 +300,12 @@
                                             </div>
                                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="block {{ $fieldLabel }} mb-2">Skor (0–100)</label>
-                                                    <input type="number" min="0" max="100" step="0.01"
+                                                    <label class="block {{ $fieldLabel }} mb-2">Skor (0–{{ $eq->weight }})</label>
+                                                    <input type="number" min="0" max="{{ $eq->weight }}" step="0.01"
                                                         x-model="scores[{{ $eq->question_id }}].score"
-                                                        @input="if($event.target.value > 100) $event.target.value = 100; if($event.target.value < 0) $event.target.value = 0;"
+                                                        @input="const max = maxWeights[{{ $eq->question_id }}]; if(parseFloat($event.target.value) > max) $event.target.value = max; if(parseFloat($event.target.value) < 0) $event.target.value = 0;"
                                                         class="{{ $inputClass }}" placeholder="0">
+                                                    <p class="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Maksimal {{ $eq->weight }} sesuai bobot soal</p>
                                                 </div>
                                                 <div class="flex items-end">
                                                     <button type="button" @click="gradeWithAi({{ $eq->question_id }}, {{ $ans ? $ans->id : 'null' }})" :disabled="submitting"
@@ -388,12 +386,14 @@ function gradingApp() {
         gradingMode: false,
         submitting: false,
         scores: {},
+        maxWeights: {},
 
         init() {
             @foreach($room->proposal->examQuestions as $eq)
                 @php
                     $ans = $attempt->answers->firstWhere('question_id', $eq->question_id);
                 @endphp
+                this.maxWeights[{{ $eq->question_id }}] = {{ $eq->weight }};
                 this.scores[{{ $eq->question_id }}] = {
                     answer_id: {{ $ans ? $ans->id : 'null' }},
                     score: {{ $ans && $ans->score !== null ? $ans->score : 'null' }},
@@ -489,9 +489,13 @@ function gradingApp() {
                 return;
             }
 
-            const hasInvalidScore = Object.values(this.scores).some(s => s.score < 0 || s.score > 100);
+            const hasInvalidScore = Object.entries(this.scores).some(([questionId, s]) => {
+                const max = this.maxWeights[questionId] ?? 0;
+                const score = parseFloat(s.score);
+                return score < 0 || score > max;
+            });
             if (hasInvalidScore) {
-                alert('Skor harus antara 0-100.');
+                alert('Skor tiap soal harus antara 0 dan bobot maksimal soal tersebut.');
                 return;
             }
 
