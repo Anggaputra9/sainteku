@@ -12,14 +12,10 @@ class Document extends Model
     const UPDATED_AT = null; // Karena di database cuma ada created_at
 
     protected $fillable = [
-        'document_id', 'document_title', 'document_type_id',
-        'unit_id', 'version', 'file_path', 'status',
+        'document_id', 'document_title', 'document_type_id', 
+        'unit_id', 'version', 'file_path', 'status', 
         'sifat_dokumen', 'is_ppid',
-        'effective_date', 'expired_date', 'created_by', 'created_at',
-    ];
-
-    protected $casts = [
-        'is_ppid' => 'boolean',
+        'effective_date', 'expired_date', 'created_by', 'created_at'
     ];
 
     // Relasi ke Master Data
