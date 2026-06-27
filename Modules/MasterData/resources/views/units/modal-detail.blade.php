@@ -158,9 +158,9 @@
                                     <label class="cpl-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">
                                         Deskripsi CPL <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" x-model="cplForm.name" maxlength="255"
-                                        class="cpl-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
-                                        placeholder="Contoh: Mampu merancang solusi berbasis teknologi informasi">
+                                    <textarea rows="3" x-model="cplForm.name"
+                                        class="cpl-input w-full rounded-xl border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 resize-y"
+                                        placeholder="Contoh: Mampu merancang solusi berbasis teknologi informasi"></textarea>
                                 </div>
                                 <div>
                                     <label class="cpl-form-label mb-1.5 block text-[10px] font-bold uppercase tracking-widest">Status</label>
