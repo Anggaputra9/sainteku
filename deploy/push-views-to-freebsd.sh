@@ -21,8 +21,12 @@ for f in "${FILES[@]}"; do
   echo "    OK ${f}"
 done
 
-echo "==> view:clear + view:cache + restart apache24"
-${SSH} "${REMOTE}" "doas -u www php ${APP}/artisan view:clear && doas -u www php ${APP}/artisan view:cache && doas service apache24 restart"
+echo "==> Push ensure-storage-link.sh"
+${SCP} "${ROOT}/deploy/ensure-storage-link.sh" "${REMOTE}:/tmp/ensure-storage-link.sh"
+${SSH} "${REMOTE}" "doas cp /tmp/ensure-storage-link.sh ${APP}/deploy/ensure-storage-link.sh && doas chmod 755 ${APP}/deploy/ensure-storage-link.sh && doas chown www:www ${APP}/deploy/ensure-storage-link.sh"
+
+echo "==> Cek storage:link + view:clear + view:cache + restart apache24"
+${SSH} "${REMOTE}" "doas sh ${APP}/deploy/ensure-storage-link.sh ${APP} && doas -u www php ${APP}/artisan view:clear && doas -u www php ${APP}/artisan view:cache && doas service apache24 restart"
 
 echo "==> Verifikasi"
 ${SSH} "${REMOTE}" "grep -c 'ujianDetail' ${APP}/Modules/Ujian/resources/views/rooms/index.blade.php; doas -u www grep -rl 'ujian-grade-float-bar\\|ujianDetail' ${APP}/storage/framework/views/*.php 2>/dev/null | wc -l"

@@ -30,6 +30,13 @@ restart_web() {
     fi
 }
 
+echo "==> cek storage:link"
+if [ -f "${APP_DIR}/deploy/ensure-storage-link.sh" ]; then
+    sh "${APP_DIR}/deploy/ensure-storage-link.sh" "${APP_DIR}"
+else
+    echo "WARN: deploy/ensure-storage-link.sh tidak ditemukan — lewati cek storage:link" >&2
+fi
+
 echo "==> view:clear + view:cache di ${APP_DIR}"
 run_as_web php "${APP_DIR}/artisan" view:clear
 run_as_web php "${APP_DIR}/artisan" view:cache

@@ -351,11 +351,46 @@ run_migrate() {
 }
 
 ensure_storage_link() {
-    if [[ ! -L "${APP_DIR}/public/storage" ]] && [[ ! -d "${APP_DIR}/public/storage" ]]; then
-        log_info "Storage link..."
-        (cd "$APP_DIR" && php artisan storage:link)
-        log_ok "storage:link selesai"
+    detect_platform
+    local link="${APP_DIR}/public/storage"
+    local target="${APP_DIR}/storage/app/public"
+    local expected backup_dir stamp backup_file current
+
+    expected="$(cd "${APP_DIR}" && pwd)/storage/app/public"
+    backup_dir="${APP_DIR}/storage/backups"
+    mkdir -p "${target}" "${backup_dir}"
+
+    if [[ -L "${link}" ]]; then
+        current="$(readlink "${link}")"
+        if [[ "${current}" == "${expected}" && -d "${link}" ]]; then
+            log_ok "storage:link valid (${current})"
+            return 0
+        fi
+        log_warn "storage:link salah: ${current} (harus ${expected})"
+        stamp="$(date +%Y%m%d-%H%M%S)"
+        backup_file="${backup_dir}/storage-symlink.${stamp}.txt"
+        {
+            echo "expected=${expected}"
+            echo "current=${current}"
+            ls -la "${link}" 2>/dev/null || true
+        } > "${backup_file}"
+        rm -f "${link}"
+    elif [[ -e "${link}" ]]; then
+        die "public/storage ada tetapi bukan symlink — perbaiki manual"
     fi
+
+    log_info "Membuat storage:link -> ${expected}"
+    ln -s "${expected}" "${link}"
+
+    if id -u "${WEB_USER}" >/dev/null 2>&1; then
+        chown -h "${WEB_USER}:${WEB_USER}" "${link}" 2>/dev/null || true
+    fi
+
+    if [[ ! -L "${link}" ]] || [[ "$(readlink "${link}")" != "${expected}" ]] || [[ ! -d "${link}" ]]; then
+        die "Gagal memverifikasi storage:link"
+    fi
+
+    log_ok "storage:link siap (${expected})"
 }
 
 fix_permissions() {
