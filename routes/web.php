@@ -9,23 +9,17 @@ use App\Http\Controllers\Admin\EmailSettingController;
 use App\Http\Controllers\Settings\AiSettingController;
 use App\Http\Controllers\Settings\WhatsappSettingController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\NewsController;
 
 // ==================================================
 // PUBLIC ROUTES
 // ==================================================
 
-// Halaman Landing
-// Route::get('/', function () {
-//     return view('landing');
-// })->name('home');
-
-Route::get('/', [NewsController::class, 'index']);
+Route::view('/', 'landing')->middleware('guest');
 
 // Login routes
 Route::get('login', function () {
     return redirect('/');
-})->name('login');
+})->middleware('guest')->name('login');
 
 Route::post('login', [LoginController::class, 'login'])->name('login.post');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');

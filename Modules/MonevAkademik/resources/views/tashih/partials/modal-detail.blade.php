@@ -127,6 +127,12 @@
 
                                     <p class="text-gray-800 dark:text-gray-200 whitespace-pre-line text-sm sm:text-base leading-relaxed"
                                         x-text="eq.question.question_text"></p>
+                                    <div x-show="eq.question.question_type === 'multiple_choice'" class="mt-3 space-y-2 text-sm dark:text-gray-200">
+                                        <template x-for="(option, key) in (eq.question.options || {})" :key="key">
+                                            <p x-text="key + '. ' + option"></p>
+                                        </template>
+                                        <p class="font-semibold" x-text="'Kunci: ' + (eq.question.correct_option || '-')"></p>
+                                    </div>
 
                                     {{-- GAMBAR --}}
                                     <template x-if="eq.question.image_path">

@@ -31,9 +31,14 @@
             'order_no'      => $eq->order_no,
             'weight'        => $eq->weight,
             'question_text' => $q->question_text,
+            'question_type' => $q->question_type ?? 'essay',
+            'options' => $q->options ?? [],
+            'selected_option' => $existingAnswers[$q->id]->selected_option ?? '',
             'image_url'     => $q->image_path ? asset('storage/'.$q->image_path) : null,
             'answer_text'   => $existingAnswers[$q->id]->answer_text ?? '',
-            'is_answered'   => isset($existingAnswers[$q->id]) && trim((string) $existingAnswers[$q->id]->answer_text) !== '',
+            'is_answered'   => isset($existingAnswers[$q->id]) && ($q->isMultipleChoice()
+                ? $existingAnswers[$q->id]->selected_option !== null
+                : trim((string) $existingAnswers[$q->id]->answer_text) !== ''),
         ];
     })->values();
 @endphp
@@ -172,11 +177,23 @@
                             Jawaban Anda
                         </label>
                         <textarea
+                            x-show="q.question_type !== 'multiple_choice'"
+                            :disabled="confirmSubmitting"
                             rows="8"
                             class="w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-3 text-sm dark:bg-[#0f172a] dark:border-gray-600 dark:text-white"
                             placeholder="Tuliskan jawaban di sini..."
                             x-model="q.answer_text"
                             @input.debounce.700ms="saveAnswer(q.id, q.answer_text)"></textarea>
+                        <fieldset x-show="q.question_type === 'multiple_choice'" :disabled="confirmSubmitting" class="space-y-3">
+                            <legend class="sr-only">Pilih satu jawaban</legend>
+                            <template x-for="(option, key) in q.options" :key="key">
+                                <label class="flex items-start gap-3 rounded-xl border border-gray-300 p-3 dark:border-gray-600 dark:text-white cursor-pointer">
+                                    <input type="radio" :name="'answer-' + q.id" :value="key" x-model="q.selected_option" @change="saveAnswer(q.id, '')" class="mt-1">
+                                    <span class="min-w-0 break-words" x-text="key + '. ' + option"></span>
+                                </label>
+                            </template>
+                            <button type="button" @click="q.selected_option = ''; saveAnswer(q.id, '')" class="text-sm text-indigo-700 dark:text-indigo-300 underline">Hapus pilihan</button>
+                        </fieldset>
                     </div>
                 </template>
 
@@ -379,7 +396,16 @@ function examWork(opts) {
         },
 
         // ===== save jawaban =====
-        async saveAnswer(questionId, text) {
+        _saveQueue: Promise.resolve(true),
+        saveAnswer(questionId, text) {
+            const target = this.questions.find(q => q.id === questionId);
+            const payload = target?.question_type === 'multiple_choice'
+                ? { question_id: questionId, selected_option: target.selected_option || null }
+                : { question_id: questionId, answer_text: text };
+            this._saveQueue = this._saveQueue.then(() => this.persistAnswer(payload));
+            return this._saveQueue;
+        },
+        async persistAnswer(payload) {
             this.saveStatus = 'Menyimpan…';
             try {
                 const res = await fetch(this.saveUrl, {
@@ -389,20 +415,22 @@ function examWork(opts) {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': this._csrf,
                     },
-                    body: JSON.stringify({ question_id: questionId, answer_text: text }),
+                    body: JSON.stringify(payload),
                 });
                 const data = await res.json();
                 if (data.redirect) { window.location.href = data.redirect; return; }
                 if (data.ok) {
                     this.saveStatus = 'Tersimpan ' + new Date().toLocaleTimeString();
-                    const target = this.questions.find(q => q.id === questionId);
-                    if (target) target.is_answered = (text || '').trim().length > 0;
+                    const target = this.questions.find(q => q.id === payload.question_id);
+                    if (target) target.is_answered = !!payload.selected_option || (payload.answer_text || '').trim().length > 0;
+                    return true;
                 } else {
                     this.saveStatus = 'Gagal menyimpan';
                 }
             } catch (e) {
                 this.saveStatus = 'Offline / gagal';
             }
+            return false;
         },
 
         async fireEvent(eventType, payload = null) {
@@ -450,8 +478,15 @@ function examWork(opts) {
             this.confirmOpen = true;
         },
 
-        runSubmitConfirmation() {
+        async runSubmitConfirmation() {
+            if (this.confirmSubmitting) return;
             this.confirmSubmitting = true;
+            const saved = await Promise.all(this.questions.map(q => this.saveAnswer(q.id, q.answer_text)));
+            if (saved.some(ok => !ok)) {
+                this.confirmSubmitting = false;
+                this.confirmMessage = 'Jawaban belum tersimpan. Periksa koneksi lalu coba submit kembali.';
+                return;
+            }
             document.getElementById('submit-form').submit();
         },
     }

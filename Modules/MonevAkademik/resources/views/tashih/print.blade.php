@@ -139,7 +139,7 @@
     </div>
 
     <div class="judul">
-        NASKAH SOAL {{ $proposal->exam_type == 'UTS' ? 'UJIAN TENGAH SEMESTER' : 'UJIAN AKHIR SEMESTER' }}<br>
+        NASKAH SOAL {{ match ($proposal->exam_type) { 'UTS' => 'UJIAN TENGAH SEMESTER', 'UAS' => 'UJIAN AKHIR SEMESTER', default => 'QUIZ' } }}<br>
         TAHUN AKADEMIK {{ optional($proposal->period)->name ?? '' }}
     </div>
 
@@ -177,6 +177,11 @@
                         <td style="width: 25px; vertical-align: top;">{{ $index + 1 }}.</td>
                         <td>
                             {!! nl2br(e(optional($eq->question)->question_text)) !!}
+                            @if($eq->question?->isMultipleChoice())
+                                @foreach($eq->question->options ?? [] as $key => $option)
+                                    <div>{{ $key }}. {{ $option }}</div>
+                                @endforeach
+                            @endif
 
                             @php
                                 $imgBase64 = $questionImages[$eq->question->id ?? 0] ?? null;

@@ -90,6 +90,8 @@ return [
     // Login Modal
     'sign_in' => 'Masuk',
     'email_label' => 'Email',
+    'show_password' => 'Tampilkan kata sandi',
+    'back_to_login' => 'Kembali masuk',
     'password_label' => 'Kata Sandi',
     'password_placeholder' => 'Password',
     'remember_me' => 'Ingat saya',

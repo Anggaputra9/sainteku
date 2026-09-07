@@ -233,10 +233,15 @@ class RoomController extends Controller
             ->get();
 
         foreach ($ongoingAttempts as $attempt) {
-            $attempt->update([
-                'status' => 'AUTO_SUBMITTED_TIME',
-                'submitted_at' => now(),
-            ]);
+            DB::transaction(function () use ($attempt) {
+                $attempt = ExamAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
+                if (!$attempt->isOngoing()) {
+                    return;
+                }
+                $attempt->update([
+                    'status' => 'AUTO_SUBMITTED_TIME',
+                    'submitted_at' => now(),
+                ]);
 
             // Log event
             ExamAttemptEvent::create([
@@ -245,6 +250,7 @@ class RoomController extends Controller
                 'payload' => ['reason' => 'Room closed by lecturer'],
                 'occurred_at' => now(),
             ]);
+            });
         }
 
         $room->update(['status' => 'CLOSED', 'is_active' => false]);
@@ -407,7 +413,7 @@ class RoomController extends Controller
             'Hanya peserta yang sudah selesai ujian yang bisa dinilai.'
         );
 
-        $attempt->load('room.proposal.examQuestions');
+        $attempt->load('room.proposal.examQuestions.question');
         $weightsByQuestion = $attempt->room->proposal->examQuestions->keyBy('question_id');
 
         $data = $request->validate([
@@ -431,9 +437,12 @@ class RoomController extends Controller
             );
         }
 
-        DB::transaction(function () use ($attempt, $data) {
+        DB::transaction(function () use ($attempt, $data, $weightsByQuestion) {
             // Update score untuk setiap jawaban
             foreach ($data['scores'] as $questionId => $scoreData) {
+                if ($weightsByQuestion->get((int) $questionId)?->question?->isMultipleChoice()) {
+                    continue;
+                }
                 $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
                     ->where('question_id', $questionId)
                     ->first();
@@ -469,7 +478,10 @@ class RoomController extends Controller
             ]);
         });
 
-        $message = 'Penilaian berhasil disimpan. Total skor: ' . number_format($attempt->fresh()->score, 2);
+        $score = $attempt->fresh()->score;
+        $message = $score === null
+            ? 'Penilaian berhasil disimpan. Masih ada jawaban yang belum dinilai.'
+            : 'Penilaian berhasil disimpan. Total skor: ' . number_format($score, 2);
 
         if ($request->expectsJson()) {
             return response()->json([

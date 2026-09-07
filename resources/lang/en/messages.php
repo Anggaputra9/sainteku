@@ -90,6 +90,8 @@ return [
     // Login Modal
     'sign_in' => 'Sign In',
     'email_label' => 'Email',
+    'show_password' => 'Show password',
+    'back_to_login' => 'Back to sign in',
     'password_label' => 'Password',
     'password_placeholder' => 'Password',
     'remember_me' => 'Remember Me',

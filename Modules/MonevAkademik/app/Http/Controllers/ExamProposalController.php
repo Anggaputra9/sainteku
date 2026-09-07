@@ -194,6 +194,8 @@ class ExamProposalController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $proposal->examQuestions->each(fn ($eq) => $eq->question?->makeVisible('correct_option'));
+
         return response()->json($proposal);
     }
 
@@ -265,7 +267,7 @@ class ExamProposalController extends Controller
         }
         $request->validate([
             'course_id' => 'required',
-            'exam_type' => 'required|in:UTS,UAS',
+            'exam_type' => 'required|in:UTS,UAS,QUIZ',
             'period_id' => 'required',
             'questions' => 'required|array',
             'questions.*.question_text' => 'required',
@@ -273,6 +275,7 @@ class ExamProposalController extends Controller
             'questions.*.weight' => 'required|numeric',
         ]);
 
+        Question::validateQuestions($request);
         if (collect($request->questions)->sum('weight') != 100) {
             return back()->with('error', 'Total bobot harus 100!');
         }
@@ -291,6 +294,7 @@ class ExamProposalController extends Controller
                 'created_by' => Auth::id(),
             ]);
 
+            $orderCounter = 1;
             foreach ($request->questions as $key => $q) {
                 $imagePath = null;
                 if ($request->hasFile("questions.{$key}.image")) {
@@ -298,6 +302,7 @@ class ExamProposalController extends Controller
                 }
 
                 $question = Question::create([
+                    ...Question::typeAttributes($q),
                     'course_id' => $request->course_id,
                     'cpmk_id' => $q['cpmk_id'], // Otomatis jadi JSON karena model casts array
                     'question_text' => $q['question_text'],
@@ -308,7 +313,7 @@ class ExamProposalController extends Controller
                 ExamQuestion::create([
                     'proposal_id' => $proposal->id,
                     'question_id' => $question->id,
-                    'order_no' => $loop->iteration ?? 1,
+                    'order_no' => $orderCounter++,
                     'weight' => $q['weight'],
                 ]);
             }
@@ -373,29 +378,27 @@ class ExamProposalController extends Controller
         }
 
         $request->validate([
-            'exam_type' => 'required|in:UTS,UAS',
+            'exam_type' => 'required|in:UTS,UAS,QUIZ',
             'period_id' => 'required',
             'questions' => 'required|array',
             'questions.*.cpmk_id' => 'required|array', // TAMBAHAN: Biar ga error pas update
             'questions.*.image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        Question::validateQuestions($request);
+        $proposal = ExamProposal::where('uuid', $uuid)->firstOrFail();
+        abort_unless(Auth::id() === $proposal->created_by, 403);
+        abort_if(\Modules\Ujian\Models\ExamRoom::where('proposal_id', $proposal->id)->exists(), 422,
+            'Paket sudah digunakan ruang ujian. Buat paket baru untuk mengubah soal.');
+        if (! $this->questionsHaveValidCpmk($proposal->course_id, $request->questions)) {
+            return back()->with('error', 'Salah satu CPMK tidak valid untuk mata kuliah ini.');
+        }
         if (collect($request->questions)->sum('weight') != 100) {
             return back()->with('error', 'Total bobot soal harus tepat 100!');
         }
 
         DB::beginTransaction();
         try {
-            $proposal = ExamProposal::where('uuid', $uuid)->firstOrFail();
-
-            if (! $this->questionsHaveValidCpmk($proposal->course_id, $request->questions)) {
-                return back()->with('error', 'Salah satu CPMK tidak valid untuk mata kuliah ini.');
-            }
-
-            if (Auth::id() != $proposal->created_by) {
-                return redirect()->route('monevakademik.tashih.index')->with('error', 'Anda tidak memiliki hak akses untuk mengedit pengajuan ini.');
-            }
-
             $oldQuestions = ExamQuestion::with('question')
                 ->where('proposal_id', $proposal->id)
                 ->get()
@@ -413,6 +416,12 @@ class ExamProposalController extends Controller
                     }
                     if ($oldEq->weight != $q['weight']) {
                         $changes[] = "Bobot diubah";
+                    }
+                    foreach (Question::typeAttributes($q) as $attribute => $value) {
+                        if ($oldEq->question->{$attribute} != $value) {
+                            $changes[] = 'Jenis soal, opsi, atau kunci jawaban diperbarui';
+                            break;
+                        }
                     }
 
                     // Cek perubahan array CPMK
@@ -470,6 +479,7 @@ class ExamProposalController extends Controller
                 }
 
                 $question = Question::create([
+                    ...Question::typeAttributes($q),
                     'course_id' => $proposal->course_id,
                     'cpmk_id' => $q['cpmk_id'], // Tetap array, model handle JSON
                     'question_text' => $q['question_text'],

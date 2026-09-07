@@ -234,7 +234,8 @@
                     @foreach ($room->proposal->examQuestions->sortBy('order_no') as $eq)
                         @php
                             $ans = $attempt->answers->firstWhere('question_id', $eq->question_id);
-                            $hasAnswer = $ans && trim($ans->answer_text ?? '') !== '';
+                            $isMc = $eq->question?->isMultipleChoice();
+                            $hasAnswer = $ans && ($isMc ? $ans->selected_option !== null : trim($ans->answer_text ?? '') !== '');
                         @endphp
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start gap-3">
@@ -279,13 +280,16 @@
                                     <div class="mt-3 rounded-xl border border-gray-200 bg-slate-50 p-3.5 dark:border-gray-700 dark:bg-[#0f172a]">
                                         <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">Jawaban Mahasiswa</div>
                                         @if ($hasAnswer)
-                                            <div class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">{{ $ans->answer_text }}</div>
+                                            <div class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">{{ $isMc ? $ans->selected_option . '. ' . ($eq->question->options[$ans->selected_option] ?? '') : $ans->answer_text }}</div>
                                         @else
                                             <span class="text-xs italic text-gray-400 dark:text-gray-500">Tidak dijawab</span>
                                         @endif
                                     </div>
 
-                                    @if ($isLecturer && $attempt->isFinished())
+                                    @if ($isMc)
+                                        <p class="mt-3 text-sm text-gray-600 dark:text-gray-300">Pilihan ganda dinilai otomatis; nilai tidak dapat diubah manual atau AI.</p>
+                                    @endif
+                                    @if ($isLecturer && $attempt->isFinished() && !$isMc)
                                         <div x-show="gradingMode" x-transition x-cloak class="mt-3 {{ $cardClass }} overflow-hidden border-blue-200 dark:border-blue-800 no-print">
                                             <div class="{{ $cardHeaderClass }} bg-blue-600/5 dark:bg-blue-900/20 border-blue-100 dark:border-blue-900/40">
                                                 <h5 class="text-xs font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
@@ -443,7 +447,7 @@ function gradingApp() {
             if (this.submitting) return;
             const ok = await Alpine.store('confirm').ask({
                 title: 'Koreksi Semua dengan AI',
-                message: 'Koreksi semua jawaban dengan AI? Proses ini akan menimpa nilai yang sudah ada.',
+                message: 'Koreksi semua jawaban esai dengan AI? Nilai esai akan ditimpa. Nilai pilihan ganda tetap otomatis.',
                 confirmLabel: 'Ya, Koreksi Semua',
                 variant: 'purple',
             });

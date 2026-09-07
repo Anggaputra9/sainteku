@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiSetting;
 use Modules\MonevAkademik\app\Models\Question;
 use Modules\Ujian\Models\ExamAttemptAnswer;
+use Modules\Ujian\Models\ExamAttempt;
 
 class AiGradingService
 {
@@ -22,6 +23,9 @@ class AiGradingService
     {
         $answer->load('question');
         $question = $answer->question;
+        if ($question?->isMultipleChoice()) {
+            return $this->fail('Pilihan ganda dinilai otomatis, bukan oleh AI.');
+        }
 
         if (!$question) {
             return $this->fail('Soal tidak ditemukan.');
@@ -129,22 +133,27 @@ class AiGradingService
      */
     public function gradeExamAttempt(int $attemptId, ?AiSetting $setting = null): array
     {
-        $answers = ExamAttemptAnswer::where('attempt_id', $attemptId)
+        $attempt = ExamAttempt::find($attemptId);
+        if (!$attempt || !$attempt->isFinished()) {
+            return [
+                'success' => false,
+                'graded_count' => 0,
+                'total_score' => null,
+                'errors' => [['error' => $attempt ? 'Ujian belum selesai.' : 'Ujian tidak ditemukan.']],
+            ];
+        }
+
+        $attempt->gradeMultipleChoice();
+        $attempt->loadMissing('room.proposal.examQuestions');
+        $questions = $attempt->room->proposal->examQuestions->keyBy('question_id');
+        $answers = $attempt->answers()
+            ->whereIn('question_id', $questions->keys())
+            ->whereHas('question', fn ($query) => $query->where('question_type', 'essay'))
             ->where('is_answered', true)
             ->whereNull('score')
             ->get();
 
-        if ($answers->isEmpty()) {
-            return [
-                'success' => true,
-                'graded_count' => 0,
-                'total_score' => 0,
-                'errors' => [],
-            ];
-        }
-
         $gradedCount = 0;
-        $totalScore = 0;
         $errors = [];
 
         foreach ($answers as $answer) {
@@ -152,12 +161,18 @@ class AiGradingService
 
             if ($result['success']) {
                 $answer->update([
-                    'score' => $result['score'],
-                    'grader_note' => $result['feedback'],
+                    'score' => ExamAttempt::weightedScoreFromPercentage(
+                        $result['score'],
+                        (float) $questions->get($answer->question_id)->weight,
+                    ),
+                    'grader_note' => null,
+                    'grading_method' => 'ai',
+                    'ai_feedback' => $result['feedback'],
+                    'graded_by' => null,
+                    'graded_at' => now(),
                 ]);
 
                 $gradedCount++;
-                $totalScore += $result['score'];
             } else {
                 $errors[] = [
                     'answer_id' => $answer->id,
@@ -167,19 +182,12 @@ class AiGradingService
             }
         }
 
-        if ($gradedCount > 0) {
-            $averageScore = $totalScore / $gradedCount;
-            $attempt = \Modules\Ujian\Models\ExamAttempt::find($attemptId);
-            if ($attempt) {
-                $attempt->update(['score' => $averageScore]);
-            }
-        }
+        $totalScore = $attempt->recalculateScore();
 
         return [
             'success' => empty($errors),
             'graded_count' => $gradedCount,
             'total_score' => $totalScore,
-            'average_score' => $gradedCount > 0 ? $totalScore / $gradedCount : 0,
             'errors' => $errors,
         ];
     }

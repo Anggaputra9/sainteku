@@ -34,15 +34,17 @@ class DosenExamController extends Controller
     // Menyimpan pengajuan ke database (diekseskusi setelah bobot 100 terpenuhi di local storage frontend)
     public function store(Request $request)
     {
+        abort_unless(Auth::user()->hasPermission(3, 'C'), 403);
         $request->validate([
             'course_id' => 'required',
             'period_id' => 'required',
-            'exam_type' => 'required|in:UTS,UAS',
+            'exam_type' => 'required|in:UTS,UAS,QUIZ',
             'questions' => 'required|array',
             'questions.*.weight' => 'required|numeric',
             'questions.*.cpmk_id' => 'required|array',
         ]);
 
+        Question::validateQuestions($request);
         foreach ($request->questions as $question) {
             $cpmkIds = $question['cpmk_id'] ?? [];
             if (! \App\Models\MstCpmk::validateIdsForCourse($request->course_id, is_array($cpmkIds) ? $cpmkIds : [])) {
@@ -68,9 +70,11 @@ class DosenExamController extends Controller
             ]);
 
             // 2. Looping data soal dan simpan ke Bank Soal lalu ke Pivot
-            foreach ($request->questions as $index => $q) {
+            $order = 1;
+            foreach ($request->questions as $q) {
                 // Simpan/Ambil dari Bank Soal (trx_questions)
                 $question = Question::create([
+                    ...Question::typeAttributes($q),
                     'course_id' => $request->course_id,
                     'cpmk_id' => $q['cpmk_id'],
                     'question_text' => $q['question_text'],
@@ -81,7 +85,7 @@ class DosenExamController extends Controller
                 ExamQuestion::create([
                     'proposal_id' => $proposal->id,
                     'question_id' => $question->id,
-                    'order_no' => $index + 1,
+                    'order_no' => $order++,
                     'weight' => $q['weight'],
                 ]);
             }

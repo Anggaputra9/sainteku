@@ -56,6 +56,7 @@
                                         class="w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500">
                                         <option value="UTS">Ujian Tengah Semester (UTS)</option>
                                         <option value="UAS">Ujian Akhir Semester (UAS)</option>
+                                        <option value="QUIZ">QUIZ</option>
                                     </select>
                                 </div>
                                 <div>
@@ -242,12 +243,26 @@
                 </div>
 
                 <div class="p-4 sm:p-5 space-y-4 bg-white dark:bg-[#1e293b]">
+                    <label class="block text-sm text-gray-700 dark:text-gray-200">Jenis soal
+                        <select name="questions[${uniqueId}][question_type]" class="q-type mt-1 w-full rounded-xl dark:bg-[#0f172a]" onchange="toggleQuestionType(this.closest('.question-card')); saveDraft()">
+                            <option value="essay">Esai</option>
+                            <option value="multiple_choice">Pilihan ganda</option>
+                        </select>
+                    </label>
+                    <fieldset class="q-options space-y-3" hidden>
+                        <legend class="text-sm text-gray-700 dark:text-gray-200">Isi minimal dua opsi, lalu pilih satu kunci jawaban.</legend>
+                        ${['A', 'B', 'C', 'D', 'E'].map(key => `
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-2 text-sm dark:text-white"><input type="radio" name="questions[${uniqueId}][correct_option]" value="${key}" aria-label="Kunci ${key}" onchange="validateFormStates(); saveDraft()">${key}</label>
+                                <input type="text" name="questions[${uniqueId}][options][${key}]" data-option="${key}" maxlength="2000" aria-label="Opsi ${key}" class="q-option min-w-0 flex-1 rounded-xl dark:bg-[#0f172a] dark:text-white" oninput="validateFormStates(); saveDraft()">
+                            </div>`).join('')}
+                    </fieldset>
                     <div>
                         <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Pertanyaan</label>
                         <textarea name="questions[${uniqueId}][question_text]" rows="3"
                             oninput="validateFormStates(); saveDraft()"
                             class="q-text w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition resize-y focus:border-indigo-400 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500"
-                            required placeholder="Ketik butir soal di sini...">${data.text}</textarea>
+                            required placeholder="Ketik butir soal di sini..."></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -299,6 +314,12 @@
             </div>
         `;
         document.getElementById('questions-container').insertAdjacentHTML('beforeend', html);
+        const card = document.getElementById(`q-card-${uniqueId}`);
+        card.querySelector('.q-text').value = data.text || '';
+        card.querySelector('.q-type').value = data.question_type || 'essay';
+        card.querySelectorAll('.q-option').forEach(input => { input.value = data.options?.[input.dataset.option] || ''; });
+        card.querySelectorAll('input[type="radio"]').forEach(input => { input.checked = input.value === data.correct_option; });
+        toggleQuestionType(card);
 
         if (data.cpmk) {
             setTimeout(() => {
@@ -313,6 +334,14 @@
         }
 
         updateQuestionNumbers();
+        validateFormStates();
+    }
+
+    function toggleQuestionType(card) {
+        const multipleChoice = card.querySelector('.q-type').value === 'multiple_choice';
+        const fields = card.querySelector('.q-options');
+        fields.hidden = !multipleChoice;
+        fields.querySelectorAll('input').forEach(input => { input.disabled = !multipleChoice; });
         validateFormStates();
     }
 
@@ -413,7 +442,8 @@
                 let card = cardsArr[i];
                 let text = card.querySelector('.q-text').value.trim();
                 let weight = card.querySelector('.q-weight').value;
-                if (!text && !weight) card.remove();
+                const hasOptions = [...card.querySelectorAll('.q-option')].some(input => input.value.trim());
+                if (!text && !weight && !hasOptions) card.remove();
                 else break;
             }
             cards = document.querySelectorAll('.question-card');
@@ -423,6 +453,11 @@
         }
 
         cards.forEach(card => {
+            if (card.querySelector('.q-type').value === 'multiple_choice') {
+                const options = [...card.querySelectorAll('.q-option')].filter(input => input.value.trim());
+                const key = card.querySelector('input[type="radio"]:checked')?.value;
+                if (options.length < 2 || !options.some(input => input.dataset.option === key)) isAllCardsFilled = false;
+            }
             const text = card.querySelector('.q-text').value.trim();
             const weight = card.querySelector('.q-weight').value;
             const checkedCpmks = card.querySelectorAll('.q-cpmk-checkbox:checked');
@@ -491,7 +526,8 @@
                 let cpmksCount = card.querySelectorAll('.q-cpmk-checkbox:checked').length;
                 let imageActions = card.querySelector('[id^="image-actions-"]');
                 let hasImage = imageActions && !imageActions.classList.contains('hidden');
-                if (!text && !weight && cpmksCount === 0 && !hasImage) {
+                const hasOptions = [...card.querySelectorAll('.q-option')].some(input => input.value.trim());
+                if (!text && !weight && cpmksCount === 0 && !hasImage && !hasOptions) {
                     card.remove();
                     isDeleted = true;
                 }
@@ -515,6 +551,9 @@
             card.querySelectorAll('.q-cpmk-checkbox:checked').forEach(cb => cpmkValues.push(cb.value));
             draftData.push({
                 text: card.querySelector('.q-text').value,
+                question_type: card.querySelector('.q-type').value,
+                options: Object.fromEntries([...card.querySelectorAll('.q-option')].map(input => [input.dataset.option, input.value])),
+                correct_option: card.querySelector('input[type="radio"]:checked')?.value || '',
                 cpmk: cpmkValues,
                 weight: card.querySelector('.q-weight').value,
             });

@@ -167,43 +167,61 @@ class AttemptController extends Controller
         $request->validate([
             'question_id' => 'required|integer',
             'answer_text' => 'nullable|string',
+            'selected_option' => 'nullable|string|in:A,B,C,D,E',
         ]);
 
         $room = ExamRoom::where('room_code', strtoupper($code))->firstOrFail();
-        $attempt = $this->getMyAttempt($room);
+        return DB::transaction(function () use ($request, $code, $room) {
+            $attempt = ExamAttempt::where('room_id', $room->id)->where('user_id', Auth::id())->lockForUpdate()->first();
 
-        if (!$attempt || !$attempt->isOngoing()) {
-            return response()->json(['ok' => false, 'message' => 'Sesi ujian tidak aktif.'], 422);
-        }
-        if ($attempt->isExpired()) {
-            $this->finalize($attempt, 'AUTO_SUBMITTED_TIME');
-            return response()->json(['ok' => false, 'redirect' => route('ujian.attempt.finished', ['code' => $code])], 200);
-        }
+            if (!$attempt || !$attempt->isOngoing()) {
+                return response()->json(['ok' => false, 'message' => 'Sesi ujian tidak aktif.'], 422);
+            }
+            if ($attempt->isExpired() || $room->status === 'CLOSED' || $room->isExpired()) {
+                $this->finalize($attempt, 'AUTO_SUBMITTED_TIME');
+                return response()->json(['ok' => false, 'redirect' => route('ujian.attempt.finished', ['code' => $code])], 200);
+            }
 
-        // Pastikan question_id memang bagian dari proposal ini
-        $valid = DB::table('trx_exam_questions')
-            ->where('proposal_id', $room->proposal_id)
-            ->where('question_id', $request->question_id)
-            ->exists();
-        if (!$valid) {
-            return response()->json(['ok' => false, 'message' => 'Soal tidak valid.'], 422);
-        }
+            $examQuestion = \Modules\MonevAkademik\app\Models\ExamQuestion::with('question')
+                ->where('proposal_id', $room->proposal_id)
+                ->where('question_id', $request->question_id)
+                ->first();
+            if (!$examQuestion?->question) {
+                return response()->json(['ok' => false, 'message' => 'Soal tidak valid.'], 422);
+            }
 
-        $text = (string) $request->input('answer_text', '');
-        ExamAttemptAnswer::updateOrCreate(
-            [
-                'attempt_id'  => $attempt->id,
-                'question_id' => $request->question_id,
-            ],
-            [
-                'answer_text' => $text,
-                'is_answered' => trim($text) !== '',
-            ]
-        );
+            $text = (string) $request->input('answer_text', '');
+            $selected = $request->input('selected_option');
+            if ($examQuestion->question->isMultipleChoice()) {
+                if ($text !== '' || ($selected !== null && !array_key_exists($selected, $examQuestion->question->options ?? []))) {
+                    throw \Illuminate\Validation\ValidationException::withMessages(['selected_option' => 'Pilihan jawaban tidak valid.']);
+                }
+                $text = '';
+            } elseif ($selected !== null) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['selected_option' => 'Soal esai harus dijawab dengan teks.']);
+            }
+            ExamAttemptAnswer::updateOrCreate(
+                [
+                    'attempt_id' => $attempt->id,
+                    'question_id' => $request->question_id,
+                ],
+                [
+                    'answer_text' => $text,
+                    'selected_option' => $selected,
+                    'is_answered' => $selected !== null || trim($text) !== '',
+                    'score' => null,
+                    'grading_method' => null,
+                    'grader_note' => null,
+                    'ai_feedback' => null,
+                    'graded_by' => null,
+                    'graded_at' => null,
+                ]
+            );
 
-        $attempt->update(['last_activity_at' => now()]);
+            $attempt->update(['last_activity_at' => now()]);
 
-        return response()->json(['ok' => true, 'saved_at' => now()->toDateTimeString()]);
+            return response()->json(['ok' => true, 'saved_at' => now()->toDateTimeString()]);
+        });
     }
 
     /* =========================================================
@@ -301,11 +319,12 @@ class AttemptController extends Controller
         $user = Auth::user();
         $isOwner    = $attempt->user_id === Auth::id();
         $isLecturer = $user && $user->roles()
-            ->whereIn('role_code', ['ADM', 'DSN', 'KPD'])
+            ->where('role_code', 'ADM')
             ->exists();
         $isRoomCreator = $attempt->room && $attempt->room->created_by === Auth::id();
 
         abort_unless($isOwner || $isLecturer || $isRoomCreator, 403, 'Anda tidak berhak melihat hasil ini.');
+        abort_unless($attempt->isFinished(), 422, 'Ujian belum selesai.');
 
         $totalQuestions = $attempt->room->proposal->examQuestions->count();
 
@@ -326,6 +345,15 @@ class AttemptController extends Controller
         $attempt = $this->getMyAttempt($room);
 
         abort_unless($attempt, 404);
+
+        if ($attempt->isOngoing() && ($attempt->isExpired() || $room->status === 'CLOSED' || $room->isExpired())) {
+            $this->finalize($attempt, 'AUTO_SUBMITTED_TIME');
+            $attempt->refresh();
+        }
+
+        if (!$attempt->isFinished()) {
+            return redirect()->route('ujian.attempt.work', ['code' => $room->room_code]);
+        }
 
         $attempt->loadCount(['answers as answered_count' => fn ($q) => $q->where('is_answered', true)]);
         $totalQuestions = $room->proposal()->withCount('examQuestions')->first()->exam_questions_count ?? 0;
@@ -442,8 +470,9 @@ class AttemptController extends Controller
 
             // Jika ada soal baru di proposal yang belum ada di savedOrder,
             // tempelkan di belakang dan persist ulang urutannya.
+            $savedIds = array_fill_keys(array_map('intval', $savedOrder), true);
             $missing = $base->reject(
-                fn ($eq) => in_array((int) $eq->question_id, array_map('intval', $savedOrder), true)
+                fn ($eq) => isset($savedIds[(int) $eq->question_id])
             )->values();
 
             if ($missing->isNotEmpty()) {
@@ -481,6 +510,10 @@ class AttemptController extends Controller
     private function finalize(ExamAttempt $attempt, string $finalStatus): void
     {
         DB::transaction(function () use ($attempt, $finalStatus) {
+            $attempt = ExamAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
+            if (!$attempt->isOngoing()) {
+                return;
+            }
             $attempt->update([
                 'status'       => $finalStatus,
                 'submitted_at' => now(),
@@ -513,6 +546,7 @@ class AttemptController extends Controller
         $this->authorizeGrading($answer->attempt);
 
         $answer->load('question');
+        abort_if($answer->question?->isMultipleChoice(), 422, 'Pilihan ganda dinilai otomatis.');
 
         if (!$answer->question) {
             return response()->json(['message' => 'Soal tidak ditemukan.'], 404);
@@ -561,7 +595,8 @@ class AttemptController extends Controller
     {
         $this->authorizeGrading($attempt);
 
-        $attempt->load(['room.proposal.examQuestions', 'answers.question']);
+        $attempt->load(['room.proposal.examQuestions.question', 'answers.question']);
+        $attempt->gradeMultipleChoice();
 
         $gradedCount = 0;
         $errors = [];
@@ -572,6 +607,9 @@ class AttemptController extends Controller
             $existingAnswers = $attempt->answers->keyBy('question_id');
 
             foreach ($questions as $examQuestion) {
+                if ($examQuestion->question?->isMultipleChoice()) {
+                    continue;
+                }
                 $questionId = $examQuestion->question_id;
 
                 if ($existingAnswers->has($questionId)) {
@@ -658,6 +696,7 @@ class AttemptController extends Controller
      */
     private function authorizeGrading(ExamAttempt $attempt): void
     {
+        abort_unless($attempt->isFinished(), 422, 'Ujian belum selesai.');
         $user = Auth::user();
         $isAdmin = $user->roles()->where('role_code', 'ADM')->exists();
         $isRoomCreator = $attempt->room && $attempt->room->created_by === $user->id;

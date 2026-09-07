@@ -48,6 +48,12 @@ class ExamAttempt extends Model
                 $attempt->uuid = (string) Str::uuid();
             }
         });
+        static::updated(function (ExamAttempt $attempt) {
+            if ($attempt->wasChanged('status') && $attempt->isFinished()) {
+                // The updated event runs before original attributes are synced.
+                $attempt->fresh()->gradeMultipleChoice();
+            }
+        });
     }
 
     public function getRouteKeyName(): string
@@ -157,9 +163,10 @@ class ExamAttempt extends Model
      * Hitung ulang total skor attempt.
      * Nilai per soal disimpan dalam skala bobot (0–bobot%), total = jumlah semua nilai soal.
      */
-    public function recalculateScore(): float
+    public function recalculateScore(): ?float
     {
-        $this->loadMissing(['room.proposal.examQuestions', 'answers']);
+        $this->loadMissing('room.proposal.examQuestions.question');
+        $this->load('answers');
 
         $proposal = $this->room?->proposal;
         if (!$proposal) {
@@ -179,8 +186,44 @@ class ExamAttempt extends Model
         }
 
         $finalScore = $hasGradedAnswer ? round($totalScore, 2) : 0;
-        $this->update(['score' => $finalScore]);
+        $mixedPending = $proposal->examQuestions->contains(fn ($eq) => $answersByQuestion->get($eq->question_id)?->score === null);
+        // A partial MC subtotal must not mark an essay package as fully graded.
+        $this->update(['score' => $mixedPending ? null : $finalScore]);
 
-        return (float) $finalScore;
+        return $mixedPending ? null : (float) $finalScore;
+    }
+
+    public function gradeMultipleChoice(): void
+    {
+        if (!$this->isFinished()) {
+            return;
+        }
+        $this->loadMissing('room.proposal.examQuestions.question');
+        $answers = $this->answers()->get()->keyBy('question_id');
+        $graded = false;
+        foreach ($this->room->proposal->examQuestions as $eq) {
+            if (!$eq->question?->isMultipleChoice()) {
+                continue;
+            }
+            $answer = $answers->get($eq->question_id);
+            $selected = $answer?->selected_option;
+            $correct = $selected !== null && isset($eq->question->options[$selected])
+                && $selected === $eq->question->correct_option;
+            ExamAttemptAnswer::updateOrCreate([
+                'attempt_id' => $this->id,
+                'question_id' => $eq->question_id,
+            ], [
+                'score' => $correct ? (float) $eq->weight : 0,
+                'grading_method' => 'automatic',
+                'grader_note' => 'Pilihan ganda dinilai otomatis.',
+                'ai_feedback' => null,
+                'graded_by' => null,
+                'graded_at' => now(),
+            ]);
+            $graded = true;
+        }
+        if ($graded) {
+            $this->recalculateScore();
+        }
     }
 }

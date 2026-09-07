@@ -13,6 +13,7 @@ class ExamAttemptAnswer extends Model
         'attempt_id',
         'question_id',
         'answer_text',
+        'selected_option',
         'is_answered',
         'score',
         'grader_note',

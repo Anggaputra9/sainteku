@@ -35,7 +35,7 @@ class GradeAttemptJob implements ShouldQueue
     public function handle(AiGradingService $gradingService): void
     {
         $attempt = $this->attempt->fresh();
-        if (!$attempt) {
+        if (!$attempt || !$attempt->isFinished()) {
             return;
         }
 
@@ -45,11 +45,14 @@ class GradeAttemptJob implements ShouldQueue
         try {
             $room = $attempt->room;
             $room->load('proposal.examQuestions.question');
+            $attempt->gradeMultipleChoice();
+            $answers = $attempt->answers()->get()->keyBy('question_id');
 
             foreach ($room->proposal->examQuestions as $examQuestion) {
-                $answer = ExamAttemptAnswer::where('attempt_id', $attempt->id)
-                    ->where('question_id', $examQuestion->question_id)
-                    ->first();
+                if ($examQuestion->question?->isMultipleChoice()) {
+                    continue;
+                }
+                $answer = $answers->get($examQuestion->question_id);
 
                 if (!$answer || trim($answer->answer_text ?? '') === '') {
                     if (!$answer) {

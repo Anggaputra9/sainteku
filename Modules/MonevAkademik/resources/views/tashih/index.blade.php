@@ -280,6 +280,7 @@
                             <option value="">Semua</option>
                             <option value="UTS">UTS</option>
                             <option value="UAS">UAS</option>
+                            <option value="QUIZ">QUIZ</option>
                         </select>
                     </div>
                 </div>
@@ -561,6 +562,9 @@
                     if (typeof addQuestionCard === 'function') {
                         addQuestionCard({
                             text: q.question_text,
+                            question_type: q.question_type || 'essay',
+                            options: q.options,
+                            correct_option: q.correct_option,
                             cpmk: q.cpmk_id,
                             weight: '',
                             image_path: q.image_path || '',
@@ -631,6 +635,9 @@
                     const questions = this.selectedProposal.exam_questions || this.selectedProposal.examQuestions || [];
                     let existingQuestions = questions.map(eq => ({
                         text: eq.question ? eq.question.question_text : '',
+                        question_type: eq.question?.question_type || 'essay',
+                        options: eq.question?.options,
+                        correct_option: eq.question?.correct_option,
                         cpmk: eq.question ? eq.question.cpmk_id : [],
                         weight: eq.weight,
                         image_path: eq.question ? eq.question.image_path : '',
@@ -640,6 +647,8 @@
                     setTimeout(() => {
                         if (typeof initCreateModal === 'function') {
                             initCreateModal(this.courseId, existingQuestions);
+                            document.querySelector('#form-pengajuan [name="exam_type"]').value = this.selectedProposal.exam_type;
+                            document.querySelector('#form-pengajuan [name="period_id"]').value = this.selectedProposal.period_id;
                         }
                     }, 100);
                 },

@@ -84,6 +84,7 @@ class BankSoalController extends Controller
     // =========================================================================
     public function getApiQuestions($course_id)
     {
+        abort_unless(auth()->user()->hasPermission(3, 'C') || auth()->user()->hasPermission(3, 'U'), 403);
         try {
             $questions = Question::where('course_id', $course_id)
                 ->whereIn('id', function ($query) {
@@ -96,6 +97,7 @@ class BankSoalController extends Controller
                 ->get();
 
             $questions->each->append('cpmk_details');
+            $questions->each->makeVisible('correct_option');
 
             return response()->json($questions);
 

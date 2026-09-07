@@ -36,6 +36,7 @@
                                 <option value="">Semua Jenis</option>
                                 <option value="UTS">UTS</option>
                                 <option value="UAS">UAS</option>
+                                <option value="QUIZ">QUIZ</option>
                             </select>
                         </div>
                         <div>

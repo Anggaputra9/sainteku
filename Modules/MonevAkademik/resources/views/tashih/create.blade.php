@@ -66,6 +66,7 @@
                                 required>
                                 <option value="UTS">Ujian Tengah Semester (UTS)</option>
                                 <option value="UAS">Ujian Akhir Semester (UAS)</option>
+                                <option value="QUIZ">QUIZ</option>
                             </select>
                         </div>
                         <div>

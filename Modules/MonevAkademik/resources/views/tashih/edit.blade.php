@@ -38,6 +38,7 @@
                                     Semester (UTS)</option>
                                 <option value="UAS" {{ $proposal->exam_type == 'UAS' ? 'selected' : '' }}>Ujian Akhir Semester
                                     (UAS)</option>
+                                <option value="QUIZ" {{ $proposal->exam_type == 'QUIZ' ? 'selected' : '' }}>QUIZ</option>
                             </select>
                         </div>
                         <div>
