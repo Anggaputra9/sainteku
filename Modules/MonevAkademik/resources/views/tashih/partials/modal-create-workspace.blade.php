@@ -244,18 +244,19 @@
 
                 <div class="p-4 sm:p-5 space-y-4 bg-white dark:bg-[#1e293b]">
                     <label class="block text-sm text-gray-700 dark:text-gray-200">Jenis soal
-                        <select name="questions[${uniqueId}][question_type]" class="q-type mt-1 w-full rounded-xl dark:bg-[#0f172a]" onchange="toggleQuestionType(this.closest('.question-card')); saveDraft()">
+                        <select name="questions[${uniqueId}][question_type]" class="q-type mt-1 min-h-11 w-full rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/30 focus:bg-white dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500" onchange="toggleQuestionType(this.closest('.question-card')); saveDraft()">
                             <option value="essay">Esai</option>
                             <option value="multiple_choice">Pilihan ganda</option>
                         </select>
                     </label>
-                    <fieldset class="q-options space-y-3" hidden>
+                    <fieldset class="q-options min-w-0 space-y-3" aria-describedby="err-options-${uniqueId}" hidden>
                         <legend class="text-sm text-gray-700 dark:text-gray-200">Isi minimal dua opsi, lalu pilih satu kunci jawaban.</legend>
                         ${['A', 'B', 'C', 'D', 'E'].map(key => `
                             <div class="flex items-center gap-3">
-                                <label class="flex items-center gap-2 text-sm dark:text-white"><input type="radio" name="questions[${uniqueId}][correct_option]" value="${key}" aria-label="Kunci ${key}" onchange="validateFormStates(); saveDraft()">${key}</label>
-                                <input type="text" name="questions[${uniqueId}][options][${key}]" data-option="${key}" maxlength="2000" aria-label="Opsi ${key}" class="q-option min-w-0 flex-1 rounded-xl dark:bg-[#0f172a] dark:text-white" oninput="validateFormStates(); saveDraft()">
+                                <label class="flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200"><input type="radio" name="questions[${uniqueId}][correct_option]" value="${key}" aria-label="Kunci ${key}" aria-describedby="err-options-${uniqueId}" class="h-4 w-4 shrink-0 accent-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:accent-indigo-400" onchange="validateFormStates(); saveDraft()">${key}</label>
+                                <input type="text" name="questions[${uniqueId}][options][${key}]" data-option="${key}" maxlength="2000" aria-label="Opsi ${key}" aria-describedby="err-options-${uniqueId}" class="q-option min-h-11 min-w-0 flex-1 rounded-xl border border-gray-200 bg-slate-50 px-3 py-2.5 text-sm text-gray-800 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/30 focus:bg-white aria-invalid:border-red-500 dark:border-gray-600 dark:bg-[#0f172a] dark:text-white dark:focus:border-indigo-500 dark:aria-invalid:border-red-400" oninput="validateFormStates(); saveDraft()">
                             </div>`).join('')}
+                        <p id="err-options-${uniqueId}" class="error-options text-xs font-medium text-red-600 dark:text-red-400" hidden>Isi minimal dua opsi dan pilih kunci jawaban pada opsi yang terisi.</p>
                     </fieldset>
                     <div>
                         <label class="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Pertanyaan</label>
@@ -453,11 +454,16 @@
         }
 
         cards.forEach(card => {
+            let invalidOptions = false;
             if (card.querySelector('.q-type').value === 'multiple_choice') {
                 const options = [...card.querySelectorAll('.q-option')].filter(input => input.value.trim());
                 const key = card.querySelector('input[type="radio"]:checked')?.value;
-                if (options.length < 2 || !options.some(input => input.dataset.option === key)) isAllCardsFilled = false;
+                invalidOptions = options.length < 2 || !options.some(input => input.dataset.option === key);
+                if (invalidOptions) isAllCardsFilled = false;
             }
+            card.querySelector('.error-options').hidden = !invalidOptions;
+            card.querySelector('.q-options').setAttribute('aria-invalid', String(invalidOptions));
+            card.querySelectorAll('.q-options input').forEach(input => input.setAttribute('aria-invalid', String(invalidOptions)));
             const text = card.querySelector('.q-text').value.trim();
             const weight = card.querySelector('.q-weight').value;
             const checkedCpmks = card.querySelectorAll('.q-cpmk-checkbox:checked');

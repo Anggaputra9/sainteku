@@ -33,11 +33,11 @@
         .field label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: .5rem; }
         .field input { width: 100%; min-height: 46px; border: 1px solid #94a3b8; border-radius: .5rem; padding: .625rem .75rem; background: white; color: #1e293b; }
         input::placeholder { color: #64748b; }
-        .password { display: flex; align-items: center; gap: .5rem; }
-        .password input { min-width: 0; }
+        .password { position: relative; }
+        .password input { min-width: 0; padding-right: 3.5rem; }
         button { cursor: pointer; }
         .text-button { border: 0; background: transparent; color: #334155; min-height: 44px; padding: .5rem; text-decoration: underline; text-underline-offset: 3px; font-size: .875rem; }
-        .password-toggle { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; min-height: 44px; padding: 0; border: 0; border-radius: .5rem; background: transparent; color: #334155; }
+        .password-toggle { position: absolute; right: 1px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: .5rem; background: transparent; color: #334155; }
         .password-toggle:hover { background: #f1f5f9; }
         .options { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; font-size: .875rem; }
         .remember { display: flex; align-items: center; gap: .5rem; min-height: 44px; }

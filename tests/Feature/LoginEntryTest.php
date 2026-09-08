@@ -91,8 +91,26 @@ class LoginEntryTest extends TestCase
             self::assertFalse($icons->item(0)->hasAttribute('hidden'));
             self::assertSame('eye-slash', $icons->item(1)->getAttribute('data-icon'));
             self::assertTrue($icons->item(1)->hasAttribute('hidden'));
-            $response->assertSee('flex: 0 0 44px; min-height: 44px;', false);
+            self::assertSame('password', $button->parentNode->getAttribute('class'));
+            self::assertCount(1, $xpath->query('./input[@id="password"]', $button->parentNode));
+            $response->assertSee('.password { position: relative; }', false)
+                ->assertSee('padding-right: 3.5rem;', false)
+                ->assertSee('position: absolute; right: 1px; top: 50%;', false)
+                ->assertSee('width: 44px; height: 44px;', false);
         }
+    }
+
+    public function test_shared_tashih_workspace_renders_styled_accessible_mc_controls(): void
+    {
+        $html = view('monevakademik::tashih.partials.modal-create-workspace', ['periods' => collect()])->render();
+        self::assertStringContainsString('isEditMode ?', $html);
+        self::assertStringContainsString('q-type mt-1 min-h-11 w-full rounded-xl border border-gray-200', $html);
+        self::assertStringContainsString('q-option min-h-11 min-w-0 flex-1 rounded-xl border border-gray-200', $html);
+        self::assertStringContainsString('aria-describedby="err-options-${uniqueId}"', $html);
+        self::assertStringContainsString('aria-label="Kunci ${key}"', $html);
+        self::assertStringContainsString('aria-label="Opsi ${key}"', $html);
+        self::assertStringContainsString('focus-visible:outline-offset-2', $html);
+        self::assertStringContainsString('dark:aria-invalid:border-red-400', $html);
     }
 
     public function test_authenticated_visitors_redirect_and_can_log_out(): void
