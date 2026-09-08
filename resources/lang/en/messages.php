@@ -91,6 +91,7 @@ return [
     'sign_in' => 'Sign In',
     'email_label' => 'Email',
     'show_password' => 'Show password',
+    'hide_password' => 'Hide password',
     'back_to_login' => 'Back to sign in',
     'password_label' => 'Password',
     'password_placeholder' => 'Password',

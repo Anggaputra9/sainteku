@@ -7,6 +7,8 @@ const view = readFileSync(new URL('../resources/views/landing.blade.php', import
 const script = view.match(/<script>([\s\S]*?)<\/script>/)[1]
     .replace(/@json\(__\('messages\.processing'\)\)/g, '"Processing"')
     .replace(/@json\(__\('messages\.error_occurred'\)\)/g, '"Request failed"')
+    .replace(/@json\(__\('messages\.show_password'\)\)/g, '"Show password"')
+    .replace(/@json\(__\('messages\.hide_password'\)\)/g, '"Hide password"')
     .replace(/@json\(url\('\/dashboard'\)\)/g, '"/dashboard"');
 
 function setup(response) {
@@ -20,7 +22,9 @@ function setup(response) {
             addEventListener(event, callback) { this.listeners[event] = callback; },
             setAttribute(name, value) { this.attributes[name] = value; },
             removeAttribute(name) { delete this.attributes[name]; },
-            querySelector() { return element(`${id}-submit`); },
+            querySelector(selector) {
+                return element(`${id}-${selector === '[type="submit"]' ? 'submit' : selector}`);
+            },
             focus() { this.focused = true; },
             reset() { this.resetCalled = true; },
         });
@@ -49,11 +53,27 @@ test('recovery navigation and password visibility support keyboard state', () =>
     assert.equal(element('loginPanel').hidden, false);
     assert.equal(element('loginTitle').focused, true);
     const toggle = element('togglePasswordBtn');
+    const eye = toggle.querySelector('[data-icon="eye"]');
+    const eyeSlash = toggle.querySelector('[data-icon="eye-slash"]');
+    Object.defineProperty(toggle, 'textContent', {
+        set() { assert.fail('The password toggle must preserve its SVG children'); },
+    });
     toggle.listeners.click({ currentTarget: toggle });
     assert.equal(element('password').type, 'text');
     assert.equal(toggle.attributes['aria-pressed'], 'true');
+    assert.equal(toggle.attributes['aria-label'], 'Hide password');
+    assert.equal(toggle.attributes.title, 'Hide password');
+    assert.equal(eye.attributes.hidden, '');
+    assert.equal(eyeSlash.attributes.hidden, undefined);
     toggle.listeners.click({ currentTarget: toggle });
     assert.equal(element('password').type, 'password');
+    assert.equal(toggle.attributes['aria-pressed'], 'false');
+    assert.equal(toggle.attributes['aria-label'], 'Show password');
+    assert.equal(toggle.attributes.title, 'Show password');
+    assert.equal(eye.attributes.hidden, undefined);
+    assert.equal(eyeSlash.attributes.hidden, '');
+    assert.equal(toggle.querySelector('[data-icon="eye"]'), eye);
+    assert.equal(toggle.querySelector('[data-icon="eye-slash"]'), eyeSlash);
 });
 
 for (const formId of ['loginForm', 'forgotPasswordForm']) {

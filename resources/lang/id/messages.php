@@ -91,6 +91,7 @@ return [
     'sign_in' => 'Masuk',
     'email_label' => 'Email',
     'show_password' => 'Tampilkan kata sandi',
+    'hide_password' => 'Sembunyikan kata sandi',
     'back_to_login' => 'Kembali masuk',
     'password_label' => 'Kata Sandi',
     'password_placeholder' => 'Password',

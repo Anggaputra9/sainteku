@@ -37,6 +37,8 @@
         .password input { min-width: 0; }
         button { cursor: pointer; }
         .text-button { border: 0; background: transparent; color: #334155; min-height: 44px; padding: .5rem; text-decoration: underline; text-underline-offset: 3px; font-size: .875rem; }
+        .password-toggle { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px; min-height: 44px; padding: 0; border: 0; border-radius: .5rem; background: transparent; color: #334155; }
+        .password-toggle:hover { background: #f1f5f9; }
         .options { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; font-size: .875rem; }
         .remember { display: flex; align-items: center; gap: .5rem; min-height: 44px; }
         .remember input { width: 18px; height: 18px; accent-color: #856B2B; }
@@ -89,7 +91,15 @@
                             <label for="password">{{ __('messages.password_label') }}</label>
                             <div class="password">
                                 <input type="password" id="password" name="password" autocomplete="current-password" required>
-                                <button type="button" id="togglePasswordBtn" class="text-button" aria-controls="password" aria-pressed="false">{{ __('messages.show_password') }}</button>
+                                <button type="button" id="togglePasswordBtn" class="password-toggle" aria-controls="password" aria-pressed="false" aria-label="{{ __('messages.show_password') }}" title="{{ __('messages.show_password') }}">
+                                    <svg data-icon="eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <svg data-icon="eye-slash" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" hidden>
+                                        <path d="m3 3 18 18M10.6 5.1 12 5c6.5 0 10 7 10 7a19 19 0 0 1-3.1 4M6.2 6.2A21 21 0 0 0 2 12s3.5 7 10 7a11 11 0 0 0 5.8-1.8M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                         <div class="options">
@@ -134,7 +144,13 @@
             const password = document.getElementById('password');
             const visible = password.type === 'password';
             password.type = visible ? 'text' : 'password';
-            event.currentTarget.setAttribute('aria-pressed', String(visible));
+            const button = event.currentTarget;
+            const label = visible ? @json(__('messages.hide_password')) : @json(__('messages.show_password'));
+            button.setAttribute('aria-pressed', String(visible));
+            button.setAttribute('aria-label', label);
+            button.setAttribute('title', label);
+            button.querySelector(visible ? '[data-icon="eye"]' : '[data-icon="eye-slash"]').setAttribute('hidden', '');
+            button.querySelector(visible ? '[data-icon="eye-slash"]' : '[data-icon="eye"]').removeAttribute('hidden');
         });
         for (const [formId, alertId] of [['loginForm', 'loginFormAlert'], ['forgotPasswordForm', 'forgotPasswordAlert']]) {
             const form = document.getElementById(formId);

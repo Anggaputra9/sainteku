@@ -64,6 +64,37 @@ class LoginEntryTest extends TestCase
         $this->get('/dashboard')->assertRedirect('/');
     }
 
+    public function test_password_toggle_has_localized_accessible_icon_markup(): void
+    {
+        foreach (['en', 'id'] as $locale) {
+            self::assertNotSame('messages.show_password', __('messages.show_password', [], $locale));
+            self::assertNotSame('messages.hide_password', __('messages.hide_password', [], $locale));
+            $response = $this->withSession(['locale' => $locale])->get('/')->assertOk();
+            $document = new \DOMDocument;
+            @$document->loadHTML($response->getContent());
+            $xpath = new \DOMXPath($document);
+            $button = $xpath->query('//button[@id="togglePasswordBtn"]')->item(0);
+            self::assertNotNull($button);
+            self::assertSame('button', $button->getAttribute('type'));
+            self::assertSame('password', $button->getAttribute('aria-controls'));
+            self::assertSame('false', $button->getAttribute('aria-pressed'));
+            self::assertSame(__('messages.show_password', [], $locale), $button->getAttribute('aria-label'));
+            self::assertSame(__('messages.show_password', [], $locale), $button->getAttribute('title'));
+            self::assertSame('', trim($button->textContent));
+            $icons = $xpath->query('.//svg', $button);
+            self::assertCount(2, $icons);
+            foreach ($icons as $icon) {
+                self::assertSame('true', $icon->getAttribute('aria-hidden'));
+                self::assertSame('false', $icon->getAttribute('focusable'));
+            }
+            self::assertSame('eye', $icons->item(0)->getAttribute('data-icon'));
+            self::assertFalse($icons->item(0)->hasAttribute('hidden'));
+            self::assertSame('eye-slash', $icons->item(1)->getAttribute('data-icon'));
+            self::assertTrue($icons->item(1)->hasAttribute('hidden'));
+            $response->assertSee('flex: 0 0 44px; min-height: 44px;', false);
+        }
+    }
+
     public function test_authenticated_visitors_redirect_and_can_log_out(): void
     {
         $this->actingAs(new User(['id' => '123', 'is_active' => true]));
