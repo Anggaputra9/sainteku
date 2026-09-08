@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
             return new \App\Hashing\Sha2Hasher();
         });
 
-        view()->composer('*', function ($view) {
+        view()->composer('layouts.sidebar', function ($view) {
 
             if (!Auth::check()) {
                 $view->with('sidebarMenus', collect());

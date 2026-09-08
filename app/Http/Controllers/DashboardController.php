@@ -44,11 +44,15 @@ class DashboardController extends Controller
                 ->exists();
 
             // MURNI PERSONAL (Pengajuan punya dia sendiri)
-            $personalTashihQ = DB::table('trx_exam_proposals')->where('created_by', $user->id);
+            $personalTashih = DB::table('trx_exam_proposals')->where('created_by', $user->id)
+                ->selectRaw('COUNT(CASE WHEN status = ? THEN 1 END) AS submitted,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS approved,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS revised', ['SUBMITTED', 'APPROVED', 'REVISED'])
+                ->first();
 
-            $data['examSubmitted'] = (clone $personalTashihQ)->where('status', 'SUBMITTED')->count();
-            $data['examApproved'] = (clone $personalTashihQ)->where('status', 'APPROVED')->count();
-            $data['examRevised'] = (clone $personalTashihQ)->where('status', 'REVISED')->count();
+            $data['examSubmitted'] = (int) $personalTashih->submitted;
+            $data['examApproved'] = (int) $personalTashih->approved;
+            $data['examRevised'] = (int) $personalTashih->revised;
 
             // BANK SOAL (Global - Semua soal yang proposalnya sudah APPROVED)
             $data['totalBankSoal'] = DB::table('trx_questions')
@@ -76,11 +80,15 @@ class DashboardController extends Controller
             $data['isReviewerInfra'] = $user->hasPermission(6, 'A');
 
             // MURNI PERSONAL (Peminjaman dia sendiri)
-            $personalInfraQ = DB::table('trx_inventory_loans')->where('user_id', $user->id);
+            $personalInfra = DB::table('trx_inventory_loans')->where('user_id', $user->id)
+                ->selectRaw('COUNT(CASE WHEN status = ? THEN 1 END) AS pending,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS borrowed,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS completed', [0, 1, 3])
+                ->first();
 
-            $data['infraPending'] = (clone $personalInfraQ)->where('status', 0)->count();
-            $data['infraDipinjam'] = (clone $personalInfraQ)->where('status', 1)->count();
-            $data['infraSelesai'] = (clone $personalInfraQ)->where('status', 3)->count();
+            $data['infraPending'] = (int) $personalInfra->pending;
+            $data['infraDipinjam'] = (int) $personalInfra->borrowed;
+            $data['infraSelesai'] = (int) $personalInfra->completed;
 
             // ANTREAN REVIEW (Khusus Admin/Approver Infra - Global)
             $data['infraNeedAcc'] = 0;
@@ -98,11 +106,15 @@ class DashboardController extends Controller
             $data['isReviewerDoc'] = $user->hasPermission(1, 'A');
 
             // MURNI PERSONAL (Dokumen unggahan dia sendiri)
-            $personalDocQ = DB::table('trx_document')->where('created_by', $user->id);
+            $personalDoc = DB::table('trx_document')->where('created_by', $user->id)
+                ->selectRaw('COUNT(CASE WHEN status IN (?, ?) THEN 1 END) AS pending,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS approved,
+                    COUNT(CASE WHEN status = ? THEN 1 END) AS revision', [1, 2, 3, 4])
+                ->first();
 
-            $data['docPending'] = (clone $personalDocQ)->whereIn('status', [1, 2])->count(); // 1/2 = Draft/menunggu validasi
-            $data['docApproved'] = (clone $personalDocQ)->where('status', 3)->count(); // 3 = Disetujui
-            $data['docRevision'] = (clone $personalDocQ)->where('status', 4)->count(); // 4 = Perlu revisi/ditolak
+            $data['docPending'] = (int) $personalDoc->pending; // 1/2 = Draft/menunggu validasi
+            $data['docApproved'] = (int) $personalDoc->approved; // 3 = Disetujui
+            $data['docRevision'] = (int) $personalDoc->revision; // 4 = Perlu revisi/ditolak
 
             // TOTAL REPOSITORI (Global - Hanya yang sudah APPROVED)
             $data['totalDokumen'] = DB::table('trx_document')->where('status', 3)->count();
